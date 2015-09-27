@@ -25,3 +25,27 @@ Here are some examples of valid CinsTalk code:
     sort cards by field "Name"
     if there is a file "Readme" then go card "Readme"
     answer "Hello World!"
+
+Why a Web Edition?
+------------------
+Web applications are now quite popular and the technology to support them is sufficiently developed.  As a web application, CinsImp can run basically anywhere there is a reasonably capable, modern web browser.
+
+I'm not entirely sure if I'll fix up and finish the desktop edition.  At the moment there doesn't seem a lot of point.  Though I'd love to see a desktop program with a 'classic mode' to emulate the program that started it all.
+
+Why 'CinsImp'?
+--------------
+CinsImp stands for Cards IN Stacks Imp.  An imp is a mythological being that could be fun, helpful and sometimes mischievous.  It also has the English pronunciation, sins-imp, which is a play on the idea of being an application that helps you do things with your computer that perhaps the established commercial software distributors might find 'unhelpful' to their business model.
+
+Development
+-----------
+The product is under active development.  It is far from complete.  Though there is substantially more work done than is presently available on GitHub.  I will be uploading significant sources over October 2015 as I complete development, testing and integration.
+
+CinsImp (web) is currently built using Javascript, HTML and CSS, with a small amount of server-side PHP to support storage and HyperCard stack import.
+
+More Information
+----------------
+
+More information will be available on the CinsImp website as things unfold:
+http://cinsimp.joshhawcroft.org/
+
+
