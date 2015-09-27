@@ -65,9 +65,35 @@ Xtalk.Debug = {
 			return in_value;
 	},
 	
+	
 	debug_subtree: function(in_subtree)
 	{
 		return JSON.stringify(in_subtree, this._stringify_replacer, 4);
+	},
+	
+	
+	_lookup_bnf: function(in_prefix, in_id)
+	{
+		for (var prop_name in Xtalk.Parser.BNF)
+		{
+			if ((prop_name.substr(0, in_prefix.length + 1) == (in_prefix.toUpperCase()+'_')) && 
+					(Xtalk.Parser.BNF[prop_name] == in_id))
+				return prop_name;
+		}
+		return '??';
+	},
+	
+	_bnf_replacer: function(in_key, in_value)
+	{
+		if (in_key == 'bnf')
+			return Xtalk.Debug._lookup_bnf('PAT', in_value);
+		else
+			return in_value;
+	},
+	
+	debug_pattern: function(in_pattern)
+	{
+		return JSON.stringify(in_pattern, this._bnf_replacer, 4);
 	}
 
 };
