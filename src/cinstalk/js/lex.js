@@ -84,7 +84,7 @@ prior to invoking the lexer.
 Dependencies
 ------------
 
-n/a
+xtalk.js
 
 
 Entry Points
