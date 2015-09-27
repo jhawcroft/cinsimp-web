@@ -171,6 +171,20 @@ Module Globals
 
 
 /*****************************************************************************************
+Utilities
+*/
+
+/*
+	Returns the number of words in the supplied string.
+ */
+	_word_count: function(in_string)
+	{
+		if (in_string == '') return 0;
+		return in_string.split(' ').length;
+	},
+	
+
+/*****************************************************************************************
 Error Handling
 */
 
