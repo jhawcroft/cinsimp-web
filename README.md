@@ -3,7 +3,7 @@ CinsImp _Web_
 
 Introduction
 ------------
-CinsImp (Web) is a web-based version of the CinsImp application, which was itself intended to be a contemporary open-source clone of the classic HyperCard application which ran on early Macintosh computers (from around 1988 through to around 1998).
+CinsImp (Web) is a web-based version of the CinsImp application, which was itself intended to be a faithful, contemporary open-source clone of the classic HyperCard application which ran on early Macintosh computers (from around 1988 through to around 1998).
 
 CinsImp is currently under active development and is not yet ready for production.
 
