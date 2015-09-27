@@ -179,6 +179,8 @@ Error Handling
  */
 	_error_syntax: function(in_message)
 	{
+		for (var a = 1; a < arguments.length; a++)
+			in_message = in_message.replace('^'+(a-1), arguments[a]);
 		throw Error("Syntax Error: " + Xtalk._error_line + ': ' + in_message);
 	}
 
