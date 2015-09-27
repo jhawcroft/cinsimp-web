@@ -49,6 +49,20 @@ BNF Syntax
 ** TODO **
 
 
+Examples
+--------
+
+read from file <filepath> [at <charBegin>] {for <charCount> | until {end|eof|<charEnd>}}
+
+ask [`password``1`password] <prompt> [with <response>]
+
+sort [[the] cards] [`dir``asc`ascending|`des`descending] by <sortKey>
+
+find [`mode``b`normal|`c`chars|`c`characters|`w`word|`w`words|`s`string|`p`whole] <text> [in <field>]
+        
+beep [<times> [times]]
+
+
 */
 
 
