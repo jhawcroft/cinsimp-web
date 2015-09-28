@@ -771,9 +771,7 @@ Core
 		}
 		
 		/* parse a generic message send */
-		if (!(this._token().flags & Xtalk.FLAG_IDENTIFIER))
-			Xtalk._error_syntax('Expected command name but found "'+this._token().text+'".');
-		//this._append(Xtalk.Parser.Command.parse({ id: Xtalk.ID_LIST, children: this._remainder() }));
+		this._append(Xtalk.Parser.Message.parse({ id: Xtalk.ID_LIST, children: this._remainder() }));
 	},
 	
 
