@@ -51,7 +51,19 @@ Xtalk.Debug = {
 		}
 		return '??';
 	},
-
+	
+	
+	_lookup_expr: function(in_prefix, in_id)
+	{
+		for (var prop_name in Xtalk.Parser.Expression)
+		{
+			if ((prop_name.substr(0, in_prefix.length + 1) == (in_prefix.toUpperCase()+'_')) && 
+					(Xtalk.Parser.Expression[prop_name] == in_id))
+				return prop_name;
+		}
+		return '??';
+	},
+	
 
 	_stringify_replacer: function(in_key, in_value)
 	{
@@ -61,6 +73,8 @@ Xtalk.Debug = {
 			return Xtalk.Debug._lookup('abort', in_value);
 		else if (in_key == 'loop')
 			return Xtalk.Debug._lookup('loop', in_value);
+		else if (in_key == 'ref')
+			return Xtalk.Debug._lookup_expr('_ref', in_value);
 		else
 			return in_value;
 	},
