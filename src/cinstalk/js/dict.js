@@ -194,7 +194,7 @@ Registration
 	init_builtins: function()
 	{
 		this.register_command(
-			'beep <number> [time[s]]', 
+			'beep <number> [time | times]', 
 			'number', 
 			function(n) { alert('BEEP! ' + JSON.stringify(n)); }
 		);
