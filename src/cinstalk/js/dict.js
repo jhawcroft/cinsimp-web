@@ -182,7 +182,9 @@ Registration
 			delayed: delayed,
 			handler: in_handler
 		};
-		this._commands[first_word] = def;
+		if (!this._commands[first_word])
+			this._commands[first_word] = [];
+		this._commands[first_word].push( def );
 	},
 	
 
