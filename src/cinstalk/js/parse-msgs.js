@@ -64,6 +64,13 @@ Dependencies
 xtalk.js
 dict.js
 
+
+Bugs
+----
+
+* 	_parse_generic_command() doesn't skip commas within parenthesised subexpressions ()
+
+
 */
 
 Xtalk.Parser = Xtalk.Parser || {};
