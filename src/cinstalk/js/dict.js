@@ -182,9 +182,9 @@ Registration
 			delayed: delayed,
 			handler: in_handler
 		};
-		if (!this._commands[first_word])
-			this._commands[first_word] = [];
-		this._commands[first_word].push( def );
+		if (this._commands['|'+first_word] === undefined)
+			this._commands['|'+first_word] = [];
+		this._commands['|'+first_word].push( def );
 	},
 	
 
@@ -198,7 +198,28 @@ Registration
 			'number', 
 			function(n) { alert('BEEP! ' + JSON.stringify(n)); }
 		);
+		
+		this.register_command(
+			'ask [`password``1`password] <prompt> [with <response>]', 
+			'password,prompt,response', 
+			function(n) { alert('ASK PASSWORD! ' + JSON.stringify(n)); }
+		);
+		
+		this.register_command(
+			'sort [[the] cards] [`dir``asc`ascending|`des`descending] by <sortKey>', 
+			'dir,sortKey', 
+			function(n) { alert('SORT! ' + JSON.stringify(n)); }
+		);
+		
+		this.register_command(
+			'find [`mode``b`normal|`c`chars|`c`characters|`w`word|`w`words|`s`string|`p`whole] <text> [in <field>]', 
+			'mode,text,field', 
+			function(n) { alert('FIND! ' + JSON.stringify(n)); }
+		);
 	
+	
+
+
 		/*this.register_term('this bkgnd', 'bkgd', function() { alert('Get this bkgnd'); });
 		this.register_constant('one', 1);
 
