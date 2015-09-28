@@ -133,7 +133,10 @@ Convenience/Utilities
  */
 	_remainder: function()
 	{
-		return this._tokens.items.slice(this._token_index, this._line_last);
+		if (this._tokens.items[this._line_last].id != Xtalk.ID_EOL)
+			return this._tokens.items.slice(this._token_index, this._line_last + 1);
+		else
+			return this._tokens.items.slice(this._token_index, this._line_last);
 	},
 
 /*
