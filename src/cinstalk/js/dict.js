@@ -40,9 +40,11 @@ Xtalk.Dict = {
 /*****************************************************************************************
 Constants
 */
-
-	_TERM: 1,
-	_CONSTANT: 2,
+	
+	/* two types of constant: */
+	_TERM: 1,		/* a term is read-only, but may evaluate to different values depending
+					   on when and where it is used */
+	_CONSTANT: 2,   /* a constant always has the same value */
 
 
 /*****************************************************************************************
@@ -76,6 +78,9 @@ Module Globals
 Registration 
 */
 
+/*
+	Registers a named read-only term handler.
+ */
 	register_term: function(in_name, in_id, in_handler)
 	{
 		var word_count = Xtalk._word_count(in_name);
@@ -89,6 +94,9 @@ Registration
 	},
 
 
+/*
+	Registers a named constant value.
+ */
 	register_constant: function(in_name, in_value)
 	{
 		var word_count = Xtalk._word_count(in_name);
@@ -102,6 +110,9 @@ Registration
 	},
 
 
+/*
+	Registers property handlers for a specific parent object context.
+ */
 	register_property: function(in_name, in_id, in_variant, in_context_type, in_handler)
 	{
 		var in_name = in_name.toLowerCase();
@@ -123,6 +134,9 @@ Registration
 	},
 
 
+/*
+	Registers a object reference handlers for a specific parent object context.
+ */
 	register_reference: function(in_name, in_id, in_context_type, in_handler)
 	{
 		var in_name = in_name.toLowerCase();
@@ -143,6 +157,9 @@ Registration
 	},
 
 
+/*
+	Registers an object counter for a specific parent object context.
+ */
 	register_count: function(in_name, in_id, in_context_type, in_handler)
 	{
 		var in_name = in_name.toLowerCase();
