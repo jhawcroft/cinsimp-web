@@ -409,7 +409,7 @@ Core
 				id:			Xtalk.ID_LIST,
 				children:	[]
 			};
-			cmd.params.push(param);
+			cmd.parameters.push(param);
 		
 			for (var i = 1; i < in_stmt.children.length; i++)
 			{
@@ -421,7 +421,7 @@ Core
 						id:			Xtalk.ID_LIST,
 						children:	[]
 					};
-					cmd.params.push(param);
+					cmd.parameters.push(param);
 				}
 				else
 				{
@@ -432,7 +432,7 @@ Core
 		}
 	
 		/* parse subexpressions */
-		for (var i = 0; i < cmd.params.length; i++)
+		for (var i = 0; i < cmd.parameters.length; i++)
 		{
 			//if (!Xtalk.Parser.Expression.parse(cmd.params[i])) return false; // *** to be enabled ***
 		}
