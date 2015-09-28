@@ -183,11 +183,11 @@ Analysis
 		if (end < 0) end = this._length;
 		var str = { 
 			id: Xtalk.ID_LITERAL_STRING, 
-			text: '', 
-			debug: 'string',
+			/*text: '', 
+			debug: 'string',*/
 			value: this._source.substr(this._offset, end - this._offset), 
-			offset: this._offset, 
-			line: this._line,
+			/*offset: this._offset, 
+			line: this._line,*/
 			flags: 0 
 		};
 		this._offset = end + 1; /* skip the string and the closing quote (") */
@@ -226,11 +226,11 @@ Analysis
 		}
 		this._offset += num.length; /* skip the number */
 		if (!is_real)
-			return { id: Xtalk.ID_LITERAL_INTEGER, text: num, value: (num * 1), 
-				offset: this._offset, line: this._line, flags: 0 };
+			return { id: Xtalk.ID_LITERAL_INTEGER, /*text: num,*/ value: (num * 1), 
+				/*offset: this._offset, line: this._line,*/ flags: 0 };
 		else
-			return { id: Xtalk.ID_LITERAL_REAL, text: num, value: (num * 1.0), 
-				offset: this._offset, line: this._line, flags: 0 };
+			return { id: Xtalk.ID_LITERAL_REAL, /*text: num,*/ value: (num * 1.0), 
+				/*offset: this._offset, line: this._line,*/ flags: 0 };
 	},
 	
 /*
@@ -352,6 +352,7 @@ Analysis
 				else if (this._match(',')) return this._matched(Xtalk.ID_COMMA, Xtalk.FLAG_SPECIAL);
 		
 				/* long operators: */
+				else if (this._match('number of')) return this._matched(Xtalk.ID_NUMBER_OF, Xtalk.FLAG_OPERATOR);
 				else if (this._match('is not within')) return this._matched(Xtalk.ID_NOT_WITHIN, Xtalk.FLAG_OPERATOR);
 				else if (this._match('is not in')) return this._matched(Xtalk.ID_NOT_IN, Xtalk.FLAG_OPERATOR);
 				else if (this._match('is not')) return this._matched(Xtalk.ID_NOT_EQUAL, Xtalk.FLAG_OPERATOR);
@@ -375,7 +376,7 @@ Analysis
 				else if (this._match('last')) return this._matched(Xtalk.ID_LAST,
 					Xtalk.FLAG_ORDINAL|Xtalk.FLAG_IDENTIFIER, -1);
 				else if (this._match('first')) return this._matched(Xtalk.ID_FIRST, 
-					Xtalk.FLAG_ORDINA|Xtalk.FLAG_IDENTIFIERL, 1);
+					Xtalk.FLAG_ORDINAL|Xtalk.FLAG_IDENTIFIER, 1);
 				else if (this._match('second')) return this._matched(Xtalk.ID_SECOND, 
 					Xtalk.FLAG_ORDINAL|Xtalk.FLAG_IDENTIFIER, 2);
 				else if (this._match('third')) return this._matched(Xtalk.ID_THIRD, 
@@ -443,6 +444,29 @@ Analysis
 /*****************************************************************************************
 Entry 
 */
+
+	/*
+		Returns a description of the given token suitable for error messages.
+	*/
+	describe: function(in_token)
+	{
+		if (in_token.id == Xtalk.ID_LITERAL_STRING)
+			return 'string';
+		else if (in_token.id == Xtalk.ID_LITERAL_INTEGER)
+			return in_token.value;
+			//return 'integer';
+		else if (in_token.id == Xtalk.ID_LITERAL_REAL)
+			return in_token.value;
+			//return 'real number';
+		else if (in_token.id == Xtalk.ID_EOL)
+			return 'end of line';
+		else if (in_token.text && Xtalk.text != '')
+			return '"' + in_token.text + '"';
+		else
+			return 'this';
+	},
+	
+
 	/*
 		Returns a list of tokens for the given CinsTalk source/script fragment.
 	*/
