@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<title>xTalk JavaScript Prototype</title>
+
+<script language="javascript" type="text/javascript" src="xtalk.js"></script>
+<script language="javascript" type="text/javascript" src="xtalk-debug.js"></script>
+<script language="javascript" type="text/javascript" src="xtalk-test.js"></script>
+<script language="javascript" type="text/javascript" src="lex.js"></script>
+<script language="javascript" type="text/javascript" src="script.js"></script>
+<script language="javascript" type="text/javascript" src="parse-hdlr.js"></script>
+<script language="javascript" type="text/javascript" src="parse-bnf.js"></script>
+<script language="javascript" type="text/javascript" src="parse-msgs.js"></script>
+<script language="javascript" type="text/javascript" src="parse-expr.js"></script>
+<script language="javascript" type="text/javascript" src="dict.js"></script>
+<script language="javascript" type="text/javascript" src="xtalk-flat.js"></script>
+<script language="javascript" type="text/javascript" src="xtalk-vm.js"></script>
+
+<script language="javascript">
+
+Xtalk.Tests.run();
+
+function doTest()
+{
+	var scriptContainer = document.getElementById('script');
+	var outputContainer = document.getElementById('output');
+	
+	
+	
+	//tokens = Xtalk.Lexer.lex(scriptContainer.value);//.join("\n");
+	//Xtalk.Lexer.debug_node(tokens);
+	
+	//var index = Xtalk.Script.index(scriptContainer.value);
+	//console.log(index);
+	
+	var handler = {
+		name: 'mouseUp'
+	};
+	
+	var tree = null;
+	try
+	{
+		tree = Xtalk.Parser.Handler.parse( handler, scriptContainer.value );
+		outputContainer.value = Xtalk.Debug.debug_subtree(tree);
+	}
+	catch (err)
+	{
+		outputContainer.value = err.message;
+	}
+	
+	
+	console.log('======== END STREAM ========');
+	
+	
+	//tree = XtalkExpr.parse(tree);
+	//XtalkLexer.debug_tree(tree);
+}
+
+
+</script>
+</head>
+<body>
+
+<!--
+put func(x * 3.14 - -1, there is a card "bob") into id 5 -- comment until line end
+answer the date && "Hello World!" && name of second bkgnd ¬
+   with "OK" or "Cancel"
+put number of cards of this bkgnd
+beep 3
+-->
+
+<!--
+on mouseUp
+  answer theMessage(1)
+end mouseUp
+
+function theMessage index
+  return "Hello World!"
+end theMessage
+-->
+
+<!--
+global x, y, z
+pass mouseUp
+return
+return y + 2
+exit mouseUp
+exit to user
+repeat
+  next repeat
+  exit repeat
+end repeat
+repeat forever
+end repeat
+repeat while x
+end repeat
+repeat until x
+end repeat
+repeat z + 3
+end repeat
+repeat z + 3 times
+end repeat
+repeat with x = y to z
+end repeat
+repeat with x = y down to z
+end repeat
+pass mouseUp
+-->
+
+<!--
+-- a basic if..then..else in the essential block, multi-line style
+if x then
+	return
+else if y then
+	pass mouseUp
+else
+	exit to user
+end if
+
+if x then return else bob
+if y then
+  pass mouseUp
+else
+  exit to user
+end if
+
+
+if x 
+then
+	return
+else if y 
+then
+	pass mouseUp
+else
+	exit to user
+end if
+
+if x 
+then return
+
+else if y 
+then
+	pass mouseUp
+else
+	exit to user
+end if
+
+if x 
+then return
+else if y 
+then
+	pass mouseUp
+else
+	exit to user
+end if
+
+-->
+
+
+<div style="float:left"><textarea id="script" style="width: 450px; height:200px;">answer "Hello " & "World!"</textarea>
+
+<p><input type="button" value="COMPILE SCRIPT" onclick="doTest();"></p>
+</div>
+
+<div style="float: left;"><textarea id="output" style="width: 900px; height:750px;"></textarea></div>
+
+
+</body>
+</html>
