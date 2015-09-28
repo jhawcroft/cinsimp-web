@@ -379,7 +379,7 @@ Core
 			}
 		}
 		if (sub_eol < this._token_index)
-			Xtalk._error_syntax('Expected some statement but found '+this._token().text+'.');
+			Xtalk._error_syntax('Expected some statement but found ^0.', this._token());
 		
 		var save_line_last = this._line_last;
 		var save_container = this._frame().container;
@@ -433,7 +433,7 @@ Core
 		}
 		
 		if (this._token().id != Xtalk.ID_ELSE)
-			Xtalk._error_syntax('Expected "else" but found '+this._token().text+'.');
+			Xtalk._error_syntax('Expected "else" but found  ^0.', this._token());
 		if (is_else_if)
 			Xtalk._error_syntax('"else" cannot follow "else if" on the same line.');
 		this._parse_block_else(true, false);
@@ -569,7 +569,7 @@ Core
 			node.variable = counter.text;
 			
 			if (this._end() || this._token().id != Xtalk.ID_EQUAL)
-				Xtalk._error_syntax('Expected "=" after "repeat with '+node.variable+'".');
+				Xtalk._error_syntax('Expected "=" after "repeat with ^0".', node.variable);
 			this._consume();
 			
 			node.init = { id: Xtalk.ID_LIST, children: [] };
@@ -632,14 +632,14 @@ Core
 		{
 			var identifier = this._consume();
 			if (!(identifier.flags & Xtalk.FLAG_IDENTIFIER))
-				Xtalk._error_syntax('"'+identifier.text+'" is not a valid variable name.');
+				Xtalk._error_syntax('^0 is not a valid variable name.', identifier);
 			node.variables.push(identifier.text);
 			
 			if (!this._end())
 			{
 				var comma = this._consume();
 				if (comma.id != Xtalk.ID_COMMA)
-					Xtalk._error_syntax('Expected end of line but found "'+comma.text+'".');
+					Xtalk._error_syntax('Expected end of line but found ^0.', comma.text);
 				if (this._end())
 					Xtalk._error_syntax('Expected another global variable name after ",".');
 			}
@@ -657,14 +657,14 @@ Core
 		if (this._end())
 		{
 			if (this._in_loop()) Xtalk._error_syntax('Expected "repeat" after "exit".');
-			else Xtalk._error_syntax('Expected "'+this._handler.name+'" after "exit".');
+			else Xtalk._error_syntax('Expected "^0" after "exit".', this._handler.name);
 		}
 		
 		if (this._token().id == Xtalk.ID_REPEAT)
 		{
 			this._consume();
 			if (!this._end())
-				Xtalk._error_syntax('Expected end of line but found '+this._token().text+'.');
+				Xtalk._error_syntax('Expected end of line but found ^0.', this._token());
 			if (!this._in_loop())
 				Xtalk._error_syntax('Found "exit repeat" outside a repeat loop.');
 			this._append({ id: Xtalk.ID_ABORT, abort: Xtalk.ABORT_LOOP });
@@ -685,7 +685,7 @@ Core
 		
 		var handler = this._consume();
 		if (handler.text.toLowerCase() != this._handler.name.toLowerCase())
-			Xtalk._error_syntax('Expected "exit '+this._handler.name+'" but found '+handler.text+'.');
+			Xtalk._error_syntax('Expected "exit ^0" but found ^1.', this._handler.name, handler);
 		this._append({ id: Xtalk.ID_RETURN, value: null });
 		if (!this._end())
 			Xtalk._error_syntax('Expected end of line here.');
@@ -699,13 +699,13 @@ Core
 	{
 		this._consume(); /* pass */
 		if (this._end())
-			Xtalk._error_syntax('Expected "'+this._handler.name+'" after "pass".');
+			Xtalk._error_syntax('Expected "^0" after "pass".', this._handler.name);
 		if ((this._token().id != Xtalk.ID_IDENTIFIER) ||
 			(this._token().text.toLowerCase() != this._handler.name.toLowerCase()))
 			Xtalk._error_syntax('Expected "pass '+this._handler.name+'" here.');
 		this._consume();
 		if (!this._end())
-			Xtalk._error_syntax('Expected end of line after "pass '+this._handler.name+'".');
+			Xtalk._error_syntax('Expected end of line after "pass ^0".', this._handler.name);
 		this._append({ id: Xtalk.ID_PASS });
 	},
 	
@@ -789,7 +789,7 @@ Core
 			if (this._end())
 				Xtalk._error_syntax('Expected "end repeat" but found end of line.');
 			if (this._token().id != Xtalk.ID_REPEAT)
-				Xtalk._error_syntax('Expected "end repeat" but found "end '+this._token().text+'".');
+				Xtalk._error_syntax('Expected "end repeat" but found "end ^0".', this._token().text);
 			this._consume();
 			if (!this._end())
 				Xtalk._error_syntax('Expected end of line after "end repeat".');
@@ -799,13 +799,13 @@ Core
 			if (this._end())
 				Xtalk._error_syntax('Expected "end if" but found end of line.');
 			if (this._token().id != Xtalk.ID_IF)
-				Xtalk._error_syntax('Expected "end if" but found "end '+this._token().text+'".');
+				Xtalk._error_syntax('Expected "end if" but found "end ^0".', this._token().text);
 			this._consume();
 			if (!this._end())
 				Xtalk._error_syntax('Expected end of line after "end if".');
 		}
 		else
-			Xtalk._error_syntax('Expected "end '+this._handler.name+'".');
+			Xtalk._error_syntax('Expected "end ^0".', this._handler.name);
 		
 		this._up_block();
 		this._frame().last_ctrl = null;

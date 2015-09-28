@@ -189,12 +189,27 @@ Error Handling
 */
 
 /*
+	Looks at the supplied object and determines a string description of it suitable
+	for an error message.
+*/
+	_object_desc: function(in_object)
+	{
+		if (typeof in_object != 'object') return in_object;
+		
+		if (in_object.id)
+			return Xtalk.Lexer.describe(in_object);
+		else if (in_object.errorDesc)
+			return in_object.errorDesc;
+	},
+	
+
+/*
  	Invoked by the parser to raise a syntax error.
  */
 	_error_syntax: function(in_message)
 	{
 		for (var a = 1; a < arguments.length; a++)
-			in_message = in_message.replace('^'+(a-1), arguments[a]);
+			in_message = in_message.replace('^'+(a-1), this._object_desc(arguments[a]));
 		throw Error("Syntax Error: " + Xtalk._error_line + ': ' + in_message);
 	}
 

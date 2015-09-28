@@ -270,6 +270,11 @@ Analysis
 			line: this._line, 
 			flags: in_flags 
 		};
+		/*if (in_flags & Xtalk.FLAG_OPERATOR)
+		{
+			op.operand1 = null;
+			op.operand2 = null;
+		}*/
 		this._offset += _match_text.length; /* skip the match */
 		return op;
 	},
