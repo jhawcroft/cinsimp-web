@@ -62,6 +62,7 @@ Dependencies
 ------------
 
 xtalk.js
+dict.js
 
 */
 
@@ -206,7 +207,7 @@ Core
 			{
 				/* check if literal matches stream */
 				var word = in_context.stmt.children[in_context.stmt_position];
-				if (word && (word.text == in_pattern.text))
+				if (word && word.text && (word.text == in_pattern.text))
 				{
 					in_context.stmt_position++;
 					matched = true;
@@ -227,7 +228,7 @@ Core
 					var word = in_context.stmt.children[end_offset];
 					var stop_words = in_pattern.stop_words;
 					var found_stop_word = false;
-					if (stop_words && word && (word.text.length != 0))
+					if (stop_words && word && word.text && (word.text.length != 0))
 					{
 						for (var sw = 0; sw < stop_words.length; sw++)
 						{
@@ -365,6 +366,7 @@ Core
 				{
 					got_this_param = true;
 					
+					supplied_param = Xtalk.Parser.Expression.parse(supplied_param);
 					//if (!Xtalk.Parser.Expression.parse(io_command, supplied_param)) //*** TO ENABLE ***
 					//	return false;
 					
@@ -403,6 +405,9 @@ Core
 		};
 	
 		/* build parameters (if any) */
+		
+		// ** TODO ** this needs to be fixed to correctly skip commas within () ***
+		
 		if (in_stmt.children.length > 1)
 		{
 			var param = {
@@ -434,7 +439,7 @@ Core
 		/* parse subexpressions */
 		for (var i = 0; i < cmd.parameters.length; i++)
 		{
-			//if (!Xtalk.Parser.Expression.parse(cmd.params[i])) return false; // *** to be enabled ***
+			cmd.parameters[i] = Xtalk.Parser.Expression.parse(cmd.parameters[i]);
 		}
 	
 		return cmd;
@@ -457,7 +462,7 @@ Core
 	{
 		/* do some basic syntax checks */
 		if ((in_stmt.children.length < 1) || (!in_stmt.children[0].flags & Xtalk.FLAG_IDENTIFIER))
-			Xtalk._error_syntax('Can\'t understand "^0".', in_stmt.children[0].text);
+			Xtalk._error_syntax('Can\'t understand "^0".', in_stmt.children[0]);
 	
 		/* search for matching command(s) with the same prefix */
 		var command_list = Xtalk.Dict._commands['|'+in_stmt.children[0].text];
