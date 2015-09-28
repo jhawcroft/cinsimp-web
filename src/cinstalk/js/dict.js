@@ -94,6 +94,7 @@ Registration
 		var word_count = Xtalk._word_count(in_name);
 		if (!this._constants[word_count])
 			this._constants[word_count] = [];
+			
 		this._constants[word_count][in_name.toLowerCase()] = {
 			type: 		this._CONSTANT,
 			value: 		in_value
@@ -101,18 +102,22 @@ Registration
 	},
 
 
-	register_property: function(in_name, in_id, in_context_type, in_handler)
+	register_property: function(in_name, in_id, in_variant, in_context_type, in_handler)
 	{
-		var word_count = Xtalk._word_count(in_name);
 		var in_name = in_name.toLowerCase();
-		var context_type_map = this._properties[in_name];
-		if (!context_type_map)
-		{
-			context_type_map = [];
-			this._properties[in_name] = context_type_map;
-		}
+		var word_count = Xtalk._word_count(in_name);
+		
+		if (!this._properties[word_count])
+			this._properties[word_count] = [];
+		var phrase_table = this._properties[word_count];
+		
+		if (!phrase_table[in_name])
+			phrase_table[in_name] = {};
+		var context_type_map = phrase_table[in_name];
+		
 		context_type_map[in_context_type] = {
-			id:			in_id,
+			param:		in_id,
+			variant:	in_variant,
 			handler:	in_handler
 		};
 	},
@@ -120,16 +125,19 @@ Registration
 
 	register_reference: function(in_name, in_id, in_context_type, in_handler)
 	{
-		var word_count = Xtalk._word_count(in_name);
 		var in_name = in_name.toLowerCase();
-		var context_type_map = this._references[in_name];
-		if (!context_type_map)
-		{
-			context_type_map = [];
-			this._references[in_name] = context_type_map;
-		}
+		var word_count = Xtalk._word_count(in_name);
+		
+		if (!this._references[word_count])
+			this._references[word_count] = [];
+		var phrase_table = this._references[word_count];
+		
+		if (!phrase_table[in_name])
+			phrase_table[in_name] = {};
+		var context_type_map = phrase_table[in_name];
+		
 		context_type_map[in_context_type] = {
-			id:			in_id,
+			param:		in_id,
 			handler:	in_handler
 		};
 	},
@@ -137,16 +145,19 @@ Registration
 
 	register_count: function(in_name, in_id, in_context_type, in_handler)
 	{
-		var word_count = Xtalk._word_count(in_name);
 		var in_name = in_name.toLowerCase();
-		var context_type_map = this._counts[in_name];
-		if (!context_type_map)
-		{
-			context_type_map = [];
-			this._counts[in_name] = context_type_map;
-		}
+		var word_count = Xtalk._word_count(in_name);
+		
+		if (!this._counts[word_count])
+			this._counts[word_count] = [];
+		var phrase_table = this._counts[word_count];
+		
+		if (!phrase_table[in_name])
+			phrase_table[in_name] = {};
+		var context_type_map = phrase_table[in_name];
+		
 		context_type_map[in_context_type] = {
-			id:			in_id,
+			param:		in_id,
 			handler:	in_handler
 		};
 	},
@@ -218,14 +229,27 @@ Registration
 		);
 	
 	
-
-
-		/*this.register_term('this bkgnd', 'bkgd', function() { alert('Get this bkgnd'); });
 		this.register_constant('one', 1);
-
-		this.register_property('date', 'date', '----', function() { alert('Get date'); });
-
-		this.register_count('cards', 'cdct', 'BKGD', function() { alert('return bg card count'); });*/
+		this.register_constant('two', 2);
+		this.register_constant('three', 3);
+		this.register_constant('four', 4);
+		this.register_constant('five', 5);
+		this.register_constant('six', 6);
+		this.register_constant('seven', 7);
+		this.register_constant('eight', 8);
+		this.register_constant('nine', 9);
+		this.register_constant('ten', 10);
+		
+		this.register_term('this card', 'card', function() { alert('Get this card!'); });
+		
+		this.register_property('date', 'date', 'norm', '----', function() { alert('Get the date!'); });
+		this.register_property('short date', 'date', 'short', '----', function() { alert('Get the short date!'); });
+		
+		this.register_count('cards', 'cdct', 'BKGD', function() { alert('Get bg card count'); });
+		
+		this.register_reference('card button', 'cdbn', '----', function() { alert('Get card button!'); });
+		
+		
 	}
 
 };
