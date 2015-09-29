@@ -700,7 +700,7 @@ Core
 		this._consume(); /* pass */
 		if (this._end())
 			Xtalk._error_syntax('Expected "^0" after "pass".', this._handler.name);
-		if ((this._token().id != Xtalk.ID_IDENTIFIER) ||
+		if ((this._token().id != Xtalk.ID_WORD) ||
 			(this._token().text.toLowerCase() != this._handler.name.toLowerCase()))
 			Xtalk._error_syntax('Expected "pass '+this._handler.name+'" here.');
 		this._consume();

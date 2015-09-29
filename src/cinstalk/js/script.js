@@ -103,7 +103,7 @@ Entry
 			if (tokens) tokens = tokens.items;
 			
 			if ((tokens.length < 2) ||
-				(tokens[1].id != Xtalk.ID_IDENTIFIER)) continue;
+				(tokens[1].id != Xtalk.ID_WORD)) continue;
 			
 			handler = {
 				type: type,
@@ -120,7 +120,7 @@ Entry
 			for (var t = 2; t < tokens.length; t += 2)
 			{
 				var token = tokens[t];
-				if (token.id != Xtalk.ID_IDENTIFIER)
+				if (token.id != Xtalk.ID_WORD)
 				{
 					handler.error = "Expected identifier but found \""+token.text+"\".";
 					break;

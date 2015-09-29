@@ -282,7 +282,7 @@ Analysis
 /*
 	Reads a word or identifier from the source.
 	If the word fulfils the basic criteria for an identifier, it is returned as an
-	ID_IDENTIFIER token, otherwise an ID_UNKNOWN.
+	ID_WORD token, otherwise an ID_UNKNOWN.
  */
 	_get_identifier: function()
 	{
@@ -297,7 +297,7 @@ Analysis
 			this._offset++; /* skip ahead one character */
 			return node;
 		}
-		var word = { id: Xtalk.ID_IDENTIFIER, text: this._source.substr(this._offset, end - this._offset),
+		var word = { id: Xtalk.ID_WORD, text: this._source.substr(this._offset, end - this._offset),
 			value: '', offset: this._offset, line: this._line, flags: Xtalk.FLAG_IDENTIFIER };
 		this._offset += word.text.length; /* skip the word */
 		return word;

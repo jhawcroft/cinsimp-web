@@ -105,7 +105,7 @@ Names
 		for (var w = in_index; (w < in_list.children.length) && (w-in_index < SANE_MAXIMUM); w++)
 		{
 			var node = in_list.children[w];
-			if (node && (node.id == Xtalk.ID_IDENTIFIER) && (!(node.flags & Xtalk.FLAG_KEYWORD)))
+			if (node && (node.id == Xtalk.ID_WORD) && (!(node.flags & Xtalk.FLAG_KEYWORD)))
 				words.push(node.text);
 			else break;
 		}
