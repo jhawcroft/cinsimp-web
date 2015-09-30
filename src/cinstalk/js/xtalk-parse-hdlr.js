@@ -342,6 +342,7 @@ Core
 		this._accumulate(case_.condition, [Xtalk.ID_THEN]);
 		if (case_.condition.children.length == 0)
 			Xtalk._error_syntax('Expected true or false expression here.');
+		case_.condition = Xtalk.Parser.Expression.parse(case_.condition);
 		
 		this._frame().last_ctrl.cases.push(case_);
 		
@@ -552,7 +553,7 @@ Core
 			};
 			if (node.condition.children.length == 0)
 				Xtalk._error_syntax('Expected true or false expression here.');
-			//Xtalk.Parser.Expression.parse(node.condition);
+			node.condition = Xtalk.Parser.Expression.parse(node.condition);
 		}
 		
 		else if (this._token().id == Xtalk.ID_WITH)
@@ -576,7 +577,7 @@ Core
 			if (this._end())
 				Xtalk._error_syntax('Expected integer but found end of line.');
 			this._accumulate(node.init, [Xtalk.ID_TO, Xtalk.ID_DOWN]);
-			//Xtalk.Parser.Expression.parse(node.init);
+			node.init = Xtalk.Parser.Expression.parse(node.init);
 			
 			if (this._end())
 				Xtalk._error_syntax('Expected "to" or "down to" but found end of line.');
@@ -590,7 +591,7 @@ Core
 			node.condition = { id: Xtalk.ID_LIST, children: this._remainder() };
 			if (node.condition.children.length == 0)
 				Xtalk._error_syntax('Expected integer but found end of line.');
-			//Xtalk.Parser.Expression.parse(node.condition);
+			node.condition = Xtalk.Parser.Expression.parse(node.condition);
 		}
 		else
 		{
@@ -610,7 +611,7 @@ Core
 			
 			if (node.condition.children.length == 0)
 				Xtalk._error_syntax('Expected integer here.');
-			//Xtalk.Parser.Expression.parse(node.condition);
+			node.condition = Xtalk.Parser.Expression.parse(node.condition);
 		}
 	},
 	
@@ -745,7 +746,7 @@ Core
 		this._append(node);
 		
 		if (node.value.children.length > 0)
-			;//Xtalk.Parser.Expression.parse(node.value);
+			node.value = Xtalk.Parser.Expression.parse(node.value);
 		else
 			node.value = null;
 	},					
