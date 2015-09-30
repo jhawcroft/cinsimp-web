@@ -70,129 +70,62 @@ Module Globals
 
 	_result: [],
 	_nested_loop: -1,
+	_loop_stack: [],
 
 
 /*****************************************************************************************
 Core
 */
 
+	_current_loop: function()
+	{
+		return this._loop_stack[this._loop_stack.length-1];
+	},
+
 /*
 	Generates the operations necessary to execute a loop.
-	
-	// **TODO** need to record both the end & the next iteration point
-	// ie. record the beginning on a stack so that NEXT REPEAT can jump without patching
-	// and record the instances of EXIT REPEAT so they can be patched to point at the exit
-	// when the loop has been completely generated.
  */
 	_generate_loop: function(in_subtree)
 	{
 		this._nested_loop++;
+		this._loop_stack.push({
+			exit_patches: [],
+			begin_step: this._result.length
+		});
 	
 		var begins_at = this._result.length;
 		
-		var patch_end = [];
-		
-		switch (in_subtree.loop)
-		{
-		case Xtalk.LOOP_WHILE:
-		case Xtalk.LOOP_UNTIL:
-			this._generate_node(in_subtree.condition);
-			patch_end.push(this._result.length);
-			this._result.push({
-				id: (in_subtree.loop == Xtalk.LOOP_WHILE ? Xtalk.ID_JUMP_IF_FALSE : Xtalk.ID_JUMP_IF_TRUE),
-				step: 0
-			});
-			break;
-	
-		case Xtalk.LOOP_LIMIT:
-			this._result.push({
-				id: Xtalk.ID_LITERAL_INTEGER,
-				value: 0
-			});
-			this._result.push({
-				id: Xtalk.ID_COUNT_INIT,
-				which: this._nested_loop
-			});
-			begins_at = this._result.length;
-			this._result.push({
-				id: Xtalk.ID_COUNT_VALUE,
-				which: this._nested_loop
-			});
-			this._generate_node(in_subtree.condition);
-			this._result.push({
-				id: Xtalk.ID_LESS,
-				operand1: null,
-				operand2: null
-			});
-			patch_end.push(this._result.length);
-			this._result.push({
-				id: Xtalk.ID_JUMP_IF_FALSE,
-				step: 0
-			});
-			this._result.push({
-				id: Xtalk.ID_COUNT_INC,
-				which: this._nested_loop
-			});
-			break;
-		case Xtalk.LOOP_COUNT_UP:
-		case Xtalk.LOOP_COUNT_DOWN:
-			this._result.push({
-				id: Xtalk.ID_WORD,
-				name: in_subtree.variable
-			});
-			this._generate_node(in_subtree.init);
-			this._result.push({
-				id: Xtalk.ID_VAR_SET,
-			});
-			begins_at = this._result.length;
-			this._result.push({
-				id: Xtalk.ID_WORD,
-				name: in_subtree.variable
-			});
-			this._result.push({
-				id: (in_subtree.loop == Xtalk.LOOP_COUNT_UP ? Xtalk.ID_LESS : Xtalk.ID_MORE),
-				operand1: null,
-				operand2: null
-			});
-			this._generate_node(in_subtree.condition);
-			patch_end.push(this._result.length);
-			this._result.push({
-				id: Xtalk.ID_JUMP_IF_FALSE,
-				step: 0
-			});
-			this._result.push({
-				id: Xtalk.ID_WORD,
-				name: in_subtree.variable
-			});
-			this._result.push({
-				id: Xtalk.ID_WORD,
-				name: in_subtree.variable
-			});
-			this._result.push({
-				id: (in_subtree.loop == Xtalk.LOOP_COUNT_UP ? Xtalk.ID_ADD : Xtalk.ID_SUBTRACT),
-				operand1: null,
-				operand2: {
-					id: Xtalk.ID_LITERAL_INTEGER,
-					value: 1
-				}
-			});
-			this._result.push({
-				id: Xtalk.ID_VAR_SET,
-			});
-			break;
-		}
+		this._result.push({
+			id: Xtalk.ID_LOOP,
+			loop: in_subtree.loop,
+			variable: in_subtree.variable,
+			init: in_subtree.init,
+			condition: in_subtree.condition,
+			index: this._nested_loop
+		});
 		
 		this._generate_node(in_subtree.block);
 		
 		this._result.push({
-			id: Xtalk.ID_JUMP,
+			id: Xtalk.ID_ABORT,
+			abort: Xtalk.ABORT_ITERATION,
 			step: begins_at
 		});
 		
-		for (var p = 0; p < patch_end.length; p++)
-			this._result[patch_end[p]].step = this._result.length;
-		
+		var patches = this._loop_stack.pop().exit_patches;
+		for (var p = 0; p < patches.length; p++)
+			this._result[patches[p]].step = this._result.length;
 		this._nested_loop--;
+	},
+	
+	
+	_generate_abort: function(in_subtree)
+	{
+		if (in_subtree.abort == Xtalk.ABORT_LOOP)
+			this._current_loop().exit_patches.push(this._result.length);
+		else if (in_subtree.abort == Xtalk.ABORT_ITERATION)
+			in_subtree.step = this._current_loop().begin_step;
+		this._result.push(in_subtree);
 	},
 	
 	
@@ -219,6 +152,9 @@ Core
 		case Xtalk.ID_CONDITION_BLOCK:
 			this._generate_condition(in_node);
 			break;
+		case Xtalk.ID_ABORT:
+			this._generate_abort(in_node);
+			break;
 		default:
 			this._result.push(in_node);
 			break;
@@ -237,6 +173,7 @@ Entry
 	{
 		this._result = [];
 		this._nested_loop = -1;
+		this._loop_stack = [];
 		
 		this._generate_node(in_tree);
 	
