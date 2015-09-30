@@ -78,6 +78,7 @@ Utilities
 			handler: in_handler,
 			plan: in_plan,
 			next_step: 0,
+			locals: {}
 		};
 	},
 	
@@ -92,7 +93,20 @@ Utilities
 Message Hierarchy
 */
 
+	_message_send: function()
+	{
 	
+	},
+
+
+/*****************************************************************************************
+Expression Evaluation
+*/
+
+	_evaluate_expr: function(in_expr)
+	{
+		
+	},
 
 
 /*****************************************************************************************
@@ -205,7 +219,9 @@ Environment Entry
 			this._run();
 			return;
 		}
-		catch (err) {}
+		catch (err) {
+			//alert(err);
+		}
 		
 		/* try processing the message as a small block */
 		try
