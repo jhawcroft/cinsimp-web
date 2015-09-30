@@ -52,7 +52,7 @@ xtalk.js
 
 */
 
-var Xtalk.VM = {
+Xtalk.VM = {
 
 	
 

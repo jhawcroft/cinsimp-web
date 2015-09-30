@@ -62,9 +62,12 @@ xtalk.js
 
 */
 
-var Xtalk.Flat = {
+Xtalk.Flat = {
 
-	
+	flatten: function(in_tree)
+	{
+		return [];
+	}
 
 };
 
