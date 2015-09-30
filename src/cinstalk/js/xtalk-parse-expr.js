@@ -837,6 +837,35 @@ Subexpressions
 	},
 	
 
+/*
+	The negation operator is lexically identical to the subtraction operator.  This 
+	routine scans the token stream to determine which subtraction operators are actually
+	negation operators, based on their position within the stream.
+ */
+	_identify_negation: function(in_subtree)
+	{
+		/* fix negation operator when occurring at the beginning of an expression */
+		if (in_subtree.children[0] &&
+			in_subtree.children[0].id == Xtalk.ID_SUBTRACT)
+			in_subtree.children[0].id = Xtalk.ID_NEGATE;
+		
+		/* scan for cases where the subtraction operator occurs immediately following
+		another operator or special character, with the exception of ID_PAREN_CLOSE,
+		or the OF operator */
+		for (var i = 0; i < in_subtree.children.length; i++)
+		{
+			var token = in_subtree.children[i];
+			if ((token.flags & Xtalk.FLAG_OPERATOR) ||
+				(token.id == Xtalk.ID_PAREN_OPEN) || 
+				(token.id == Xtalk.ID_COMMA) || 
+				(token.id == Xtalk.ID_OF))
+			{
+				if ((i + 1 < in_subtree.children.length) && 
+					(in_subtree.children[i+1].id == Xtalk.ID_SUBTRACT))
+					in_subtree.children[i+1].id = Xtalk.ID_NEGATE;
+			}
+		}
+	},
 	
 /*****************************************************************************************
 Entry
@@ -849,17 +878,8 @@ Entry
 	parse: function(in_subtree)
 	{
 		in_subtree.id = Xtalk.ID_EXPRESSION;
-
-		/* fix negation operator when occurring at the beginning of an expression;
-		in these cases, the lexer doesn't have adequate information to correctly determine
-		the operator identity. */
-		if (in_subtree.children[0] &&
-			in_subtree.children[0].id == Xtalk.ID_OPERATOR &&
-			in_subtree.children[0].id == Xtalk.ID_SUBTRACT)
-			in_subtree.children[0].id = Xtalk.ID_NEGATE;
-			
-		// actually need to fix all negation operators - since they're no longer identified by this lexer ****
-	
+		
+		this._identify_negation(in_subtree);
 		this._parentheses(in_subtree);
 		this._subexpression(in_subtree);
 		//this._validate(in_subtree);
