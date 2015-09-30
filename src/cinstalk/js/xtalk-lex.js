@@ -367,8 +367,6 @@ Analysis
 					Xtalk.FLAG_ORDINAL|Xtalk.FLAG_IDENTIFIER, 2);
 				else if (this._match('third')) return this._matched(Xtalk.ID_THIRD, 
 					Xtalk.FLAG_ORDINAL|Xtalk.FLAG_IDENTIFIER, 3);
-				else if (this._match('forth')) return this._matched(Xtalk.ID_FOURTH, 
-					Xtalk.FLAG_ORDINAL|Xtalk.FLAG_IDENTIFIER, 4);
 				else if (this._match('fourth')) return this._matched(Xtalk.ID_FOURTH, 
 					Xtalk.FLAG_ORDINAL|Xtalk.FLAG_IDENTIFIER, 4);
 				else if (this._match('fifth')) return this._matched(Xtalk.ID_FIFTH, 
