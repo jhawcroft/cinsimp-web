@@ -178,6 +178,9 @@ end if
 <div style="float:left"><textarea id="script" style="width: 450px; height:200px;">answer "Hello World."
 repeat 3 times
   beep
+  if bob then answer
+  exit repeat
+  next repeat
 end repeat</textarea>
 
 <p><input type="button" value="PARSE SCRIPT" onclick="doTest(true);"> <input type="button" value="COMPILE SCRIPT" onclick="doTest(false);"></p>
