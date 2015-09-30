@@ -992,6 +992,7 @@ Entry
 			Xtalk._error_syntax('Expected "then" here.');
 		
 		/* return result */
+		if (!in_handler) return this._block_stack[0].container;
 		in_handler.block = this._block_stack[0].container;
 		return in_handler;
 	}
