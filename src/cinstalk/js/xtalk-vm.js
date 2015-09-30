@@ -165,6 +165,14 @@ Language Entry
 	
 	// these two will probably be incorporated into the actual execution engine
 	// rather than being specific entry points:
+	
+	// apparently in testing HC, both of these seem to be compiled within the local context 
+	// (ie. with access to the local variables of the executing handler),
+	// however, message sends in the compiled code are directed to the current object
+	// with "do", or the specified object with "send"
+	// until a message send actually happens though, execution is as if within the
+	// invoking handler.
+	
 	handle_do: function(in_what, in_local_context)
 	{
 	
