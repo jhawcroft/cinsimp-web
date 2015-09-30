@@ -393,6 +393,10 @@ Analysis
 				else if (this._match('id')) return this._matched(Xtalk.ID_ID, Xtalk.FLAG_IDENTIFIER);
 				else if (this._match('while')) return this._matched(Xtalk.ID_WHILE, Xtalk.FLAG_IDENTIFIER);
 				else if (this._match('until')) return this._matched(Xtalk.ID_UNTIL, Xtalk.FLAG_IDENTIFIER);
+				else if (this._match('forever')) return this._matched(Xtalk.ID_FOREVER, Xtalk.FLAG_IDENTIFIER);
+				else if (this._match('with')) return this._matched(Xtalk.ID_WITH, Xtalk.FLAG_IDENTIFIER);
+				else if (this._match('for')) return this._matched(Xtalk.ID_FOR, Xtalk.FLAG_IDENTIFIER);
+				else if (this._match('times')) return this._matched(Xtalk.ID_TIMES, Xtalk.FLAG_IDENTIFIER);
 		
 				/* reserved keywords: */
 				else if (this._match('end')) return this._matched(Xtalk.ID_END, Xtalk.FLAG_KEYWORD);

@@ -171,6 +171,10 @@ IDs:
 * ID_ID
 * ID_WHILE
 * ID_UNTIL
+* ID_FOREVER
+* ID_WITH
+* ID_FOR
+* ID_TIMES
 
 
 ### Keywords
