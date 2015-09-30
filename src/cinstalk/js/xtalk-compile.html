@@ -27,6 +27,15 @@ textarea
 
 Xtalk.Tests.run();
 
+function doTokenize()
+{
+	var scriptContainer = document.getElementById('script');
+	var outputContainer = document.getElementById('output');
+	
+	stream = Xtalk.Lexer.lex(scriptContainer.value);
+	outputContainer.value = Xtalk.Debug.debug_subtree(stream);
+}
+
 function doTest(in_only_parse)
 {
 	var scriptContainer = document.getElementById('script');
@@ -183,7 +192,7 @@ repeat 3 times
   next repeat
 end repeat</textarea>
 
-<p><input type="button" value="PARSE SCRIPT" onclick="doTest(true);"> <input type="button" value="COMPILE SCRIPT" onclick="doTest(false);"></p>
+<p><input type="button" value="TOKENIZE" onclick="doTokenize();"> <input type="button" value="PARSE" onclick="doTest(true);"> <input type="button" value="COMPILE" onclick="doTest(false);"></p>
 </div>
 
 <div style="float: left;"><textarea id="output" style="width: 900px; height:750px;"></textarea></div>
