@@ -27,7 +27,7 @@ textarea
 
 Xtalk.Tests.run();
 
-function doTest()
+function doTest(in_only_parse)
 {
 	var scriptContainer = document.getElementById('script');
 	var outputContainer = document.getElementById('output');
@@ -41,7 +41,9 @@ function doTest()
 	//console.log(index);
 	
 	var handler = {
-		name: 'mouseUp'
+		id: Xtalk.ID_HANDLER,
+		name: 'mouseUp',
+		block: null
 	};
 	
 	var tree = null;
@@ -49,9 +51,15 @@ function doTest()
 	try
 	{
 		tree = Xtalk.Parser.Handler.parse( handler, scriptContainer.value );
-		//outputContainer.value = Xtalk.Debug.debug_subtree(tree);
-		plan = Xtalk.Flat.flatten(tree);
-		outputContainer.value =  Xtalk.Debug.debug_subtree(plan);
+		if (in_only_parse)
+		{
+			outputContainer.value = Xtalk.Debug.debug_subtree(tree);
+		}
+		else
+		{
+			plan = Xtalk.Flat.flatten(tree);
+			outputContainer.value =  Xtalk.Debug.debug_subtree(plan);
+		}
 	}
 	catch (err)
 	{
@@ -172,7 +180,7 @@ repeat 3 times
   beep
 end repeat</textarea>
 
-<p><input type="button" value="COMPILE SCRIPT" onclick="doTest();"></p>
+<p><input type="button" value="PARSE SCRIPT" onclick="doTest(true);"> <input type="button" value="COMPILE SCRIPT" onclick="doTest(false);"></p>
 </div>
 
 <div style="float: left;"><textarea id="output" style="width: 900px; height:750px;"></textarea></div>
