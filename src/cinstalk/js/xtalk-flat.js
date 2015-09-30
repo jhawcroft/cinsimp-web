@@ -100,30 +100,135 @@ Core
 											   "next repeat" has can jump */
 		});
 		
-		/* output the loop control step; VM will decide if the loop is over here
-		and jump to the end location (to be patched later) */
-		this._result.push({
-			id: Xtalk.ID_LOOP,
-			loop: in_subtree.loop,
-			variable: in_subtree.variable,
-			init: in_subtree.init,
-			condition: in_subtree.condition,
-			index: this._nested_loop,
-			end: 0
-		});
+		/* branch to appropriate handler for type of loop;
+		generate the loop header */
+		switch (in_subtree.loop)
+		{
+		/* loop while/until a particular condition is met */
+		case Xtalk.LOOP_WHILE:
+		case Xtalk.LOOP_UNTIL:
+			/* the condition */
+			this._generate_node(in_subtree.condition);
+			
+			/* the loop escape */
+			this._current_loop().exit_patches.push(this._result.length);
+			this._result.push({
+				id: (in_subtree.loop == Xtalk.LOOP_WHILE ? Xtalk.ID_JUMP_IF_FALSE : Xtalk.ID_JUMP_IF_TRUE),
+				step: 0
+			});
+			break;
+	
+		/* loop a specific number of times */
+		case Xtalk.LOOP_LIMIT:
+			/* initialize the counter */
+			this._result.push({
+				id: Xtalk.ID_LITERAL_INTEGER,
+				value: 0
+			});
+			this._result.push({
+				id: Xtalk.ID_COUNT_INIT,
+				which: this._nested_loop
+			});
+			
+			/* set the start of each iteration */
+			this._current_loop().begin_step = this._result.length;
+			
+			/* the condition */
+			this._result.push({
+				id: Xtalk.ID_COUNT_VALUE,
+				which: this._nested_loop
+			});
+			this._generate_node(in_subtree.condition);
+			this._result.push({
+				id: Xtalk.ID_LESS,
+				operand1: null,
+				operand2: null
+			});
+			
+			/* the loop escape */
+			this._current_loop().exit_patches.push(this._result.length);
+			this._result.push({
+				id: Xtalk.ID_JUMP_IF_FALSE,
+				step: 0
+			});
+			
+			/* increment the loop counter */
+			this._result.push({
+				id: Xtalk.ID_COUNT_INC,
+				which: this._nested_loop
+			});
+			break;
+			
+		/* loop with an explicit counter variable until a limit expression */
+		case Xtalk.LOOP_COUNT_UP:
+		case Xtalk.LOOP_COUNT_DOWN:
+			/* initialize the counter variable */
+			this._result.push({
+				id: Xtalk.ID_WORD,
+				name: in_subtree.variable
+			});
+			this._generate_node(in_subtree.init);
+			this._result.push({
+				id: Xtalk.ID_VAR_SET,
+			});
+			
+			/* set the start of each iteration */
+			this._current_loop().begin_step = this._result.length;
+			
+			/* the condition */
+			this._result.push({
+				id: Xtalk.ID_WORD,
+				name: in_subtree.variable
+			});
+			this._result.push({
+				id: (in_subtree.loop == Xtalk.LOOP_COUNT_UP ? Xtalk.ID_LESS : Xtalk.ID_MORE),
+				operand1: null,
+				operand2: null
+			});
+			this._generate_node(in_subtree.condition);
+			
+			/* the loop escape */
+			this._current_loop().exit_patches.push(this._result.length);
+			this._result.push({
+				id: Xtalk.ID_JUMP_IF_FALSE,
+				step: 0
+			});
+			
+			/* increment the loop counter */
+			this._result.push({
+				id: Xtalk.ID_WORD,
+				name: in_subtree.variable
+			});
+			this._result.push({
+				id: Xtalk.ID_WORD,
+				name: in_subtree.variable
+			});
+			this._result.push({
+				id: Xtalk.ID_LITERAL_INTEGER,
+				value: 1
+			});
+			this._result.push({
+				id: (in_subtree.loop == Xtalk.LOOP_COUNT_UP ? Xtalk.ID_ADD : Xtalk.ID_SUBTRACT),
+				operand1: null,
+				operand2: null
+			});
+			this._result.push({
+				id: Xtalk.ID_VAR_SET,
+			});
+			break;
+		}
 		
-		/* generate the actual steps that comprise each iteration */
+		/* generate the iteration steps */
 		this._generate_node(in_subtree.block);
 		
-		/* generate a "next repeat" at the end of the loop */
+		/* generate the jump to the next iteration */
 		this._result.push({
-			id: Xtalk.ID_ABORT,
-			abort: Xtalk.ABORT_ITERATION,
+			id: Xtalk.ID_JUMP,
 			step: this._current_loop().begin_step
 		});
 		
 		/* patch all the steps that need to jump to the end of the loop */
-		this._result[this._current_loop().begin_step].end = this._result.length;
+		//this._result[this._current_loop().begin_step].end = this._result.length;
 		var patches = this._loop_stack.pop().exit_patches;
 		for (var p = 0; p < patches.length; p++)
 			this._result[patches[p]].step = this._result.length;
@@ -139,10 +244,24 @@ Core
 	_generate_abort: function(in_subtree)
 	{
 		if (in_subtree.abort == Xtalk.ABORT_LOOP)
+		{
 			this._current_loop().exit_patches.push(this._result.length);
+			this._result.push({
+				id: Xtalk.ID_JUMP,
+				step: 0
+			});
+		}
 		else if (in_subtree.abort == Xtalk.ABORT_ITERATION)
-			in_subtree.step = this._current_loop().begin_step;
-		this._result.push(in_subtree);
+		{
+			this._result.push({
+				id: Xtalk.ID_JUMP,
+				step: this._current_loop().begin_step
+			});
+		}
+		else if (in_subtree.abort == Xtalk.ABORT_EVENT)
+		{
+			this._result.push(in_subtree);
+		}
 	},
 	
 	
@@ -161,25 +280,35 @@ Core
 			if the condition is false, the VM will jump to the step index given
 			(to be patched later) */
 			var case_ = in_subtree.cases[c];
-			var condition_at = this._result.length;
-			this._result.push({
-				id: Xtalk.ID_CONDITION_CASE,
-				condition: case_.condition,
-				step: 0
-			});
+			var bypass_at = -1;
+			if (case_.condition)
+			{
+				this._generate_node(case_.condition);
+			
+				/* the condition case bypass */
+				bypass_at = this._result.length;
+				this._result.push({
+					id: Xtalk.ID_JUMP_IF_FALSE,
+					step: 0
+				});
+			}
 			
 			/* generate the steps to execute if the condition is true */
 			this._generate_node(case_.block);
 			
 			/* generate an instruction to bypass all other cases */
-			end_patches.push(this._result.length);
-			this._result.push({
-				id: Xtalk.ID_JUMP,
-				step: 0
-			});
+			if (c + 1 != in_subtree.cases.length)
+			{
+				end_patches.push(this._result.length);
+				this._result.push({
+					id: Xtalk.ID_JUMP,
+					step: 0
+				});
+			}
 			
-			/* fix the condition case node to point at the end of the block */
-			this._result[condition_at].step = this._result.length;
+			/* fix the bypass to point at the end of the case */
+			if (bypass_at >= 0)
+				this._result[bypass_at].step = this._result.length;
 		}
 		
 		/* fix the end of all the case implementations to point at the end of the block */

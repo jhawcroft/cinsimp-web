@@ -103,6 +103,21 @@ Message Hierarchy
 Expression Evaluation
 */
 
+
+// can I evaluate expressions given the possibility of function message sends?
+// might I need to flatten expressions so that they too can be processed in incremental steps?
+
+// still need implementations of the operators anyway
+
+// or could extract the function calls that aren't recognised
+// and replace w/ placeholders,
+// and make a series of preliminary steps to process each in the sequence 
+// appopriate?  not really safe.
+
+// suggest we just flatten expressions, which I hadn't intended on doing
+
+// in the meantime, we can bring some implementations across for operators from C
+
 	_evaluate_expr: function(in_expr)
 	{
 		

@@ -169,7 +169,15 @@ Constants
 	ID_TIMES: 72,
 	
 	ID_JUMP: 90,
+	ID_JUMP_IF_FALSE: 91,
+	ID_JUMP_IF_TRUE: 92,
 	
+	// loop related, may be minimised by use of existing language built-ins ***
+	ID_COUNT_INIT: 93,
+	ID_COUNT_VALUE: 94,
+	ID_COUNT_INC: 95,
+	ID_COUNT_DEC: 96,
+	ID_VAR_SET: 97,
 	
 	
 /*****************************************************************************************
