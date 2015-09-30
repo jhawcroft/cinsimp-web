@@ -173,6 +173,9 @@ Constants
 Module Globals 
 */
 	_error_line: 0,		/* if an error occurs, what physical line is closest ? */
+	
+	_legacy_hc: false,	/* should the language allow the use of certain keywords that
+						   were permitted in HyperTalk ? */
 
 
 /*****************************************************************************************
