@@ -155,7 +155,7 @@ Convenience/Utilities
 			for (var st = 0; st < in_stop_terms.length; st++)
 			{
 				var term = in_stop_terms[st];
-				if (typeof term === 'string')
+				if ((typeof term === 'string') && (token.text))
 				{
 					if (term.toLowerCase() == token.text.toLowerCase())
 					{
@@ -534,7 +534,7 @@ Core
 		this._frame().state = this._STATE_IN_BLOCK;
 		
 		if (this._end()) return;
-		if (this._token().text.toLowerCase() == 'forever')
+		if (this._token().id == Xtalk.ID_FOREVER)
 		{
 			this._consume();
 			if (this._end()) return;
@@ -555,7 +555,7 @@ Core
 			//Xtalk.Parser.Expression.parse(node.condition);
 		}
 		
-		else if (this._token().text.toLowerCase() == 'with')
+		else if (this._token().id == Xtalk.ID_WITH)
 		{
 			/* with <ident> = <expr> {to | down to} <expr> */
 			this._consume();
@@ -597,14 +597,13 @@ Core
 			/* [for] <number> [times] */
 			node.loop = Xtalk.LOOP_LIMIT;
 			
-			if (this._token().text.toLowerCase() == 'for')
+			if (this._token().id == Xtalk.ID_FOR)
 				this._consume();
 			
 			node.condition = { id: Xtalk.ID_LIST, children: [] }; // was remainder
-			this._accumulate(node.condition, ['times', 'time']);
+			this._accumulate(node.condition, ['times']);
 			
-			if ((this._token().text.toLowerCase() == 'times') ||
-				(this._token().text.toLowerCase() == 'time'))
+			if (this._token().id == Xtalk.ID_TIMES)
 				this._consume();
 			if (!this._end())
 				Xtalk._error_syntax('Expected end of line here.');
@@ -674,7 +673,7 @@ Core
 		if (this._token().id == Xtalk.ID_TO)
 		{
 			this._consume();
-			if (this._token().text.toLowerCase() != 'user')
+			if (this._token().text && (this._token().text.toLowerCase() != 'user'))
 				Xtalk._error_syntax('Expected "user" after "exit to".');
 			this._consume();
 			if (!this._end())
@@ -700,7 +699,7 @@ Core
 		this._consume(); /* pass */
 		if (this._end())
 			Xtalk._error_syntax('Expected "^0" after "pass".', this._handler.name);
-		if ((this._token().id != Xtalk.ID_WORD) ||
+		if ((!(this._token().flags & Xtalk.FLAG_IDENTIFIER)) ||
 			(this._token().text.toLowerCase() != this._handler.name.toLowerCase()))
 			Xtalk._error_syntax('Expected "pass '+this._handler.name+'" here.');
 		this._consume();
@@ -789,7 +788,7 @@ Core
 			if (this._end())
 				Xtalk._error_syntax('Expected "end repeat" but found end of line.');
 			if (this._token().id != Xtalk.ID_REPEAT)
-				Xtalk._error_syntax('Expected "end repeat" but found "end ^0".', this._token().text);
+				Xtalk._error_syntax('Expected "end repeat" but found "end ^0".', this._token());
 			this._consume();
 			if (!this._end())
 				Xtalk._error_syntax('Expected end of line after "end repeat".');
@@ -799,7 +798,7 @@ Core
 			if (this._end())
 				Xtalk._error_syntax('Expected "end if" but found end of line.');
 			if (this._token().id != Xtalk.ID_IF)
-				Xtalk._error_syntax('Expected "end if" but found "end ^0".', this._token().text);
+				Xtalk._error_syntax('Expected "end if" but found "end ^0".', this._token());
 			this._consume();
 			if (!this._end())
 				Xtalk._error_syntax('Expected end of line after "end if".');
