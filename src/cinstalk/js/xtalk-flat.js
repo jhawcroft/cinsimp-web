@@ -318,6 +318,113 @@ Core
 	
 
 /*
+	Generates an expression by flattening the evaluation into a linear sequence of 
+	operand stack operations.
+ */
+	_generate_expr(in_subtree)
+	{
+		if (in_subtree.id == Xtalk.ID_EXPRESSION)
+			this._generate_expr(in_subtree.children[0]);
+		else if (in_subtree.flags & Xtalk.FLAG_IDENTIFIER)
+			this._result.push({
+				id: Xtalk.ID_VARIABLE,
+				name: in_subtree.text
+			});
+		else if ((in_subtree.id == Xtalk.ID_LITERAL_STRING) ||
+				(in_subtree.id == Xtalk.ID_LITERAL_INTEGER) ||
+				(in_subtree.id == Xtalk.ID_ORDINAL) ||
+				(in_subtree.id == Xtalk.ID_LITERAL_REAL) ||
+				(in_subtree.id == Xtalk.ID_LITERAL_BOOLEAN))
+			this._result.push({
+				id: in_subtree.id,
+				value: in_subtree.value
+			});
+		else if (in_subtree.id == Xtalk.ID_CONSTANT)
+		{
+			if (in_subtree.context)
+				this._generate_expr(in_subtree.context);
+			if (in_subtree.value)
+				this._result.push({
+					id: in_subtree.id,
+					value: in_subtree.value,
+					has_context: (in_subtree.context ? true : false)
+				});
+			else
+				this._result.push({
+					id: in_subtree.id,
+					handler: in_subtree.handler,
+					has_context: (in_subtree.context ? true : false)
+				});
+		}
+		else if ((in_subtree.id == Xtalk.ID_PROPERTY) ||
+				(in_subtree.id == Xtalk.ID_NUMBER_OF))
+		{
+			if (in_subtree.context)
+				this._generate_expr(in_subtree.context);
+			this._result.push({
+				id: in_subtree.id,
+				map: in_subtree.map,
+				has_context: (in_subtree.context ? true : false)
+			});
+		}
+		else if (in_subtree.id == Xtalk.ID_REFERENCE)
+		{
+			if (in_subtree.context)
+				this._generate_expr(in_subtree.context);
+			if (in_subtree.operand1)
+				this._generate_expr(in_subtree.operand1);
+			if (in_subtree.operand2)
+				this._generate_expr(in_subtree.operand2);
+			this._result.push({
+				id: in_subtree.id,
+				map: in_subtree.map,
+				ref: in_subtree.ref,
+				has_context: (in_subtree.context ? true : false)
+			});
+		}
+		else if (in_subtree.id == Xtalk.ID_FUNCTION_CALL)
+		{
+			for (var p = 0; p < in_subtree.parameters.length; p++)
+			this._generate_expr(in_subtree.parameters[p]);
+			this._result.push({
+				id: Xtalk.ID_FUNCTION_CALL,
+				name: in_subtree.name,
+				handler: (in_subtree.handler || null),
+				arg_count: in_subtree.parameters.length
+			});
+		}
+		else if (in_subtree.operand1)
+		{
+			this._generate_expr(in_subtree.operand1);
+			if (in_subtree.operand2)
+				this._generate_expr(in_subtree.operand2);
+			this._result.push({
+				id: in_subtree.id
+			});
+		}
+		else
+			Xtalk._error_syntax("Internal Error: Expression generation encountered unexpected node.");
+	},
+	
+	
+/*
+	Generates a message send by evaluating it's arguments (if any) via the operand
+	stack and finally making the message call.
+*/	
+	_generate_message_send: function(in_subtree)
+	{
+		for (var p = 0; p < in_subtree.parameters.length; p++)
+			this._generate_expr(in_subtree.parameters[p]);
+		this._result.push({
+			id: Xtalk.ID_MESSAGE_SEND,
+			name: in_subtree.name,
+			handler: (in_subtree.handler || null),
+			arg_count: in_subtree.parameters.length
+		});
+	},
+	
+
+/*
 	Generates any kind of node by branching to the appropriate routine (if required.)
 */
 	_generate_node: function(in_node)
@@ -339,6 +446,12 @@ Core
 			break;
 		case Xtalk.ID_ABORT:
 			this._generate_abort(in_node);
+			break;
+		case Xtalk.ID_EXPRESSION:
+			this._generate_expr(in_node);
+			break;
+		case Xtalk.ID_MESSAGE_SEND:
+			this._generate_message_send(in_node);
 			break;
 		default:
 			this._result.push(in_node);

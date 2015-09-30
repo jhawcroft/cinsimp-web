@@ -100,8 +100,9 @@ Constants
 	ID_PAREN_OPEN: 1,
 	ID_PAREN_CLOSE: 2,
 	ID_COMMA: 3,
-	ID_NUMBER_OF: 4,
 	ID_EOL: 5,
+	
+	ID_NUMBER_OF: 4,
 	ID_NOT_WITHIN: 6,
 	ID_WITHIN: 7,
 	ID_NOT_IN: 8,
@@ -178,6 +179,8 @@ Constants
 	ID_COUNT_INC: 95,
 	ID_COUNT_DEC: 96,
 	ID_VAR_SET: 97,
+	
+	ID_VARIABLE: 100,
 	
 	
 /*****************************************************************************************

@@ -438,11 +438,14 @@ Names
 					var next_plus_1 = in_subtree.children[i+2];
 					if (this._is_unary_op(next))
 					{
-						prev_node.context = in_subtree.children.splice(i+1, 2); // might need checking 
+						var op = in_subtree.children.splice(i+1, 1)[0];
+						op.operand1 = in_subtree.children.splice(i+1, 1)[0];
+						prev_node.context = op;
+						//	id: ID_LISTin_subtree.children.splice(i+1, 2); // might need checking 
 						//next.children.push( in_subtree.children.splice(i+1, 1) );
 					}
 					else
-						prev_node.context = in_subtree.children.splice(i+1, 1);
+						prev_node.context = in_subtree.children.splice(i+1, 1)[0];
 					in_subtree.children.splice(i, 1);
 				}
 				else
