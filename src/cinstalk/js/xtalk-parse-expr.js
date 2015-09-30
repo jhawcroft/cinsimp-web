@@ -562,7 +562,7 @@ Operators
 	),
 
 	_OPS_COMPREL: Array(
-		Xtalk.ID_GREATER_EQ, Xtalk.ID_GREATER, Xtalk.ID_LESS_EQ, Xtalk.ID_LESSER,
+		Xtalk.ID_MORE_EQUAL, Xtalk.ID_MORE, Xtalk.ID_LESS_EQUAL, Xtalk.ID_LESS,
 		Xtalk.ID_CONTAINS, Xtalk.ID_IS_IN, Xtalk.ID_IS_NOT_IN, Xtalk.ID_IS_WITHIN, Xtalk.ID_IS_NOT_WITHIN,
 		Xtalk.ID_THERE_IS_A, Xtalk.ID_THERE_IS_NO
 	),
