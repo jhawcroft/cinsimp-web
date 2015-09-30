@@ -64,9 +64,183 @@ xtalk.js
 
 Xtalk.Flat = {
 
+/*****************************************************************************************
+Module Globals
+*/
+
+	_result: [],
+	_nested_loop: -1,
+
+
+/*****************************************************************************************
+Core
+*/
+
+/*
+	Generates the operations necessary to execute a loop.
+	
+	// **TODO** need to record both the end & the next iteration point
+	// ie. record the beginning on a stack so that NEXT REPEAT can jump without patching
+	// and record the instances of EXIT REPEAT so they can be patched to point at the exit
+	// when the loop has been completely generated.
+ */
+	_generate_loop: function(in_subtree)
+	{
+		this._nested_loop++;
+	
+		var begins_at = this._result.length;
+		
+		var patch_end = [];
+		
+		switch (in_subtree.loop)
+		{
+		case Xtalk.LOOP_WHILE:
+		case Xtalk.LOOP_UNTIL:
+			this._generate_node(in_subtree.condition);
+			patch_end.push(this._result.length);
+			this._result.push({
+				id: (in_subtree.loop == Xtalk.LOOP_WHILE ? Xtalk.ID_JUMP_IF_FALSE : Xtalk.ID_JUMP_IF_TRUE),
+				step: 0
+			});
+			break;
+	
+		case Xtalk.LOOP_LIMIT:
+			this._result.push({
+				id: Xtalk.ID_LITERAL_INTEGER,
+				value: 0
+			});
+			this._result.push({
+				id: Xtalk.ID_COUNT_INIT,
+				which: this._nested_loop
+			});
+			begins_at = this._result.length;
+			this._result.push({
+				id: Xtalk.ID_COUNT_VALUE,
+				which: this._nested_loop
+			});
+			this._generate_node(in_subtree.condition);
+			this._result.push({
+				id: Xtalk.ID_LESS,
+				operand1: null,
+				operand2: null
+			});
+			patch_end.push(this._result.length);
+			this._result.push({
+				id: Xtalk.ID_JUMP_IF_FALSE,
+				step: 0
+			});
+			this._result.push({
+				id: Xtalk.ID_COUNT_INC,
+				which: this._nested_loop
+			});
+			break;
+		case Xtalk.LOOP_COUNT_UP:
+		case Xtalk.LOOP_COUNT_DOWN:
+			this._result.push({
+				id: Xtalk.ID_WORD,
+				name: in_subtree.variable
+			});
+			this._generate_node(in_subtree.init);
+			this._result.push({
+				id: Xtalk.ID_VAR_SET,
+			});
+			begins_at = this._result.length;
+			this._result.push({
+				id: Xtalk.ID_WORD,
+				name: in_subtree.variable
+			});
+			this._result.push({
+				id: (in_subtree.loop == Xtalk.LOOP_COUNT_UP ? Xtalk.ID_LESS : Xtalk.ID_MORE),
+				operand1: null,
+				operand2: null
+			});
+			this._generate_node(in_subtree.condition);
+			patch_end.push(this._result.length);
+			this._result.push({
+				id: Xtalk.ID_JUMP_IF_FALSE,
+				step: 0
+			});
+			this._result.push({
+				id: Xtalk.ID_WORD,
+				name: in_subtree.variable
+			});
+			this._result.push({
+				id: Xtalk.ID_WORD,
+				name: in_subtree.variable
+			});
+			this._result.push({
+				id: (in_subtree.loop == Xtalk.LOOP_COUNT_UP ? Xtalk.ID_ADD : Xtalk.ID_SUBTRACT),
+				operand1: null,
+				operand2: {
+					id: Xtalk.ID_LITERAL_INTEGER,
+					value: 1
+				}
+			});
+			this._result.push({
+				id: Xtalk.ID_VAR_SET,
+			});
+			break;
+		}
+		
+		this._generate_node(in_subtree.block);
+		
+		this._result.push({
+			id: Xtalk.ID_JUMP,
+			step: begins_at
+		});
+		
+		for (var p = 0; p < patch_end.length; p++)
+			this._result[patch_end[p]].step = this._result.length;
+		
+		this._nested_loop--;
+	},
+	
+	
+	_generate_condition: function(in_subtree)
+	{
+		
+	},
+	
+
+	_generate_node: function(in_node)
+	{
+		switch (in_node.id)
+		{
+		case Xtalk.ID_HANDLER:
+			this._generate_node(in_node.block);
+			break;
+		case Xtalk.ID_BLOCK:
+			for (var s = 0; s < in_node.stmts.length; s++)
+				this._generate_node(in_node.stmts[s]);
+			break;
+		case Xtalk.ID_LOOP:
+			this._generate_loop(in_node);
+			break;
+		case Xtalk.ID_CONDITION_BLOCK:
+			this._generate_condition(in_node);
+			break;
+		default:
+			this._result.push(in_node);
+			break;
+		}
+	},
+
+
+/*****************************************************************************************
+Entry
+*/
+
+/*
+
+ */
 	flatten: function(in_tree)
 	{
-		return [];
+		this._result = [];
+		this._nested_loop = -1;
+		
+		this._generate_node(in_tree);
+	
+		return this._result;
 	}
 
 };

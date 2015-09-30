@@ -175,9 +175,9 @@ Constants
 	/* field: 'which' provides an integer index for the specific loop counter */
 	ID_COUNT_INIT: 93,	/* configure a counter variable; inits with top value on operand stack */
 	ID_COUNT_VALUE: 96, /* push the counter variable on the operand stack */
-
-	ID_INCREMENT: 94,
-	ID_DECREMENT: 95,
+	ID_COUNT_INC: 94,
+	ID_COUNT_DEC: 95,
+	ID_VAR_SET: 99, /* shortcut to set a variable without going through put */
 	
 	
 /*****************************************************************************************
