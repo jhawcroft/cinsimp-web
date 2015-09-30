@@ -412,9 +412,6 @@ Core
 		};
 	
 		/* build parameters (if any) */
-		
-		// ** TODO ** this needs to be fixed to correctly skip commas within () ***
-		
 		if (in_stmt.children.length > 1)
 		{
 			var param = {
@@ -423,10 +420,13 @@ Core
 			};
 			cmd.parameters.push(param);
 		
+			var paren_level = 0;
 			for (var i = 1; i < in_stmt.children.length; i++)
 			{
 				var token = in_stmt.children[i];
-				if (token && (token.id == Xtalk.ID_COMMA))
+				if (!token) continue;
+				
+				if ((token.id == Xtalk.ID_COMMA) && (paren_level == 0))
 				{
 					/* note: it's permitted syntax to have no tokens within each comma-delimited parameter */
 					var param = {
@@ -437,6 +437,11 @@ Core
 				}
 				else
 				{
+					if (token.id == Xtalk.ID_PAREN_OPEN)
+						paren_level ++;
+					else if (token.id == Xtalk.ID_PAREN_CLOSE)
+						paren_level --;
+				
 					param.children.push(token);
 					in_stmt.children[i] = null; // not strictly necessary any more
 				}
