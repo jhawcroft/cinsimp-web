@@ -820,6 +820,9 @@ Subexpressions
 			
 			case Xtalk.ID_LIST:
 				// lists and other types are not allowed in valid expressions //
+				Xtalk._error_syntax("Can't understand this.");
+				break;
+				
 			default:
 				if (in_tree.operand1)
 				{
@@ -882,7 +885,7 @@ Entry
 		this._identify_negation(in_subtree);
 		this._parentheses(in_subtree);
 		this._subexpression(in_subtree);
-		//this._validate(in_subtree);
+		this._validate(in_subtree);
 		
 		return in_subtree;
 	}

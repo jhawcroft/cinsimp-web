@@ -461,11 +461,11 @@ Entry
 	lex: function(in_source)
 	{
 		this._reset(in_source); /* prepare */
-		var list = { id: Xtalk.ID_LIST, items: [] }; /* empty output */
+		var list = { id: Xtalk.ID_LIST, children: [] }; /* empty output */
 		while (this._offset < this._length)
 		{
 			var token = this._get_token(); /* get next token */
-			list.items.push( token ); /* accumulate tokens */
+			list.children.push( token ); /* accumulate tokens */
 		}
 		return list;
 	},

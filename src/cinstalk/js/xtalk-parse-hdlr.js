@@ -125,7 +125,7 @@ Convenience/Utilities
 	{
 		if (this._end())
 			return { id: Xtalk.ID_INVALID, text: '' };
-		return this._tokens.items[this._token_index];
+		return this._tokens.children[this._token_index];
 	},
 
 /*
@@ -133,10 +133,10 @@ Convenience/Utilities
  */
 	_remainder: function()
 	{
-		if (this._tokens.items[this._line_last].id != Xtalk.ID_EOL)
-			return this._tokens.items.slice(this._token_index, this._line_last + 1);
+		if (this._tokens.children[this._line_last].id != Xtalk.ID_EOL)
+			return this._tokens.children.slice(this._token_index, this._line_last + 1);
 		else
-			return this._tokens.items.slice(this._token_index, this._line_last);
+			return this._tokens.children.slice(this._token_index, this._line_last);
 	},
 
 /*
@@ -182,9 +182,9 @@ Convenience/Utilities
  */
 	_end: function()
 	{
-		if ((this._token_index >= this._tokens.items.length) ||
+		if ((this._token_index >= this._tokens.children.length) ||
 			(this._token_index > this._line_last)) return true;
-		if (this._tokens.items[this._token_index].id == Xtalk.ID_EOL) return true;
+		if (this._tokens.children[this._token_index].id == Xtalk.ID_EOL) return true;
 		return false;
 	},
 
@@ -370,7 +370,7 @@ Core
 		for (sub_eol = this._token_index; sub_eol <= this._line_last; sub_eol++)
 		{
 			continue_idx = sub_eol;
-			var token = this._tokens.items[sub_eol];
+			var token = this._tokens.children[sub_eol];
 			if (token.id == Xtalk.ID_INVALID ||
 				token.id == Xtalk.ID_EOL ||
 				token.id == Xtalk.ID_ELSE) 
@@ -886,14 +886,14 @@ Core
  */
 	_parse_block: function()
 	{
-		while (this._token_index < this._tokens.items.length &&
-			this._tokens.items[this._token_index].id != Xtalk.ID_INVALID)
+		while (this._token_index < this._tokens.children.length &&
+			this._tokens.children[this._token_index].id != Xtalk.ID_INVALID)
 		{
 			/* find the end of this line */
 			this._line_last = this._token_index;
-			for (var i = this._token_index; i < this._tokens.items.length; i++)
+			for (var i = this._token_index; i < this._tokens.children.length; i++)
 			{
-				if (this._tokens.items[i].id == Xtalk.ID_EOL)
+				if (this._tokens.children[i].id == Xtalk.ID_EOL)
 				{
 					this._line_last = i;
 					break;
