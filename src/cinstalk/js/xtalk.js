@@ -174,11 +174,11 @@ Constants
 	ID_JUMP_IF_TRUE: 92,
 	
 	// loop related, may be minimised by use of existing language built-ins ***
-	ID_COUNT_INIT: 93,
-	ID_COUNT_VALUE: 94,
-	ID_COUNT_INC: 95,
-	ID_COUNT_DEC: 96,
-	ID_VAR_SET: 97,
+	ID_COUNT_INIT: 93,		// can be implemented by PUT or some quick-set operator
+	ID_COUNT_VALUE: 94,		// can be implemented by VARIABLE
+	ID_COUNT_INC: 95,		// can be implemented using VARIABLE & ADD & PUT
+	ID_COUNT_DEC: 96,		// can be implemented using VARIABLE & ADD & PUT
+	ID_VAR_SET: 97,			// probably leave as optimisation?
 	
 	ID_VARIABLE: 100,
 	

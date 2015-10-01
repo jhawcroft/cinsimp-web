@@ -305,6 +305,50 @@ Execution
 		case Xtalk.ID_MESSAGE_SEND:
 			alert('message send: '+step.name); // ** DEBUGGING **
 			break;
+			
+		case Xtalk.ID_FUNCTION_CALL:
+			
+			break;
+			
+		case Xtalk.ID_GLOBAL: // create global & global import to locals accessible
+			
+			break;
+			
+		case Xtalk.ID_ABORT: // this is probably only ever an ABORT_EVENT now, ie. halt all script execution
+		
+			break;
+			
+		case Xtalk.ID_RETURN:
+		
+			break;
+			
+		case Xtalk.ID_CONSTANT:
+			
+			break;
+		
+		case Xtalk.ID_PROPERTY:
+		case Xtalk.ID_NUMBER_OF:
+			
+			break;
+			
+		case Xtalk.ID_REFERENCE:
+			
+			break;
+			
+		case Xtalk.ID_VARIABLE:
+		
+			break;
+			
+		case Xtalk.ID_JUMP:
+			context.next_step = step.step;
+			break;
+		case Xtalk.ID_JUMP_IF_FALSE:
+			
+			break;
+		case Xtalk.ID_JUMP_IF_TRUE:
+			
+			break;
+			
 		case Xtalk.ID_LITERAL_STRING:
 			this._push( new Xtalk.VM.TString(step.value) );
 			break;
@@ -317,6 +361,7 @@ Execution
 		case Xtalk.ID_LITERAL_BOOLEAN:
 			this._push( step.value );
 			break;
+			
 		case Xtalk.ID_ADD:
 		{
 			var operands = this._operands(2);
