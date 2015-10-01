@@ -257,10 +257,31 @@ Registration
 		this.register_constant('nine', 9);
 		this.register_constant('ten', 10);
 		
-		this.register_term('this card', 'card', function() { alert('Get this card!'); });
+		/*
+		register_term(<words>, <param>, <handler>)
+			handler(<param>)
+			
+		register_constant(<words>, <value>)
+			(may be Javascript or any other object type)
 		
-		this.register_property('date', 'date', 'norm', '----', function() { alert('Get the date!'); });
-		this.register_property('short date', 'date', 'short', '----', function() { alert('Get the short date!'); });
+		register_property(<words>, <param>, <variant>, <context-type>, <handler>)
+			mapping of words and handler for a specific data type of the context, or ---- for global
+			handler(<param>, <variant>)
+			
+		register_count(<words>, <param>, <context-type>, <handler>)
+			(as with property)
+		
+		
+		*/
+		
+		this.register_term('this card', 'card', function() { alert('Get this card!'); return 9; });
+		
+		this.register_property('date', 'date', 'shrt', '----', Xtalk.Builtins.the_date);
+		this.register_property('short date', 'date', 'shrt', '----', Xtalk.Builtins.the_date);
+		this.register_property('abbr date', 'date', 'abbr', '----', Xtalk.Builtins.the_date);
+		this.register_property('abbrev date', 'date', 'abbr', '----', Xtalk.Builtins.the_date);
+		this.register_property('abbreviated date', 'date', 'abbr', '----', Xtalk.Builtins.the_date);
+		this.register_property('long date', 'date', 'long', '----', Xtalk.Builtins.the_date);
 		
 		this.register_count('cards', 'cdct', 'BKGD', function() { alert('Get bg card count'); });
 		

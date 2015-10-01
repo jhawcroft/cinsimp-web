@@ -388,11 +388,14 @@ Names
 					this._parse_constant(in_list, n, word_count[0], constant);
 					continue;
 				}
-				var property_map = this._lookup_words(Xtalk.Dict._properties, words, word_count);
-				if (property_map)
+				if (n > 0 && in_list.children[n-1].id == Xtalk.ID_THE)
 				{
-					this._parse_property(in_list, n, word_count[0], property_map);
-					continue;
+					var property_map = this._lookup_words(Xtalk.Dict._properties, words, word_count);
+					if (property_map)
+					{
+						this._parse_property(in_list, n, word_count[0], property_map);
+						continue;
+					}
 				}
 				var reference_map = this._lookup_words(Xtalk.Dict._references, words, word_count);
 				if (reference_map)

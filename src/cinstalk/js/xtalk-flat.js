@@ -353,6 +353,7 @@ Core
 				this._result.push({
 					id: in_subtree.id,
 					handler: in_subtree.handler,
+					param: in_subtree.param,
 					has_context: (in_subtree.context ? true : false)
 				});
 		}

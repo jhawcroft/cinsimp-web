@@ -315,7 +315,7 @@ Execution
 			break;
 			
 		case Xtalk.ID_ABORT: // this is probably only ever an ABORT_EVENT now, ie. halt all script execution
-		
+			this._abort();
 			break;
 			
 		case Xtalk.ID_RETURN:
@@ -323,7 +323,9 @@ Execution
 			break;
 			
 		case Xtalk.ID_CONSTANT:
-			if (typeof step.value != 'object')
+			if (step.handler)
+				this._push( this.newValue(step.handler(step.param)) );
+			else
 				this._push( this.newValue(step.value) );
 			break;
 		
@@ -335,10 +337,25 @@ Execution
 			// resolve all operands, but not the reference itself
 			// except for properties and number of :)
 			
+			var context = null;
+			if (step.has_context)
+				context = this.pop();
+			
+			if (!context)
+			{
+				var prop = step.map['----'];
+				if (prop) this._push(  this.newValue(prop.handler(prop.param, prop.variant)) );
+				else throw 'Problems';
+			}
+			else
+			{
+			
+			}
 			
 			break;
 			
 		case Xtalk.ID_REFERENCE:
+			// context, op1, op2
 			
 			break;
 			
@@ -571,7 +588,7 @@ Language Entry
 		else if (typeof in_value == 'boolean')
 			return new Xtalk.VM.TBoolean(in_value);
 		else
-			return null;
+			return in_value;
 	},
 
 /*
