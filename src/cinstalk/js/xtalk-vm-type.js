@@ -80,6 +80,12 @@ Xtalk.VM.TString.prototype.toText = function()
 }
 
 
+Xtalk.VM.TString.prototype.toValue = function()
+{
+	return this._value;
+}
+
+
 Xtalk.VM.TString.prototype.toInteger = function()
 {
 	return new Xtalk.VM.TInteger(Math.floor(this._value));
@@ -104,6 +110,7 @@ Xtalk.VM.TString.prototype.toBoolean = function()
 	if (v == 'true') return new Xtalk.VM.TBoolean(true);
 	return new Xtalk.VM.TBoolean(false);
 }
+
 
 
 
@@ -143,6 +150,12 @@ Xtalk.VM.TInteger.prototype.toBoolean = function()
 	throw new Error(""); // ** TO FIX for type mismatch error
 }
 
+Xtalk.VM.TInteger.prototype.toValue = function()
+{
+	return this._value;
+}
+
+
 
 
 Xtalk.VM.TReal = function(in_real)
@@ -181,6 +194,12 @@ Xtalk.VM.TReal.prototype.toBoolean = function()
 	throw new Error(""); // ** TO FIX for type mismatch error
 }
 
+Xtalk.VM.TReal.prototype.toValue = function()
+{
+	return this._value;
+}
+
+
 
 
 
@@ -213,4 +232,12 @@ Xtalk.VM.TBoolean.prototype.toBoolean = function()
 {
 	return this;
 }
+
+
+Xtalk.VM.TBoolean.prototype.toValue = function()
+{
+	return this._value;
+}
+
+
 

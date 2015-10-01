@@ -266,11 +266,14 @@ Registration
 		
 		register_property(<words>, <param>, <variant>, <context-type>, <handler>)
 			mapping of words and handler for a specific data type of the context, or ---- for global
-			handler(<param>, <variant>)
+			handler(<context>, <param>, <variant>)
 			
 		register_count(<words>, <param>, <context-type>, <handler>)
 			(as with property)
 		
+		register_reference(<words>, <param>, <context-type>, <handler>)
+			handler(<context>, <param>, <mode>, <ident1>, <ident2>)
+			mode := { REF_NAME, REF_ID, or REF_RANGE }  & ident2 may be null.
 		
 		*/
 		
@@ -283,9 +286,12 @@ Registration
 		this.register_property('abbreviated date', 'date', 'abbr', '----', Xtalk.Builtins.the_date);
 		this.register_property('long date', 'date', 'long', '----', Xtalk.Builtins.the_date);
 		
-		this.register_count('cards', 'cdct', 'BKGD', function() { alert('Get bg card count'); });
+		this.register_count('cards', 'cdct', 'BKGD', null);
 		
-		this.register_reference('card button', 'cdbn', '----', function() { alert('Get card button!'); });
+		this.register_reference('card button', 'cdbn', '----', 
+		function(in_context, in_param, in_mode, in_ident1, in_ident2) { 
+			alert('Card Button '+in_mode +'|'+in_ident1+'|'+in_ident2);
+		});
 		
 		
 	}

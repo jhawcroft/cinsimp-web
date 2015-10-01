@@ -370,17 +370,28 @@ Core
 		}
 		else if (in_subtree.id == Xtalk.ID_REFERENCE)
 		{
+			var o_count = 0;
 			if (in_subtree.context)
+			{
 				this._generate_expr(in_subtree.context);
+				o_count++;
+			}
 			if (in_subtree.operand1)
+			{
 				this._generate_expr(in_subtree.operand1);
+				o_count++;
+			}
 			if (in_subtree.operand2)
+			{
 				this._generate_expr(in_subtree.operand2);
+				o_count++;
+			}
 			this._result.push({
 				id: in_subtree.id,
 				map: in_subtree.map,
 				ref: in_subtree.ref,
-				has_context: (in_subtree.context ? true : false)
+				has_context: (in_subtree.context ? true : false),
+				operands: o_count
 			});
 		}
 		else if (in_subtree.id == Xtalk.ID_FUNCTION_CALL)

@@ -339,23 +339,44 @@ Execution
 			
 			var context = null;
 			if (step.has_context)
-				context = this.pop();
+				context = this._pop();
 			
+			var prop = null;
 			if (!context)
-			{
-				var prop = step.map['----'];
-				if (prop) this._push(  this.newValue(prop.handler(prop.param, prop.variant)) );
-				else throw 'Problems';
-			}
+				prop = step.map['----'];
 			else
-			{
+				prop = step.map[context.type];
+				
+			if (prop) this._push(  this.newValue(prop.handler(context, prop.param, prop.variant)) );
+			else throw 'Problems'; // **TODO - raise error - can't get that property / can't get number of that
 			
-			}
 			
 			break;
 			
 		case Xtalk.ID_REFERENCE:
 			// context, op1, op2
+			
+			var operands = this._operands(step.operands);
+			
+			var context = (step.has_context ? operands.splice(0, 1) : null);
+			var ident1 = operands[0].resolve();
+			var ident2 = (operands.length > 1 ? operands[1].resolve().toValue() : null);
+			
+			var ref = null;
+			if (!context)
+				ref = step.map['----'];
+			else
+				ref = step.map[context.type];
+				
+			var mode = step.ref;
+			if (mode == Xtalk.REF_UNKNOWN)
+			{
+				if (ident1.type == 'String') mode = Xtalk.REF_NAME;
+				else mode = Xtalk.REF_RANGE;
+			}
+			
+			if (ref) this._push( this.newValue(ref.handler(context, ref.param, mode, ident1.toValue(), ident2)) );
+			else throw 'Problems'; // ** TODO as above - can't get that thing/can't understand
 			
 			break;
 			
@@ -554,7 +575,8 @@ Execution
 	{
 		var me = this;
 		if (!this._quick_interval)
-			this._quick_interval = window.setInterval(function() { me._step(); }, 0 );
+			this._quick_interval = window.setInterval(function() { try { me._step(); } catch (err) { 
+				me._abort(); alert('Unknown runtime xTalk failure.'); } }, 0 );
 	},
 	
 	

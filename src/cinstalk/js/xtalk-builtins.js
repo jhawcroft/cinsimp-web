@@ -51,7 +51,7 @@ xtalk.js
 
 Xtalk.Builtins = {
 
-	the_date: function(in_id, in_variant)
+	the_date: function(in_context, in_id, in_variant)
 	{
 		var now = new Date(); 
 		switch (in_variant)

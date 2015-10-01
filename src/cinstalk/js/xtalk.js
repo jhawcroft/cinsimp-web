@@ -71,6 +71,14 @@ Constants
 	LOOP_COUNT_UP: 4,		/* loop with a counter within a specific range */
 	LOOP_COUNT_DOWN: 5,
 	
+	
+/* modes of ID_REFERENCE: */
+	REF_UNKNOWN: 0, 	/* type will be either name/number, based on runtime type */
+	REF_NAME: 1,		/* definitely named */
+	REF_ID: 2,			/* definitely IDd */
+	REF_RANGE: 3,		/* single object or range of objects */	
+	
+	
 /* tokens and syntax tree nodes: */
 	ID_LITERAL_INTEGER: -1,
 	ID_LITERAL_REAL: -2,
