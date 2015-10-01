@@ -372,6 +372,7 @@ Execution
 			this._push( this._new_number(Math.pow(operands[0]._value, operands[1]._value), operands[0].type) );
 			break;
 		}
+		
 		case Xtalk.ID_CONCAT:
 		{
 			var operands = this._operands(2);
@@ -384,6 +385,28 @@ Execution
 			var operands = this._operands(2);
 			this._make_operands_strings(operands);
 			this._push( new Xtalk.VM.TString(operands[0]._value + ' ' + operands[1]._value) );
+			break;
+		}
+		
+		case Xtalk.ID_NOT_IN: // **TODo *** these three functions need implementing still ******
+		{
+			var operands = this._operands(2);
+			this._make_operands_strings(operands);
+			//this._push( new Xtalk.VM.TBoolean(operands[0]._value + operands[1]._value) );
+			break;
+		}
+		case Xtalk.ID_IN:
+		{
+			var operands = this._operands(2);
+			this._make_operands_strings(operands);
+			//this._push( new Xtalk.VM.TBoolean(operands[0]._value + operands[1]._value) );
+			break;
+		}
+		case Xtalk.ID_CONTAINS:
+		{
+			var operands = this._operands(2);
+			this._make_operands_strings(operands);
+			//this._push( new Xtalk.VM.TBoolean(operands[0]._value + operands[1]._value) );
 			break;
 		}
 		
@@ -401,6 +424,35 @@ Execution
 			this._push(new Xtalk.VM.TBoolean( this._compare(operands[0], operands[1]) != 0 ));
 			break;
 		}
+		case Xtalk.ID_LESS_EQUAL:
+		{
+			var operands = this._operands(2);
+			this._make_operands_compatible(operands);
+			this._push(new Xtalk.VM.TBoolean( this._compare(operands[0], operands[1]) <= 0 ));
+			break;
+		}
+		case Xtalk.ID_LESS:
+		{
+			var operands = this._operands(2);
+			this._make_operands_compatible(operands);
+			this._push(new Xtalk.VM.TBoolean( this._compare(operands[0], operands[1]) < 0 ));
+			break;
+		}
+		case Xtalk.ID_MORE_EQUAL:
+		{
+			var operands = this._operands(2);
+			this._make_operands_compatible(operands);
+			this._push(new Xtalk.VM.TBoolean( this._compare(operands[0], operands[1]) >= 0 ));
+			break;
+		}
+		case Xtalk.ID_MORE:
+		{
+			var operands = this._operands(2);
+			this._make_operands_compatible(operands);
+			this._push(new Xtalk.VM.TBoolean( this._compare(operands[0], operands[1]) > 0 ));
+			break;
+		}
+		
 		
 		case Xtalk.ID_LAND:
 		{
@@ -423,29 +475,11 @@ Execution
 			break;
 		}
 		
-		
-		
+		// todo: implement ID_NOT_WITHIN & ID_WITHIN (geometric operators)
+		// todo: implement ID_EXISTS & ID_NOT_EXISTS (using callbacks to ask about specific object reference)
 		}
 	},
 
-/*
-
-ID_NOT_WITHIN: 6,
-	ID_WITHIN: 7,
-	ID_NOT_IN: 8,
-	ID_IN: 9,
-	ID_CONTAINS: 10,
-	ID_EXISTS: 13,
-	ID_NOT_EXISTS: 14,
-	
-	
-	
-	ID_LESS_EQUAL: 26,
-	ID_LESS: 27,
-	ID_MORE_EQUAL: 27,
-	ID_MORE: 28,
-	
-*/
 
 	_run: function()
 	{
