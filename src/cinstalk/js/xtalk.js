@@ -103,10 +103,10 @@ Constants
 	ID_EOL: 5,
 	
 	ID_NUMBER_OF: 4,
-	ID_NOT_WITHIN: 6,
-	ID_WITHIN: 7,
-	ID_NOT_IN: 8,
-	ID_IN: 9,
+	ID_IS_NOT_WITHIN: 6,
+	ID_IS_WITHIN: 7,
+	ID_IS_NOT_IN: 8,
+	ID_IS_IN: 9,
 	ID_CONTAINS: 10,
 	ID_EQUAL: 11,
 	ID_NOT_EQUAL: 12,
@@ -233,8 +233,50 @@ Error Handling
 		for (var a = 1; a < arguments.length; a++)
 			in_message = in_message.replace('^'+(a-1), this._object_desc(arguments[a]));
 		throw Error("Syntax Error: " + Xtalk._error_line + ': ' + in_message);
-	}
+	},
+	
+	
+/*
+	Escapes the supplied string so it is suitable for use as a term within a 
+	Javascript regular expression.
+*/	
+	_escape_regex: function(in_string)
+	{
+		// Referring to the table here:
+		// https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/regexp
+		// these characters should be escaped:
+		// 		\ ^ $ * + ? . ( ) | { } [ ]
+		// These characters only have special meaning inside of brackets
+		// they do not need to be escaped:
+		// 		: ! , = 
 
+		var specials = [
+			// order matters for these
+			"-"
+			, "["
+			, "]"
+			// order doesn't matter for any of these
+			, "/"
+			, "{"
+			, "}"
+			, "("
+			, ")"
+			, "*"
+			, "+"
+			, "?"
+			, "."
+			, "\\"
+			, "^"
+			, "$"
+			, "|"
+		];
+
+		// Escape every character with '\'
+		regex = new RegExp('[' + specials.join('\\') + ']', 'g');
+    
+		return in_string.replace(regex, "\\$&");
+	}
+	
 };
 
 

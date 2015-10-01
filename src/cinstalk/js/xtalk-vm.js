@@ -329,6 +329,12 @@ Execution
 		
 		case Xtalk.ID_PROPERTY:
 		case Xtalk.ID_NUMBER_OF:
+			// if !has_context, then context type is '----' (global)
+			// otherwise, context must be obtained from operand stack,
+			// evaluated and type tested
+			// resolve all operands, but not the reference itself
+			// except for properties and number of :)
+			
 			
 			break;
 			
@@ -434,25 +440,25 @@ Execution
 			break;
 		}
 		
-		case Xtalk.ID_NOT_IN: // **TODo *** these three functions need implementing still ******
+		case Xtalk.ID_IS_NOT_IN:
 		{
 			var operands = this._operands(2);
 			this._make_operands_strings(operands);
-			//this._push( new Xtalk.VM.TBoolean(operands[0]._value + operands[1]._value) );
+			this._push(new Xtalk.VM.TBoolean( ! operands[1].contains(operands[0]) ));
 			break;
 		}
-		case Xtalk.ID_IN:
+		case Xtalk.ID_IS_IN:
 		{
 			var operands = this._operands(2);
 			this._make_operands_strings(operands);
-			//this._push( new Xtalk.VM.TBoolean(operands[0]._value + operands[1]._value) );
+			this._push(new Xtalk.VM.TBoolean( operands[1].contains(operands[0]) ));
 			break;
 		}
 		case Xtalk.ID_CONTAINS:
 		{
 			var operands = this._operands(2);
 			this._make_operands_strings(operands);
-			//this._push( new Xtalk.VM.TBoolean(operands[0]._value + operands[1]._value) );
+			this._push(new Xtalk.VM.TBoolean( operands[0].contains(operands[1]) ));
 			break;
 		}
 		

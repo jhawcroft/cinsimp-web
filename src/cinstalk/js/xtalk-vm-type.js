@@ -61,6 +61,13 @@ Xtalk.VM.TString = function(in_string)
 };
 
 
+Xtalk.VM.TString.prototype.contains = function(in_string)
+{
+	in_string = Xtalk._escape_regex(in_string._value);
+	return this._value.search(new RegExp(in_string, 'i')) >= 0;
+}
+
+
 Xtalk.VM.TString.prototype.resolve = function()
 {
 	return this;

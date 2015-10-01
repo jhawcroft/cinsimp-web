@@ -339,11 +339,11 @@ Analysis
 		
 				/* long operators: */
 				else if (this._match('number of')) return this._matched(Xtalk.ID_NUMBER_OF, Xtalk.FLAG_OPERATOR);
-				else if (this._match('is not within')) return this._matched(Xtalk.ID_NOT_WITHIN, Xtalk.FLAG_OPERATOR);
-				else if (this._match('is not in')) return this._matched(Xtalk.ID_NOT_IN, Xtalk.FLAG_OPERATOR);
+				else if (this._match('is not within')) return this._matched(Xtalk.ID_IS_NOT_WITHIN, Xtalk.FLAG_OPERATOR);
+				else if (this._match('is not in')) return this._matched(Xtalk.ID_IS_NOT_IN, Xtalk.FLAG_OPERATOR);
 				else if (this._match('is not')) return this._matched(Xtalk.ID_NOT_EQUAL, Xtalk.FLAG_OPERATOR);
-				else if (this._match('is within')) return this._matched(Xtalk.ID_WITHIN, Xtalk.FLAG_OPERATOR);
-				else if (this._match('is in')) return this._matched(Xtalk.ID_IN, Xtalk.FLAG_OPERATOR);
+				else if (this._match('is within')) return this._matched(Xtalk.ID_IS_WITHIN, Xtalk.FLAG_OPERATOR);
+				else if (this._match('is in')) return this._matched(Xtalk.ID_IS_IN, Xtalk.FLAG_OPERATOR);
 				else if (this._match('is')) return this._matched(Xtalk.ID_EQUAL, Xtalk.FLAG_OPERATOR);
 				else if (this._match('there is a')) return this._matched(Xtalk.ID_EXISTS, Xtalk.FLAG_OPERATOR);
 				else if (this._match('there is no')) return this._matched(Xtalk.ID_NOT_EXISTS, Xtalk.FLAG_OPERATOR);
