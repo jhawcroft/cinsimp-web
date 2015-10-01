@@ -253,7 +253,8 @@ Error Handling
 	{
 		for (var a = 1; a < arguments.length; a++)
 			in_message = in_message.replace('^'+(a-1), this._object_desc(arguments[a]));
-		throw Error("Syntax Error: " + Xtalk._error_line + ': ' + in_message);
+		//throw Error("Syntax Error: " + Xtalk._error_line + ': ' + in_message);
+		throw new Xtalk.Error('syntax', null, Xtalk._error_line, in_message);  // ** todo - maybe use a property to also get the owner
 	},
 	
 	

@@ -193,7 +193,8 @@ Names
 		
 		in_list.children.splice(in_index, 2, {
 			id:			Xtalk.ID_NUMBER_OF,
-			map:		counter
+			map:		counter,
+			name:		words.slice(0, word_count[0]).join(' ')
 		});
 	
 		return in_index;
@@ -203,7 +204,7 @@ Names
 /*
 	Parses a constant or read-only term.
 */
-	_parse_constant: function(in_list, in_index, word_count, in_constant)
+	_parse_constant: function(in_list, in_index, word_count, in_constant, in_words)
 	{
 		if (in_constant.type == Xtalk.Dict._CONSTANT)
 		{
@@ -211,7 +212,8 @@ Names
 			// string, boolean, integer or real
 			in_list.children.splice(in_index, word_count, {
 				id: 		Xtalk.ID_CONSTANT,
-				value: 		in_constant.value
+				value: 		in_constant.value,
+				name:		in_words.slice(0, word_count).join(' ')
 			});
 		}
 		else
@@ -219,7 +221,8 @@ Names
 			in_list.children.splice(in_index, word_count, {
 				id: 		Xtalk.ID_CONSTANT,
 				param:		in_constant.id,
-				handler: 	in_constant.handler
+				handler: 	in_constant.handler,
+				name:		in_words.slice(0, word_count).join(' ')
 			});
 		}
 	},
@@ -230,14 +233,15 @@ Names
 	
 	Note: Property variants (eg. short, long, etc.) are handled at the dictionary level.
 */
-	_parse_property: function(in_list, in_index, word_count, in_property_map)
+	_parse_property: function(in_list, in_index, word_count, in_property_map, in_words)
 	{
 		var in_index = in_index - this._strip_the(in_list, in_index - 1);
 		
 		in_list.children.splice(in_index, word_count, {
 			id:			Xtalk.ID_PROPERTY,
 			map:		in_property_map,
-			context:	null
+			context:	null,
+			name:		in_words.slice(0, word_count).join(' ')
 		});
 	
 		return in_index;
@@ -247,7 +251,7 @@ Names
 /*
 	Parses an object reference and arguments.
 */
-	_parse_reference: function(in_list, in_index, word_count, in_reference_map)
+	_parse_reference: function(in_list, in_index, word_count, in_reference_map, in_words)
 	{
 		var ordinal = this._get_ordinal(in_list, in_index - 1);
 		if (ordinal)
@@ -259,7 +263,8 @@ Names
 			ref:		this._REF_UNKNOWN,
 			operand1:	null,
 			operand2:	null,
-			context:	null
+			context:	null,
+			name:		in_words.slice(0, word_count).join(' ')
 		}
 		in_list.children.splice(in_index, word_count, node);
 	
@@ -385,7 +390,7 @@ Names
 				var constant = this._lookup_words(Xtalk.Dict._constants, words, word_count);
 				if (constant)
 				{
-					this._parse_constant(in_list, n, word_count[0], constant);
+					this._parse_constant(in_list, n, word_count[0], constant, words);
 					continue;
 				}
 				if (n > 0 && in_list.children[n-1].id == Xtalk.ID_THE)
@@ -393,14 +398,14 @@ Names
 					var property_map = this._lookup_words(Xtalk.Dict._properties, words, word_count);
 					if (property_map)
 					{
-						this._parse_property(in_list, n, word_count[0], property_map);
+						this._parse_property(in_list, n, word_count[0], property_map, words);
 						continue;
 					}
 				}
 				var reference_map = this._lookup_words(Xtalk.Dict._references, words, word_count);
 				if (reference_map)
 				{
-					n = this._parse_reference(in_list, n, word_count[0], reference_map);
+					n = this._parse_reference(in_list, n, word_count[0], reference_map, words);
 					continue;
 				}
 				continue;

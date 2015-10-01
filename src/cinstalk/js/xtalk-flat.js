@@ -346,12 +346,14 @@ Core
 			if (in_subtree.value)
 				this._result.push({
 					id: in_subtree.id,
+					name: in_subtree.name,
 					value: in_subtree.value,
 					has_context: (in_subtree.context ? true : false)
 				});
 			else
 				this._result.push({
 					id: in_subtree.id,
+					name: in_subtree.name,
 					handler: in_subtree.handler,
 					param: in_subtree.param,
 					has_context: (in_subtree.context ? true : false)
@@ -364,6 +366,7 @@ Core
 				this._generate_expr(in_subtree.context);
 			this._result.push({
 				id: in_subtree.id,
+				name: in_subtree.name,
 				map: in_subtree.map,
 				has_context: (in_subtree.context ? true : false)
 			});
@@ -388,6 +391,7 @@ Core
 			}
 			this._result.push({
 				id: in_subtree.id,
+				name: in_subtree.name,
 				map: in_subtree.map,
 				ref: in_subtree.ref,
 				has_context: (in_subtree.context ? true : false),

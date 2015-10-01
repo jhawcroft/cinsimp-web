@@ -411,7 +411,7 @@ Execution
 				prop = step.map[context.type];
 				
 			if (prop) this._push(  this.newValue(prop.handler(context, prop.param, prop.variant)) );
-			else throw 'Problems'; // **TODO - raise error - can't get that property / can't get number of that
+			else this._error("Can't understand arguments of \"^0\".", step.name);
 			
 			// can't actually execute the handler, although we can create an object of TProperty
 			// with all the details ready-to-go,
@@ -792,7 +792,8 @@ Environment Entry
 		/* handle error */
 		catch (err)
 		{
-			alert(err.message); // temporarily - will eventually be a callback to the environment
+			if (this.onError)
+				this.onError(err);
 		}
 	},
 
