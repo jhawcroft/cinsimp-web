@@ -183,6 +183,18 @@ Execution
 		case Xtalk.ID_LITERAL_STRING:
 			this._push( step.value );
 			break;
+		case Xtalk.ID_LITERAL_INTEGER:
+			this._push( step.value );
+			break;
+		case Xtalk.ID_LITERAL_REAL:
+			this._push( step.value );
+			break;
+		case Xtalk.ID_LITERAL_BOOLEAN:
+			this._push( step.value );
+			break;
+		case Xtalk.ID_ADD:
+			this._push( this._pop() + this._pop() );
+			break;
 		}
 	},
 
