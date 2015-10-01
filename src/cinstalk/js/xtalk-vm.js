@@ -323,7 +323,8 @@ Execution
 			break;
 			
 		case Xtalk.ID_CONSTANT:
-			
+			if (typeof step.value != 'object')
+				this._push( this.newValue(step.value) );
 			break;
 		
 		case Xtalk.ID_PROPERTY:
@@ -548,6 +549,24 @@ Execution
 /*****************************************************************************************
 Language Entry
 */
+
+
+	newValue: function(in_value)
+	{
+		if (typeof in_value == 'string')
+			return new Xtalk.VM.TString(in_value);
+		else if (typeof in_value == 'number')
+		{
+			if (in_value % 1 === 0)
+				return new Xtalk.VM.TInteger(in_value);
+			else
+				return new Xtalk.VM.TReal(in_value);
+		}
+		else if (typeof in_value == 'boolean')
+			return new Xtalk.VM.TBoolean(in_value);
+		else
+			return null;
+	},
 
 /*
 	Some commands, like sort, will require that their parameters be evaluated repeatedly
