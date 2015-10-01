@@ -36,6 +36,30 @@ Xtalk.VM.onMessageWrite = function(in_what)
 	document.getElementById('output').value = in_what;
 }
 
+Xtalk.VM.onError = function(in_error)
+{
+	/* check for unhandled javascript errors */
+	if (!(in_error instanceof Xtalk.Error))
+	{
+		alert('Unhandled javascript exception: '+in_error.message+"\n"+
+			in_error.fileName +': '+in_error.lineNumber);
+		return;
+	}
+
+	/* figure out which buttons should be enabled */
+	var canScript = false;
+	var canDebug = false;
+	if (in_error.type == 'runtime') canDebug = true;
+	if (in_error.owner) canScript = true;
+	else canDebug = false;
+	
+	// would do user-level checks here if we actually were running within the authoring environment
+	
+	/* display an appropriate alert */
+	alert(in_error.message + "\n" + "line: " + in_error.line + "\n" +
+		(canScript ? '[Script] ' : '') + (canDebug ? '[Debug] ' : '') + '[Cancel]');
+}
+
 
 function doMessage()
 {

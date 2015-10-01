@@ -54,6 +54,23 @@ xtalk.js
 
 Xtalk.VM = {
 
+/*****************************************************************************************
+Constants
+*/
+
+	/* define the state of the VM: */
+	_STATE_READY: 0,
+	_STATE_RUNNING: 1,
+	_STATE_ABORTED: 2,
+	_STATE_PAUSED: 3,
+
+
+/*****************************************************************************************
+Module Globals
+*/
+	_state: 0,					/* the state of the VM */
+	_last_error: null,			/* last runtime/syntax error */
+
 	_quick_interval: null,		/* during execution, this is set to an interval reference
 							       so that the VM is repeatedly invoked at rapid pace 
 							       to execute the script */
@@ -130,18 +147,21 @@ Callbacks
 */
 
 	onMessageWrite: null,
+	
+	onError: null,	
 
+
+/*****************************************************************************************
+Execution
+*/
 	_put: function(in_what)
 	{
 		in_what = in_what.resolve().toText();
 		if (this.onMessageWrite)
 			this.onMessageWrite(in_what);
 	},
-
-
-/*****************************************************************************************
-Execution
-*/
+	
+	
 
 	_make_operands_strings: function(in_operands)
 	{
@@ -220,6 +240,35 @@ Execution
 		}
 		return false;
 	},
+	
+	
+	// two options in some script error dialogs: Script and Debug
+	// Script is only available when the thing where the error occurred is within a handler, ie. context.handler != null
+	// Debug is only available when the error occurs at runtime (ie. not a syntax error) and within a handler (as above)
+	// in addition, neither is available when not in Authoring user level
+	
+	// make sense to use a custom XtalkRuntimeError class
+	// and a XTalkCompileError
+
+	// can include the object which owns the handler & the line number of the script for the owner
+	// where the error is occurring
+	
+	
+	_error: function(in_message)
+	{
+		for (var a = 1; a < arguments.length; a++)
+			in_message = in_message.replace('^'+(a-1), arguments[a]);
+	
+		var owner = null;
+		if (this._context().handler)
+			owner = this._context().handler.owner;
+		
+		var err = new Xtalk.Error('runtime', owner, 0, in_message); // **TODO later: figure out which line we're on based on step, etc.
+		// type, owner, line, message
+		
+		throw err;
+	},
+	
 
 
 	_error_internal: function(in_message)
@@ -287,6 +336,20 @@ Execution
 			return 1;
 		}
 		return -1;
+	},
+	
+	
+	_step_safe: function()
+	{
+		try
+		{
+			this._step();
+		}
+		catch (err)
+		{
+			this._last_error = err;
+			this._abort();
+		}
 	},
 	
 
@@ -582,19 +645,29 @@ Execution
 	{
 		var me = this;
 		if (!this._quick_interval)
-			this._quick_interval = window.setInterval(function() { try { me._step(); } catch (err) { 
-				me._abort(); alert('Unknown runtime xTalk failure.'); } }, 0 );
+			this._quick_interval = window.setInterval(function() { me._step_safe(); }, 0 );
+		this._state = this._STATE_RUNNING;
+		this._last_error = null;
 	},
 	
 	
-	_abort: function()
+	_abort: function(in_state)
 	{
+		if (this._state != this._STATE_RUNNING)
+			return;
+	
+		if (!in_state)
+			in_state = this._STATE_ABORTED;
+		this._state = in_state;
+		
 		if (this._quick_interval)
 		{
 			window.clearInterval(this._quick_interval);
 			this._quick_interval = null;
 		}
-		this._context_stack = [];
+		
+		if (this.onError && this._last_error)
+			this.onError(this._last_error);
 	},
 	
 
@@ -689,7 +762,11 @@ Environment Entry
 			
 			/* setup a fresh context for the input to be executed */
 			this._context_stack = [ this._new_context(plan, this._current_card, null, 
-				function() { Xtalk.VM._put(Xtalk.VM._context().operand_stack[0]); }) ];
+				function() { 
+					var result = Xtalk.VM._context().operand_stack[0];
+					if (!result) result = new Xtalk.VM.TString('');
+					Xtalk.VM._put(result); 
+				}) ];
 			
 			this._run();
 			return;
