@@ -70,7 +70,7 @@ Xtalk.VM = {
 Utilities
 */
 
-	_new_context: function(in_plan, in_target, in_handler)
+	_new_context: function(in_plan, in_target, in_handler, in_completion)
 	{
 		return {
 			target: in_target,
@@ -78,7 +78,9 @@ Utilities
 			handler: in_handler,
 			plan: in_plan,
 			next_step: 0,
-			locals: {}
+			locals: {},
+			operand_stack: [],
+			completion: in_completion
 		};
 	},
 	
@@ -123,10 +125,45 @@ Expression Evaluation
 		
 	},
 
+/*****************************************************************************************
+Callbacks
+*/
+
+	onMessageWrite: null,
+
+	_put: function(in_what)
+	{
+		if (this.onMessageWrite)
+			this.onMessageWrite(in_what);
+	},
+
 
 /*****************************************************************************************
 Execution
 */
+
+	_error_internal: function(in_message)
+	{
+		this._abort();
+		alert("Internal Error: "+in_message);
+		//throw Error(in_message);
+	},
+
+
+	_push: function(in_what)
+	{
+		var context = this._context();
+		context.operand_stack.push(in_what);
+	},
+	
+	_pop: function()
+	{
+		var context = this._context();
+		if (context.operand_stack.length == 0)
+			this._error_internal("Can't pop, operand stack is empty.");
+		return context.operand_stack.pop();
+	},
+	
 
 	_step: function()
 	{
@@ -134,6 +171,7 @@ Execution
 		var step = context.plan[context.next_step ++];
 		if (!step)
 		{
+			if (context.completion) context.completion();
 			this._abort();
 			return;
 		}
@@ -141,6 +179,9 @@ Execution
 		{
 		case Xtalk.ID_MESSAGE_SEND:
 			alert('message send: '+step.name); // ** DEBUGGING **
+			break;
+		case Xtalk.ID_LITERAL_STRING:
+			this._push( step.value );
 			break;
 		}
 	},
@@ -237,7 +278,8 @@ Environment Entry
 			var plan = Xtalk.Flat.flatten(tree);
 			
 			/* setup a fresh context for the input to be executed */
-			this._context_stack = [ this._new_context(plan, this._current_card, null) ];
+			this._context_stack = [ this._new_context(plan, this._current_card, null, 
+				function() { Xtalk.VM._put(Xtalk.VM._context().operand_stack[0]); }) ];
 			
 			this._run();
 			return;

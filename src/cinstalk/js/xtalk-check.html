@@ -27,9 +27,18 @@ textarea
 
 Xtalk.Tests.run();
 
+
+Xtalk.VM.onMessageWrite = function(in_what)
+{
+	document.getElementById('output').value = in_what;
+}
+
+
 function doMessage()
 {
 	var scriptContainer = document.getElementById('script');
+	
+	
 	
 	Xtalk.VM.handle_message_box(scriptContainer.value);
 }
