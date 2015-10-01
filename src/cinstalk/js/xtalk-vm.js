@@ -133,6 +133,7 @@ Callbacks
 
 	_put: function(in_what)
 	{
+		in_what = in_what.resolve().toText();
 		if (this.onMessageWrite)
 			this.onMessageWrite(in_what);
 	},
@@ -141,6 +142,71 @@ Callbacks
 /*****************************************************************************************
 Execution
 */
+
+	_make_operands_compatible: function(in_operands)
+	{
+		in_operands[0] = in_operands[0].resolve();
+		in_operands[1] = in_operands[1].resolve();
+	
+		if (in_operands[0].type == in_operands[1].type) return true;
+		switch (in_operands[0].type)
+		{
+		case 'String':
+		{
+			switch (in_operands[1].type)
+			{
+			case 'Integer':
+				in_operands[0] = in_operands[0].toInteger();
+				return true;
+			case 'Real':
+				in_operands[0] = in_operands[0].toReal();
+				return true;
+			case 'Boolean':
+				in_operands[1] = in_operands[1].toString();
+				return true;
+			}
+			break;
+		}
+		case 'Boolean':
+		{
+			switch (in_operands[1].type)
+			{
+			case 'String':
+				in_operands[0] = in_operands[0].toString();
+				return true;
+			}
+			break;
+		}
+		case 'Integer':
+		{
+			switch (in_operands[1].type)
+			{
+			case 'String':
+				in_operands[1] = in_operands[1].toInteger();
+				return true;
+			case 'Real':
+				in_operands[0] = in_operands[0].toReal();
+				return true;
+			}
+			break;
+		}
+		case 'Real':
+		{
+			switch (in_operands[1].type)
+			{
+			case 'Integer':
+				in_operands[1] = in_operands[1].toReal();
+				return true;
+			case 'String':
+				in_operands[1] = in_operands[1].toReal();
+				return true;
+			}
+			break;
+		}
+		}
+		return false;
+	},
+
 
 	_error_internal: function(in_message)
 	{
@@ -156,12 +222,32 @@ Execution
 		context.operand_stack.push(in_what);
 	},
 	
+	
 	_pop: function()
 	{
 		var context = this._context();
 		if (context.operand_stack.length == 0)
 			this._error_internal("Can't pop, operand stack is empty.");
 		return context.operand_stack.pop();
+	},
+	
+	
+	_operands: function(in_count)
+	{
+		var operands = [];
+		operands.length = in_count;
+		for (var i = in_count-1; i >= 0; i--)
+			operands[i] = this._pop();
+		return operands;
+	},
+	
+	
+	_new_number: function(in_value, in_type)
+	{
+		if (in_type == 'Integer')
+			return new Xtalk.VM.TInteger(in_value);
+		else
+			return new Xtalk.VM.TReal(in_value);
 	},
 	
 
@@ -181,20 +267,37 @@ Execution
 			alert('message send: '+step.name); // ** DEBUGGING **
 			break;
 		case Xtalk.ID_LITERAL_STRING:
-			this._push( step.value );
+			this._push( new Xtalk.VM.TString(step.value) );
 			break;
 		case Xtalk.ID_LITERAL_INTEGER:
-			this._push( step.value );
+			this._push( new Xtalk.VM.TInteger(step.value) );
 			break;
 		case Xtalk.ID_LITERAL_REAL:
-			this._push( step.value );
+			this._push( new Xtalk.VM.TReal(step.value) );
 			break;
 		case Xtalk.ID_LITERAL_BOOLEAN:
 			this._push( step.value );
 			break;
 		case Xtalk.ID_ADD:
-			this._push( this._pop() + this._pop() );
+		{
+			var operands = this._operands(2);
+			this._make_operands_compatible(operands);
+			this._push( this._new_number(operands[0]._value + operands[1]._value, operands[0].type) );
 			break;
+		}
+		case Xtalk.ID_SUBTRACT:
+		{
+			var operands = this._operands(2);
+			this._make_operands_compatible(operands);
+			this._push( this._new_number(operands[0]._value - operands[1]._value, operands[0].type) );
+			break;
+		}
+		case Xtalk.ID_NEGATE:
+		{
+			var operands = this._operands(1);
+			this._push( this._new_number(-operands[0]._value, operands[0].type) );
+			break;
+		}
 		}
 	},
 
