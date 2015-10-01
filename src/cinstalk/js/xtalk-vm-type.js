@@ -54,6 +54,19 @@ xtalk.js
 
 */
 
+Xtalk.VM.Message = function(in_name, in_is_function, in_params, in_builtin)
+{
+	this.name = in_name;
+	this.type = (in_is_function ? 
+			Xtalk.Script.HANDLER_FUNCTION : 
+			Xtalk.Script.HANDLER_COMMAND);
+	this.params = in_params;
+	this.builtin = in_builtin;
+};
+
+
+
+
 Xtalk.VM.TString = function(in_string) 
 {
 	this._value = in_string + '';

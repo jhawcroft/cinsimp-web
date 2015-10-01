@@ -97,7 +97,7 @@ Utilities
 			next_step: 0,
 			locals: {},
 			operand_stack: [],
-			completion: in_completion
+			completion: in_completion,
 		};
 	},
 	
@@ -112,10 +112,135 @@ Utilities
 Message Hierarchy
 */
 
-	_message_send: function()
-	{
+/*
+	Returns a handler if the specified object responds to the supplied message,
+	or null if no appropriate message handler exists.
 	
+	** THIS FUNCTION SHOULD BE SUBSTANTIALLY CHANGED
+	TO ASK THE ENVIRONMENT FOR A GIVEN OBJECT IF IT RESPONDS TO THE MESSAGE,
+	AND TO PROVIDE A COMPILED HANDLER.
+	RESPONSIBILITY TO COMPILE THE HANDLER/STORE A COMPILED VERSION FALLS TO THE
+	ENVIRONMENT TO UTILISE THE METHODS PROVIDED BY THE XTALK COMPILER.
+	
+	COMPILER ERRORS SHALL BE STORED FOR EACH INDEXED HANDLER
+	SO THEY CAN BE REPORTED WHEN THE HANDLER IS ACTUALLY ACCESSED BY A MSG SEND.
+ */
+	_responds_to: function(in_object, in_message)
+	{
+		var script = in_target.scriptRead();
+		var index = Xtalk.Script.index(script); // ** TO BE CACHED SOMEWHERE & POSSIBLY STORED ** TODO
+		var handler = index[in_message];
+		if ((!handler) || handler.type != in_message.type) return null;
+		
+		script = script.substr(handler.offset, handler.length);
+		handler.block = Xtalk.Parser.Handler.parse(handler, script);
+		handler.block = Xtalk.Flat.flatten(handler.block);
+		handler.owner = in_object;
+		
+		return handler;
 	},
+
+
+/*
+	Finds the next responder in the message hierarchy for the supplied message.
+	Returns the appropriate handler if a responder is found, or null if no next
+	responder can be identified.
+ */
+	_next_message_handler: function(in_responder, in_message)
+	{
+		while (in_responder)
+		{
+			/* lookup the next object in the message hierarchy */
+			in_responder = onNextResponder(in_responder);
+			if (!in_responder) return null;
+			
+			/* look for a handler for the supplied message */
+			var handler = onLookupHandler(responder, in_message.name, in_message.type);
+			if (handler) return handler;
+		}
+		return null;
+	},
+	
+
+/*
+	Directs the supplied message to the supplied target.
+	
+	Directs built-in messages to the built-in handler.
+	
+	Failed message sends are reported at the origin, except where the message was a 
+	system event (bearing in mind a message may be caught and passed by a handler),
+	before failing at CinsImp level.  -- > ** where does HC fail it for Script/Debug?
+ */
+ 	_send_message: function(in_target, in_message)
+ 	{
+ 		/* find an appropriate handler in the message hierarchy;
+ 		first in the target itself and then beyond */
+ 		var handler = onLookupHandler(in_target, in_message.name, in_message.type);
+ 		if (!handler)
+ 			handler = this._next_message_handler(in_target, in_message);
+ 		
+ 		/* if no handler is found, the message isn't understood;
+ 		raise an error with the message's original origin */
+ 		if ((!handler) && (!in_message.builtin))
+ 			this._error("Can't understand \"^0\".", in_message.name);
+ 			
+ 		/* if no handler is found, look for builtin */
+ 		if ((!handler) && in_message.builtin)
+ 		{
+ 			in_message.builtin(in_message); // ** could set this up as a sub-context as below so that long commands can reply in time?
+ 			return;
+ 		}
+ 		
+ 		/* if a handler was found, create a sub-context and configure execution */
+ 		me = this;
+ 		this._context_stack.push( this._new_context(handler.block, handler.owner, handler, 
+ 			me._exit_subroutine()) );
+ 	},
+ 	
+ 
+ /*
+ 	Directs the message to the next responder in the hierarchy.
+ 	
+ 	(If me is null, gets the current card. - via next responder)
+  */
+ 	_pass_message: function(in_message)
+ 	{
+ 		/* find an appropriate handler in the message hierarchy;
+ 		first in the one beyond the current object (if any) */
+ 		var handler = this._next_message_handler(this._context().me, in_message);
+ 		
+ 		/* if no handler is found, the message isn't understood;
+ 		raise an error with the message's original origin */
+ 		if ((!handler) && (!in_message.builtin))
+ 			this._error("Can't understand \"^0\".", in_message.name);
+ 		
+ 		/* if no handler is found, look for builtin */
+ 		if ((!handler) && in_message.builtin)
+ 		{
+ 			in_message.builtin(in_message); // ** could set this up as a sub-context as below so that long commands can reply in time?
+ 			return;
+ 		}
+ 		
+ 		/* if a handler was found, replace the current sub-context and configure
+ 		execution */
+ 		me = this;
+ 		this._context_stack[this._context_stack.length - 1] = 
+ 			this._new_context(handler.block, handler.owner, handler, me._exit_subroutine());
+ 	},
+ 	
+ 	
+/*
+	A subroutine/handler has come to an end, remove the current local context from 
+	the stack and allow execution to continue in the parent context (if any).
+	
+	Copy any result to either 'the result' or the operand stack of the caller
+	depending on the type of handler that was executed.
+*/
+	_exit_subroutine: function()
+	{
+		
+	},
+
 
 
 /*****************************************************************************************
@@ -149,6 +274,13 @@ Callbacks
 	onMessageWrite: null,
 	
 	onError: null,	
+	
+	/* Note:  The dynamic path applies when the environment's current stack differs
+	from the stack owner of the target of the message. */
+	
+	onNextResponder: null, /* look for the next responder for a given object;
+							  irrespective of message, ie. next in message hierarchy */
+	onLookupHandler: null, /* lookup the compiled handler for a given object */
 
 
 /*****************************************************************************************

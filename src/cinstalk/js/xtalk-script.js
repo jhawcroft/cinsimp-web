@@ -69,7 +69,7 @@ Entry
 	*/
 	index: function(in_script)
 	{
-		var index = [];
+		var index = {};
 		
 		var lines = in_script.split("\n");
 		var offset = 0;
@@ -140,13 +140,13 @@ Entry
 					break;
 				}
 			}
-			
-			index.push(handler);
+				
+			index[handler.name] = handler;
 		}
 		
-		for (var i = 0; i < index.length; i++)
+		for (var name in index)
 		{
-			handler = index[i];
+			handler = index[name];
 			if ((handler.length < 0) && (!handler.error))
 				handler.error = "Expected \"end\".";
 		}
