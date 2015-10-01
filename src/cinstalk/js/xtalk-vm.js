@@ -350,6 +350,9 @@ Execution
 			if (prop) this._push(  this.newValue(prop.handler(context, prop.param, prop.variant)) );
 			else throw 'Problems'; // **TODO - raise error - can't get that property / can't get number of that
 			
+			// can't actually execute the handler, although we can create an object of TProperty
+			// with all the details ready-to-go,
+			// because we need to be able to write to some properties
 			
 			break;
 			
@@ -377,6 +380,10 @@ Execution
 			
 			if (ref) this._push( this.newValue(ref.handler(context, ref.param, mode, ident1.toValue(), ident2)) );
 			else throw 'Problems'; // ** TODO as above - can't get that thing/can't understand
+			
+			// can't actually execute the handler, although we can create an object of TReference
+			// with all the details ready-to-go,
+			// because we need to be able to write to some references
 			
 			break;
 			
