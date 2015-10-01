@@ -548,39 +548,39 @@ Operators
 
 	/* operator precedence: */
 
-	_OPS_MATH_SPECIAL: Array(
+	_OPS_MATH_SPECIAL: [
 		Xtalk.ID_EXPONENT
-	),
+	],
 
-	_OPS_MATH_MPYDIV: Array(
+	_OPS_MATH_MPYDIV: [
 		Xtalk.ID_MULTIPLY, Xtalk.ID_DIVIDE_FP, Xtalk.ID_MODULUS, Xtalk.ID_DIVIDE_INT
-	),
+	],
 
-	_OPS_MATH_ADDSUB: Array(
+	_OPS_MATH_ADDSUB: [
 		Xtalk.ID_ADD, Xtalk.ID_SUBTRACT
-	),
+	],
 
-	_OPS_STRING: Array(
+	_OPS_STRING: [
 		Xtalk.ID_CONCAT, Xtalk.ID_CONCAT_SPACE
-	),
+	],
 
-	_OPS_COMPREL: Array(
+	_OPS_COMPREL: [
 		Xtalk.ID_MORE_EQUAL, Xtalk.ID_MORE, Xtalk.ID_LESS_EQUAL, Xtalk.ID_LESS,
 		Xtalk.ID_CONTAINS, Xtalk.ID_IS_IN, Xtalk.ID_IS_NOT_IN, Xtalk.ID_IS_WITHIN, Xtalk.ID_IS_NOT_WITHIN,
 		Xtalk.ID_THERE_IS_A, Xtalk.ID_THERE_IS_NO
-	),
+	],
 
-	_OPS_COMPEQ: Array(
+	_OPS_COMPEQ: [
 		Xtalk.ID_EQUAL, Xtalk.ID_NOT_EQUAL
-	),
+	],
 
-	_OPS_LOGIC_AND: Array(
-		Xtalk.ID_AND
-	),
+	_OPS_LOGIC_AND: [
+		Xtalk.ID_LAND
+	],
 
-	_OPS_LOGIC_OR: Array(
-		Xtalk.ID_OR, 0
-	),
+	_OPS_LOGIC_OR: [
+		Xtalk.ID_LOR
+	],
 
 
 /*
@@ -888,7 +888,7 @@ Entry
 		this._identify_negation(in_subtree);
 		this._parentheses(in_subtree);
 		this._subexpression(in_subtree);
-		this._validate(in_subtree);
+		//this._validate(in_subtree);
 		
 		return in_subtree;
 	}

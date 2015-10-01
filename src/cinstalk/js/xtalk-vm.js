@@ -143,6 +143,20 @@ Callbacks
 Execution
 */
 
+	_make_operands_strings: function(in_operands)
+	{
+		in_operands[0] = in_operands[0].resolve().toString();
+		in_operands[1] = in_operands[1].resolve().toString();
+	},
+	
+	
+	_make_operands_booleans: function(in_operands)
+	{
+		in_operands[0] = in_operands[0].resolve().toBoolean();
+		in_operands[1] = in_operands[1].resolve().toBoolean();
+	},
+	
+	
 	_make_operands_compatible: function(in_operands)
 	{
 		in_operands[0] = in_operands[0].resolve();
@@ -250,6 +264,31 @@ Execution
 			return new Xtalk.VM.TReal(in_value);
 	},
 	
+	
+	_compare: function(in_value1, in_value2)
+	{
+		switch (in_value1.type)
+		{
+		case 'String':
+			if (in_value1._value.toLowerCase() == in_value2._value.toLowerCase()) return 0;
+			return in_value1._value.localeCompare(in_value2._value);
+		case 'Integer':
+			if (in_value1._value == in_value2._value) return 0;
+			if (in_value1._value < in_value2._value) return -1;
+			return 1;
+		case 'Real':
+			if (Math.abs(in_value1._value - in_value2._value) < 0.0000001) return 0;
+			if (in_value1._value < in_value2._value) return -1;
+			return 1;
+			break;
+		case 'Boolean':
+			if (in_value1._value == in_value2._value) return 0;
+			if (!in_value1._value) return -1;
+			return 1;
+		}
+		return -1;
+	},
+	
 
 	_step: function()
 	{
@@ -298,9 +337,115 @@ Execution
 			this._push( this._new_number(-operands[0]._value, operands[0].type) );
 			break;
 		}
+		case Xtalk.ID_IDIV:
+		{
+			var operands = this._operands(2);
+			this._make_operands_compatible(operands);
+			this._push( new Xtalk.VM.TInteger(operands[0]._value / operands[1]._value) );
+			break;
+		}
+		case Xtalk.ID_RDIV:
+		{
+			var operands = this._operands(2);
+			this._make_operands_compatible(operands);
+			this._push( this._new_number(operands[0]._value / operands[1]._value, operands[0].type) );
+			break;
+		}
+		case Xtalk.ID_MOD:
+		{
+			var operands = this._operands(2);
+			this._make_operands_compatible(operands);
+			this._push( new Xtalk.VM.TInteger(operands[0]._value % operands[1]._value) );
+			break;
+		}
+		case Xtalk.ID_MULTIPLY:
+		{
+			var operands = this._operands(2);
+			this._make_operands_compatible(operands);
+			this._push( this._new_number(operands[0]._value * operands[1]._value, operands[0].type) );
+			break;
+		}
+		case Xtalk.ID_EXPONENT:
+		{
+			var operands = this._operands(2);
+			this._make_operands_compatible(operands);
+			this._push( this._new_number(Math.pow(operands[0]._value, operands[1]._value), operands[0].type) );
+			break;
+		}
+		case Xtalk.ID_CONCAT:
+		{
+			var operands = this._operands(2);
+			this._make_operands_strings(operands);
+			this._push( new Xtalk.VM.TString(operands[0]._value + operands[1]._value) );
+			break;
+		}
+		case Xtalk.ID_CONCAT_SPACE:
+		{
+			var operands = this._operands(2);
+			this._make_operands_strings(operands);
+			this._push( new Xtalk.VM.TString(operands[0]._value + ' ' + operands[1]._value) );
+			break;
+		}
+		
+		case Xtalk.ID_EQUAL:
+		{
+			var operands = this._operands(2);
+			this._make_operands_compatible(operands);
+			this._push(new Xtalk.VM.TBoolean( this._compare(operands[0], operands[1]) == 0 ));
+			break;
+		}
+		case Xtalk.ID_NOT_EQUAL:
+		{
+			var operands = this._operands(2);
+			this._make_operands_compatible(operands);
+			this._push(new Xtalk.VM.TBoolean( this._compare(operands[0], operands[1]) != 0 ));
+			break;
+		}
+		
+		case Xtalk.ID_LAND:
+		{
+			var operands = this._operands(2);
+			this._make_operands_booleans(operands);
+			this._push(new Xtalk.VM.TBoolean( operands[0]._value && operands[1]._value ));
+			break;
+		}
+		case Xtalk.ID_LOR:
+		{
+			var operands = this._operands(2);
+			this._make_operands_booleans(operands);
+			this._push(new Xtalk.VM.TBoolean( operands[0]._value || operands[1]._value ));
+			break;
+		}
+		case Xtalk.ID_LNOT:
+		{
+			var operand = this._pop().toBoolean();
+			this._push(new Xtalk.VM.TBoolean( !(operand._value) ));
+			break;
+		}
+		
+		
+		
 		}
 	},
 
+/*
+
+ID_NOT_WITHIN: 6,
+	ID_WITHIN: 7,
+	ID_NOT_IN: 8,
+	ID_IN: 9,
+	ID_CONTAINS: 10,
+	ID_EXISTS: 13,
+	ID_NOT_EXISTS: 14,
+	
+	
+	
+	ID_LESS_EQUAL: 26,
+	ID_LESS: 27,
+	ID_MORE_EQUAL: 27,
+	ID_MORE: 28,
+	
+*/
 
 	_run: function()
 	{

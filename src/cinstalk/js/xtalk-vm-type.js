@@ -56,7 +56,7 @@ xtalk.js
 
 Xtalk.VM.TString = function(in_string) 
 {
-	this._value = in_string;
+	this._value = in_string + '';
 	this.type = 'String';
 };
 
@@ -75,7 +75,7 @@ Xtalk.VM.TString.prototype.toText = function()
 
 Xtalk.VM.TString.prototype.toInteger = function()
 {
-	return new Xtalk.VM.TInteger(Math.trunc(this._value));
+	return new Xtalk.VM.TInteger(Math.floor(this._value));
 }
 
 
@@ -85,10 +85,24 @@ Xtalk.VM.TString.prototype.toReal = function()
 }
 
 
+Xtalk.VM.TString.prototype.toString = function()
+{
+	return this;
+}
+
+
+Xtalk.VM.TString.prototype.toBoolean = function()
+{
+	var v = this._value.toLowerCase();
+	if (v == 'true') return new Xtalk.VM.TBoolean(true);
+	return new Xtalk.VM.TBoolean(false);
+}
+
+
 
 Xtalk.VM.TInteger = function(in_integer)
 {
-	this._value = in_integer;
+	this._value = Math.floor(in_integer);
 	this.type = 'Integer';
 }
 
@@ -101,13 +115,25 @@ Xtalk.VM.TInteger.prototype.resolve = function()
 
 Xtalk.VM.TInteger.prototype.toText = function()
 {
-	return this._value + '';
+	return this.toString()._value;
 }
 
 
 Xtalk.VM.TInteger.prototype.toReal = function()
 {
 	return new Xtalk.VM.TReal(this._value + 0.0);
+}
+
+
+Xtalk.VM.TInteger.prototype.toString = function()
+{
+	return new Xtalk.VM.TString(this._value);  // todo *** number format observance
+}
+
+
+Xtalk.VM.TInteger.prototype.toBoolean = function()
+{
+	throw new Error(""); // ** TO FIX for type mismatch error
 }
 
 
@@ -127,14 +153,57 @@ Xtalk.VM.TReal.prototype.resolve = function()
 
 Xtalk.VM.TReal.prototype.toText = function()
 {
-	return this._value + '';
+	return this.toString()._value;
 }
 
 
 Xtalk.VM.TInteger.prototype.toInteger = function()
 {
-	return new Xtalk.VM.TInteger(Math.trunc(this._value));
+	return new Xtalk.VM.TInteger(Math.floor(this._value));
 }
 
 
+Xtalk.VM.TReal.prototype.toString = function()
+{
+	return new Xtalk.VM.TString(this._value);  // todo *** number format observance
+}
+
+
+Xtalk.VM.TReal.prototype.toBoolean = function()
+{
+	throw new Error(""); // ** TO FIX for type mismatch error
+}
+
+
+
+
+Xtalk.VM.TBoolean = function(in_bool)
+{
+	this._value = in_bool;
+	this.type = 'Boolean';
+}
+
+
+Xtalk.VM.TBoolean.prototype.resolve = function()
+{
+	return this;
+}
+
+
+Xtalk.VM.TBoolean.prototype.toText = function()
+{
+	return (this._value ? 'true' : 'false');
+}
+
+
+Xtalk.VM.TBoolean.prototype.toString = function()
+{
+	return new Xtalk.VM.TString(this.toText());
+}
+
+
+Xtalk.VM.TBoolean.prototype.toBoolean = function()
+{
+	return this;
+}
 
