@@ -57,11 +57,22 @@ Xtalk.Builtins = {
 		switch (in_variant)
 		{
 		case 'shrt':
-			return now.getDate() + '/' + (now.getMonth()+1) + '/' + now.getFullYear();
+		{
+			var yr = now.getFullYear() + '';
+			return now.getDate() + '/' + (now.getMonth()+1) + '/' + yr.substr(yr.length - 2, 2);
+		}
 		case 'abbr':
-			return '';
+		{
+			var abbr_days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+			var abbr_months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+			return abbr_days[now.getDay()] + ', ' + abbr_months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear();
+		}
 		case 'long':
-			return '';
+		{
+			var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+			var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+			return days[now.getDay()] + ', ' + months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear();
+		}
 		}
 	}
 	
