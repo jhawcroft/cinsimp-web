@@ -439,6 +439,18 @@ Core
 		});
 	},
 	
+	
+/*
+	Generates a return from the current message handler.
+*/
+	_generate_return: function(in_subtree)
+	{
+		this._generate_expr(in_subtree.expr);
+		this._result.push({
+			id: Xtalk.ID_RETURN
+		});
+	},
+	
 
 /*
 	Generates any kind of node by branching to the appropriate routine (if required.)
@@ -468,6 +480,9 @@ Core
 			break;
 		case Xtalk.ID_MESSAGE_SEND:
 			this._generate_message_send(in_node);
+			break;
+		case Xtalk.ID_RETURN:
+			this._generate_return(in_node);
 			break;
 		default:
 			this._result.push(in_node);

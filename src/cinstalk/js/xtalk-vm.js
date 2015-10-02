@@ -55,6 +55,22 @@ xtalk.js
 Xtalk.VM = {
 
 /*****************************************************************************************
+Callbacks
+*/
+
+	onMessageWrite: null,
+	
+	onError: null,	
+	
+	/* Note:  The dynamic path applies when the environment's current stack differs
+	from the stack owner of the target of the message. */
+	
+	onNextResponder: null, /* look for the next responder for a given object;
+							  irrespective of message, ie. next in message hierarchy */
+	onLookupHandler: null, /* lookup the compiled handler for a given object */
+	
+
+/*****************************************************************************************
 Constants
 */
 
@@ -81,12 +97,17 @@ Module Globals
 	
 	_context_stack: [],			/* stack of local execution contexts,
 								   ie. essentially a call stack */
+								   
+	_result: null,				/* 'the result' of any prior command */
 	
-
+	
 /*****************************************************************************************
 Utilities
 */
 
+/*
+	Creates a new execution local context.
+*/
 	_new_context: function(in_plan, in_target, in_handler, in_completion)
 	{
 		return {
@@ -96,15 +117,90 @@ Utilities
 			plan: in_plan,
 			next_step: 0,
 			locals: {},
+			imported_globals: {},
 			operand_stack: [],
 			completion: in_completion,
 		};
 	},
 	
 	
+/*
+	Returns the top execution local context.
+*/
 	_context: function()
 	{
+		if (this._context_stack.length == 0) return null;
 		return this._context_stack[this._context_stack.length-1];
+	},
+	
+	
+/*
+	Automatically converts a Javascript value to an appropriate VM object.
+*/
+	newValue: function(in_value)
+	{
+		if (typeof in_value == 'string')
+			return new Xtalk.VM.TString(in_value);
+		else if (typeof in_value == 'number')
+		{
+			if (in_value % 1 === 0)
+				return new Xtalk.VM.TInteger(in_value);
+			else
+				return new Xtalk.VM.TReal(in_value);
+		}
+		else if (typeof in_value == 'boolean')
+			return new Xtalk.VM.TBoolean(in_value);
+		else
+			return in_value;
+	},
+
+	
+/*
+	Creates a new VM object representative of the supplied numeric value as the specified
+	VM type.
+*/
+	_new_number: function(in_value, in_type)
+	{
+		if (in_type == 'Integer')
+			return new Xtalk.VM.TInteger(in_value);
+		else
+			return new Xtalk.VM.TReal(in_value);
+	},
+	
+
+/*
+	Pushes a value on to the current local context's operand stack.
+*/
+	_push: function(in_what)
+	{
+		var context = this._context();
+		context.operand_stack.push(in_what);
+	},
+	
+
+/*
+	Pops a value from the current local context's operand stack.
+*/
+	_pop: function()
+	{
+		var context = this._context();
+		if (context.operand_stack.length == 0)
+			Xtalk._error_internal("Can't pop, operand stack is empty.");
+		return context.operand_stack.pop();
+	},
+	
+
+/*
+	Pops the specified number of operands off the current local context's operand stack
+	and accumulates within an array, in the order in which they were originally pushed.
+*/
+	_operands: function(in_count)
+	{
+		var operands = [];
+		operands.length = in_count;
+		for (var i = in_count-1; i >= 0; i--)
+			operands[i] = this._pop();
+		return operands;
 	},
 
 
@@ -227,65 +323,13 @@ Message Hierarchy
  		this._context_stack[this._context_stack.length - 1] = 
  			this._new_context(handler.block, handler.owner, handler, me._exit_subroutine());
  	},
- 	
- 	
-/*
-	A subroutine/handler has come to an end, remove the current local context from 
-	the stack and allow execution to continue in the parent context (if any).
-	
-	Copy any result to either 'the result' or the operand stack of the caller
-	depending on the type of handler that was executed.
-*/
-	_exit_subroutine: function()
-	{
-		
-	},
-
 
 
 /*****************************************************************************************
-Expression Evaluation
+Access/Mutation
 */
 
-
-// can I evaluate expressions given the possibility of function message sends?
-// might I need to flatten expressions so that they too can be processed in incremental steps?
-
-// still need implementations of the operators anyway
-
-// or could extract the function calls that aren't recognised
-// and replace w/ placeholders,
-// and make a series of preliminary steps to process each in the sequence 
-// appopriate?  not really safe.
-
-// suggest we just flatten expressions, which I hadn't intended on doing
-
-// in the meantime, we can bring some implementations across for operators from C
-
-	_evaluate_expr: function(in_expr)
-	{
-		
-	},
-
-/*****************************************************************************************
-Callbacks
-*/
-
-	onMessageWrite: null,
-	
-	onError: null,	
-	
-	/* Note:  The dynamic path applies when the environment's current stack differs
-	from the stack owner of the target of the message. */
-	
-	onNextResponder: null, /* look for the next responder for a given object;
-							  irrespective of message, ie. next in message hierarchy */
-	onLookupHandler: null, /* lookup the compiled handler for a given object */
-
-
-/*****************************************************************************************
-Execution
-*/
+// *** YET TO BE EXPANDED FOR CHUNK SUPPORT, ETC. ***
 	_put: function(in_what)
 	{
 		in_what = in_what.resolve().toText();
@@ -294,21 +338,24 @@ Execution
 	},
 	
 	
+	_variable_read: function(in_name)
+	{
+		var context = this._context();
+		if (context.imported_globals[in_name])
+			return this._globals[in_name];
+		else
+			return context.variables[in_name];
+	},
+	
+	
+/*****************************************************************************************
+Comparison
+*/
 
-	_make_operands_strings: function(in_operands)
-	{
-		in_operands[0] = in_operands[0].resolve().toString();
-		in_operands[1] = in_operands[1].resolve().toString();
-	},
-	
-	
-	_make_operands_booleans: function(in_operands)
-	{
-		in_operands[0] = in_operands[0].resolve().toBoolean();
-		in_operands[1] = in_operands[1].resolve().toBoolean();
-	},
-	
-	
+/*
+	Converts both operands to the same type, if possible,
+	so that they may be compared.
+*/
 	_make_operands_compatible: function(in_operands)
 	{
 		in_operands[0] = in_operands[0].resolve();
@@ -373,79 +420,15 @@ Execution
 		return false;
 	},
 	
-	
-	// two options in some script error dialogs: Script and Debug
-	// Script is only available when the thing where the error occurred is within a handler, ie. context.handler != null
-	// Debug is only available when the error occurs at runtime (ie. not a syntax error) and within a handler (as above)
-	// in addition, neither is available when not in Authoring user level
-	
-	// make sense to use a custom XtalkRuntimeError class
-	// and a XTalkCompileError
 
-	// can include the object which owns the handler & the line number of the script for the owner
-	// where the error is occurring
+/*
+	Compares two VM values and returns an integer:
+	-1, if value 1 < value 2,
+	0,  if value 1 and value 2 are equal, or
+	1,  if value 1 > value 2.
 	
-	
-	_error: function(in_message)
-	{
-		for (var a = 1; a < arguments.length; a++)
-			in_message = in_message.replace('^'+(a-1), arguments[a]);
-	
-		var owner = null;
-		if (this._context().handler)
-			owner = this._context().handler.owner;
-		
-		var err = new Xtalk.Error('runtime', owner, 0, in_message); // **TODO later: figure out which line we're on based on step, etc.
-		// type, owner, line, message
-		
-		throw err;
-	},
-	
-
-
-	_error_internal: function(in_message)
-	{
-		this._abort();
-		alert("Internal Error: "+in_message);
-		//throw Error(in_message);
-	},
-
-
-	_push: function(in_what)
-	{
-		var context = this._context();
-		context.operand_stack.push(in_what);
-	},
-	
-	
-	_pop: function()
-	{
-		var context = this._context();
-		if (context.operand_stack.length == 0)
-			this._error_internal("Can't pop, operand stack is empty.");
-		return context.operand_stack.pop();
-	},
-	
-	
-	_operands: function(in_count)
-	{
-		var operands = [];
-		operands.length = in_count;
-		for (var i = in_count-1; i >= 0; i--)
-			operands[i] = this._pop();
-		return operands;
-	},
-	
-	
-	_new_number: function(in_value, in_type)
-	{
-		if (in_type == 'Integer')
-			return new Xtalk.VM.TInteger(in_value);
-		else
-			return new Xtalk.VM.TReal(in_value);
-	},
-	
-	
+	Strings are compared case-insensitively.
+*/
 	_compare: function(in_value1, in_value2)
 	{
 		switch (in_value1.type)
@@ -470,13 +453,86 @@ Execution
 		return -1;
 	},
 	
+
+/*****************************************************************************************
+Execution
+*/
+
+/*
+	Converts all the operands to strings.
+*/
+	_make_operands_strings: function(in_operands)
+	{
+		for (var i = 0; i < in_operands.length; i++)
+			in_operands[i] = in_operands[i].resolve().toString();
+	},
 	
+
+/*
+	Converts all the operands to booleans.
+*/
+	_make_operands_booleans: function(in_operands)
+	{
+		for (var i = 0; i < in_operands.length; i++)
+			in_operands[i] = in_operands[i].resolve().toBoolean();
+	},
+	
+
+/*
+	Raises a runtime error.
+*/
+	_error: function(in_message)
+	{
+		for (var a = 1; a < arguments.length; a++)
+			in_message = in_message.replace('^'+(a-1), arguments[a]);
+	
+		var owner = null;
+		if (this._context().handler)
+			owner = this._context().handler.owner;
+		
+		var err = new Xtalk.Error('runtime', owner, 0, in_message); // **TODO later: figure out which line we're on based on step, etc.
+		// type, owner, line, message
+		
+		throw err;
+	},
+	
+	
+/*
+	Executes a return from handler, placing the result into 'the result' and 
+	if the handler was a function, also places the result on the operand stack of
+	the caller (if any).
+ */
+	_return: function()
+	{
+		/* store the result */
+		var val = this._pop().resolve();
+		var context = this._context();
+		if (context.handler && context.handler.type == Xtalk.Script.HANDLER_FUNCTION
+				&& this._context_stack.length > 1)
+		{
+			var caller_context = this._context_stack[this._context_stack.length - 2];
+			caller_context.operand_stack.push(val);
+		}
+		this._result = val;
+		
+		/* save completion handler */
+		var completion = context.completion;
+		
+		/* remove the current context */
+		this._context_stack.pop();
+		
+		/* run the completion handler (if any) */  // may be able to do something else with this for message box results ****
+		if (completion) completion();
+	},
+	
+	
+/*
+	Safely executes a single step of the current execution plan.
+	If any kind of error occurs, it is caught and handled according to documented policy.
+*/	
 	_step_safe: function()
 	{
-		try
-		{
-			this._step();
-		}
+		try { this._step(); }
 		catch (err)
 		{
 			this._last_error = err;
@@ -485,47 +541,86 @@ Execution
 	},
 	
 
+/*
+	Executes a single step of the current execution plan.
+	If an error occurs, an exception is thrown.
+*/
 	_step: function()
 	{
+		/* automatically stop the VM if there's no local context */
 		var context = this._context();
+		if (!context)
+			this._abort();
+		
+		/* automatically return if the end of the current plan is reached */
 		var step = context.plan[context.next_step ++];
 		if (!step)
 		{
-			if (context.completion) context.completion();
-			this._abort();
+			this._return();
 			return;
 		}
+		
+		/* switch on the type of operation to be performed at this step
+		of the execution plan */
 		switch (step.id)
 		{
+		
+		/* message sends */
 		case Xtalk.ID_MESSAGE_SEND:
-			alert('message send: '+step.name); // ** DEBUGGING **
-			break;
-			
 		case Xtalk.ID_FUNCTION_CALL:
-			
+		{
+			var params = this._operands(step.arg_count);
+			var message = new Xtalk.VM.Message(step.name, (step.id == Xtalk.ID_FUNCTION_CALL), params, step.handler);
+			this._send_message(context.me, message);
 			break;
+		}
 			
-		case Xtalk.ID_GLOBAL: // create global & global import to locals accessible
-			
+		/* import global into local namespace */
+		case Xtalk.ID_GLOBAL:
+		{
+			for (var v = 0; v < step.variables.length; v++)
+				context.imported_globals[step.variables[v]] = true;
 			break;
-			
-		case Xtalk.ID_ABORT: // this is probably only ever an ABORT_EVENT now, ie. halt all script execution
+		}
+		
+		/* abort the current VM session */
+		case Xtalk.ID_ABORT:
+		{
 			this._abort();
 			break;
-			
-		case Xtalk.ID_RETURN:
+		}
 		
+		/* return from the current message handler */
+		case Xtalk.ID_RETURN:
+		{
+			this._return();
 			break;
-			
+		}
+		
+		/* push a constant or special term value */
 		case Xtalk.ID_CONSTANT:
+		{
 			if (step.handler)
 				this._push( this.newValue(step.handler(step.param)) );
 			else
 				this._push( this.newValue(step.value) );
 			break;
-		
+		}
+			
+		/* push a variable reference */
+		case Xtalk.ID_VARIABLE:
+		{
+			// need to wrap up like with the refs below, rather than read directly
+			// ie. new TVariable   ****** todo *******
+			
+			this._push( this._variable_read(step.name) );
+			break;
+		}
+			
+		/* push a property/count reference */
 		case Xtalk.ID_PROPERTY:
 		case Xtalk.ID_NUMBER_OF:
+		{
 			// if !has_context, then context type is '----' (global)
 			// otherwise, context must be obtained from operand stack,
 			// evaluated and type tested
@@ -550,8 +645,11 @@ Execution
 			// because we need to be able to write to some properties
 			
 			break;
-			
+		}
+		
+		/* push an object reference */
 		case Xtalk.ID_REFERENCE:
+		{
 			// context, op1, op2
 			
 			var operands = this._operands(step.operands);
@@ -581,34 +679,52 @@ Execution
 			// because we need to be able to write to some references
 			
 			break;
-			
-		case Xtalk.ID_VARIABLE:
+		}
 		
-			break;
-			
+		/* jump to a different step in the current plan */	
 		case Xtalk.ID_JUMP:
+		{
 			context.next_step = step.step;
 			break;
-		case Xtalk.ID_JUMP_IF_FALSE:
-			
+		}
+		case Xtalk.ID_JUMP_IF_FALSE: /* ...only if the last expression was false */
+		{
+			var val = this._pop().resolve().toBoolean();
+			if (!val._value)
+				context.next_step = step.step;
 			break;
-		case Xtalk.ID_JUMP_IF_TRUE:
-			
+		}
+		case Xtalk.ID_JUMP_IF_TRUE: /* ...only if the last expression was true */
+		{
+			var val = this._pop().resolve().toBoolean();
+			if (val._value)
+				context.next_step = step.step;
 			break;
+		}
 			
+		/* push a constant literal value */
 		case Xtalk.ID_LITERAL_STRING:
+		{
 			this._push( new Xtalk.VM.TString(step.value) );
 			break;
+		}
 		case Xtalk.ID_LITERAL_INTEGER:
+		{
 			this._push( new Xtalk.VM.TInteger(step.value) );
 			break;
+		}
 		case Xtalk.ID_LITERAL_REAL:
+		{
 			this._push( new Xtalk.VM.TReal(step.value) );
 			break;
+		}
 		case Xtalk.ID_LITERAL_BOOLEAN:
-			this._push( step.value );
+		{
+			this._push( new Xtalk.VM.TBoolean(step.value) );
 			break;
+		}
 			
+		/* handle arithmetic operations */
 		case Xtalk.ID_ADD:
 		{
 			var operands = this._operands(2);
@@ -665,6 +781,7 @@ Execution
 			break;
 		}
 		
+		/* handle string operations */
 		case Xtalk.ID_CONCAT:
 		{
 			var operands = this._operands(2);
@@ -679,7 +796,6 @@ Execution
 			this._push( new Xtalk.VM.TString(operands[0]._value + ' ' + operands[1]._value) );
 			break;
 		}
-		
 		case Xtalk.ID_IS_NOT_IN:
 		{
 			var operands = this._operands(2);
@@ -702,6 +818,7 @@ Execution
 			break;
 		}
 		
+		/* handle comparison operations */
 		case Xtalk.ID_EQUAL:
 		{
 			var operands = this._operands(2);
@@ -745,7 +862,7 @@ Execution
 			break;
 		}
 		
-		
+		/* handle logical operations */
 		case Xtalk.ID_LAND:
 		{
 			var operands = this._operands(2);
@@ -769,10 +886,19 @@ Execution
 		
 		// todo: implement ID_NOT_WITHIN & ID_WITHIN (geometric operators)
 		// todo: implement ID_EXISTS & ID_NOT_EXISTS (using callbacks to ask about specific object reference)
+	
+		default:
+		{
+			Xtalk._error_internal("Illegal operation ^0.", step.id);
+			break;
+		}
 		}
 	},
 
 
+/*
+	Start the VM executing with the top context's execution plan.
+*/
 	_run: function()
 	{
 		var me = this;
@@ -782,7 +908,10 @@ Execution
 		this._last_error = null;
 	},
 	
-	
+
+/*
+	Stop the VM executing, with no intention of resuming the current context stack/plan.
+*/
 	_abort: function(in_state)
 	{
 		if (this._state != this._STATE_RUNNING)
@@ -806,24 +935,6 @@ Execution
 /*****************************************************************************************
 Language Entry
 */
-
-
-	newValue: function(in_value)
-	{
-		if (typeof in_value == 'string')
-			return new Xtalk.VM.TString(in_value);
-		else if (typeof in_value == 'number')
-		{
-			if (in_value % 1 === 0)
-				return new Xtalk.VM.TInteger(in_value);
-			else
-				return new Xtalk.VM.TReal(in_value);
-		}
-		else if (typeof in_value == 'boolean')
-			return new Xtalk.VM.TBoolean(in_value);
-		else
-			return in_value;
-	},
 
 /*
 	Some commands, like sort, will require that their parameters be evaluated repeatedly
@@ -895,7 +1006,7 @@ Environment Entry
 			/* setup a fresh context for the input to be executed */
 			this._context_stack = [ this._new_context(plan, this._current_card, null, 
 				function() { 
-					var result = Xtalk.VM._context().operand_stack[0];
+					var result = Xtalk.VM._result;
 					if (!result) result = new Xtalk.VM.TString('');
 					Xtalk.VM._put(result); 
 				}) ];

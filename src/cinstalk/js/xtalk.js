@@ -259,6 +259,18 @@ Error Handling
 	
 	
 /*
+	Raises an internal error.
+*/
+	_error_internal: function(in_message)
+	{
+		for (var a = 1; a < arguments.length; a++)
+			in_message = in_message.replace('^'+(a-1), arguments[a]);
+			
+		throw new Xtalk.Error('internal', null, 0, in_message);
+	},
+	
+	
+/*
 	Escapes the supplied string so it is suitable for use as a term within a 
 	Javascript regular expression.
 */	
