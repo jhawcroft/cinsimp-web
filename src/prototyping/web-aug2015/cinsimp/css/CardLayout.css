@@ -1,0 +1,105 @@
+/*
+*/
+
+div.CardLayout
+{
+	display: block;
+	background-color: white;
+	overflow: hidden;
+}
+
+div.LayoutLayer
+{
+	display: block;
+	position: absolute;
+	left: 0;
+	top: 0;
+}
+
+
+.CursorArrow
+{
+	cursor: default;
+}
+
+.CursorHand
+{
+	cursor: pointer;
+}
+
+.CursorIBeam
+{
+	cursor: text;
+}
+
+
+
+div.LayoutObject
+{
+	display: block;
+	position: absolute;
+	overflow: hidden;
+	/*border: 10px solid red;*/
+	/*background-color: gray;
+	border-radius: 5px;*/
+}
+
+div.LayoutObjectSelected
+{
+	display: block;
+	position: absolute;
+	top: 0;
+	left: 0;
+	border: 3px solid orange;
+}
+
+
+div.LayoutObjectOutline
+{
+	display: block;
+	position: absolute;
+	top: 0;
+	left: 0;
+	border: 1px solid gray;
+}
+
+
+div.Button
+{
+	display: block;
+	position: absolute;
+	left: 0;
+	top: 0;
+	background-color: #CCCCCC;
+	border-radius: 5px;
+	font-family: Helvetica Neue;
+	font-size: 12pt;
+}
+
+
+textarea.Field
+{
+	display: block;
+	position: absolute;
+	left: 0;
+	top: 0;
+	border: 1px solid black;
+	resize: none;
+	margin: 0;
+	padding: 5px;
+	box-sizing: border-box;
+	font-family: Geneva,sans-serif;
+	font-size: 12pt;
+}
+
+
+img.LayerArt
+{
+	display: block;
+	position: absolute;
+	left: 0;
+	top: 0;
+	border: 0;
+}
+
+

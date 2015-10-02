@@ -1,6 +1,6 @@
 <?php
 /*
- WOBA Decoder for PHP
+ Prototype WOBA Decoder for PHP
  (c) 2015 Joshua Hawcroft
  
  May all beings have happiness and the cause of happiness.
