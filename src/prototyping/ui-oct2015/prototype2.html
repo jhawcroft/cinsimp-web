@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Prototype CinsImp Screen Layout</title>
+<style type="text/css">
+
+
+body
+{
+	overflow: hidden;
+	background-color: #333333;
+}
+
+#Screen
+{
+	position: absolute;
+	display: block;
+	width: 100%;
+	left: 0;
+	top: 0;
+	border: 0;
+	box-sizing: border-box;
+}
+
+
+#tool-buttons
+{
+	display: block;
+	position: absolute;
+	background-color: #333333;
+	padding: 5px;
+	padding-left: 10px;
+	margin: 0;
+	color: white;
+	
+	top: 100px;
+	left: 0px;
+	width: 92px;
+}
+
+
+#main-buttons
+{
+	position: absolute;
+	display: block;
+}
+
+.ToolButtons div
+{
+	position: relative;
+	display: inline-block;
+	padding: 0;
+	margin: 0;
+	font-family: Helvetica Neue,sans-serif;
+	font-size: 10pt;
+	background-color: #333333;
+	color: white;
+	padding: 6px;
+	cursor: default;
+}
+
+.ToolButtons div img
+{
+	display: block;
+	margin: 0 auto;
+	padding: 0;
+	cursor: default;
+}
+
+.ToolButtons div div
+{
+	display: block;
+	padding: 0;
+	cursor: default;
+}
+
+
+
+div.SideBar
+{
+	display: block;
+	position: absolute;
+	background-color: #333333;
+	width: 100%;
+	padding: 10px;
+	box-sizing: border-box;
+}
+
+#bar-top
+{
+	height: 80px;
+	left: 0;
+	top: 0;
+	border-bottom: 1px dotted black;
+}
+
+
+div.Spacer
+{
+	display: inline-block;
+	width: 10px;
+	height: 10px;
+}
+
+
+
+
+#application-banner
+{
+	position: absolute;
+	display: block;
+	right: 0;
+	top: 0;
+	color: white;
+	font-family: Helvetica Neue, sans-serif;
+	font-size: 16pt;
+	font-weight: bold;
+	padding: 10px;
+}
+
+
+#bar-bot
+{
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 50px;
+	border-top: 1px dotted black;
+}
+
+#message-box
+{
+	display: block;
+	position: absolute;
+	left: 0;
+	top: 0;
+	margin: 0;
+	padding: 10px;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+#message-box input
+{
+	font-family: Courier New, monospace;
+	font-size: 14pt;
+	background-color: #333333;
+	border: 0;
+	border-bottom: 1px dotted white;
+	color: white;
+	padding: 3px;
+	width: 100%;
+}
+
+
+
+</style>
+</head>
+<body>
+
+<div id="Screen">
+
+
+<div id="bar-top" class="SideBar">
+
+	<div id="main-buttons" class="ToolButtons">
+		<div><img src="../../gfx/toolbaricons/home.png" width="32"><div>Home</div></div>
+		<div><img src="../../gfx/toolbaricons/help.png" width="32"><div>Help</div></div>
+		<div><img src="../../gfx/toolbaricons/recent.png" width="32"><div>Recent</div></div>
+		<div><img src="../../gfx/toolbaricons/back.png" width="32"><div>Back</div></div>
+		<div class="Spacer"></div>
+		<div><img src="../../gfx/toolbaricons/first.png" width="32"><div>First</div></div>
+		<div><img src="../../gfx/toolbaricons/prev.png" width="32"><div>Previous</div></div>
+		<div><img src="../../gfx/toolbaricons/next.png" width="32"><div>Next</div></div>
+		<div><img src="../../gfx/toolbaricons/last.png" width="32"><div>Last</div></div>
+		<div class="Spacer"></div>
+		<div><img src="../../gfx/toolbaricons/find.png" width="32"><div>Find</div></div>
+		<div class="Spacer"></div>
+		<div><img src="../../gfx/toolbaricons/new.png" width="32"><div>New Card</div></div>
+		<div><img src="../../gfx/toolbaricons/delete.png" width="32"><div>Delete Card</div></div>
+	</div>
+	
+	<div id="application-banner">
+		CinsImp
+	</div>
+</div>
+
+
+<div id="bar-bot" class="SideBar">
+
+<div id="message-box"><form>
+		<input type="text" size="30" value="">
+	</form></div>
+	
+</div>
+
+
+<div id="tool-buttons" style="border-right: 1px dotted black;">
+<img src="../../gfx/toolicons/browse-normal.png" width="42" title="Browse"><br>
+<img src="../../gfx/toolicons/button-normal.png" width="42" title="Button">
+<img src="../../gfx/toolicons/field-normal.png" width="42" title="Field">
+<img src="../../gfx/toolicons/pencil-normal.png" width="42" title="Pencil">
+<img src="../../gfx/toolicons/brush-normal.png" width="42" title="Paint Brush">
+<img src="../../gfx/toolicons/bucket-normal.png" width="42" title="Paint Bucket">
+<img src="../../gfx/toolicons/spray-normal.png" width="42" title="Spray">
+<img src="../../gfx/toolicons/select-normal.png" width="42" title="Select">
+<img src="../../gfx/toolicons/lasso-normal.png" width="42" title="Lasso">
+<img src="../../gfx/toolicons/line-normal.png" width="42" title="Line">
+<img src="../../gfx/toolicons/rectangle-normal.png" width="42" title="Rectangle">
+<img src="../../gfx/toolicons/roundrect-normal.png" width="42" title="Round Rectangle">
+<img src="../../gfx/toolicons/oval-normal.png" width="42" title="Oval">
+<img src="../../gfx/toolicons/freeshape-normal.png" width="42" title="Free Shape">
+<img src="../../gfx/toolicons/freepoly-normal.png" width="42" title="Free Polygon">
+<img src="../../gfx/toolicons/regpoly-normal.png" width="42" title="Regular Polygon">
+<img src="../../gfx/toolicons/eyedrop-normal.png" width="42" title="Eyedropper">
+</div>
+
+
+</div>
+
+<script>
+	document.getElementById('Screen').style.height = window.innerHeight + 'px';
+</script>
+
+</body>
+</html>
