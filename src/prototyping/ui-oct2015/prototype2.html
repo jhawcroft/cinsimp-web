@@ -3,6 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <title>Prototype CinsImp Screen Layout</title>
+
+<link rel="stylesheet" type="text/css" href="../../css/window.css">
+<link rel="stylesheet" type="text/css" href="../../css/modal.css">
+<link rel="stylesheet" type="text/css" href="../../css/widgets.css">
+
+
+<script language="javascript" type="text/javascript" src="../../uitoolkit/window.js"></script>
+<script language="javascript" type="text/javascript" src="../../uitoolkit/dialog.js"></script>
+
 <style type="text/css">
 
 
@@ -176,10 +185,28 @@ div.Spacer
 <div id="Screen">
 
 
+<script>
+
+function tc()
+{
+	var dlg = Dialog.getTop();
+	dlg.close();
+}
+
+function test()
+{
+	var dlg = new Dialog('Test Window', {left: 200, top: 50, width: 350, height: 200});
+	dlg.getRoot().innerHTML = '<input type="button" value="Close" onclick="tc()">';
+	
+}
+
+</script>
+
+
 <div id="bar-top" class="SideBar">
 
 	<div id="main-buttons" class="ToolButtons">
-		<div><img src="../../gfx/toolbaricons/home.png" width="32"><div>Home</div></div>
+		<div><img src="../../gfx/toolbaricons/home.png" width="32" onclick="test()"><div>Home</div></div>
 		<div><img src="../../gfx/toolbaricons/help.png" width="32"><div>Help</div></div>
 		<div><img src="../../gfx/toolbaricons/recent.png" width="32"><div>Recent</div></div>
 		<div><img src="../../gfx/toolbaricons/back.png" width="32"><div>Back</div></div>
