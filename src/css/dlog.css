@@ -1,0 +1,17 @@
+﻿div.Dialog
+{
+	border: 2px solid black;
+	position: absolute;
+	overflow: hidden;
+}
+
+.Dialog
+{
+	font-family: Helvetica Neue, sans-serif;
+	font-size: 14pt;
+}
+
+.Dialog div
+{
+	position: absolute;
+}
