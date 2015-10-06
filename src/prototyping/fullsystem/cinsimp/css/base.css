@@ -377,7 +377,7 @@ div.DialogRoot
 
 
 /*****************************************************************************************
-Dialogs
+Palette Innards
 */
 
 div#ToolButtonGrid
@@ -407,3 +407,27 @@ div#ToolButtonGrid
 	padding: 0;
 	width: 42px;
 }
+
+
+div.ColourSwatchTable
+{
+	font-size: 0pt;
+	display: block;
+	width: 120px;
+}
+
+.ColourSwatchTable div
+{
+	width: 20px;
+	height: 20px;
+	display: inline-block;
+	cursor: pointer;
+}
+
+.ColourSwatchTable img
+{
+	position: absolute; 
+}
+
+
+

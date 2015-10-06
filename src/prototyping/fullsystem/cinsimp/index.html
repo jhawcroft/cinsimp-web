@@ -12,6 +12,8 @@
 
 <script language="javascript" type="text/javascript" src="js/dialog.js"></script>
 
+<script language="javascript" type="text/javascript" src="js/colours.js"></script>
+
 <script>
 
 function openApplicationMenu(el)
@@ -21,6 +23,7 @@ function openApplicationMenu(el)
 	PopupMenu.ApplicationMenu.item(0).checkmark = Palette.Navigator.getVisible();
 	PopupMenu.ApplicationMenu.item(1).checkmark = Palette.Tools.getVisible();
 	PopupMenu.ApplicationMenu.item(2).checkmark = Palette.Authoring.getVisible();
+	PopupMenu.ApplicationMenu.item(3).checkmark = Palette.Colours.getVisible();
 	
 	PopupMenu.ApplicationMenu.open([r.left - 4,20], 'right');
 }
@@ -113,12 +116,11 @@ Card Goes Here
 
 </div>
 
-<!--
 
 
+<div id="PaletteColours" class="PaletteTemplate" style="left: 50px; top: 100px;">
+</div>
 
-
--->
 
 
 <div id="applicationBar">
@@ -145,6 +147,7 @@ Card Goes Here
 Palette.Navigator = new Palette(document.getElementById('PaletteNavigator'), Palette.TITLE_VERTICAL);
 Palette.Tools = new Palette(document.getElementById('PaletteTools'), 0);
 Palette.Authoring = new Palette(document.getElementById('PaletteAuthoring'), Palette.TITLE_VERTICAL);
+Palette.Colours = new Palette(document.getElementById('PaletteColours'), 0);
 
 
 PopupMenu.ApplicationMenu = new PopupMenu();
@@ -153,8 +156,8 @@ var m = PopupMenu.ApplicationMenu;
 m.appendItem('Navigator', Palette.Navigator.toggle.bind(Palette.Navigator));
 m.appendItem('Tools', Palette.Tools.toggle.bind(Palette.Tools));
 m.appendItem('Authoring', Palette.Authoring.toggle.bind(Palette.Authoring));
-m.appendItem('Colours', null);
-m.appendItem('Line Sizes', null);
+m.appendItem('Colours', Palette.Colours.toggle.bind(Palette.Colours));
+//m.appendItem('Line Sizes', null);
 m.appendItem('-', null);
 m.appendItem('New Stack', null);
 m.appendItem('Save a Copy', null);
@@ -167,6 +170,45 @@ Dialog.About = new Dialog('About CinsImp', document.getElementById('DialogAbout'
 
 Palette.Navigator.show();
 //Palette.Tools.show();
+
+
+function chooseColour(in_event)
+{
+	var e = in_event || window.event;
+	var dom_swatch = e.target;
+	alert(dom_swatch.style.backgroundColor);
+}
+
+
+function setupColours()
+{
+	var dom_table = document.createElement('div');
+	dom_table.className = 'ColourSwatchTable';
+	for (var c = 0; c < Colours.DEFAULT_SET.length; c++)
+	{
+		var colour = Colours.DEFAULT_SET[c];
+		
+		var dom_swatch = document.createElement('div');
+		dom_swatch.style.backgroundColor = 'rgba('+colour[0]+','+colour[1]+','+colour[2]+',1)';
+		dom_table.appendChild(dom_swatch);
+		
+		dom_swatch.addEventListener('mousedown', chooseColour);
+	}
+	Palette.Colours._root.appendChild(dom_table);
+	
+	var cell_size = dom_table.children[0].clientWidth;
+	var per_row = Math.floor(dom_table.clientWidth / dom_table.children[0].clientWidth);
+	var rows = Math.ceil(Colours.DEFAULT_SET.length / per_row);
+	
+	Palette.Colours.setSize([per_row * cell_size, rows * cell_size]);
+	Palette.Colours._div.style.opacity = 1.0; /* not appropriate to have translucent colour swatches */
+	
+	//var dom_selector = document.createElement('img');
+	
+}
+
+setupColours();
+
 
 
 function clearSelectedTools()

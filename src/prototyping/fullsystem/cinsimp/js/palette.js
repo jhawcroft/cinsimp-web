@@ -77,11 +77,9 @@ Palette.prototype._init_with_div = function(in_element)
 	this._div.style.left = this._loc[0]+'px';
 	this._div.style.top = this._loc[1]+'px';
 	
-	this._root.style.width = this._size[0]+1+'px';
-	this._root.style.height = this._size[1]+1+'px';
 	
-	this._div.style.width = this._size[0] + 4 + (this._flags & Palette.TITLE_VERTICAL ? this._titlebar.clientWidth : 0) + 'px';
-	this._div.style.height = this._size[1] + 4 + (this._flags & Palette.TITLE_VERTICAL ? 0 : this._titlebar.clientHeight) + 'px';
+	
+	
 	if (this._flags & Palette.TITLE_VERTICAL)
 		this._root.style.left = this._titlebar.clientWidth + 'px';
 	else
@@ -89,7 +87,7 @@ Palette.prototype._init_with_div = function(in_element)
 	//this._root.style.width = this._size[0]+ 4 + 'px';
 	//this._root.style.height = this._size[1] + 'px';
 	
-	
+	this.setSize(this._size);
 }
 
 
@@ -104,6 +102,16 @@ Palette.prototype.setLoc = function(in_loc)
 	this._loc = [in_loc[0], in_loc[1]];
 	this._div.style.left = this._loc[0] + 'px';
 	this._div.style.top = this._loc[1] + 'px';
+}
+
+
+Palette.prototype.setSize = function(in_size)
+{
+	this._size = [in_size[0], in_size[1]];
+	this._root.style.width = this._size[0]+1+'px';
+	this._root.style.height = this._size[1]+1+'px';
+	this._div.style.width = this._size[0] + 4 + (this._flags & Palette.TITLE_VERTICAL ? this._titlebar.clientWidth : 0) + 'px';
+	this._div.style.height = this._size[1] + 4 + (this._flags & Palette.TITLE_VERTICAL ? 0 : this._titlebar.clientHeight) + 'px';
 }
 
 
