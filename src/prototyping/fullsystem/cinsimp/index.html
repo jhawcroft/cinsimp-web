@@ -90,8 +90,16 @@ Card Goes Here
 </div>
 
 
-<div id="DialogAbout" class="Dialog" style="width: 400px; height: 300px; top: 200px; left: 300px;">
-About CinsImp
+<div id="DialogAbout" class="DialogTemplate" style="width: 400px; height: 300px;">
+
+	<img src="gfx/app-icon.png" style="float: left; padding-right: 20px; padding-left: 10px;">
+	<p style="margin-top: 40px;"><strong>CinsImp</strong><br>
+	<small>version 1.0</small></p>
+	
+	<div style="position: absolute; bottom: 14px; left: 20px; margin: 0;">
+	<small>Copyright © 2009-2015 Joshua Hawcroft</small>
+	</div>
+	
 </div>
 
 
@@ -115,11 +123,11 @@ m.appendItem('New Stack', null);
 m.appendItem('Save a Copy', null);
 m.appendItem('Delete Stack', null);
 m.appendItem('-', null);
-m.appendItem('About CinsImp', null);
+m.appendItem('About CinsImp', function() { Dialog.About.centre(); Dialog.About.show(); });
 
 
-Dialog.About = new Dialog(document.getElementById('DialogAbout'));
-Dialog.About.show();
+Dialog.About = new Dialog('About CinsImp', document.getElementById('DialogAbout'));
+
 
 </script>
 

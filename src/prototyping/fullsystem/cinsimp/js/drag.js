@@ -1,10 +1,15 @@
 /*
 CinsImp
-Drag helper utilities; for dragging & resizing DIVs around the webpage
+Drag and resize helper utilities
 
 *********************************************************************************
 Copyright (c) 2009-2015, Joshua Hawcroft
 All rights reserved.
+
+ May all beings have happiness and the cause of happiness.
+ May all beings be free of suffering and the cause of suffering.
+ May all beings rejoice for the supreme happiness which is without suffering.
+ May all beings abide in the great equanimity; free of attachment and delusion.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
