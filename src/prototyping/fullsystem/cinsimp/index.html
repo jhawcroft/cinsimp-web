@@ -90,28 +90,28 @@ Card Goes Here
 
 
 
-<div id="PaletteTools" class="PaletteTemplate" style="left: 830px; top: 200px; background-color: #CCC">
+<div id="PaletteTools" class="PaletteTemplate" style="left: 830px; top: 200px;">
 
 <div id="ToolButtonGrid">
-	<div onclick="chooseTool(1);"><img src="gfx/browse-normal.png" title="Browse"></div>
-	<div onclick="chooseTool(2);"><img src="gfx/button-hilite.png" title="Button"></div>
-	<div onclick="chooseTool(3);"><img src="gfx/field-hilite.png" title="Field"></div>
-	<div onclick="chooseTool(4);"><img src="gfx/pencil-hilite.png" title="Pencil"></div>
-	<div onclick="chooseTool(5);"><img src="gfx/brush-hilite.png" title="Paint Brush"></div>
-	<div onclick="chooseTool(6);"><img src="gfx/eraser-hilite.png" title="Eraser"></div>
-	<div onclick="chooseTool(7);"><img src="gfx/bucket-hilite.png" title="Paint Bucket"></div>
-	<div onclick="chooseTool(8);"><img src="gfx/spray-hilite.png" title="Spray"></div>
-	<div onclick="chooseTool(9);"><img src="gfx/select-hilite.png" title="Select"></div>
-	<div onclick="chooseTool(10);"><img src="gfx/lasso-hilite.png" title="Lasso"></div>
-	<div onclick="chooseTool(11);"><img src="gfx/line-hilite.png" title="Line"></div>
-	<div onclick="chooseTool(12);"><img src="gfx/rectangle-hilite.png" title="Rectangle"></div>
-	<div onclick="chooseTool(13);"><img src="gfx/roundrect-hilite.png" title="Round Rectangle"></div>
-	<div onclick="chooseTool(14);"><img src="gfx/oval-hilite.png" title="Oval"></div>
-	<div onclick="chooseTool(15);"><img src="gfx/freeshape-hilite.png" title="Free Shape"></div>
-	<div onclick="chooseTool(16);"><img src="gfx/freepoly-hilite.png" title="Free Polygon"></div>
-	<div onclick="chooseTool(17);"><img src="gfx/regpoly-hilite.png" title="Regular Polygon"></div>
-	<div onclick="chooseTool(18);"><img src="gfx/eyedrop-hilite.png" title="Eyedropper"></div>
-	<div onclick="chooseTool(19);"><img src="gfx/text-hilite.png" title="Text"></div>
+	<div onclick="chooseTool(1);"><img src="gfx/browse-hilite.png" title="Browse"></div>
+	<div onclick="chooseTool(2);"><img src="gfx/button-normal.png" title="Button"></div>
+	<div onclick="chooseTool(3);"><img src="gfx/field-normal.png" title="Field"></div>
+	<div onclick="chooseTool(4);"><img src="gfx/pencil-normal.png" title="Pencil"></div>
+	<div onclick="chooseTool(5);"><img src="gfx/brush-normal.png" title="Paint Brush"></div>
+	<div onclick="chooseTool(6);"><img src="gfx/eraser-normal.png" title="Eraser"></div>
+	<div onclick="chooseTool(7);"><img src="gfx/bucket-normal.png" title="Paint Bucket"></div>
+	<div onclick="chooseTool(8);"><img src="gfx/spray-normal.png" title="Spray"></div>
+	<div onclick="chooseTool(9);"><img src="gfx/select-normal.png" title="Select"></div>
+	<div onclick="chooseTool(10);"><img src="gfx/lasso-normal.png" title="Lasso"></div>
+	<div onclick="chooseTool(11);"><img src="gfx/line-normal.png" title="Line"></div>
+	<div onclick="chooseTool(12);"><img src="gfx/rectangle-normal.png" title="Rectangle"></div>
+	<div onclick="chooseTool(13);"><img src="gfx/roundrect-normal.png" title="Round Rectangle"></div>
+	<div onclick="chooseTool(14);"><img src="gfx/oval-normal.png" title="Oval"></div>
+	<div onclick="chooseTool(15);"><img src="gfx/freeshape-normal.png" title="Free Shape"></div>
+	<div onclick="chooseTool(16);"><img src="gfx/freepoly-normal.png" title="Free Polygon"></div>
+	<div onclick="chooseTool(17);"><img src="gfx/regpoly-normal.png" title="Regular Polygon"></div>
+	<div onclick="chooseTool(18);"><img src="gfx/eyedrop-normal.png" title="Eyedropper"></div>
+	<div onclick="chooseTool(19);"><img src="gfx/text-normal.png" title="Text"></div>
 </div>
 
 </div>
@@ -217,7 +217,7 @@ function clearSelectedTools()
 	for (var t = 0; t < img_list.length; t++)
 	{
 		var palette_img = img_list[t].children[0];
-		palette_img.src = palette_img.src.replace('normal', 'hilite');
+		palette_img.src = palette_img.src.replace('hilite', 'normal');
 	}
 }
 
@@ -225,7 +225,7 @@ function chooseTool(in_tool)
 {
 	clearSelectedTools();
 	var palette_img = Palette.Tools._root.children[0].children[in_tool - 1].children[0];
-	palette_img.src = palette_img.src.replace('hilite', 'normal');
+	palette_img.src = palette_img.src.replace('normal', 'hilite');
 }
 
 </script>
