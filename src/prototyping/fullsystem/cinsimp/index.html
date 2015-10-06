@@ -4,8 +4,30 @@
 <meta charset="UTF-8">
 <title>CinsImp Prototype</title>
 <link rel="stylesheet" type="text/css" href="css/base.css">
+
+<script language="javascript" type="text/javascript" src="js/drag.js"></script>
+
+<script language="javascript" type="text/javascript" src="js/palette.js"></script>
+<script language="javascript" type="text/javascript" src="js/popup-menu.js"></script>
+
+<script language="javascript" type="text/javascript" src="js/dialog.js"></script>
+
+<script>
+
+function openApplicationMenu(el)
+{
+	var r = el.getBoundingClientRect();
+	
+	PopupMenu.ApplicationMenu.item(0).checkmark = Palette.Navigator.getVisible();
+	PopupMenu.ApplicationMenu.item(2).checkmark = Palette.Authoring.getVisible();
+	
+	PopupMenu.ApplicationMenu.open([r.left - 4,20], 'right');
+}
+
+</script>
+
 </head>
-<body>
+<body class="noselect">
 
 
 
@@ -16,7 +38,7 @@ Card Goes Here
 </div>
 
 
-<div class="Palette" style="left: 300px; top: 350px;"><div class="VertTitle"><img src="gfx/closex.png" width="16"></div><div class="WinContentVT">
+<div id="PaletteNavigator" class="Palette" style="left: 300px; top: 350px;"><div class="VertTitle"><img src="gfx/closex.png" width="16"></div><div class="WinContentVT">
 
 <div class="ButtonsRow">
 <div title="Home"><img src="gfx/home.png" width="32" onclick="test()"><div>Home</div></div>
@@ -41,7 +63,7 @@ Card Goes Here
 </div></div>
 
 
-<div class="Palette" style="left: 180px; top: 450px;"><div class="VertTitle"><img src="gfx/closex.png" width="16"></div><div class="WinContentVT">
+<div id="PaletteAuthoring" class="Palette" style="left: 180px; top: 450px; visibility: hidden;"><div class="VertTitle"><img src="gfx/closex.png" width="16"></div><div class="WinContentVT">
 
 <div class="ButtonsRow">
 <div title="Object Info"><img src="gfx/info.png" width="32"><div>Object Info</div></div>
@@ -64,26 +86,42 @@ Card Goes Here
 
 
 <div id="applicationBar">
-<img src="gfx/cog.png" width="16" alt="Configure" title="Configure" class="Clickable" onclick="alert('clicked');">
+<img src="gfx/cog.png" width="16" alt="Configure" title="Configure" class="Clickable" onclick="openApplicationMenu(this);">
+</div>
+
+
+<div id="DialogAbout" class="Dialog" style="width: 400px; height: 300px; top: 200px; left: 300px;">
+About CinsImp
 </div>
 
 
 
-<div id="applicationMenu">
-<ul>
-	<li>Navigator</li>
-	<li>Tools</li>
-	<li>Authoring</li>
-	<li>Colors</li>
-	<li>Line Sizes</li>
-	<li></li>
-	<li>New Stack</li>
-	<li>Save a Copy</li>
-	<li>Delete Stack</li>
-	<li></li>
-	<li>About CinsImp</li>
-</ul>
-</div>
+<script>
+
+Palette.Navigator = new Palette(document.getElementById('PaletteNavigator'));
+Palette.Authoring = new Palette(document.getElementById('PaletteAuthoring'));
+
+
+PopupMenu.ApplicationMenu = new PopupMenu();
+var m = PopupMenu.ApplicationMenu;
+
+m.appendItem('Navigator', Palette.Navigator.toggle.bind(Palette.Navigator));
+m.appendItem('Tools', null);
+m.appendItem('Authoring', Palette.Authoring.toggle.bind(Palette.Authoring));
+m.appendItem('Colours', null);
+m.appendItem('Line Sizes', null);
+m.appendItem('-', null);
+m.appendItem('New Stack', null);
+m.appendItem('Save a Copy', null);
+m.appendItem('Delete Stack', null);
+m.appendItem('-', null);
+m.appendItem('About CinsImp', null);
+
+
+Dialog.About = new Dialog(document.getElementById('DialogAbout'));
+Dialog.About.show();
+
+</script>
 
 
 </body>

@@ -1,3 +1,6 @@
+/*****************************************************************************************
+Basic Document Setup
+*/
 
 body
 {
@@ -5,6 +8,44 @@ body
 	background-color: #AAAAAA;
 	font-family: Helvetica Neue, sans-serif;
 }
+
+
+.noselect 
+{
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+
+.selectable
+{
+	-webkit-touch-callout: default;
+    -webkit-user-select: default;
+    -khtml-user-select: default;
+    -moz-user-select: default;
+    -ms-user-select: default;
+    user-select: default;
+}
+
+
+div.Cover
+{
+	display: block;
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	visibility: hidden;
+}
+
+
+/*****************************************************************************************
+Stack Window
+*/
 
 
 #stackWindow
@@ -17,6 +58,10 @@ body
 }
 
 
+/*****************************************************************************************
+Application Bar
+*/
+
 #applicationBar
 {
 	position: relative;
@@ -26,6 +71,10 @@ body
 	width: 16px;
 }
 
+
+/*****************************************************************************************
+Cursors
+*/
 
 .Clickable
 {
@@ -38,36 +87,10 @@ body
 }
 
 
-#standardBar
-{
-	display: block;
-	position: relative;
-	margin-top: 10px;
-	background-color: white;
-	box-shadow: 0px 10px 10px 1px #666;
-	z-index: 10;
-}
 
-#standardBar div
-{
-	display: inline-block;
-	position: relative;
-	margin-right: 5px;
-}
-
-#standardBar div div
-{
-	display: block;
-	margin: 0 auto;
-}
-
-#standardBar div img
-{
-	display: block;
-	margin: 0 auto;
-}
-
-
+/*****************************************************************************************
+Utility Palettes
+*/
 
 div.Palette
 {
@@ -113,6 +136,12 @@ div.WinContentVT
 	vertical-align: top;
 }
 
+
+
+/*****************************************************************************************
+Palette Button Layout
+*/
+
 div.ButtonsRow
 {
 	display: block;
@@ -152,42 +181,85 @@ div.ButtonsRow
 
 .ButtonsRow div.Spacer
 {
-	width: 10px;
-	height: 10px;
+	width: 5px;
+	height: 5px;
 }
 
 
-#applicationMenu
+/*****************************************************************************************
+Popup Menus
+*/
+
+div.PopupMenu
 {
 	display: block;
-	z-index: 70;
 	position: absolute;
-	left: 670px;
-	top: 20px;
 	background-color: black;
-	width: 150px;
-	min-height: 30px;
+	min-width: 100px;
+	min-height: 10px;
 	color: white;
 	box-shadow: 0px 5px 5px 1px #666;
 	opacity: 0.9;
 }
 
-#applicationMenu ul
+.PopupMenu ul
 {
 	list-style: none;
 	margin: 10px;
 	padding: 0;
 }
 
-#applicationMenu li
+.PopupMenu li
 {
 	display: block;
 	padding: 3px;
+	padding-left: 20px;
+	padding-right: 10px;
 	cursor: pointer;
 }
 
-#applicationMenu li:hover
+.PopupMenu li.Checked
+{
+	background-image: url(../gfx/tick-white.png);
+	background-repeat: no-repeat;
+	background-position: 4px 9px; 
+}
+
+.PopupMenu li:hover
 {
 	background-color: #666;
 }
+
+.PopupMenu li.Separator
+{
+	height: 5px;
+}
+
+.PopupMenu li.Separator:hover
+{
+	background-color: inherit;
+	cursor: default;
+}
+
+
+/*****************************************************************************************
+Dialogs
+*/
+
+div.Dialog
+{
+	display: block;
+	position: absolute;
+	border: 2px solid black;
+	border-radius: 3px;
+	box-shadow: 0px 5px 5px 1px #666;
+	z-index: 500;
+	overflow: hidden;
+	background-color: white;
+	opacity: 0.8;
+	visibility: hidden;
+}
+
+
+
 
