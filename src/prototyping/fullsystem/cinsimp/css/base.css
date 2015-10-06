@@ -140,6 +140,7 @@ div.Palette
 	overflow: hidden;
 	background-color: white;
 	opacity: 0.8;
+	visibility: hidden;
 }
 
 .Palette div.VertTitle

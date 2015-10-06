@@ -85,7 +85,7 @@ Palette.prototype.show = function()
 
 Palette.prototype.toggle = function()
 {
-	if (this._div.style.visibility == 'hidden')
+	if (!this.getVisible())
 		this.show();
 	else
 		this.hide();
@@ -94,7 +94,7 @@ Palette.prototype.toggle = function()
 
 Palette.prototype.getVisible = function()
 {
-	return (this._div.style.visibility != 'hidden');
+	return ((this._div.style.visibility != '') && (this._div.style.visibility != 'hidden'));
 }
 
 
