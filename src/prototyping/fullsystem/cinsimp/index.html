@@ -19,6 +19,7 @@ function openApplicationMenu(el)
 	var r = el.getBoundingClientRect();
 	
 	PopupMenu.ApplicationMenu.item(0).checkmark = Palette.Navigator.getVisible();
+	PopupMenu.ApplicationMenu.item(1).checkmark = Palette.Tools.getVisible();
 	PopupMenu.ApplicationMenu.item(2).checkmark = Palette.Authoring.getVisible();
 	
 	PopupMenu.ApplicationMenu.open([r.left - 4,20], 'right');
@@ -38,7 +39,7 @@ Card Goes Here
 </div>
 
 
-<div id="PaletteNavigator" class="PaletteTemplate" style="left: 100px; top: 350px;">
+<div id="PaletteNavigator" class="PaletteTemplate" style="left: 100px; top: 550px;">
 
 <div class="ButtonsRow">
 	<div title="Home"><img src="gfx/home.png" width="32" onclick="test()"><div>Home</div></div>
@@ -84,25 +85,37 @@ Card Goes Here
 
 </div>
 
+
+
+<div id="PaletteTools" class="PaletteTemplate" style="left: 830px; top: 200px; background-color: #CCC">
+
+<div id="ToolButtonGrid">
+	<div onclick="chooseTool(1);"><img src="gfx/browse-normal.png" title="Browse"></div>
+	<div onclick="chooseTool(2);"><img src="gfx/button-hilite.png" title="Button"></div>
+	<div onclick="chooseTool(3);"><img src="gfx/field-hilite.png" title="Field"></div>
+	<div onclick="chooseTool(4);"><img src="gfx/pencil-hilite.png" title="Pencil"></div>
+	<div onclick="chooseTool(5);"><img src="gfx/brush-hilite.png" title="Paint Brush"></div>
+	<div onclick="chooseTool(6);"><img src="gfx/eraser-hilite.png" title="Eraser"></div>
+	<div onclick="chooseTool(7);"><img src="gfx/bucket-hilite.png" title="Paint Bucket"></div>
+	<div onclick="chooseTool(8);"><img src="gfx/spray-hilite.png" title="Spray"></div>
+	<div onclick="chooseTool(9);"><img src="gfx/select-hilite.png" title="Select"></div>
+	<div onclick="chooseTool(10);"><img src="gfx/lasso-hilite.png" title="Lasso"></div>
+	<div onclick="chooseTool(11);"><img src="gfx/line-hilite.png" title="Line"></div>
+	<div onclick="chooseTool(12);"><img src="gfx/rectangle-hilite.png" title="Rectangle"></div>
+	<div onclick="chooseTool(13);"><img src="gfx/roundrect-hilite.png" title="Round Rectangle"></div>
+	<div onclick="chooseTool(14);"><img src="gfx/oval-hilite.png" title="Oval"></div>
+	<div onclick="chooseTool(15);"><img src="gfx/freeshape-hilite.png" title="Free Shape"></div>
+	<div onclick="chooseTool(16);"><img src="gfx/freepoly-hilite.png" title="Free Polygon"></div>
+	<div onclick="chooseTool(17);"><img src="gfx/regpoly-hilite.png" title="Regular Polygon"></div>
+	<div onclick="chooseTool(18);"><img src="gfx/eyedrop-hilite.png" title="Eyedropper"></div>
+	<div onclick="chooseTool(19);"><img src="gfx/text-hilite.png" title="Text"></div>
+</div>
+
+</div>
+
 <!--
 
-<img src="gfx/browse-normal.png" width="42" title="Browse"><br>
-<img src="gfx/button-normal.png" width="42" title="Button">
-<img src="gfx/field-normal.png" width="42" title="Field">
-<img src="gfx/pencil-normal.png" width="42" title="Pencil">
-<img src="gfx/brush-normal.png" width="42" title="Paint Brush">
-<img src="gfx/bucket-normal.png" width="42" title="Paint Bucket">
-<img src="gfx/spray-normal.png" width="42" title="Spray">
-<img src="gfx/select-normal.png" width="42" title="Select">
-<img src="gfx/lasso-normal.png" width="42" title="Lasso">
-<img src="gfx/line-normal.png" width="42" title="Line">
-<img src="gfx/rectangle-normal.png" width="42" title="Rectangle">
-<img src="gfx/roundrect-normal.png" width="42" title="Round Rectangle">
-<img src="gfx/oval-normal.png" width="42" title="Oval">
-<img src="gfx/freeshape-normal.png" width="42" title="Free Shape">
-<img src="gfx/freepoly-normal.png" width="42" title="Free Polygon">
-<img src="gfx/regpoly-normal.png" width="42" title="Regular Polygon">
-<img src="gfx/eyedrop-normal.png" width="42" title="Eyedropper">
+
 
 
 -->
@@ -130,6 +143,7 @@ Card Goes Here
 <script>
 
 Palette.Navigator = new Palette(document.getElementById('PaletteNavigator'), Palette.TITLE_VERTICAL);
+Palette.Tools = new Palette(document.getElementById('PaletteTools'), 0);
 Palette.Authoring = new Palette(document.getElementById('PaletteAuthoring'), Palette.TITLE_VERTICAL);
 
 
@@ -137,7 +151,7 @@ PopupMenu.ApplicationMenu = new PopupMenu();
 var m = PopupMenu.ApplicationMenu;
 
 m.appendItem('Navigator', Palette.Navigator.toggle.bind(Palette.Navigator));
-m.appendItem('Tools', null);
+m.appendItem('Tools', Palette.Tools.toggle.bind(Palette.Tools));
 m.appendItem('Authoring', Palette.Authoring.toggle.bind(Palette.Authoring));
 m.appendItem('Colours', null);
 m.appendItem('Line Sizes', null);
@@ -152,6 +166,25 @@ m.appendItem('About CinsImp', function() { Dialog.About.centre(); Dialog.About.s
 Dialog.About = new Dialog('About CinsImp', document.getElementById('DialogAbout'));
 
 Palette.Navigator.show();
+//Palette.Tools.show();
+
+
+function clearSelectedTools()
+{
+	var img_list = Palette.Tools._root.children[0].children;
+	for (var t = 0; t < img_list.length; t++)
+	{
+		var palette_img = img_list[t].children[0];
+		palette_img.src = palette_img.src.replace('normal', 'hilite');
+	}
+}
+
+function chooseTool(in_tool)
+{
+	clearSelectedTools();
+	var palette_img = Palette.Tools._root.children[0].children[in_tool - 1].children[0];
+	palette_img.src = palette_img.src.replace('hilite', 'normal');
+}
 
 </script>
 

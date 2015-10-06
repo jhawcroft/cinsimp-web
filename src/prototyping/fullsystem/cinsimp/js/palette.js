@@ -84,6 +84,8 @@ Palette.prototype._init_with_div = function(in_element)
 	this._div.style.height = this._size[1] + 4 + (this._flags & Palette.TITLE_VERTICAL ? 0 : this._titlebar.clientHeight) + 'px';
 	if (this._flags & Palette.TITLE_VERTICAL)
 		this._root.style.left = this._titlebar.clientWidth + 'px';
+	else
+		this._root.style.top = this._titlebar.clientHeight + 'px';
 	//this._root.style.width = this._size[0]+ 4 + 'px';
 	//this._root.style.height = this._size[1] + 'px';
 	
