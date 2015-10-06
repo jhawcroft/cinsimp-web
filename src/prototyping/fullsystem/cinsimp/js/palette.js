@@ -34,26 +34,60 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-function Palette(in_div) 
+function Palette(in_div, in_flags) 
 {
-	this._init_with_div(in_div);
-}
-
-
-Palette.prototype._init_with_div = function(in_div)
-{
-	this._div = in_div;
-	this._div.className = 'Palette noselect';
-		
-	this._loc = [in_div.offsetLeft, in_div.offsetTop];
+	this._div = document.createElement('div');
+	this._div.className = 'Palette';
+	this._div.style.zIndex = 50;
+	this._flags = in_flags;
 	
-	this._titlebar = in_div.getElementsByClassName('VertTitle')[0];
+	this._titlebar = document.createElement('div');
+	this._titlebar.className = (in_flags & Palette.TITLE_VERTICAL ? 'VertTitle' : 'HorzTitle');
+	this._div.appendChild(this._titlebar);
+	
+	this._closebtn = document.createElement('img');
+	this._closebtn.src = 'gfx/closex.png';
+	this._closebtn.style.width = '16px';
+	this._titlebar.appendChild(this._closebtn);
 	
 	var me = this;
 	this._titlebar.addEventListener('mousedown', function(e) { Drag.beginObjectMove(e, me); });
-	
-	this._closebtn = this._titlebar.getElementsByTagName('img')[0];
 	this._closebtn.addEventListener('click', function(e) { me.hide(); e.preventDefault(); e.stopPropagation(); });
+	
+	document.body.appendChild(this._div);
+	
+	this._init_with_div(in_div);
+}
+
+Palette.TITLE_VERTICAL = 1;
+
+
+
+Palette.prototype._init_with_div = function(in_element)
+{
+	this._loc = [in_element.offsetLeft, in_element.offsetTop];
+	this._size = [in_element.clientWidth, in_element.clientHeight];
+	
+	this._root = in_element;
+	this._div.appendChild(in_element);
+		
+	in_element.style.left = 0;
+	in_element.style.top = 0;
+	
+	this._div.style.left = this._loc[0]+'px';
+	this._div.style.top = this._loc[1]+'px';
+	
+	this._root.style.width = this._size[0]+1+'px';
+	this._root.style.height = this._size[1]+1+'px';
+	
+	this._div.style.width = this._size[0] + 4 + (this._flags & Palette.TITLE_VERTICAL ? this._titlebar.clientWidth : 0) + 'px';
+	this._div.style.height = this._size[1] + 4 + (this._flags & Palette.TITLE_VERTICAL ? 0 : this._titlebar.clientHeight) + 'px';
+	if (this._flags & Palette.TITLE_VERTICAL)
+		this._root.style.left = this._titlebar.clientWidth + 'px';
+	//this._root.style.width = this._size[0]+ 4 + 'px';
+	//this._root.style.height = this._size[1] + 'px';
+	
+	
 }
 
 
@@ -73,6 +107,7 @@ Palette.prototype.setLoc = function(in_loc)
 
 Palette.prototype.hide = function()
 {
+	this._root.style.visibility = 'hidden';
 	this._div.style.visibility = 'hidden';
 }
 
@@ -80,6 +115,7 @@ Palette.prototype.hide = function()
 Palette.prototype.show = function()
 {
 	this._div.style.visibility = 'visible';
+	this._root.style.visibility = 'visible';
 }
 
 
