@@ -36,6 +36,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 function Palette(in_div, in_flags) 
 {
+	Palette._list.push(this);
+
 	this._div = document.createElement('div');
 	this._div.className = 'Palette';
 	this._div.style.zIndex = 50;
@@ -51,15 +53,18 @@ function Palette(in_div, in_flags)
 	this._titlebar.appendChild(this._closebtn);
 	
 	var me = this;
-	this._titlebar.addEventListener('mousedown', function(e) { Drag.beginObjectMove(e, me); });
+	this._titlebar.addEventListener('mousedown', function(e) { me.bringToFront(); Drag.beginObjectMove(e, me); });
 	this._closebtn.addEventListener('click', function(e) { me.hide(); e.preventDefault(); e.stopPropagation(); });
 	
 	document.body.appendChild(this._div);
 	
 	this._init_with_div(in_div);
+	
+	Palette._resequence();
 }
 
 Palette.TITLE_VERTICAL = 1;
+Palette._list = [];
 
 
 
@@ -88,6 +93,24 @@ Palette.prototype._init_with_div = function(in_element)
 	//this._root.style.height = this._size[1] + 'px';
 	
 	this.setSize(this._size);
+}
+
+
+
+Palette._resequence = function()
+{
+	var offset = 50;
+	for (var p = 0; p < Palette._list.length; p++)
+		Palette._list[p]._div.style.zIndex = offset ++;
+}
+
+
+Palette.prototype.bringToFront = function()
+{
+	var p = Palette._list.indexOf(this);
+	Palette._list.splice(p, 1);
+	Palette._list.push(this);
+	Palette._resequence();
 }
 
 
