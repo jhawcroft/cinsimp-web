@@ -104,6 +104,10 @@ Creating and Opening Stacks
 		$this->stack_id = $in_ident;
 		$this->name = basename($in_ident);
 		
+		
+		if (!file_exists($in_ident)) //die('NOT EXISTS');
+			throw new Exception('No such stack');
+		
 		$this->file_db = new PDO('sqlite:'.$in_ident);
 		if ($this->file_db === false)
 			die('failed to open');

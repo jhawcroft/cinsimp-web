@@ -36,8 +36,16 @@ class Application
 	{
 		global $config;
 		
-		$stack_handle = new Stack($in_stack);
-		$stack = $stack_handle->stack_load();
+		$stack_handle = null;
+		try 
+		{
+			$stack_handle = new Stack($in_stack);
+			$stack = $stack_handle->stack_load();
+		}
+		catch (Exception $err)
+		{
+			
+		}
 		
 		$page = file_get_contents($config->base.'html/template.html');
 		
@@ -47,9 +55,20 @@ class Application
 		$page = str_replace('src="../js/', 'src="js/', $page);
 		$page = str_replace('src="../gfx/', 'src="gfx/', $page);
 		
-		$one = 1;
-		$page = str_replace('width: 800px; height: 600px;', 
-			'width: '.$stack['card_width'].'px; height: '.$stack['card_height'].'px;', $page, $one);
+		if ($stack_handle)
+		{
+			$one = 1;
+			$page = str_replace('width: 800px; height: 600px;', 
+				'width: '.$stack['card_width'].'px; height: '.$stack['card_height'].'px;', $page, $one);
+		}
+		else
+		{
+			$one = 1;
+			$page = str_replace('var successScript = \'\';',
+				'alert("No such stack or stack corrupt.");', 
+				$page, $one);
+		}
+		
 		
 		//$page = 'hello';
 		print $page;
