@@ -48,7 +48,7 @@ function Palette(in_div, in_flags)
 	this._div.appendChild(this._titlebar);
 	
 	this._closebtn = document.createElement('img');
-	this._closebtn.src = 'gfx/closex.png';
+	this._closebtn.src = gBase+'gfx/closex.png';
 	this._closebtn.style.width = '16px';
 	this._titlebar.appendChild(this._closebtn);
 	

@@ -34,7 +34,16 @@ class Application
 {
 	public static function open_stack($in_stack)
 	{
-		print 'Open Stack '.$in_stack;
+		global $config;
+		$page = file_get_contents($config->base.'html/template.html');
+		
+		$page = str_replace('var gBase = \'../\';', 'var gBase = \'\';', $page);
+		$page = str_replace('href="../css/', 'href="css/', $page);
+		$page = str_replace('src="../js/', 'src="js/', $page);
+		$page = str_replace('src="../gfx/', 'src="gfx/', $page);
+		
+		//$page = 'hello';
+		print $page;
 	}
 
 }

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>CinsImp Prototype</title>
+<link rel="stylesheet" type="text/css" href="../css/base.css">
+
+<script>
+// allows the basic template to work outside of the application;
+// is patched automatically by the application at runtime
+var gBase = '../';
+</script>
+
+<script language="javascript" type="text/javascript" src="../js/drag.js"></script>
+
+<script language="javascript" type="text/javascript" src="../js/palette.js"></script>
+<script language="javascript" type="text/javascript" src="../js/popup-menu.js"></script>
+
+<script language="javascript" type="text/javascript" src="../js/dialog.js"></script>
+
+<script language="javascript" type="text/javascript" src="../js/colours.js"></script>
+
+<script>
+
+function openApplicationMenu(el)
+{
+	var r = el.getBoundingClientRect();
+	
+	PopupMenu.ApplicationMenu.item(0).checkmark = Palette.Navigator.getVisible();
+	PopupMenu.ApplicationMenu.item(1).checkmark = Palette.Tools.getVisible();
+	PopupMenu.ApplicationMenu.item(2).checkmark = Palette.Authoring.getVisible();
+	PopupMenu.ApplicationMenu.item(3).checkmark = Palette.Colours.getVisible();
+	
+	PopupMenu.ApplicationMenu.open([r.left - 4,20], 'right');
+}
+
+</script>
+
+</head>
+<body class="noselect">
+
+
+
+<div id="stackWindow" class="Browse" style="width: 800px; height: 600px;">
+
+Card Goes Here
+
+</div>
+
+
+<div id="PaletteNavigator" class="PaletteTemplate" style="left: 100px; top: 550px;">
+
+<div class="ButtonsRow">
+	<div title="Home"><img src="../gfx/home.png" width="32" onclick="test()"><div>Home</div></div>
+	<div title="Help"><img src="../gfx/help.png" width="32"><div>Help</div></div>
+	<div title="Recent"><img src="../gfx/recent.png" width="32"><div>Recent</div></div>
+	<div title="Back"><img src="../gfx/back.png" width="32"><div>Back</div></div>
+	<div class="Spacer"></div>
+	<div title="First"><img src="../gfx/first.png" width="32"><div>First</div></div>
+	<div title="Previous"><img src="../gfx/prev.png" width="32"><div>Previous</div></div>
+	<div title="Next"><img src="../gfx/next.png" width="32"><div>Next</div></div>
+	<div title="Last"><img src="../gfx/last.png" width="32"><div>Last</div></div>
+	<div class="Spacer"></div>
+	<div title="Find"><img src="../gfx/find.png" width="32"><div>Find</div></div>
+	<div title="Message"><img src="../gfx/message.png" width="32"><div>Message</div></div>
+	<div class="Spacer"></div>
+	<div title="New Card"><img src="../gfx/new.png" width="32"><div>New Card</div></div>
+	<div title="Delete Card"><img src="../gfx/delete.png" width="32"><div>Delete Card</div></div>
+	<div class="Spacer"></div>
+	<div title="Share"><img src="../gfx/share.png" width="32"><div>Share</div></div>
+</div>
+
+</div>
+
+
+<div id="PaletteAuthoring" class="PaletteTemplate" style="left: 180px; top: 450px;">
+
+<div class="ButtonsRow">
+	<div title="Object Info"><img src="../gfx/info.png" width="32"><div>Object Info</div></div>
+	<div title="Edit Bkgnd"><img src="../gfx/bkgnd.png" width="32"><div>Edit Bkgnd</div></div>
+	<div class="Spacer"></div>
+	<div title="Front"><img src="../gfx/tofront.png" width="32"><div>Front</div></div>
+	<div title="Closer"><img src="../gfx/forward.png" width="32"><div>Closer</div></div>
+	<div title="Farther"><img src="../gfx/backward.png" width="32"><div>Farther</div></div>
+	<div title="Back"><img src="../gfx/toback.png" width="32"><div>Back</div></div>
+	<div class="Spacer"></div>
+	<div title="Options"><img src="../gfx/options.png" width="32"><div>Options</div></div>
+	<div class="Spacer"></div>
+	<div title="Stack Info"><img src="../gfx/stackinfo.png" width="32"><div>Stack Info</div></div>
+	<div title="Security"><img src="../gfx/locked.png" width="32"><div>Security</div></div>
+	<div title="Resources"><img src="../gfx/resources.png" width="32"><div>Resources</div></div>
+	<div title="Export"><img src="../gfx/export.png" width="32"><div>Export</div></div>
+</div>
+
+</div>
+
+
+
+<div id="PaletteTools" class="PaletteTemplate" style="left: 830px; top: 200px;">
+
+<div id="ToolButtonGrid">
+	<div onclick="chooseTool(1);"><img src="../gfx/browse-hilite.png" title="Browse"></div>
+	<div onclick="chooseTool(2);"><img src="../gfx/button-normal.png" title="Button"></div>
+	<div onclick="chooseTool(3);"><img src="../gfx/field-normal.png" title="Field"></div>
+	<div onclick="chooseTool(4);"><img src="../gfx/pencil-normal.png" title="Pencil"></div>
+	<div onclick="chooseTool(5);"><img src="../gfx/brush-normal.png" title="Paint Brush"></div>
+	<div onclick="chooseTool(6);"><img src="../gfx/eraser-normal.png" title="Eraser"></div>
+	<div onclick="chooseTool(7);"><img src="../gfx/bucket-normal.png" title="Paint Bucket"></div>
+	<div onclick="chooseTool(8);"><img src="../gfx/spray-normal.png" title="Spray"></div>
+	<div onclick="chooseTool(9);"><img src="../gfx/select-normal.png" title="Select"></div>
+	<div onclick="chooseTool(10);"><img src="../gfx/lasso-normal.png" title="Lasso"></div>
+	<div onclick="chooseTool(11);"><img src="../gfx/line-normal.png" title="Line"></div>
+	<div onclick="chooseTool(12);"><img src="../gfx/rectangle-normal.png" title="Rectangle"></div>
+	<div onclick="chooseTool(13);"><img src="../gfx/roundrect-normal.png" title="Round Rectangle"></div>
+	<div onclick="chooseTool(14);"><img src="../gfx/oval-normal.png" title="Oval"></div>
+	<div onclick="chooseTool(15);"><img src="../gfx/freeshape-normal.png" title="Free Shape"></div>
+	<div onclick="chooseTool(16);"><img src="../gfx/freepoly-normal.png" title="Free Polygon"></div>
+	<div onclick="chooseTool(17);"><img src="../gfx/regpoly-normal.png" title="Regular Polygon"></div>
+	<div onclick="chooseTool(18);"><img src="../gfx/eyedrop-normal.png" title="Eyedropper"></div>
+	<div onclick="chooseTool(19);"><img src="../gfx/text-normal.png" title="Text"></div>
+</div>
+
+</div>
+
+
+
+<div id="PaletteColours" class="PaletteTemplate" style="left: 50px; top: 100px;">
+</div>
+
+
+
+<div id="applicationBar">
+<img src="../gfx/cog.png" width="16" alt="Configure" title="Configure" class="Clickable" onclick="openApplicationMenu(this);">
+</div>
+
+
+<div id="DialogAbout" class="DialogTemplate" style="width: 400px; height: 300px;">
+
+	<img src="../gfx/app-icon.png" style="float: left; padding-right: 20px; padding-left: 10px;">
+	<p style="margin-top: 40px;"><strong>CinsImp</strong><br>
+	<small>version 1.0</small></p>
+	
+	<div style="position: absolute; bottom: 14px; left: 20px; margin: 0;">
+	<small>Copyright © 2009-2015 Joshua Hawcroft</small>
+	</div>
+	
+</div>
+
+
+
+<script>
+
+Palette.Navigator = new Palette(document.getElementById('PaletteNavigator'), Palette.TITLE_VERTICAL);
+Palette.Tools = new Palette(document.getElementById('PaletteTools'), 0);
+Palette.Authoring = new Palette(document.getElementById('PaletteAuthoring'), Palette.TITLE_VERTICAL);
+Palette.Colours = new Palette(document.getElementById('PaletteColours'), 0);
+
+
+PopupMenu.ApplicationMenu = new PopupMenu();
+var m = PopupMenu.ApplicationMenu;
+
+m.appendItem('Navigator', Palette.Navigator.toggle.bind(Palette.Navigator));
+m.appendItem('Tools', Palette.Tools.toggle.bind(Palette.Tools));
+m.appendItem('Authoring', Palette.Authoring.toggle.bind(Palette.Authoring));
+m.appendItem('Colours', Palette.Colours.toggle.bind(Palette.Colours));
+//m.appendItem('Line Sizes', null);
+m.appendItem('-', null);
+m.appendItem('New Stack', null);
+m.appendItem('Save a Copy', null);
+m.appendItem('Delete Stack', null);
+m.appendItem('-', null);
+m.appendItem('About CinsImp', function() { Dialog.About.centre(); Dialog.About.show(); });
+
+
+Dialog.About = new Dialog('About CinsImp', document.getElementById('DialogAbout'));
+
+Palette.Navigator.show();
+//Palette.Tools.show();
+
+
+function chooseColour(in_event)
+{
+	var e = in_event || window.event;
+	var dom_swatch = e.target;
+	alert(dom_swatch.style.backgroundColor);
+}
+
+
+function setupColours()
+{
+	var dom_table = document.createElement('div');
+	dom_table.className = 'ColourSwatchTable';
+	for (var c = 0; c < Colours.DEFAULT_SET.length; c++)
+	{
+		var colour = Colours.DEFAULT_SET[c];
+		
+		var dom_swatch = document.createElement('div');
+		dom_swatch.style.backgroundColor = 'rgba('+colour[0]+','+colour[1]+','+colour[2]+',1)';
+		dom_table.appendChild(dom_swatch);
+		
+		dom_swatch.addEventListener('mousedown', chooseColour);
+	}
+	Palette.Colours._root.appendChild(dom_table);
+	
+	var cell_size = dom_table.children[0].clientWidth;
+	var per_row = Math.floor(dom_table.clientWidth / dom_table.children[0].clientWidth);
+	var rows = Math.ceil(Colours.DEFAULT_SET.length / per_row);
+	
+	Palette.Colours.setSize([per_row * cell_size, rows * cell_size]);
+	Palette.Colours._div.style.opacity = 1.0; /* not appropriate to have translucent colour swatches */
+	
+	//var dom_selector = document.createElement('img');
+	
+}
+
+setupColours();
+
+
+
+function clearSelectedTools()
+{
+	var img_list = Palette.Tools._root.children[0].children;
+	for (var t = 0; t < img_list.length; t++)
+	{
+		var palette_img = img_list[t].children[0];
+		palette_img.src = palette_img.src.replace('hilite', 'normal');
+	}
+}
+
+function chooseTool(in_tool)
+{
+	clearSelectedTools();
+	var palette_img = Palette.Tools._root.children[0].children[in_tool - 1].children[0];
+	palette_img.src = palette_img.src.replace('normal', 'hilite');
+}
+
+</script>
+
+
+</body>
+</html>
