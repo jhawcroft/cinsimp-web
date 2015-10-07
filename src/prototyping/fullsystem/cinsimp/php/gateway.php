@@ -138,7 +138,7 @@ header("Content-type: text/html\n");
 	
 	public static function open_stack($inbound, $outbound)
 	{
-		$stack = new Stack($inbound['stack_id']);
+		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
 		$outbound['stack'] = $stack->stack_load();
 		$outbound['card'] = $stack->stack_load_card($outbound['stack']['first_card_id']);
 		return $outbound;
@@ -147,7 +147,7 @@ header("Content-type: text/html\n");
 	
 	public static function load_card($inbound, $outbound)
 	{
-		$stack = new Stack($inbound['stack_id']);
+		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
 		$outbound['card'] = $stack->stack_load_card($inbound['card_id']);
 		return $outbound;
 	}
@@ -155,7 +155,7 @@ header("Content-type: text/html\n");
 	
 	public static function nth_card($inbound, $outbound)
 	{
-		$stack = new Stack($inbound['stack_id']);
+		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
 		$inbound['card_id'] = $stack->stack_get_nth_card_id($inbound['num'], null);
 		return Gateway::load_card($inbound, $outbound);
 	}
@@ -163,7 +163,7 @@ header("Content-type: text/html\n");
 	
 	public static function save_card($inbound, $outbound)
 	{
-		$stack = new Stack($inbound['stack_id']);
+		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
 		$stack->stack_save_card($inbound['card']);
 		return $outbound;
 	}
@@ -171,7 +171,7 @@ header("Content-type: text/html\n");
 	
 	public static function new_card($inbound, $outbound)
 	{
-		$stack = new Stack($inbound['stack_id']);
+		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
 		$inbound['card_id'] = $stack->stack_new_card($inbound['card_id'], false);
 		return Gateway::load_card($inbound, $outbound);
 	}
@@ -179,7 +179,7 @@ header("Content-type: text/html\n");
 	
 	public static function new_bkgnd($inbound, $outbound)
 	{
-		$stack = new Stack($inbound['stack_id']);
+		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
 		$inbound['card_id'] = $stack->stack_new_card($inbound['card_id'], true);
 		return Gateway::load_card($inbound, $outbound);
 	}
@@ -187,24 +187,30 @@ header("Content-type: text/html\n");
 	
 	public static function delete_card($inbound, $outbound)
 	{
-		$stack = new Stack($inbound['stack_id']);
+		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
 		$inbound['card_id'] = $stack->stack_delete_card($inbound['card_id']);
 		return Gateway::load_card($inbound, $outbound);
 	}
 	
 
+
+	public static function new_stack($inbound, $outbound)
+	{
+		Stack::create_file(Util::safe_stack_id($inbound['stack_id']));
+		if (file_exists($inbound['stack_id']))
+			$outbound['stack_id'] = $inbound['stack_id'];
+		else
+			throw new Exception("Couldn't create stack.");
+		return $outbound;
+	}
+	
 /*
 	public static function list_stacks($inbound, $outbound)
 	{
 		$outbound->list = CIStack::getList();
 	}
 	
-	public static function new_stack($inbound, $outbound)
-	{
-		$stack = new CIStack;
-		$outbound->id = $stack->createNew();
-		$outbound->data = $stack->getOpenData();
-	}
+	
 	
 	public static function open_stack($inbound, $outbound)
 	{

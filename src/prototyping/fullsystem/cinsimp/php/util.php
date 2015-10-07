@@ -1,7 +1,7 @@
 <?php
 /*
 CinsImp
-Application bootstrap
+Utilities
 
 *********************************************************************************
 Copyright (c) 2009-2015, Joshua Hawcroft
@@ -30,27 +30,13 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-require(dirname(__FILE__).'/config.php');
-
-require($config->base.'php/stack.php');
-require($config->base.'php/util.php');
-
-
-if (isset($_REQUEST['stack']))
+class Util
 {
-	require($config->base.'php/application.php');
-	Application::open_stack(Util::safe_stack_id($_REQUEST['stack']));
-	exit;
-}
+	public static function safe_stack_id($stack_id)
+	{
+		return $stack_id;  // ** TODO
+	}
 
-if (isset($_REQUEST['io']))
-{
-	require($config->base.'php/gateway.php');
-	/*if (isset($_REQUEST['request']))
-		Gateway::handle_request($_REQUEST['request']);
-	else*/
-	Gateway::handle_request();
-	exit;
 }
 
 
