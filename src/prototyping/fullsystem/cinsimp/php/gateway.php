@@ -32,27 +32,59 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 $g_error_log = '';
-
-function custom_error_handler($errno, $errstr, $errfile, $errline, $errcontext)
-{
-	//header('Content-type: application/json');
-	$g_error_log .= json_encode(Array('cmd'=>'error', 'msg'=>'PHP Error: '.$errfile.':'.$errline.': '.$errno.': '.$errstr));
-	return true;
-}
 	
 
 class Gateway
 {	
-	public static function handle_request($inbound = '')
+
+	private static function custom_error_handler($errno, $errstr, $errfile, $errline, $errcontext)
 	{
-		global $db, $g_error_log;
+		global $g_error_log;
+		$g_error_log .= json_encode(Array('cmd'=>'error', 'msg'=>'PHP Error: '.$errfile.':'.$errline.': '.$errno.': '.$errstr));
+		return true;
+	}
+	
+	
+	public static function print_test_form($response)
+	{
+header("Content-type: text/html\n");
+?><!DOCTYPE html>
+<html>
+<head>
+<title>Gateway Test Utility</title>
+</head>
+<body>
+<form method="post" action="?">
+<h1>Gateway Test Utility</h1>
+<p>JSON Request:</p>
+<p><textarea name="request" style="width: 500px; height: 400px;">{"cmd":"test","echo":"Hello"}</textarea></p>
+<p><input type="submit" value="Submit JSON Request"></p>
+<input type="hidden" name="io" value="1">
+
+<h3>Last Server Response</h3>
+<p><pre><?php print $response; ?></pre></p>
+</form>
+</body>
+</html><?php
+	}
+
+
+	public static function handle_request()
+	{
+		global $g_error_log;
 		
-		error_reporting(E_ALL);
-		ini_set('display_errors', 0);
-		ini_set('log_errors', 0);
-		set_error_handler(custom_error_handler);
+		if ($_REQUEST['io'] == 'test')
+		{
+			Gateway::print_test_form('');
+			exit;
+		}
 		
-		$db->begin_transaction();
+		if (isset($_REQUEST['request']))
+			$inbound = $_REQUEST['request'];
+		else
+			$inbound = '';
+		
+		set_error_handler(array('Gateway', 'custom_error_handler'));
 		
 		$outbound = Array();
 		try {
@@ -69,12 +101,10 @@ class Gateway
 				throw new Exception("Gateway: Command ".$inbound['cmd']." unrecognised.");
 			}
 			$outbound = $action_method->invoke(null, $inbound, $outbound);
-			$db->commit();
 		}
 		catch (Exception $err) {
 			$outbound['cmd'] = 'error';
 			$outbound['msg'] = 'Server: '.$err->getMessage();
-			$db->rollback();
 		}
 		
 		if ($g_error_log != '')
@@ -83,10 +113,17 @@ class Gateway
 			$outbound['msg'] = $g_error_log;
 		}
 		
-		if (defined('CINSIMP_TESTING'))
-			return $outbound;
-		header('Content-type: application/json');
-		print json_encode($outbound);
+		if ($inbound != '')
+		{
+			//if ($testing)
+			Gateway::print_test_form(json_encode($outbound));
+			//print '<h3>Server Response:</h3><p><pre>'.json_encode($outbound).'</pre></p>';
+		}
+		else
+		{
+			header('Content-type: application/json');
+			print json_encode($outbound);
+		}
 	}
 	
 	
@@ -94,6 +131,7 @@ class Gateway
 	{
 		//$outbound = $inbound;
 		$outbound['echo'] = $inbound['echo'];
+		$outbound['date'] = date('Y-m-d');
 		return $outbound;
 	}
 	

@@ -32,6 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 $config = new stdClass();
 $config->base = dirname(__FILE__).'/../';
+$config->debug = false;
 //$config->database = new stdClass();
 //$config->art = new stdClass();
 //$config->art->path = $config->base.'art/';
@@ -42,4 +43,18 @@ $config->database->name = '';
 $config->database->prefix = '';*/
 
 require($config->base.'config.php');
+
+if ($config->debug)
+{
+	error_reporting(E_ALL);
+	ini_set('display_errors', 1);
+	ini_set('log_errors', 1);
+}
+else
+{
+	error_reporting(E_ALL);
+	ini_set('display_errors', 0);
+	ini_set('log_errors', 0);
+}
+
 

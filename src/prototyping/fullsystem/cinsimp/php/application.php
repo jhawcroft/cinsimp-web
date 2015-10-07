@@ -1,7 +1,7 @@
 <?php
 /*
 CinsImp
-Application bootstrap
+Web Application
 
 *********************************************************************************
 Copyright (c) 2009-2015, Joshua Hawcroft
@@ -30,27 +30,13 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-require(dirname(__FILE__).'/config.php');
-
-require($config->base.'php/stack.php');
-
-
-
-if (isset($_REQUEST['stack']))
+class Application
 {
-	require($config->base.'php/application.php');
-	Application::open_stack($_REQUEST['stack']);
-	exit;
-}
+	public static function open_stack($in_stack)
+	{
+		print 'Open Stack '.$in_stack;
+	}
 
-if (isset($_REQUEST['io']))
-{
-	require($config->base.'php/gateway.php');
-	/*if (isset($_REQUEST['request']))
-		Gateway::handle_request($_REQUEST['request']);
-	else*/
-	Gateway::handle_request();
-	exit;
 }
 
 

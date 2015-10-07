@@ -1,3 +1,4 @@
 <?php
 
+$config->debug = true;
 
