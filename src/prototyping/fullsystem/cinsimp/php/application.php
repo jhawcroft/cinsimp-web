@@ -44,7 +44,7 @@ class Application
 		}
 		catch (Exception $err)
 		{
-			
+			$stack_handle = null;
 		}
 		
 		$page = file_get_contents($config->base.'html/template.html');
