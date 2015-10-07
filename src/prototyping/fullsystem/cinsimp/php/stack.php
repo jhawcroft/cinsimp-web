@@ -137,7 +137,8 @@ Creating and Opening Stacks
   			'cant_modify INTEGER NOT NULL DEFAULT 0)'
   		), $file_db, 'Creating table: Stack');
   		
-  		$stack_data = json_encode(Array('user_level'=>5, 'card_width'=>800, 'card_height'=>600, 'cant_peek'=>false, 'cant_abort'=>false));
+  		$stack_data = json_encode(Array('user_level'=>5, 'card_width'=>800, 'card_height'=>600, 'cant_peek'=>false, 'cant_abort'=>false,
+  			'script'=>array('content'=>'', 'selection'=>0)));
   		Stack::sl_ok($file_db->exec(
   			'INSERT INTO stack '.
   			'(stack_data) VALUES '.
@@ -225,14 +226,18 @@ Accessors and Mutators
 		$row = $stmt->fetch(PDO::FETCH_ASSOC);
 		Stack::sl_ok($row, $this->file_db, 'Loading Stack (3)');
 	
-		$data = json_decode($row['stack_data'], true);
+		$stack = json_decode($row['stack_data'], true);
 		$stack['stack_name'] = $this->name;
 		$stack['cant_delete'] = Stack::decode_bool($row['cant_delete']);
 		$stack['cant_modify'] = Stack::decode_bool($row['cant_modify']);
-		$stack['cant_peek'] = Stack::decode_bool($data['cant_peek']);
-		$stack['cant_abort'] = Stack::decode_bool($data['cant_abort']);
 		$stack['private_access'] = Stack::decode_bool($row['private_access']);
 		$stack['first_card_id'] = $this->stack_get_first_card_id();
+		
+		/*$stack['cant_peek'] = Stack::decode_bool($data['cant_peek']);
+		$stack['cant_abort'] = Stack::decode_bool($data['cant_abort']);
+		$stack['user_level'] = $data['user_level'];
+		$stack['card_width'] = $data['card_width'];
+		$stack['card_height'] = $data['card_height'];*/
 	
 		return $stack;
 	}

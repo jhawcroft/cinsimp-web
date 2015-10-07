@@ -37,7 +37,7 @@ $g_error_log = '';
 class Gateway
 {	
 
-	private static function custom_error_handler($errno, $errstr, $errfile, $errline, $errcontext)
+	public static function custom_error_handler($errno, $errstr, $errfile, $errline, $errcontext)
 	{
 		global $g_error_log;
 		$g_error_log .= json_encode(Array('cmd'=>'error', 'msg'=>'PHP Error: '.$errfile.':'.$errline.': '.$errno.': '.$errstr));
@@ -136,12 +136,21 @@ header("Content-type: text/html\n");
 	}
 	
 	
-	public static function open_stack($inbound, $outbound)
+	public static function load_stack($inbound, $outbound)
 	{
 		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
 		$outbound['stack'] = $stack->stack_load();
-		$outbound['card'] = $stack->stack_load_card($outbound['stack']['first_card_id']);
+		//$outbound['card'] = $stack->stack_load_card($outbound['stack']['first_card_id']);
 		return $outbound;
+	}
+	
+	
+	public static function save_stack($inbound, $outbound)
+	{
+		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
+		$stack->stack_save($inbound['stack']);
+		$outbound['stack_id'] = $inbound['stack_id'];
+		return Gateway::load_stack($inbound, $outbound);
 	}
 	
 	
