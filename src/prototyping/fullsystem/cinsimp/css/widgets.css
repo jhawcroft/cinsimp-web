@@ -3,25 +3,71 @@
 
 /* ----------------------------------------------  Layout ----------------------------------------------  */
 	
-	/*a {color:#0181bc;}
-	p {margin:0 0 1em;}
-	h1 {line-height:1.25em;}
+	/*a {color:#0181bc;}*/
+	/*p {margin:0 0 1em;}*/
+	/*h1 {line-height:1.25em;}
 	h2, h3 {margin:0 0 0.5em; font-size:1.2em;}
-	h3 {font-size:1em}
-	pre, code {font-size:0.7em; background-color:#eee; color:#000; font-family: verdana, monospace;}
+	h3 {font-size:1em}*/
+	/*pre, code {font-size:0.7em; background-color:#eee; color:#000; font-family: verdana, monospace;}
 	code {padding:0.2em}
-	pre {padding:1em; white-space: pre-line;}
-	#first ~ h2 {margin-top:2em}
-	.small {font-size:0.75em; line-height:1.5em;}
-	hr {border:none; height:0; border-top:solid 1px #ccc; margin:1.5em 0;}*/
+	pre {padding:1em; white-space: pre-line;}*/
+	/*#first ~ h2 {margin-top:2em}*/
+	/*.small {font-size:0.75em; line-height:1.5em;}*/
+	/*hr {border:none; height:0; border-top:solid 1px #ccc; margin:1.5em 0;}*/
 	
+	
+/* ---------------------------------------------- Alignment and layout ---------------------------------------------- */
+
+div.VertGap
+{
+	margin-top: 5px;
+}
+
+div.x2VertGap
+{
+	margin-top: 15px;
+}
+
+
+div.Bottom
+{
+	position: absolute;
+	bottom: 25px;
+}
+
+div.Right 
+{
+	position: absolute;
+	right: 15px;
+}
+
+
+div.Inner
+{
+	padding: 15px;
+	position: relative;
+}
+
+
+	
+/* ---------------------------------------------- Labels ---------------------------------------------- */
+
+
+div.Label
+{
+	display: block;
+	position: relative;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+
+
+
 /* ----------------------------------------------  Reset form elements ---------------------------------------------- */
 	
 	input, select, textarea {
-		margin:0; padding:0; 
-		font-size:0.85em; 
-		font-weight: bold;
-		outline:none;
+		margin:0; padding:0; font-size:12pt; outline:none;
 		font-family:inherit;	
 		-moz-box-sizing:border-box; /* Firefox */
 		-webkit-box-sizing:border-box; /* Safari */
@@ -131,7 +177,7 @@
 	input[type="button"] { 
 		padding:0.3em 1em; line-height:1em; cursor:pointer;
 		border-radius:4px; color:#000; font-weight:normal; font-size:inherit;
-		border:solid 1px #ccc;	box-shadow:0 1px 5px rgba(0,0,0,0.2);
+		border:solid 1px #000;	box-shadow:0 1px 5px rgba(0,0,0,0.2);
 		background-position: center bottom;}
 		
 		/* Gradient Generator by : http://www.colorzilla.com/gradient-editor/ */
@@ -140,6 +186,19 @@
 	input[type="button"]:active {-webkit-box-shadow: none; box-shadow:none;}
 		
 		/* IE7 needs you to change the background to transparent when using image background for submit buttons */	
+		
+
+	input[type="button"]:disabled 
+	{
+		border: solid 1px #999;
+		color: #999;
+		cursor: default;	
+	}
+	
+	input[type="button"]:active:disabled
+	{
+		box-shadow:0 1px 5px rgba(0,0,0,0.2);
+	}
 
 /*----------------------------------------------  Media Queries ----------------------------------------------  */
 		

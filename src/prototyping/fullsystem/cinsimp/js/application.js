@@ -38,7 +38,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 function Application() {}
 
 
+// must wait for all CSS to load BEFORE 
+// initalizing the application & it's resources, otherwise we'll get weird palettes
+// and other issues
 
+
+Application.handleSaveStackInfo = function()
+{
+	Dialog.dismiss();
+}
 
 
 

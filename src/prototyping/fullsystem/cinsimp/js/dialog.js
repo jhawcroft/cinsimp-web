@@ -37,6 +37,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 function Dialog(in_title, in_element) 
 {
+	Dialog._list.push(this);
+	
 	this._div = document.createElement('div');
 	this._div.className = 'Dialog';
 	this._div.style.zIndex = 2000;
@@ -63,9 +65,12 @@ function Dialog(in_title, in_element)
 		document.body.appendChild(this._div);
 		
 	this._init_with_element(in_element);
+	
+	Dialog._resequence();
 }
 
 Dialog._cover = null;
+Dialog._list = [];
 
 
 Dialog.prototype._init_with_element = function(in_element)
@@ -83,6 +88,23 @@ Dialog.prototype._init_with_element = function(in_element)
 	this._div.style.height = in_element.clientHeight + this._titlebar.clientHeight + 6 + 'px';
 	
 	this._root.style.top = this._titlebar.clientHeight + 'px';
+}
+
+
+Dialog._resequence = function()
+{
+	var offset = 2000;
+	for (var p = 0; p < Dialog._list.length; p++)
+		Dialog._list[p]._div.style.zIndex = offset ++;
+}
+
+
+Dialog.prototype.bringToFront = function()
+{
+	var p = Dialog._list.indexOf(this);
+	Dialog._list.splice(p, 1);
+	Dialog._list.push(this);
+	Dialog._resequence();
 }
 
 
@@ -121,6 +143,12 @@ Dialog.prototype.centre = function()
 }
 
 
+Dialog.prototype.getVisible = function()
+{
+	return ((this._div.style.visibility != '') && (this._div.style.visibility != 'hidden'));
+}
+
+
 Dialog.prototype.show = function()
 {	
 	Dialog._installCover();
@@ -130,6 +158,8 @@ Dialog.prototype.show = function()
 	
 	this._div.style.visibility = 'visible';
 	this._root.style.visibility = 'visible';
+	
+	this.bringToFront();
 }
 
 
@@ -138,6 +168,24 @@ Dialog.prototype.hide = function()
 	this._root.style.visibility = 'hidden';
 	this._div.style.visibility = 'hidden';
 	Dialog._cover.style.visibility = 'hidden';
+}
+
+
+Dialog.active = function()
+{
+	for (var d = Dialog._list.length - 1; d >= 0; d--)
+	{
+		var dlg = Dialog._list[d];
+		if (dlg.getVisible()) return dlg;
+	}
+	return null;
+}
+
+
+Dialog.dismiss = function()
+{
+	var dlg = Dialog.active();
+	if (dlg) dlg.hide();
 }
 
 

@@ -22,6 +22,7 @@
 <meta name="theme-color" content="#ffffff">
 
 <link rel="stylesheet" type="text/css" href="../css/base.css">
+<link rel="stylesheet" type="text/css" href="../css/widgets.css">
 
 <script>
 // allows the basic template to work outside of the application;
@@ -37,6 +38,7 @@ var gBase = '../';
 <script language="javascript" type="text/javascript" src="../js/dialog.js"></script>
 
 <script language="javascript" type="text/javascript" src="../js/colours.js"></script>
+<script language="javascript" type="text/javascript" src="../js/application.js"></script>
 
 <script>
 
@@ -56,7 +58,7 @@ function openApplicationMenu(el)
 
 </head>
 <body class="noselect">
-
+<form>
 
 
 <div id="stackWindow" class="Browse" style="width: 800px; height: 600px;">
@@ -166,7 +168,38 @@ Card Goes Here
 
 
 
+
+<div id="DialogStackInfo" class="DialogTemplate Inner" style="width: 450px; height: 300px;">
+	
+	<div class="Label">Stack Name: <input type="text" id="StackInfoName" style="width: 320px;"></div>
+	<div id="StackInfoWhere" class="Label VertGap selectable">Where: /path/stack</div>
+	<div id="StackInfoCardCount" class="Label VertGap">Stack contains 1 card.</div>
+	<div id="StackInfoBkgndCount" class="Label VertGap">Stack contains 1 background.</div>
+	
+	<div id="StackInfoSize" class="Label x2VertGap">Size of stack: 1 MB</div>
+	<div id="StackInfoFree" class="Label VertGap">Free in stack: 0 KB</div>
+	
+	<div id="StackInfoCardSize" class="Label x2VertGap">Card size: 200 x 100</div>
+	
+	<div class="Bottom"><input type="button" value="Resize..."> <input type="button" value="Script..." disabled></div>
+	
+	<div class="Bottom Right"><input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="Application.handleSaveStackInfo()"></div>
+	
+</div>
+
+
+
+
+
+
+
 <script>
+
+
+
+Dialog.StackInfo = new Dialog('Stack Info', document.getElementById('DialogStackInfo'));
+Dialog.StackInfo.show();
+
 
 Palette.Navigator = new Palette(document.getElementById('PaletteNavigator'), Palette.TITLE_VERTICAL);
 Palette.Tools = new Palette(document.getElementById('PaletteTools'), 0);
@@ -258,5 +291,6 @@ function chooseTool(in_tool)
 <script language="javascript" type="text/javascript">var successScript = '';</script>
 
 
+</form>
 </body>
 </html>

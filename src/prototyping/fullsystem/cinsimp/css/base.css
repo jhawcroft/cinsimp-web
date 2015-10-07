@@ -60,12 +60,12 @@ body
 
 .selectable
 {
-	-webkit-touch-callout: default;
-    -webkit-user-select: default;
-    -khtml-user-select: default;
-    -moz-user-select: default;
-    -ms-user-select: default;
-    user-select: default;
+	-webkit-touch-callout: text;
+    -webkit-user-select: text;
+    -khtml-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
 }
 
 
@@ -374,6 +374,7 @@ div.DialogRoot
 	border: 1px dotted red;
 	visibility: hidden;
 }
+
 
 
 /*****************************************************************************************
