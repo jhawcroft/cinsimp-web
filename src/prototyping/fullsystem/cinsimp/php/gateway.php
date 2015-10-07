@@ -57,12 +57,12 @@ header("Content-type: text/html\n");
 <form method="post" action="?">
 <h1>Gateway Test Utility</h1>
 <p>JSON Request:</p>
-<p><textarea name="request" style="width: 500px; height: 400px;">{"cmd":"test","echo":"Hello"}</textarea></p>
+<p><textarea name="request" style="width: 500px; height: 400px;"><?php print (isset($_REQUEST['request']) ? $_REQUEST['request'] : '{"cmd":"test","echo":"Hello"}' ); ?></textarea></p>
 <p><input type="submit" value="Submit JSON Request"></p>
 <input type="hidden" name="io" value="1">
 
 <h3>Last Server Response</h3>
-<p><pre><?php print $response; ?></pre></p>
+<p><pre style="width: 500px;"><?php print $response; ?></pre></p>
 </form>
 </body>
 </html><?php
@@ -138,49 +138,57 @@ header("Content-type: text/html\n");
 	
 	public static function open_stack($inbound, $outbound)
 	{
-		$outbound['stack'] = Stack::stack_load($inbound['stack_id']);
+		$stack = new Stack($inbound['stack_id']);
+		$outbound['stack'] = $stack->stack_load();
+		$outbound['card'] = $stack->stack_load_card($outbound['stack']['first_card_id']);
 		return $outbound;
 	}
 	
 	
 	public static function load_card($inbound, $outbound)
 	{
-		$outbound['card'] = Stack::stack_load_card($inbound['card_id']);
+		$stack = new Stack($inbound['stack_id']);
+		$outbound['card'] = $stack->stack_load_card($inbound['card_id']);
 		return $outbound;
 	}
 	
 	
 	public static function nth_card($inbound, $outbound)
 	{
-		$inbound['card_id'] = Stack::stack_get_nth_card_id($inbound['stack_id'], $inbound['num'], null);
+		$stack = new Stack($inbound['stack_id']);
+		$inbound['card_id'] = $stack->stack_get_nth_card_id($inbound['num'], null);
 		return Gateway::load_card($inbound, $outbound);
 	}
 	
 	
 	public static function save_card($inbound, $outbound)
 	{
-		Stack::stack_save_card($inbound['card']);
+		$stack = new Stack($inbound['stack_id']);
+		$stack->stack_save_card($inbound['card']);
 		return $outbound;
 	}
 	
 	
 	public static function new_card($inbound, $outbound)
 	{
-		$inbound['card_id'] = Stack::stack_new_card($inbound['card_id'], false);
+		$stack = new Stack($inbound['stack_id']);
+		$inbound['card_id'] = $stack->stack_new_card($inbound['card_id'], false);
 		return Gateway::load_card($inbound, $outbound);
 	}
 	
 	
 	public static function new_bkgnd($inbound, $outbound)
 	{
-		$inbound['card_id'] = Stack::stack_new_card($inbound['card_id'], true);
+		$stack = new Stack($inbound['stack_id']);
+		$inbound['card_id'] = $stack->stack_new_card($inbound['card_id'], true);
 		return Gateway::load_card($inbound, $outbound);
 	}
 	
 	
 	public static function delete_card($inbound, $outbound)
 	{
-		$inbound['card_id'] = Stack::stack_delete_card($inbound['card_id']);
+		$stack = new Stack($inbound['stack_id']);
+		$inbound['card_id'] = $stack->stack_delete_card($inbound['card_id']);
 		return Gateway::load_card($inbound, $outbound);
 	}
 	
