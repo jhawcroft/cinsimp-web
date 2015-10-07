@@ -35,12 +35,21 @@ class Application
 	public static function open_stack($in_stack)
 	{
 		global $config;
+		
+		$stack_handle = new Stack($in_stack);
+		$stack = $stack_handle->stack_load();
+		
 		$page = file_get_contents($config->base.'html/template.html');
 		
-		$page = str_replace('var gBase = \'../\';', 'var gBase = \'\';', $page);
+		$one = 1;
+		$page = str_replace('var gBase = \'../\';', 'var gBase = \'\';', $page, $one);
 		$page = str_replace('href="../css/', 'href="css/', $page);
 		$page = str_replace('src="../js/', 'src="js/', $page);
 		$page = str_replace('src="../gfx/', 'src="gfx/', $page);
+		
+		$one = 1;
+		$page = str_replace('width: 800px; height: 600px;', 
+			'width: '.$stack['card_width'].'px; height: '.$stack['card_height'].'px;', $page, $one);
 		
 		//$page = 'hello';
 		print $page;
