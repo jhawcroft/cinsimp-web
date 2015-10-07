@@ -237,6 +237,14 @@ Accessors and Mutators
 		$stack['private_access'] = Stack::decode_bool($row['private_access']);
 		$stack['first_card_id'] = $this->stack_get_first_card_id();
 		
+		$stack['stack_path'] = $this->stack_id;
+		
+		$stack['count_cards'] = $this->stack_get_count_cards();
+		$stack['count_bkgnds'] = $this->stack_get_count_bkgnds();
+		
+		$stack['stack_size'] = filesize($this->stack_id);
+		$stack['stack_free'] = $this->stack_get_free();
+		
 		/*$stack['cant_peek'] = Stack::decode_bool($data['cant_peek']);
 		$stack['cant_abort'] = Stack::decode_bool($data['cant_abort']);
 		$stack['user_level'] = $data['user_level'];
@@ -265,10 +273,41 @@ Accessors and Mutators
 		unset($stack_data['cant_modify']);
 		unset($stack_data['private_access']);
 		unset($stack_data['first_card_id']);
+		
+		unset($stack_data['stack_id']);
+		unset($stack_data['stack_name']);
+		unset($stack_data['stack_path']);
+		unset($stack_data['stack_size']);
+		unset($stack_data['stack_free']);
+		unset($stack_data['count_cards']);
+		unset($stack_data['count_bkgnds']);
 	
 		Stack::sl_ok($stmt->execute(array(
 			json_encode($stack_data), $cant_delete, $cant_modify, $private_access
 		)), $this->file_db, 'Loading Stack (2)');
+	}
+	
+	
+/*
+	Returns the approximate amount of free space in the stack (prior to compacting).
+*/
+	public function stack_get_free()
+	{
+		$stmt = $this->file_db->prepare('PRAGMA freelist_count');
+		Stack::sl_ok($stmt, $this->file_db, 'Getting Free Space (1)');
+		Stack::sl_ok($stmt->execute(), $this->file_db, 'Getting Free Space (2)');
+		$row = $stmt->fetch(PDO::FETCH_NUM);
+		Stack::sl_ok($row, $this->file_db, 'Getting Free Space (3)');
+		$page_count = $row[0];
+		
+		$stmt = $this->file_db->prepare('PRAGMA page_size');
+		Stack::sl_ok($stmt, $this->file_db, 'Getting Free Space (4)');
+		Stack::sl_ok($stmt->execute(), $this->file_db, 'Getting Free Space (5)');
+		$row = $stmt->fetch(PDO::FETCH_NUM);
+		Stack::sl_ok($row, $this->file_db, 'Getting Free Space (6)');
+		$page_size = $row[0];
+		
+		return $page_count * $page_size;
 	}
 
 
@@ -288,6 +327,20 @@ Accessors and Mutators
 			Stack::sl_ok($stmt->execute(array(intval($in_bkgnd_id))), $this->file_db, 'Getting Number of Cards (3)');
 		$row = $stmt->fetch(PDO::FETCH_NUM);
 		Stack::sl_ok($row, $this->file_db, 'Getting Number of Cards (4)');
+		return $row[0];
+	}
+
+
+/*
+	Returns the number of backgrounds in the stack.
+*/
+	public function stack_get_count_bkgnds()
+	{
+		$stmt = $this->file_db->prepare('SELECT COUNT(bkgnd_id) FROM bkgnd');
+		Stack::sl_ok($stmt, $this->file_db, 'Getting Number of Bkgnds (1)');
+		Stack::sl_ok($stmt->execute(), $this->file_db, 'Getting Number of Bkgnds (2)');
+		$row = $stmt->fetch(PDO::FETCH_NUM);
+		Stack::sl_ok($row, $this->file_db, 'Getting Number of Bkgnds (3)');
 		return $row[0];
 	}
 

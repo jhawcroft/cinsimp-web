@@ -37,10 +37,44 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 function Application() {}
 
+Application._stack = null; 
 
 // must wait for all CSS to load BEFORE 
 // initalizing the application & it's resources, otherwise we'll get weird palettes
 // and other issues
+
+
+Application.showStackInfo = function()
+{
+	//alert(JSON.stringify(Application._initialStackData));
+	
+	try
+	{
+		document.getElementById('StackInfoName').value = Application._stack.stack_name;
+		document.getElementById('StackInfoWhere').innerHTML = 'Where: '+Application._stack.stack_path;
+		
+		document.getElementById('StackInfoCardCount').innerHTML = 'Stack contains '+
+			(Application._stack.count_cards == 1 ? 
+			Application._stack.count_cards+' card.' :
+			Application._stack.count_cards+' cards.');
+		document.getElementById('StackInfoBkgndCount').innerHTML = 'Stack contains '+
+			(Application._stack.count_bkgnds == 1 ? 
+			Application._stack.count_bkgnds+' background.' :
+			Application._stack.count_bkgnds+' backgrounds.');
+		
+		document.getElementById('StackInfoSize').innerHTML = 'Size of stack: ' + 
+			Util.niceSize(Application._stack.stack_size);
+		document.getElementById('StackInfoFree').innerHTML = 'Free in stack: ' + 
+			Util.niceSize(Application._stack.stack_free);
+		
+		document.getElementById('StackInfoCardSize').innerHTML = 'Card size: ' +
+			Application._stack.card_width + ' x ' +
+			Application._stack.card_height;
+	}
+	catch (e) {}
+	
+	Dialog.StackInfo.show();
+}
 
 
 Application.setDefaultPositions = function(in_card_width, in_card_height)

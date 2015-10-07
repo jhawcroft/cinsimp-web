@@ -1,11 +1,15 @@
-<?php
 /*
 CinsImp
-Web Application
+Utilities
 
 *********************************************************************************
 Copyright (c) 2009-2015, Joshua Hawcroft
 All rights reserved.
+
+ May all beings have happiness and the cause of happiness.
+ May all beings be free of suffering and the cause of suffering.
+ May all beings rejoice for the supreme happiness which is without suffering.
+ May all beings abide in the great equanimity; free of attachment and delusion.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -30,56 +34,13 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class Application
-{
-	public static function open_stack($in_stack)
-	{
-		global $config;
-		
-		$stack_handle = null;
-		try 
-		{
-			$stack_handle = new Stack($in_stack);
-			$stack = $stack_handle->stack_load();
-		}
-		catch (Exception $err)
-		{
-			$stack_handle = null;
-		}
-		
-		$page = file_get_contents($config->base.'html/template.html');
-		
-		$one = 1;
-		$page = str_replace('var gBase = \'../\';', 'var gBase = \'\';', $page, $one);
-		$page = str_replace('href="../css/', 'href="css/', $page);
-		$page = str_replace('src="../js/', 'src="js/', $page);
-		$page = str_replace('src="../gfx/', 'src="gfx/', $page);
-		
-		if ($stack_handle)
-		{
-			$one = 1;
-			$page = str_replace('width: 800px; height: 600px;', 
-				'width: '.$stack['card_width'].'px; height: '.$stack['card_height'].'px;', $page, $one);
-				
-			$stack['test'] = 'Blah\'s';
-			$one = 1;
-			$page = str_replace('var successScript = \'\';',
-				'Application._stack = '.json_encode($stack).';', 
-				$page, $one);
-		}
-		else
-		{
-			$one = 1;
-			$page = str_replace('var successScript = \'\';',
-				'alert("No such stack or stack corrupt.");', 
-				$page, $one);
-		}
-		
-		
-		//$page = 'hello';
-		print $page;
-	}
 
+function Util() {}
+
+
+Util.niceSize = function(in_bytes)
+{
+	return Math.round(in_bytes / 1024) + ' KB';
 }
 
 
