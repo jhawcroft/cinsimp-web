@@ -108,8 +108,8 @@ div.Label
 		display: inline-block;
 		vertical-align: middle;
 		border: 0;
-		border: 1px solid black;
-		border-radius: 3px;
+		/*border: 1px solid black;
+		border-radius: 3px;*/
 		
 	}
 
@@ -162,7 +162,8 @@ div.Label
 	label:before { 
 		display: inline-block; position: relative; top:0.25em; left:-2px; 
 		content:''; width:25px; height:25px;
-		background-image:url(../gfx/formelements.png); }
+		background-image:url(../gfx/formelements.png);
+		 }
 	
 	input[type="checkbox"] + label:before { background-position: 0 -25px;}
 	input[type="checkbox"]:checked + label:before {background-position: 0 0 ; }

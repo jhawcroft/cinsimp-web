@@ -205,6 +205,38 @@ Card Goes Here
 	
 </div>
 
+<!-- probably should take these templates and store in a separate file(s) on the server,
+and have downloaded via ajax & built that way via innerHTML;
+thus they wont interfere with the search engine indexability of the page,
+and the main template can be kept pretty clean, with emphasis on the initial card
+as dictated by the server, thus allowing for search nevigability -->
+
+<div id="DialogProtectStack" class="DialogTemplate Inner" style="width: 480px; height:290px;">
+	<div style="width: 60%; float: left;">
+		<div class="Label">Protect Stack:</div>
+		<div class="Label VertGap"><input type="checkbox" id="ProtectStackCantModify"> <label for="ProtectStackCantModify">Can't Modify Stack</label></div>
+		<div class="Label VertGap"><input type="checkbox" id="ProtectStackCantDelete"> <label for="ProtectStackCantDelete">Can't Delete Stack</label></div>
+		<div class="Label VertGap"><input type="checkbox" id="ProtectStackCantAbort"> <label for="ProtectStackCantAbort">Can't Abort Scripts</label></div>
+		<div class="Label VertGap"><input type="checkbox" id="ProtectStackCantPeek"> <label for="ProtectStackCantPeek">Can't Peek at Objects</label></div>
+		<div class="Label VertGap"><input type="checkbox" id="ProtectStackPrivateAccess"> <label for="ProtectStackPrivateAccess">Private Access</label></div>
+	</div>
+	<div style="float: left;">
+		<div class="Label">Limit user level to:</div>
+		<div class="Label VertGap"><input type="radio" id="ProtectStackUserLevel1" name="ProtectStackUL" value="1"> <label for="ProtectStackUserLevel1">Browsing</label></div>
+		<div class="Label VertGap"><input type="radio" id="ProtectStackUserLevel2" name="ProtectStackUL" value="2"> <label for="ProtectStackUserLevel2">Typing</label></div>
+		<div class="Label VertGap"><input type="radio" id="ProtectStackUserLevel3" name="ProtectStackUL" value="3"> <label for="ProtectStackUserLevel3">Painting</label></div>
+		<div class="Label VertGap"><input type="radio" id="ProtectStackUserLevel4" name="ProtectStackUL" value="4"> <label for="ProtectStackUserLevel4">Authoring</label></div>
+		<div class="Label VertGap"><input type="radio" id="ProtectStackUserLevel5" name="ProtectStackUL" value="5" checked> <label for="ProtectStackUserLevel5">Scripting</label></div>
+	</div>
+	<div class="Bottom">
+		<input type="button" value="Set Password..." disabled>
+	</div>
+	<div class="Bottom Right">
+		<input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK"> 
+	</div>
+</div>
+
+
 
 
 
@@ -214,6 +246,8 @@ Card Goes Here
 <script>
 
 
+Dialog.ProtectStack = new Dialog('Protect Stack', document.getElementById('DialogProtectStack'));
+//Dialog.ProtectStack.show();
 
 Dialog.StackInfo = new Dialog('Stack Info', document.getElementById('DialogStackInfo'));
 //Dialog.StackInfo.show();
