@@ -43,7 +43,21 @@ function Application() {}
 // and other issues
 
 
+Application.setDefaultPositions = function(in_card_width, in_card_height)
+{
+	Palette.Navigator.setLoc([20, in_card_height + 40]);
+	Palette.Authoring.setLoc([20, in_card_height + 40 + Palette.Navigator._div.clientHeight + 2]);
+	Palette.Tools.setLoc([in_card_width + 40, 50]);
+	Palette.Colours.setLoc([in_card_width + 45, 50 + Palette.Tools._div.clientHeight + 14]);
+}
+
+
 Application.handleSaveStackInfo = function()
+{
+	Dialog.dismiss();
+}
+
+Application.handleSaveCardSize = function()
 {
 	Dialog.dismiss();
 }

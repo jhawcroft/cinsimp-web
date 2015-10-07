@@ -96,7 +96,7 @@ Card Goes Here
 <div id="PaletteAuthoring" class="PaletteTemplate" style="left: 180px; top: 450px;">
 
 <div class="ButtonsRow">
-	<div title="Object Info"><img src="../gfx/info.png" width="32"><div>Object Info</div></div>
+	<div title="Object Info" title="Object Info"><img src="../gfx/info.png" width="32"><div>Object Info</div></div>
 	<div title="Edit Bkgnd"><img src="../gfx/bkgnd.png" width="32"><div>Edit Bkgnd</div></div>
 	<div class="Spacer"></div>
 	<div title="Front"><img src="../gfx/tofront.png" width="32"><div>Front</div></div>
@@ -106,7 +106,7 @@ Card Goes Here
 	<div class="Spacer"></div>
 	<div title="Options"><img src="../gfx/options.png" width="32"><div>Options</div></div>
 	<div class="Spacer"></div>
-	<div title="Stack Info"><img src="../gfx/stackinfo.png" width="32"><div>Stack Info</div></div>
+	<div title="Stack Info" title="Stack Info" onclick="Dialog.StackInfo.show()"><img src="../gfx/stackinfo.png" width="32"><div>Stack Info</div></div>
 	<div title="Security"><img src="../gfx/locked.png" width="32"><div>Security</div></div>
 	<div title="Resources"><img src="../gfx/resources.png" width="32"><div>Resources</div></div>
 	<div title="Export"><img src="../gfx/export.png" width="32"><div>Export</div></div>
@@ -181,9 +181,26 @@ Card Goes Here
 	
 	<div id="StackInfoCardSize" class="Label x2VertGap">Card size: 200 x 100</div>
 	
-	<div class="Bottom"><input type="button" value="Resize..."> <input type="button" value="Script..." disabled></div>
+	<div class="Bottom"><input type="button" value="Resize..." onclick="Dialog.dismiss();Dialog.CardSize.show()"> <input type="button" value="Script..." disabled></div>
 	
-	<div class="Bottom Right"><input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="Application.handleSaveStackInfo()"></div>
+	<div class="Bottom Right"><input type="button" value="Cancel" class="SameSizeStacked" onclick="Dialog.dismiss()"> <input type="button" value="OK" class="SameSizeStacked VertGap" onclick="Application.handleSaveStackInfo()"></div>
+	
+</div>
+
+
+<div id="DialogCardSize" class="DialogTemplate Inner" style="width: 400px; height: 300px;">
+	
+	<div class="Label">Card size: <div class="styled"><select id="CardSizeList">
+		<option value="512,342">Nostalgia</option>
+		<option value="600,400">Small</option>
+		<option value="800,600">Standard</option>
+	</select></div></div>
+	
+	<div class="Label VertGap" id="CardSizeSize">200 x 100</div>
+	
+	<div class="VertGap" style="display: block; position: relative; border: 1px solid black; background-color: #333; width: 200px; height: 200px; overflow: hidden;"><div style="display: block; position: absolute; left: 0; top: 0; width: 100px; height: 80px; background-color: white; border: 1px solid black; min-width: 18px; min-height: 18px; overflow: hidden;" id="CardSizeDragger""><div style="display: block; position: absolute; right: 1px; bottom: 1px; width: 16px; height: 16px; background-color: black;"></div></div></div>
+	
+	<div class="Bottom Right"><input type="button" class="SameSizeStacked" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" class="SameSizeStacked VertGap" value="OK" onclick="Application.handleSaveCardSize()"></div>
 	
 </div>
 
@@ -198,7 +215,10 @@ Card Goes Here
 
 
 Dialog.StackInfo = new Dialog('Stack Info', document.getElementById('DialogStackInfo'));
-Dialog.StackInfo.show();
+//Dialog.StackInfo.show();
+
+Dialog.CardSize = new Dialog('Card Size', document.getElementById('DialogCardSize'));
+//Dialog.CardSize.show();
 
 
 Palette.Navigator = new Palette(document.getElementById('PaletteNavigator'), Palette.TITLE_VERTICAL);
@@ -225,8 +245,12 @@ m.appendItem('About CinsImp', function() { Dialog.About.centre(); Dialog.About.s
 
 Dialog.About = new Dialog('About CinsImp', document.getElementById('DialogAbout'));
 
-Palette.Navigator.show();
+//Palette.Navigator.show();
 //Palette.Tools.show();
+
+
+
+
 
 
 function chooseColour(in_event)
@@ -289,6 +313,12 @@ function chooseTool(in_tool)
 
 
 <script language="javascript" type="text/javascript">var successScript = '';</script>
+
+<script>
+var sw = document.getElementById('stackWindow');
+Application.setDefaultPositions(sw.clientWidth, sw.clientHeight);
+Palette.Navigator.show();
+</script>
 
 
 </form>

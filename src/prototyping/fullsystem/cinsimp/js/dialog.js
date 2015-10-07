@@ -71,6 +71,25 @@ function Dialog(in_title, in_element)
 
 Dialog._cover = null;
 Dialog._list = [];
+Dialog._visibleCount = 0;
+Dialog._topZIndex = 0;
+
+
+Dialog.prototype._auto_main_btn_sizes = function()
+{
+	var inputs = this._root.getElementsByTagName('input');
+	var szFam = [];
+	for (var i = 0; i < inputs.length; i++)
+	{
+		var input = inputs[i];
+		if (input.className.indexOf('SzFam1') >= 0)
+			szFam.push(input);
+	}
+	if (szFam.length > 1)
+	{
+		
+	}
+}
 
 
 Dialog.prototype._init_with_element = function(in_element)
@@ -78,6 +97,8 @@ Dialog.prototype._init_with_element = function(in_element)
 	this._root = in_element;
 	this._div.appendChild(in_element);
 	in_element.style.visibility = 'hidden';
+	
+	this._auto_main_btn_sizes();
 	
 	this._div.style.left = '0px';
 	this._div.style.top = '0px';
@@ -96,6 +117,7 @@ Dialog._resequence = function()
 	var offset = 2000;
 	for (var p = 0; p < Dialog._list.length; p++)
 		Dialog._list[p]._div.style.zIndex = offset ++;
+	Dialog._topZIndex = offset - 1;
 }
 
 
@@ -156,10 +178,15 @@ Dialog.prototype.show = function()
 	Dialog._cover.style.height = window.innerHeight + 'px';
 	Dialog._cover.style.visibility = 'visible';
 	
+	this.centre();
+	
 	this._div.style.visibility = 'visible';
 	this._root.style.visibility = 'visible';
 	
 	this.bringToFront();
+	
+	Dialog._cover.style.zIndex = Dialog.active()._div.style.zIndex - 1;
+	Dialog._visibleCount++;
 }
 
 
@@ -167,7 +194,12 @@ Dialog.prototype.hide = function()
 {
 	this._root.style.visibility = 'hidden';
 	this._div.style.visibility = 'hidden';
-	Dialog._cover.style.visibility = 'hidden';
+	
+	Dialog._visibleCount--;
+	if (Dialog._visibleCount == 0)
+		Dialog._cover.style.visibility = 'hidden';
+	else
+		Dialog._cover.style.zIndex = Dialog.active()._div.style.zIndex - 1;
 }
 
 

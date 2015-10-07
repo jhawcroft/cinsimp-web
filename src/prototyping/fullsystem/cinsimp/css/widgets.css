@@ -18,16 +18,15 @@
 	
 /* ---------------------------------------------- Alignment and layout ---------------------------------------------- */
 
-div.VertGap
+.VertGap
 {
 	margin-top: 5px;
 }
 
-div.x2VertGap
+.x2VertGap
 {
 	margin-top: 15px;
 }
-
 
 div.Bottom
 {
@@ -41,11 +40,16 @@ div.Right
 	right: 15px;
 }
 
-
 div.Inner
 {
 	padding: 15px;
 	position: relative;
+}
+
+.SameSizeStacked
+{
+	display: block; 
+	width: 100%;
 }
 
 
@@ -81,7 +85,7 @@ div.Label
 	
 	div.styled, select, input[type="submit"], input[type="button"], 
 	input[type="file"]:after {
-		background: white url(../gfx/ui-widgets/formelements-select.png) no-repeat center right;
+		background: white url(../gfx/formelements-select.png) no-repeat center right;
 		-webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.2); 
 		box-shadow: 0 1px 3px rgba(0,0,0,0.2);}	
 	
@@ -97,6 +101,12 @@ div.Label
 /* ----------------------------------------------  Select menu  ---------------------------------------------- */
 	
 	/* For IE and Firefox */
+	
+	div.styled
+	{
+		display: inline-block;
+		vertical-align: middle;
+	}
 
 	div.styled { overflow:hidden; padding:0; margin:0; }
 		
@@ -127,7 +137,7 @@ div.Label
 		content: 'Upload File';
 		margin:0 0 0 0.5em;
 		display: inline-block; left: 100%; position: relative;
-		background:white url(../gfx/ui-widgets/formelements-select.png) no-repeat center left;
+		background:white url(../gfx/formelements-select.png) no-repeat center left;
 		padding:0.3em 0.5em; border: solid 1px #ccc !important;
 		-webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.2); 
 		box-shadow: 0 1px 3px rgba(0,0,0,0.2);
@@ -145,7 +155,7 @@ div.Label
 	label:before { 
 		display: inline-block; position: relative; top:0.25em; left:-2px; 
 		content:''; width:25px; height:25px;
-		background-image:url(../gfx/ui-widgets/formelements.png); }
+		background-image:url(../gfx/formelements.png); }
 	
 	input[type="checkbox"] + label:before { background-position: 0 -25px;}
 	input[type="checkbox"]:checked + label:before {background-position: 0 0 ; }
