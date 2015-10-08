@@ -38,6 +38,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 function Application() {}
 
 Application._stack = null; 
+Application._card = null;
+
+Application._edit_bkgnd = false;
+
+
+
+
+
 
 // must wait for all CSS to load BEFORE 
 // initalizing the application & it's resources, otherwise we'll get weird palettes
