@@ -84,7 +84,7 @@ View.prototype._init_view = function()
 }
 
 
-View._indicate_tool = function(in_tool)
+View.prototype._indicate_tool = function(in_tool)
 {
 	/* clear the current tool indication */
 	var img_list = Palette.Tools._root.children[0].children;
@@ -97,13 +97,29 @@ View._indicate_tool = function(in_tool)
 	/* set the new tool indication */
 	var palette_img = Palette.Tools._root.children[0].children[in_tool - 1].children[0];
 	palette_img.src = palette_img.src.replace('normal', 'hilite');
+	
+	/* change the cursor on the view */
+	switch (in_tool)
+	{
+	case View.TOOL_BROWSE:
+		this._container.className = 'CursBrowse';
+		break;
+	case View.TOOL_BUTTON:
+	case View.TOOL_FIELD:
+		this._container.className = 'CursAuthor';
+		break;
+	}
 }
 
 
 View.prototype.choose_tool = function(in_tool)
 {
 	this._tool = in_tool;
-	View._indicate_tool(in_tool);
+	if (this._tool == View.TOOL_BROWSE) this._mode = this.MODE_BROWSE;
+	else if (this._tool == View.TOOL_BUTTON ||
+		this._tool == View.TOOL_FIELD) this._mode = this.MODE_AUTHORING;
+	else this._mode = this.MODE_PAINTING;
+	this._indicate_tool(in_tool);
 }
 
 

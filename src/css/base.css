@@ -129,10 +129,16 @@ Cursors
 	cursor: pointer;
 }
 
-.Browse
+.CursBrowse
 {
 	cursor: pointer;
 }
+
+.CursAuthor
+{
+	cursor: default;
+}
+
 
 
 
