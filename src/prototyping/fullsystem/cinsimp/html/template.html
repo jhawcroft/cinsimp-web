@@ -454,10 +454,21 @@ call stack and debug buttons ? -->
 
 
 
+<div id="DialogProgress" class="DialogTemplate Inner" style=" width: 620px; height: 380px;">
+	
+
+</div>
+
+
+
+
+
 
 
 <script>
 
+Dialog.Progress = new Dialog('Text Properties', document.getElementById('DialogTextStyle'));
+Dialog.Progress.show();
 
 Dialog.TextStyle = new Dialog('Text Properties', document.getElementById('DialogTextStyle'));
 //Dialog.TextStyle.show();
