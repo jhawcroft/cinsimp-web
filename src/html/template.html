@@ -36,6 +36,7 @@ var gBase = '../';
 <script language="javascript" type="text/javascript" src="../js/popup-menu.js"></script>
 <script language="javascript" type="text/javascript" src="../js/dialog.js"></script>
 <script language="javascript" type="text/javascript" src="../js/colours.js"></script>
+<script language="javascript" type="text/javascript" src="../js/object.js"></script>
 <script language="javascript" type="text/javascript" src="../js/view.js"></script>
 <script language="javascript" type="text/javascript" src="../js/paint.js"></script>
 <script language="javascript" type="text/javascript" src="../js/application.js"></script>
@@ -101,7 +102,7 @@ layers depending on the mode of the application -->
 
 <div class="ButtonsRow">
 	<div title="Object Info" title="Object Info"><img src="../gfx/info.png" width="32"><div>Object Info</div></div>
-	<div title="Edit Bkgnd"><img src="../gfx/bkgnd.png" width="32"><div>Edit Bkgnd</div></div>
+	<div title="Edit Bkgnd" onclick="Application.edit_bkgnd()"><img src="../gfx/bkgnd.png" width="32"><div>Edit Bkgnd</div></div>
 	<div class="Spacer"></div>
 	<div title="Front"><img src="../gfx/tofront.png" width="32"><div>Front</div></div>
 	<div title="Closer"><img src="../gfx/forward.png" width="32"><div>Closer</div></div>
@@ -123,25 +124,32 @@ layers depending on the mode of the application -->
 <div id="PaletteTools" class="PaletteTemplate" style="left: 830px; top: 200px;">
 
 <div id="ToolButtonGrid">
-	<div onclick="chooseTool(1);"><img src="../gfx/browse-hilite.png" title="Browse"></div>
-	<div onclick="chooseTool(2);"><img src="../gfx/button-normal.png" title="Button"></div>
-	<div onclick="chooseTool(3);"><img src="../gfx/field-normal.png" title="Field"></div>
-	<div onclick="chooseTool(4);"><img src="../gfx/pencil-normal.png" title="Pencil"></div>
-	<div onclick="chooseTool(5);"><img src="../gfx/brush-normal.png" title="Paint Brush"></div>
-	<div onclick="chooseTool(6);"><img src="../gfx/eraser-normal.png" title="Eraser"></div>
-	<div onclick="chooseTool(7);"><img src="../gfx/bucket-normal.png" title="Paint Bucket"></div>
-	<div onclick="chooseTool(8);"><img src="../gfx/spray-normal.png" title="Spray"></div>
-	<div onclick="chooseTool(9);"><img src="../gfx/select-normal.png" title="Select"></div>
-	<div onclick="chooseTool(10);"><img src="../gfx/lasso-normal.png" title="Lasso"></div>
-	<div onclick="chooseTool(11);"><img src="../gfx/line-normal.png" title="Line"></div>
-	<div onclick="chooseTool(12);"><img src="../gfx/rectangle-normal.png" title="Rectangle"></div>
-	<div onclick="chooseTool(13);"><img src="../gfx/roundrect-normal.png" title="Round Rectangle"></div>
-	<div onclick="chooseTool(14);"><img src="../gfx/oval-normal.png" title="Oval"></div>
-	<div onclick="chooseTool(15);"><img src="../gfx/freeshape-normal.png" title="Free Shape"></div>
-	<div onclick="chooseTool(16);"><img src="../gfx/freepoly-normal.png" title="Free Polygon"></div>
-	<div onclick="chooseTool(17);"><img src="../gfx/regpoly-normal.png" title="Regular Polygon"></div>
-	<div onclick="chooseTool(18);"><img src="../gfx/eyedrop-normal.png" title="Eyedropper"></div>
-	<div onclick="chooseTool(19);"><img src="../gfx/text-normal.png" title="Text"></div>
+	<div onclick="Application.choose_tool(View.TOOL_BROWSE);"><img src="../gfx/browse-hilite.png" title="Browse"></div>
+	<div onclick="Application.choose_tool(View.TOOL_BUTTON);"><img src="../gfx/button-normal.png" title="Button"></div>
+	<div onclick="Application.choose_tool(View.TOOL_FIELD);"><img src="../gfx/field-normal.png" title="Field"></div>
+	
+	<div onclick="Application.choose_tool(View.TOOL_SELECT);"><img src="../gfx/select-normal.png" title="Select"></div>
+	<div onclick="Application.choose_tool(View.TOOL_LASSO);"><img src="../gfx/lasso-normal.png" title="Lasso"></div>
+	<div onclick="Application.choose_tool(View.TOOL_PENCIL);"><img src="../gfx/pencil-normal.png" title="Pencil"></div>
+	
+	<div onclick="Application.choose_tool(View.TOOL_BRUSH);"><img src="../gfx/brush-normal.png" title="Paint Brush"></div>
+	<div onclick="Application.choose_tool(View.TOOL_ERASER);"><img src="../gfx/eraser-normal.png" title="Eraser"></div>
+	<div onclick="Application.choose_tool(View.TOOL_LINE);"><img src="../gfx/line-normal.png" title="Line"></div>
+	
+	<div onclick="Application.choose_tool(View.TOOL_SPRAY);"><img src="../gfx/spray-normal.png" title="Spray"></div>
+	<div onclick="Application.choose_tool(View.TOOL_RECTANGLE);"><img src="../gfx/rectangle-normal.png" title="Rectangle"></div>
+	<div onclick="Application.choose_tool(View.TOOL_ROUND_RECT);"><img src="../gfx/roundrect-normal.png" title="Round Rectangle"></div>
+	
+	<div onclick="Application.choose_tool(View.TOOL_BUCKET);"><img src="../gfx/bucket-normal.png" title="Paint Bucket"></div>
+	<div onclick="Application.choose_tool(View.TOOL_OVAL);"><img src="../gfx/oval-normal.png" title="Oval"></div>
+	<div onclick="Application.choose_tool(View.TOOL_FREE_SHAPE);"><img src="../gfx/freeshape-normal.png" title="Free Shape"></div>
+	
+	<div onclick="Application.choose_tool(View.TOOL_TEXT);"><img src="../gfx/text-normal.png" title="Text"></div>
+	<div onclick="Application.choose_tool(View.TOOL_REG_POLY);"><img src="../gfx/regpoly-normal.png" title="Regular Polygon"></div>
+	<div onclick="Application.choose_tool(View.TOOL_FREE_POLY);"><img src="../gfx/freepoly-normal.png" title="Free Polygon"></div>
+	
+	<div onclick="Application.choose_tool(View.TOOL_EYEDROPPER);"><img src="../gfx/eyedrop-normal.png" title="Eyedropper"></div>
+	
 </div>
 
 </div>
@@ -589,22 +597,7 @@ setupColours();
 
 
 
-function clearSelectedTools()
-{
-	var img_list = Palette.Tools._root.children[0].children;
-	for (var t = 0; t < img_list.length; t++)
-	{
-		var palette_img = img_list[t].children[0];
-		palette_img.src = palette_img.src.replace('hilite', 'normal');
-	}
-}
 
-function chooseTool(in_tool)
-{
-	clearSelectedTools();
-	var palette_img = Palette.Tools._root.children[0].children[in_tool - 1].children[0];
-	palette_img.src = palette_img.src.replace('normal', 'hilite');
-}
 
 </script>
 
@@ -615,6 +608,9 @@ function chooseTool(in_tool)
 var sw = document.getElementById('stackWindow');
 Application.setDefaultPositions(sw.clientWidth, sw.clientHeight);
 Palette.Navigator.show();
+
+Palette.Authoring.show();
+Palette.Tools.show();
 
 Application.init();
 </script>

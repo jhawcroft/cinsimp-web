@@ -40,12 +40,93 @@ function View(in_stack, in_card)
 	this._stack = in_stack;
 	this._card = in_card;
 	this._edit_bkgnd = false;
+	this._mode = View.MODE_BROWSE;
+	this._tool = View.TOOL_BROWSE;
+	this._container = document.getElementById('stackWindow');
+	
+	this._init_view();
 }
+
+View.MODE_BROWSE = 0;
+View.MODE_AUTHORING = 1;
+View.MODE_PAINTING = 2;
+
+View.TOOL_BROWSE = 1;
+View.TOOL_BUTTON = 2;
+View.TOOL_FIELD = 3;
+View.TOOL_SELECT = 4;
+View.TOOL_LASSO = 5;
+View.TOOL_PENCIL = 6;
+View.TOOL_BRUSH = 7;
+View.TOOL_ERASER = 8;
+View.TOOL_LINE = 9;
+View.TOOL_SPRAY = 10;
+View.TOOL_RECTANGLE = 11;
+View.TOOL_ROUND_RECT = 12;
+View.TOOL_BUCKET = 13;
+View.TOOL_OVAL = 14;
+View.TOOL_FREE_SHAPE = 15;
+View.TOOL_TEXT = 16;
+View.TOOL_REG_POLY = 17;
+View.TOOL_FREE_POLY = 18;
+View.TOOL_EYEDROPPER = 19;
+
+
+View.prototype._init_view = function()
+{
+	this._bkgnd_indicator = document.createElement('div');
+	this._bkgnd_indicator.className = 'BkgndIndicator';
+	this._bkgnd_indicator.style.left = this._container.offsetLeft - 4 + 'px';
+	this._bkgnd_indicator.style.top = this._container.offsetTop - 4 + 'px';
+	this._bkgnd_indicator.style.width = this._container.clientWidth + 8 + 'px';
+	this._bkgnd_indicator.style.height = this._container.clientHeight + 8 + 'px';
+	document.body.appendChild(this._bkgnd_indicator);
+}
+
+
+View._indicate_tool = function(in_tool)
+{
+	/* clear the current tool indication */
+	var img_list = Palette.Tools._root.children[0].children;
+	for (var t = 0; t < img_list.length; t++)
+	{
+		var palette_img = img_list[t].children[0];
+		palette_img.src = palette_img.src.replace('hilite', 'normal');
+	}
+	
+	/* set the new tool indication */
+	var palette_img = Palette.Tools._root.children[0].children[in_tool - 1].children[0];
+	palette_img.src = palette_img.src.replace('normal', 'hilite');
+}
+
+
+View.prototype.choose_tool = function(in_tool)
+{
+	this._tool = in_tool;
+	View._indicate_tool(in_tool);
+}
+
+
+View.prototype.edit_bkgnd = function(in_edit_bkgnd)
+{
+	this._edit_bkgnd = in_edit_bkgnd;
+	this._bkgnd_indicator.style.visibility = (this._edit_bkgnd ? 'visible' : 'hidden');
+	//alert('Edit Bkgnd: '+in_edit_bkgnd);
+}
+
+
+View.prototype.is_edit_bkgnd = function()
+{
+	return this._edit_bkgnd;
+}
+
 
 
 View.prototype.refresh = function()
 {
-	alert(JSON.stringify(this._card));
+	
+
+	//alert(JSON.stringify(this._card));
 }
 
 

@@ -95,6 +95,17 @@ Stack Window
 }
 
 
+div.BkgndIndicator
+{
+	background-color: #ffcc33;
+	background-image: url(../gfx/trans-stripe.png);
+	position: absolute;
+	z-index: 0;
+	display: block;
+	visibility: hidden;
+}
+
+
 /*****************************************************************************************
 Application Bar
 */

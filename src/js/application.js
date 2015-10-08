@@ -50,6 +50,17 @@ Application.init = function()
 }
 
 
+Application.choose_tool = function(in_tool)
+{
+	if (Application._view) Application._view.choose_tool(in_tool);
+}
+
+
+Application.edit_bkgnd = function()
+{
+	if (Application._view) Application._view.edit_bkgnd( !Application._view.is_edit_bkgnd() );
+}
+
 
 
 // must wait for all CSS to load BEFORE 
