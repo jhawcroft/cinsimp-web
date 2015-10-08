@@ -32,13 +32,12 @@ var gBase = '../';
 
 <script language="javascript" type="text/javascript" src="../js/util.js"></script>
 <script language="javascript" type="text/javascript" src="../js/drag.js"></script>
-
 <script language="javascript" type="text/javascript" src="../js/palette.js"></script>
 <script language="javascript" type="text/javascript" src="../js/popup-menu.js"></script>
-
 <script language="javascript" type="text/javascript" src="../js/dialog.js"></script>
-
 <script language="javascript" type="text/javascript" src="../js/colours.js"></script>
+<script language="javascript" type="text/javascript" src="../js/view.js"></script>
+<script language="javascript" type="text/javascript" src="../js/paint.js"></script>
 <script language="javascript" type="text/javascript" src="../js/application.js"></script>
 
 <script>
@@ -458,9 +457,9 @@ call stack and debug buttons ? -->
 
 
 
-<div id="DialogProgress" class="DialogTemplate Inner" style=" width: 620px; height: 380px;">
-	
-
+<div id="DialogProgress" class="DialogTemplate Inner" style=" width: 400px; height: 80px; cursor: progress;">
+	<div class="Label" id="ProgressMessage">Saving changes...</div>
+	<div class="Progress Indeterminate VertGap" style="width: 370px;"><div style="width: 100%"></div></div>
 </div>
 
 
@@ -471,8 +470,8 @@ call stack and debug buttons ? -->
 
 <script>
 
-Dialog.Progress = new Dialog('Text Properties', document.getElementById('DialogTextStyle'));
-Dialog.Progress.show();
+Dialog.Progress = new Dialog('Please Wait', document.getElementById('DialogProgress'), Dialog.FLAG_NOCLOSE);
+//Dialog.Progress.show();
 
 Dialog.TextStyle = new Dialog('Text Properties', document.getElementById('DialogTextStyle'));
 //Dialog.TextStyle.show();
@@ -616,6 +615,8 @@ function chooseTool(in_tool)
 var sw = document.getElementById('stackWindow');
 Application.setDefaultPositions(sw.clientWidth, sw.clientHeight);
 Palette.Navigator.show();
+
+Application.init();
 </script>
 
 

@@ -35,9 +35,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-function Dialog(in_title, in_element) 
+function Dialog(in_title, in_element, in_flags) 
 {
 	Dialog._list.push(this);
+	
+	this._flags = in_flags;
 	
 	this._div = document.createElement('div');
 	this._div.className = 'Dialog';
@@ -51,6 +53,8 @@ function Dialog(in_title, in_element)
 	this._closebtn = document.createElement('img');
 	this._closebtn.src = gBase+'gfx/closex.png';
 	this._closebtn.style.width = '16px';
+	if (this._flags & Dialog.FLAG_NOCLOSE)
+		this._closebtn.style.visibility = 'hidden';
 	this._titlebar.appendChild(this._closebtn);
 	
 	//this._root = document.createElement('div');
@@ -68,6 +72,9 @@ function Dialog(in_title, in_element)
 	
 	Dialog._resequence();
 }
+
+Dialog.FLAG_NOCLOSE = 1;
+
 
 Dialog._cover = null;
 Dialog._list = [];

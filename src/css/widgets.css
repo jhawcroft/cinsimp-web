@@ -241,3 +241,45 @@ div.Label
 	}/* end of query */		
 	
 	
+	/*----------------------------------------------  Progress Bar ----------------------------------------------  */
+
+div.Progress
+{
+	display: block;
+	height: 16px;
+	border: 1px solid black;
+	background-color: #ccccff;
+	box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+	overflow: hidden;
+}
+
+div.Progress div
+{
+	display: block;
+	position: relative;
+	left: 0;
+	top: 0;
+	height: 100%;
+	background-color: #666666;
+}
+
+div.Progress.Indeterminate div
+{
+	background-color: transparent;
+	background-image: url(../gfx/barberpole1.png);
+	animation-name: progress-barber-pole;
+    animation-duration: 1.5s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+
+/* The animation code */
+@keyframes progress-barber-pole {
+    from {background-position: 0px;}
+    to {background-position: 45px;}
+}
+
+
+
+	
+	

@@ -35,10 +35,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-function View() {}
+function View(in_stack, in_card) 
+{
+	this._stack = in_stack;
+	this._card = in_card;
+	this._edit_bkgnd = false;
+}
 
 
+View.prototype.refresh = function()
+{
 
+}
 
 
 

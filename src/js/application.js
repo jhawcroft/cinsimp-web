@@ -39,10 +39,15 @@ function Application() {}
 
 Application._stack = null; 
 Application._card = null;
+Application._view = null;
 
-Application._edit_bkgnd = false;
 
 
+Application.init = function()
+{
+	Application._view = new View(Application._stack, Application._card);
+	
+}
 
 
 
