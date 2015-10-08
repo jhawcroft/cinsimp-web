@@ -145,8 +145,18 @@ Card Goes Here
 
 
 
+
 <div id="PaletteColours" class="PaletteTemplate" style="left: 50px; top: 100px;">
 </div>
+
+
+<div id="PaletteLinkTo" class="PaletteTemplate" style="left: 50px; top: 100px;">
+	<div style="margin: 10px; margin-bottom: 15px;">
+		<div class="Label">Go to destination, then aim link at:</div>
+		<input type="button" value="This Card" class="VertGap" onclick=""> <input type="button" value="This Stack" class="" onclick=""> <input type="button" value="Cancel" class="" onclick="">
+	</div>
+</div>
+
 
 
 
@@ -173,18 +183,18 @@ Card Goes Here
 <div id="DialogStackInfo" class="DialogTemplate Inner" style="width: 450px; height: 300px;">
 	
 	<div class="Label">Stack Name: <input type="text" id="StackInfoName" style="width: 320px;"></div>
-	<div id="StackInfoWhere" class="Label VertGap selectable">Where: /path/stack</div>
-	<div id="StackInfoCardCount" class="Label VertGap">Stack contains 1 card.</div>
-	<div id="StackInfoBkgndCount" class="Label VertGap">Stack contains 1 background.</div>
+	<div id="StackInfoWhere" class="Label VertGap selectable">Where: ^0</div>
+	<div id="StackInfoCardCount" class="Label VertGap">Stack contains ^0.</div>
+	<div id="StackInfoBkgndCount" class="Label VertGap">Stack contains ^0.</div>
 	
-	<div id="StackInfoSize" class="Label x2VertGap">Size of stack: 1 MB</div>
-	<div id="StackInfoFree" class="Label VertGap">Free in stack: 0 KB</div>
+	<div id="StackInfoSize" class="Label x2VertGap">Size of stack: ^0</div>
+	<div id="StackInfoFree" class="Label VertGap">Free in stack: ^0</div>
 	
-	<div id="StackInfoCardSize" class="Label x2VertGap">Card size: 200 x 100</div>
+	<div id="StackInfoCardSize" class="Label x2VertGap">Card size: ^0</div>
 	
 	<div class="Bottom"><input type="button" value="Resize..." onclick="Dialog.dismiss();Dialog.CardSize.show()"> <input type="button" value="Script..." disabled></div>
 	
-	<div class="Bottom Right"><input type="button" value="Cancel" class="SameSizeStacked" onclick="Dialog.dismiss()"> <input type="button" value="OK" class="SameSizeStacked VertGap" onclick="Application.handleSaveStackInfo()"></div>
+	<div class="Bottom Right"><input type="button" value="Compact" class="SameSizeStacked" onclick=""> <input type="button" value="Cancel" class="SameSizeStacked x2VertGap" onclick="Dialog.dismiss()"> <input type="button" value="OK" class="SameSizeStacked VertGap" onclick="Application.handleSaveStackInfo()"></div>
 	
 </div>
 
@@ -237,13 +247,248 @@ as dictated by the server, thus allowing for search nevigability -->
 </div>
 
 
+<div id="DialogSetPassword" class="DialogTemplate Inner" style="width: 320px; height: 210px;">
+	<div class="Label">Enter new password here:</div>
+	<div><input type="text" id="SetPasswordFirst" style="width: 270px;"></div>
+	<div class="Label VertGap">Verify new password here:</div>
+	<div><input type="text" id="SetPasswordSecond" style="width: 270px;"></div>
+	
+	<div class="Bottom Right">
+		<input type="button" value="None" onclick=""> <input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK"> 
+	</div>
+</div>
 
+
+<div id="DialogAskPassword" class="DialogTemplate Inner" style="width: 380px; height: 140px;">
+	<div id="AskPasswordPrompt" class="Label">^0</div>
+	<div><input type="password" id="AskPasswordInput" style="width: 330px;"></div>
+	
+	<div class="Bottom Right">
+		<input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK"> 
+	</div>
+</div>
+
+
+
+
+<div id="DialogButtonInfo" class="DialogTemplate Inner" style=" width: 500px; height: 470px;">
+	<div class="Label">Button Name: <input type="text" id="ButtonInfoName" style="width: 300px;"></div>
+	<div class="Label x2VertGap" id="ButtonInfoNumber">Card button number: ^0</div>
+		<div class="Label VertGap" id="ButtonInfoID">Card button ID: ^0</div>
+	<div style="width: 40%; float: left;">
+		
+		<div class="VertGap"><input type="checkbox" id="ButtonInfoShowName" checked> <label for="ButtonInfoShowName">Show name</label></div>
+		<div class=""><input type="checkbox" id="ButtonInfoAutoHilite"> <label for="ButtonInfoAutoHilite">Auto hilite</label></div>
+		<div class=""><input type="checkbox" id="ButtonInfoSharedHilite"> <label for="ButtonInfoSharedHilite">Shared hilite</label></div>
+	</div>
+	<div style="float: left;">
+		<div class="Label x2VertGap">Style:</div>
+		<div class="VertGap"><input type="radio" id="ButtonInfoType1" name="ButtonInfoType" value="1" checked> <label for="ButtonInfoType1">Transparent</label></div>
+		<div class=""><input type="radio" id="ButtonInfoType2" name="ButtonInfoType" value="2"> <label for="ButtonInfoType2">Opaque</label></div>
+		<div class=""><input type="radio" id="ButtonInfoType3" name="ButtonInfoType" value="3"> <label for="ButtonInfoType3">Rectangle</label></div>
+		<div class=""><input type="radio" id="ButtonInfoType4" name="ButtonInfoType" value="4"> <label for="ButtonInfoType4">Shadow</label></div>
+		<div class=""><input type="radio" id="ButtonInfoType5" name="ButtonInfoType" value="5"> <label for="ButtonInfoType5">Round Rectangle</label></div>
+		<div class=""><input type="radio" id="ButtonInfoType6" name="ButtonInfoType" value="6"> <label for="ButtonInfoType6">Check Box</label></div>
+		<div class=""><input type="radio" id="ButtonInfoType7" name="ButtonInfoType" value="7"> <label for="ButtonInfoType7">Radio Button</label></div>
+		<div class=""><input type="radio" id="ButtonInfoType8" name="ButtonInfoType" value="8"> <label for="ButtonInfoType8">Popup Menu</label> <input type="button" value="Picklist..." style="display:inline-block; margin-left: 10px;" disabled></div>
+	</div>
+	<div class="Bottom" style="display: block; position: absolute;">
+		<input type="button" class="SameSizeStacked VertGap" value="Tasks..." onclick="">
+		<input type="button" class="SameSizeStacked VertGap" value="Link To..." onclick="">
+		<input type="button" class="SameSizeStacked x2VertGap" value="Icon..." onclick="" disabled>
+		<input type="button" class="SameSizeStacked VertGap" value="Text Style..." onclick="" disabled>
+	</div>
+	<div class="Right Bottom">
+		<input type="button" style="margin-right: 10px;" value="Script..." onclick="" disabled>
+		<input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK"> 
+	</div>
+</div>
+
+
+<div id="DialogFieldInfo" class="DialogTemplate Inner" style=" width: 620px; height: 400px;">
+	<div class="Label">Field Name: <input type="text" id="FieldInfoName" style="width: 350px;"></div>
+	<div style="float: left; width: 28%;">
+		<div class="Label x2VertGap">Style:</div>
+		<div class="VertGap"><input type="radio" id="FieldInfoType1" name="FieldInfoType" value="1" checked> <label for="FieldInfoType1">Transparent</label></div>
+		<div class=""><input type="radio" id="FieldInfoType2" name="FieldInfoType" value="2"> <label for="FieldInfoType2">Opaque</label></div>
+		<div class=""><input type="radio" id="FieldInfoType3" name="FieldInfoType" value="3"> <label for="FieldInfoType3">Rectangle</label></div>
+		<div class=""><input type="radio" id="FieldInfoType4" name="FieldInfoType" value="4"> <label for="FieldInfoType4">Shadow</label></div>
+		<div class=""><input type="radio" id="FieldInfoType5" name="FieldInfoType" value="5"> <label for="FieldInfoType5">Scrolling</label></div>
+	</div>
+	<div class="Label x2VertGap" id="FieldInfoNumber">Card field number: ^0</div>
+	<div class="Label VertGap" id="FieldInfoID">Card field ID: ^0</div>
+	<div style="float: left; width: 30%;">
+		
+		
+		<div class="VertGap"><input type="checkbox" id="FieldInfoShowName"> <label for="FieldInfoShowName">Lock text</label></div>
+		<div class=""><input type="checkbox" id="FieldInfoDontWrap"> <label for="FieldInfoDontWrap">Don't wrap</label></div>
+		<div class=""><input type="checkbox" id="FieldInfoAutoTab"> <label for="FieldInfoAutoTab">Auto tab</label></div>
+		<div class=""><input type="checkbox" id="FieldInfoSharedText"> <label for="FieldInfoSharedText">Shared text</label></div>
+		<div class=""><input type="checkbox" id="FieldInfoDontSearch"> <label for="FieldInfoDontSearch">Don't search</label></div>
+	
+	</div>
+	<div style="float: left;">
+		<div class="VertGap"><input type="checkbox" id="FieldInfoShowLines"> <label for="FieldInfoShowLines">Show lines</label></div>
+		<div class=""><input type="checkbox" id="FieldInfoWideMargins"> <label for="FieldInfoWideMargins">Wide margins</label></div>
+		<div class=""><input type="checkbox" id="FieldInfoAutoSelect"> <label for="FieldInfoAutoSelect">Auto select</label></div>
+		<div style="padding-left: 20px;"><input type="checkbox" id="FieldInfoMultipleLines"> <label for="FieldInfoMultipleLines">Multiple lines</label></div>
+		<div class="VertGap"><input type="checkbox" id="FieldInfoColumnar"> <label for="FieldInfoColumnar">Columnar</label> 
+			<input type="button" value="Columns..." style="display:inline-block; margin-left: 10px;"></div>
+		<div style="padding-left: 20px;"><input type="checkbox" id="FieldInfoHasHeader"> <label for="FieldInfoHasHeader">Has header</label></div>
+	</div>
+	
+	<div class="Bottom" style="display: block; position: absolute;">
+			<input type="button" class="SameSizeStacked" value="Picklist..." onclick="" disabled>
+			<input type="button" class="SameSizeStacked VertGap" value="Text Style..." onclick="">
+	</div>
+	<div class="Right Bottom">
+		<input type="button" style="margin-right: 10px;" value="Script..." onclick="" disabled> <input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK"> 
+	</div>
+</div>
+
+
+<div id="DialogBkgndInfo" class="DialogTemplate Inner" style="width: 450px; height: 300px;">
+	<div class="Label">Background Name: <input type="text" id="BkgndInfoName" style="width: 260px;"></div>
+	<div id="BkgndInfoID" class="Label VertGap selectable">Background ID: ^0</div>
+	<div id="BkgndInfoCardCount" class="Label VertGap">Background shared by ^0.</div>
+	<div id="BkgndInfoFieldCount" class="Label VertGap">Contains ^0.</div>
+	<div id="BkgndInfoButtonCount" class="Label VertGap">Contains ^0.</div>
+	
+	<div class="x2VertGap"><input type="checkbox" id="BkgndInfoCantDelete"> <label for="BkgndInfoCantDelete">Can't delete background</label></div>
+	<div class=""><input type="checkbox" id="BkgndInfoDontSearch"> <label for="BkgndInfoDontSearch">Don't search background</label></div>
+	
+	<div class="Bottom"><input type="button" value="Script..." onclick="" disabled></div>
+	<div class="Bottom Right"><input type="button" value="Cancel" class="" onclick="Dialog.dismiss()"> <input type="button" value="OK" class="" onclick=""></div>
+</div>
+
+
+<div id="DialogCardInfo" class="DialogTemplate Inner" style="width: 450px; height: 330px;">
+	
+	<div class="Label">Card Name: <input type="text" id="CardInfoName" style="width: 310px;"></div>
+	<div id="CardInfoNumber" class="Label VertGap">Card Number: ^0 out of ^1</div>
+	<div id="CardInfoID" class="Label VertGap selectable">Card ID: ^0</div>
+	<div id="CardInfoFieldCount" class="Label VertGap">Contains ^0.</div>
+	<div id="CardInfoButtonCount" class="Label VertGap">Contains ^0.</div>
+	
+	<div class="x2VertGap"><input type="checkbox" id="CardInfoMarked"> <label for="CardInfoMarked">Marked</label></div>
+	<div class=""><input type="checkbox" id="CardInfoDontSearch"> <label for="CardInfoDontSearch">Don't search card</label></div>
+	<div class=""><input type="checkbox" id="CardInfoCantDelete"> <label for="CardInfoCantDelete">Can't delete card</label></div>
+	
+	<div class="Bottom"><input type="button" value="Script..." onclick="" disabled></div>
+	<div class="Bottom Right"><input type="button" value="Cancel" class="" onclick="Dialog.dismiss()"> <input type="button" value="OK" class="" onclick=""></div>
+</div>
+
+
+<div id="DialogSetIcon" class="DialogTemplate Inner" style="width: 480px; height: 430px;">
+	<div id="SetIconInfo" class="Label">Icon ID: ^0  ^1</div>
+	<div id="IconPicker" style="width: 448px; height: 320px; border: 1px solid black; margin-top: 5px; overflow-y: scroll; overflow-x: hidden;"></div>
+	
+	<div class="Bottom Right">
+		<input type="button" value="None" class="" onclick=""> <input type="button" value="Cancel" class="" onclick="Dialog.dismiss()"> <input type="button" value="OK" class="" onclick="">
+	</div>
+</div>
+
+
+<div id="DialogScriptEditor" class="DialogTemplate Inner" style="width: 685px; height: 550px;">
+<!-- it would be useful to think about how to incorporate a debugger, as the window style is
+not particularly conducive to it; though we could introduce a debugger dialog with built-in variable watcher,
+call stack and debug buttons ? -->
+	<div id="ScriptEditorObject" class="Label">Script of ^0</div>
+	<div id="ScriptEditorContainer" style="width: 650px; height: 440px; border: 1px solid black; margin-top: 5px;"></div>
+	<div class="Bottom">
+		<!-- used to be find and print; think we can do better, like what was in HC 2,
+		a handler jump list at least and maybe also a find option ? -->
+	</div>
+	<div class="Bottom Right">
+		<input type="button" value="Cancel" class="" onclick="Dialog.dismiss()"> <input type="button" value="OK" class="" onclick="">
+	</div>
+</div>
+
+
+<div id="DialogRecent" class="DialogTemplate Inner" style="width: 570px; height: 490px;">
+	<div id="RecentList" style="width:540px; height:450px; overflow:hidden;">
+	</div>
+</div>
+
+
+<div id="DialogTextStyle" class="DialogTemplate Inner" style=" width: 620px; height: 380px;">
+	<div style="float: left; margin-right: 30px;" class="">
+		<select id="TextFont" size="8" class="multipleLine" style="height: 240px; width: 260px;">
+			<option value="sans-serif">Sans-Serif</option>
+			<option value="serif">Serif</option>
+			<option value="monospace">Monospace</option>
+			<!-- can include a wide array of open-source/copy-left WOFF / TrueType / OpenType fonts, which
+			maybe embedded and downloaded from the server on demand;
+			can include a Fonts folder within the distribution so additional fonts can be added -->
+		</select>
+	</div>
+	<div style="float: left; width: 26%;">
+		<div class="Label">Size: <input type="text" id="TextSize" value="12pt" style="width: 70px;"></div>
+		
+		<div class="Label x2VertGap">Align:</div>
+		<div class="VertGap"><input type="radio" id="TextAlign1" name="TextAlign" value="left" checked> <label for="TextAlign1">Left</label></div>
+		<div class=""><input type="radio" id="TextAlign2" name="TextAlign" value="center"> <label for="TextAlign2">Center</label></div>
+		<div class=""><input type="radio" id="TextAlign3" name="TextAlign" value="right"> <label for="TextAlign3">Right</label></div>
+		<div class=""><input type="radio" id="TextAlign4" name="TextAlign" value="justify"> <label for="TextAlign4">Justify</label></div>
+	</div>
+	
+	<div style="float: left; ">
+		<div class="Label">Style:</div>
+		<div class="VertGap"><input type="checkbox" id="TextStyle1"> <label for="TextStyle1">Bold</label></div>
+		<div class=""><input type="checkbox" id="TextStyle2"> <label for="TextStyle2">Italic</label></div>
+		<div class=""><input type="checkbox" id="TextStyle3"> <label for="TextStyle3">Shadow</label></div>
+		<div class=""><input type="checkbox" id="TextStyle4"> <label for="TextStyle4">Condense</label></div>
+		<div class=""><input type="checkbox" id="TextStyle5"> <label for="TextStyle5">Extend</label></div>
+		
+	</div>
+	
+	<div class="Bottom">
+		<div id="TextSample" style="width: 420px; height: 75px; overflow: hidden; border: 1px solid gray; padding: 3px; box-sizing: border-box; ">Sample</div>
+	</div>
+	
+	
+	<div class="Right Bottom">
+		<input type="button" class="SameSizeStacked" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" class="SameSizeStacked VertGap" value="OK"> 
+	</div>
+</div>
 
 
 
 
 
 <script>
+
+
+Dialog.TextStyle = new Dialog('Text Properties', document.getElementById('DialogTextStyle'));
+//Dialog.TextStyle.show();
+
+Dialog.Recent = new Dialog('Recent Cards', document.getElementById('DialogRecent'));
+//Dialog.Recent.show();
+
+Dialog.ScriptEditor = new Dialog('', document.getElementById('DialogScriptEditor'));
+//Dialog.ScriptEditor.show();
+
+Dialog.SetIcon = new Dialog('Set Icon', document.getElementById('DialogSetIcon'));
+//Dialog.SetIcon.show();
+
+
+Dialog.AskPassword = new Dialog('', document.getElementById('DialogAskPassword'));
+//Dialog.AskPassword.show();
+
+Dialog.SetPassword = new Dialog('Set Stack Password', document.getElementById('DialogSetPassword'));
+//Dialog.SetPassword.show();
+
+Dialog.CardInfo = new Dialog('Card Info', document.getElementById('DialogCardInfo'));
+//Dialog.CardInfo.show();
+
+Dialog.BkgndInfo = new Dialog('Bkgnd Info', document.getElementById('DialogBkgndInfo'));
+//Dialog.BkgndInfo.show();
+
+Dialog.FieldInfo = new Dialog('Field Info', document.getElementById('DialogFieldInfo'));
+///Dialog.FieldInfo.show();
+
+Dialog.ButtonInfo = new Dialog('Button Info', document.getElementById('DialogButtonInfo'));
+//Dialog.ButtonInfo.show();
 
 
 Dialog.ProtectStack = new Dialog('Protect Stack', document.getElementById('DialogProtectStack'));
@@ -255,6 +500,9 @@ Dialog.StackInfo = new Dialog('Stack Info', document.getElementById('DialogStack
 Dialog.CardSize = new Dialog('Card Size', document.getElementById('DialogCardSize'));
 //Dialog.CardSize.show();
 
+
+Palette.LinkTo = new Palette(document.getElementById('PaletteLinkTo'), 0);
+//Palette.LinkTo.show();
 
 Palette.Navigator = new Palette(document.getElementById('PaletteNavigator'), Palette.TITLE_VERTICAL);
 Palette.Tools = new Palette(document.getElementById('PaletteTools'), 0);

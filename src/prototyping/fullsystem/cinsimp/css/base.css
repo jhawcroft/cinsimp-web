@@ -356,6 +356,7 @@ div.DialogTitle
 	letter-spacing: 1px;
 	cursor: move;
 	box-sizing: border-box;
+	height: 29px;
 }
 
 div.DialogTitle img
