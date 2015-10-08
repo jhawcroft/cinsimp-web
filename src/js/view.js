@@ -115,10 +115,13 @@ View.prototype._indicate_tool = function(in_tool)
 View.prototype.choose_tool = function(in_tool)
 {
 	this._tool = in_tool;
+	
+	/* determine the mode */
 	if (this._tool == View.TOOL_BROWSE) this._mode = this.MODE_BROWSE;
 	else if (this._tool == View.TOOL_BUTTON ||
 		this._tool == View.TOOL_FIELD) this._mode = this.MODE_AUTHORING;
 	else this._mode = this.MODE_PAINTING;
+	
 	this._indicate_tool(in_tool);
 }
 
@@ -127,7 +130,8 @@ View.prototype.edit_bkgnd = function(in_edit_bkgnd)
 {
 	this._edit_bkgnd = in_edit_bkgnd;
 	this._bkgnd_indicator.style.visibility = (this._edit_bkgnd ? 'visible' : 'hidden');
-	//alert('Edit Bkgnd: '+in_edit_bkgnd);
+	//document.getElementById('EditBkgndLabel').textContent = (this._edit_bkgnd ? 'Edit Card' : 'Edit Bkgnd');
+	
 }
 
 
