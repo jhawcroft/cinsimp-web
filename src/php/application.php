@@ -37,10 +37,13 @@ class Application
 		global $config;
 		
 		$stack_handle = null;
+		$stack = null;
+		$card = null;
 		try 
 		{
 			$stack_handle = new Stack($in_stack);
 			$stack = $stack_handle->stack_load();
+			$card = $stack_handle->stack_load_card($stack_handle->stack_get_first_card_id());
 		}
 		catch (Exception $err)
 		{
@@ -61,10 +64,10 @@ class Application
 			$page = str_replace('width: 800px; height: 600px;', 
 				'width: '.$stack['card_width'].'px; height: '.$stack['card_height'].'px;', $page, $one);
 				
-			$stack['test'] = 'Blah\'s';
 			$one = 1;
 			$page = str_replace('var successScript = \'\';',
-				'Application._stack = '.json_encode($stack).';', 
+				'Application._stack = '.json_encode($stack).";\n".
+				'Application._card = '.json_encode($card).';', 
 				$page, $one);
 		}
 		else

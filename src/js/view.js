@@ -45,7 +45,7 @@ function View(in_stack, in_card)
 
 View.prototype.refresh = function()
 {
-
+	alert(JSON.stringify(this._card));
 }
 
 
