@@ -141,6 +141,38 @@ View.prototype.is_edit_bkgnd = function()
 }
 
 
+View.prototype.do_new = function()
+{
+	alert('New');
+}
+
+
+View.prototype.do_delete = function()
+{
+	alert('Delete');
+}
+
+
+View.prototype.go_first = function()
+{
+	alert('First');
+}
+
+View.prototype.go_prev = function()
+{
+	alert('Prev');
+}
+
+View.prototype.go_next = function()
+{
+	alert('Next');
+}
+
+View.prototype.go_last = function()
+{
+	alert('Last');
+}
+
 
 View.prototype.refresh = function()
 {

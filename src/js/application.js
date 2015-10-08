@@ -72,6 +72,37 @@ Application.edit_bkgnd = function()
 }
 
 
+Application.do_new = function()
+{
+	if (Application._view) Application._view.do_new();
+}
+
+
+Application.do_delete = function()
+{
+	if (Application._view) Application._view.do_delete();
+}
+
+
+Application.go_first = function()
+{
+	if (Application._view) Application._view.go_first();
+}
+
+Application.go_prev = function()
+{
+	if (Application._view) Application._view.go_prev();
+}
+
+Application.go_next = function()
+{
+	if (Application._view) Application._view.go_next();
+}
+
+Application.go_last = function()
+{
+	if (Application._view) Application._view.go_last();
+}
 
 // must wait for all CSS to load BEFORE 
 // initalizing the application & it's resources, otherwise we'll get weird palettes

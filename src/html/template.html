@@ -83,18 +83,18 @@ layers depending on the mode of the application -->
 	<div title="Recent"><img src="../gfx/recent.png" width="32"><div>Recent</div></div>
 	<div title="Back"><img src="../gfx/back.png" width="32"><div>Back</div></div>
 	<div class="Spacer"></div>
-	<div title="First"><img src="../gfx/first.png" width="32"><div>First</div></div>
-	<div title="Previous"><img src="../gfx/prev.png" width="32"><div>Previous</div></div>
-	<div title="Next"><img src="../gfx/next.png" width="32"><div>Next</div></div>
-	<div title="Last"><img src="../gfx/last.png" width="32"><div>Last</div></div>
+	<div title="First" onclick="Application.go_first();"><img src="../gfx/first.png" width="32"><div>First</div></div>
+	<div title="Previous" onclick="Application.go_prev();"><img src="../gfx/prev.png" width="32"><div>Previous</div></div>
+	<div title="Next" onclick="Application.go_next();"><img src="../gfx/next.png" width="32"><div>Next</div></div>
+	<div title="Last" onclick="Application.go_last();"><img src="../gfx/last.png" width="32"><div>Last</div></div>
 	<div class="Spacer"></div>
 	<div title="Find" onclick="Application.do_find()"><img src="../gfx/find.png" width="32"><div>Find</div></div>
 	<div title="Message" onclick="Palette.MessageBox.toggle()"><img src="../gfx/message.png" width="32"><div>Message</div></div>
 	<div class="Spacer"></div>
-	<div title="New"><img src="../gfx/new.png" width="32"><div>New</div></div>
-	<div title="Delete"><img src="../gfx/delete.png" width="32"><div>Delete</div></div>
-	<div class="Spacer"></div>
-	<div title="Share"><img src="../gfx/share.png" width="32"><div>Share</div></div>
+	<div title="New" onclick="Application.do_new();"><img src="../gfx/new.png" width="32"><div>New</div></div>
+	<div title="Delete" onclick="Application.do_delete();"><img src="../gfx/delete.png" width="32"><div>Delete</div></div>
+	<!--<div class="Spacer"></div>
+	<div title="Share"><img src="../gfx/share.png" width="32"><div>Share</div></div>-->
 </div>
 
 </div>
@@ -115,8 +115,8 @@ layers depending on the mode of the application -->
 	<div class="Spacer"></div>
 	<div title="Stack Info" title="Stack Info" onclick="Application.showStackInfo()"><img src="../gfx/stackinfo.png" width="32"><div>Stack Info</div></div>
 	<div title="Security" onclick="Application.show_protect_stack();"><img src="../gfx/locked.png" width="32"><div>Security</div></div>
-	<div title="Resources"><img src="../gfx/resources.png" width="32"><div>Resources</div></div>
-	<div title="Export"><img src="../gfx/export.png" width="32"><div>Export</div></div>
+	<!--<div title="Resources"><img src="../gfx/resources.png" width="32"><div>Resources</div></div>
+	<div title="Export"><img src="../gfx/export.png" width="32"><div>Export</div></div>-->
 </div>
 
 </div>
