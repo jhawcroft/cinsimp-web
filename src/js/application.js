@@ -47,6 +47,16 @@ Application.init = function()
 {
 	Application._view = new View(Application._stack, Application._card);
 	Application._view.refresh();
+	
+	
+	Application._msgtxt = document.getElementById('MessageBoxText');
+	Application._msgtxt.addEventListener('keydown', function(e) { if (e.keyCode == 13) Application.do_message(); });
+}
+
+
+Application.do_message = function()
+{
+	alert('Do message: '+Application._msgtxt.value);
 }
 
 
@@ -98,6 +108,17 @@ Application.showStackInfo = function()
 	catch (e) {}
 	
 	Dialog.StackInfo.show();
+}
+
+
+Application.do_find = function()
+{
+	document.getElementById('MessageBoxText').value = 'find ""';
+	Palette.MessageBox.show();
+	//var r = document.createRange();
+	document.getElementById('MessageBoxText').selectionStart = 6;
+	document.getElementById('MessageBoxText').selectionEnd = 6;
+	document.getElementById('MessageBoxText').focus();
 }
 
 
