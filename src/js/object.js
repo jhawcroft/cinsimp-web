@@ -152,6 +152,10 @@ ViewObject.prototype.get_attr = function(in_attr)
 }
 
 
+ViewObject.prototype._layer_visibility = function(in_visible)
+{
+	this._div.style.visibility = (in_visible ? 'visible' : 'hidden');
+}
 
 
 

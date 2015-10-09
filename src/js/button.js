@@ -136,8 +136,5 @@ Button.prototype._author_edit_changed = function(in_author, in_edit)
 }
 
 
-Button.prototype._handle_mousedown = function(in_event)
-{
-	
-}
+
 

@@ -68,6 +68,29 @@ View.TOOL_REG_POLY = 17;
 View.TOOL_FREE_POLY = 18;
 View.TOOL_EYEDROPPER = 19;
 
+/*
+
+Experimental technology - not stable - also doesn't work this easily since the event object must be cloned.
+Going to have to use a simpler approach and just not have graphical masking of objects,
+or else, find the target ourselves?
+
+View.prototype._redirect_event = function(in_event)
+{
+	if (this._edit_bkgnd) return false;
+	
+	this._layer_obj_card.style.visibility = 'hidden';
+	var blocked_target = document.elementFromPoint(in_event.pageX, in_event.pageY); // not supported on Android and subject to change? ***
+	this._layer_obj_card.style.visibility = 'visible';
+	
+	if (blocked_target && blocked_target.className != 'Layer')
+	{
+		blocked_target.dispatchEvent(in_event);
+		return true;
+	}
+	
+	return false;
+}
+*/
 
 View.prototype._init_view = function()
 {
@@ -299,9 +322,10 @@ View.prototype.edit_bkgnd = function(in_edit_bkgnd)
 {
 	this._edit_bkgnd = in_edit_bkgnd;
 	this._bkgnd_indicator.style.visibility = (this._edit_bkgnd ? 'visible' : 'hidden');
-	this._layer_obj_card.style.visibility = (this._edit_bkgnd ? 'hidden' : 'visible');
-	//document.getElementById('EditBkgndLabel').textContent = (this._edit_bkgnd ? 'Edit Card' : 'Edit Bkgnd');
 	
+	//this._layer_obj_card.style.visibility = (this._edit_bkgnd ? 'hidden' : 'visible');
+	for (var o = 0; o < this._objects_card.length; o++)
+		this._objects_card[o]._layer_visibility(!in_edit_bkgnd);
 }
 
 
@@ -356,7 +380,7 @@ View.prototype._add_object = function(in_object)
 	else 
 	{
 		this._objects_bkgnd.push(in_object);
-		this._layer_obj_bkgnd.appendChild(in_object._div);
+		this._layer_obj_card.appendChild(in_object._div);
 	}
 }
 
