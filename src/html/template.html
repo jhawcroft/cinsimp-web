@@ -24,6 +24,7 @@
 <link rel="stylesheet" type="text/css" href="../css/base.css">
 <link rel="stylesheet" type="text/css" href="../css/widgets.css">
 <link rel="stylesheet" type="text/css" href="../css/override.css">
+<link rel="stylesheet" type="text/css" href="../css/objects.css">
 
 <script>
 // allows the basic template to work outside of the application;
@@ -38,6 +39,8 @@ var gBase = '../';
 <script language="javascript" type="text/javascript" src="../js/dialog.js"></script>
 <script language="javascript" type="text/javascript" src="../js/colours.js"></script>
 <script language="javascript" type="text/javascript" src="../js/object.js"></script>
+<script language="javascript" type="text/javascript" src="../js/field.js"></script>
+<script language="javascript" type="text/javascript" src="../js/button.js"></script>
 <script language="javascript" type="text/javascript" src="../js/view.js"></script>
 <script language="javascript" type="text/javascript" src="../js/paint.js"></script>
 <script language="javascript" type="text/javascript" src="../js/application.js"></script>
@@ -103,7 +106,7 @@ layers depending on the mode of the application -->
 <div id="PaletteAuthoring" class="PaletteTemplate" style="left: 180px; top: 450px;">
 
 <div class="ButtonsRow">
-	<div title="Object Info" title="Object Info"><img src="../gfx/info.png" width="32"><div>Object Info</div></div>
+	<div title="Object Info" title="Object Info" onclick="Application.do_info()"><img src="../gfx/info.png" width="32"><div>Object Info</div></div>
 	<div title="Edit Bkgnd" onclick="Application.edit_bkgnd()"><img src="../gfx/bkgnd.png" width="32"><div id="EditBkgndLabel">Edit Bkgnd</div></div>
 	<div class="Spacer"></div>
 	<div title="Front"><img src="../gfx/tofront.png" width="32"><div>Front</div></div>

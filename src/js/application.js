@@ -109,6 +109,12 @@ Application.go_last = function()
 // and other issues
 
 
+Application.do_info = function()
+{
+	if (Application._view) Application._view.do_info();
+}
+
+
 Application.showStackInfo = function()
 {
 	//alert(JSON.stringify(Application._initialStackData));

@@ -1,0 +1,27 @@
+
+div.Object
+{
+	display: block;
+	position: absolute;
+	box-sizing: border-box;
+	
+}
+
+div.Field
+{
+	/*background-color: yellow;*/
+}
+
+
+
+div.FieldOutlines div.Field
+{
+	outline: 1px solid #999;
+}
+
+
+
+
+
+﻿
+

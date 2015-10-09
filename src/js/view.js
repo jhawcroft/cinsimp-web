@@ -39,10 +39,7 @@ function View(in_stack, in_card)
 {
 	this._stack = in_stack;
 	this._card = in_card;
-	this._edit_bkgnd = false;
-	this._mode = View.MODE_BROWSE;
-	this._tool = View.TOOL_BROWSE;
-	this._container = document.getElementById('stackWindow');
+	
 	
 	this._init_view();
 }
@@ -74,6 +71,35 @@ View.TOOL_EYEDROPPER = 19;
 
 View.prototype._init_view = function()
 {
+	this._edit_bkgnd = false;
+	this._mode = View.MODE_BROWSE;
+	this._tool = View.TOOL_BROWSE;
+	this._container = document.getElementById('stackWindow');
+	
+	this._size = [this._container.clientWidth, this._container.clientHeight];
+	
+	this._objects_card = [];
+	this._objects_bkgnd = [];
+	
+	this._layer_obj_bkgnd = document.createElement('div');
+	this._layer_obj_bkgnd.id = 'LayerObjBkgnd';
+	this._layer_obj_bkgnd.style.zIndex = 3;
+	this._layer_obj_bkgnd.className = 'Layer';
+	this._layer_obj_bkgnd.style.width = this._size[0] + 'px';
+	this._layer_obj_bkgnd.style.height = this._size[1] + 'px';
+	
+	this._layer_obj_card = document.createElement('div');
+	this._layer_obj_card.id = 'LayerObjCard';
+	this._layer_obj_card.style.zIndex = 5;
+	this._layer_obj_card.className = 'Layer';
+	this._layer_obj_card.style.width = this._size[0] + 'px';
+	this._layer_obj_card.style.height = this._size[1] + 'px';
+	
+	//this._layer_obj_card = document.createElement('div');
+	//this._layer_obj_card = document.createElement('div');
+	this._container.appendChild(this._layer_obj_bkgnd);
+	this._container.appendChild(this._layer_obj_card);
+	
 	this._bkgnd_indicator = document.createElement('div');
 	this._bkgnd_indicator.className = 'BkgndIndicator';
 	this._bkgnd_indicator.style.left = this._container.offsetLeft - 4 + 'px';
@@ -112,17 +138,45 @@ View.prototype._indicate_tool = function(in_tool)
 }
 
 
+View.prototype._show_object_outlines = function()
+{
+	if (this._tool == View.TOOL_FIELD)
+	{
+		this._layer_obj_card.classList.add('FieldOutlines');
+		this._layer_obj_bkgnd.classList.add('FieldOutlines');
+	}
+	else
+	{
+		this._layer_obj_card.classList.remove('FieldOutlines');
+		this._layer_obj_bkgnd.classList.remove('FieldOutlines');
+	}
+	if (this._tool == View.TOOL_BUTTON)
+	{
+		this._layer_obj_card.classList.add('ButtonOutlines');
+		this._layer_obj_bkgnd.classList.add('ButtonOutlines');
+	}
+	else
+	{
+		this._layer_obj_card.classList.remove('ButtonOutlines');
+		this._layer_obj_bkgnd.classList.remove('ButtonOutlines');
+	}
+}
+
+
 View.prototype.choose_tool = function(in_tool)
 {
 	this._tool = in_tool;
 	
 	/* determine the mode */
-	if (this._tool == View.TOOL_BROWSE) this._mode = this.MODE_BROWSE;
+	if (this._tool == View.TOOL_BROWSE) this._mode = View.MODE_BROWSE;
 	else if (this._tool == View.TOOL_BUTTON ||
-		this._tool == View.TOOL_FIELD) this._mode = this.MODE_AUTHORING;
-	else this._mode = this.MODE_PAINTING;
+		this._tool == View.TOOL_FIELD) this._mode = View.MODE_AUTHORING;
+	else this._mode = View.MODE_PAINTING;
 	
 	this._indicate_tool(in_tool);
+	
+	/* show object outlines */
+	this._show_object_outlines();
 }
 
 
@@ -130,6 +184,7 @@ View.prototype.edit_bkgnd = function(in_edit_bkgnd)
 {
 	this._edit_bkgnd = in_edit_bkgnd;
 	this._bkgnd_indicator.style.visibility = (this._edit_bkgnd ? 'visible' : 'hidden');
+	this._layer_obj_card.style.visibility = (this._edit_bkgnd ? 'hidden' : 'visible');
 	//document.getElementById('EditBkgndLabel').textContent = (this._edit_bkgnd ? 'Edit Card' : 'Edit Bkgnd');
 	
 }
@@ -143,13 +198,81 @@ View.prototype.is_edit_bkgnd = function()
 
 View.prototype.do_new = function()
 {
-	alert('New');
+	if (this._mode == View.MODE_BROWSE)
+	{
+		if (!this._edit_bkgnd) this.do_new_card();
+		else this.do_new_bkgnd();
+	}
+	else if (this._mode == View.MODE_AUTHORING)
+	{
+		if (this._tool == View.TOOL_BUTTON) this.do_new_button();
+		else this.do_new_field();
+	}
+}
+
+
+View.prototype.do_new_card = function()
+{
+
+}
+
+
+View.prototype.do_new_bkgnd = function()
+{
+
+}
+
+
+View.prototype._centre_object = function(in_object)
+{
+	var obj_size = in_object.get_size();
+	var new_loc = [(this._size[0] - obj_size[0]) / 2, (this._size[1] - obj_size[1]) / 2];
+	in_object.set_loc(new_loc);
+}
+
+
+View.prototype.do_new_field = function()
+{
+	var field = new Field();
+	this._centre_object(field);
+	if (!this._edit_bkgnd) 
+	{
+		this._objects_card.push(field);
+		this._layer_obj_card.appendChild(field._div);
+	}
+	else 
+	{
+		this._objects_bkgnd.push(field);
+		this._layer_obj_bkgnd.appendChild(field._div);
+	}
+	//this._container.appendChild(field._div);
+}
+
+
+View.prototype.do_new_button = function()
+{
+
+}
+
+
+View.prototype.do_delete_objects = function()
+{
+
+}
+
+
+View.prototype.do_delete_card = function()
+{
+
 }
 
 
 View.prototype.do_delete = function()
 {
-	alert('Delete');
+	if (this._mode == View.MODE_BROWSE)
+		this.do_delete_card();
+	else if (this._mode == View.MODE_AUTHORING)
+		this.do_delete_objects();
 }
 
 
@@ -181,6 +304,11 @@ View.prototype.refresh = function()
 	//alert(JSON.stringify(this._card));
 }
 
+
+View.prototype.do_info = function()
+{
+	Dialog.FieldInfo.show();
+}
 
 
 

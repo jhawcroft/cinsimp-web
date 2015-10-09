@@ -37,7 +37,47 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 function ViewObject() 
 {
-	
+	this._attrs = {};
+}
+
+
+ViewObject.prototype.set_size = function(in_size)
+{
+	this._size = [in_size[0], in_size[1]];
+	this._div.style.width = in_size[0] + 'px';
+	this._div.style.height = in_size[1] + 'px';
+}
+
+
+ViewObject.prototype.get_size = function()
+{
+	return this._size;
+}
+
+
+ViewObject.prototype.set_loc = function(in_loc)
+{
+	this._loc = [in_loc[0], in_loc[1]];
+	this._div.style.left = in_loc[0] + 'px';
+	this._div.style.top = in_loc[1] + 'px';
+}
+
+
+ViewObject.prototype.get_loc = function()
+{
+	return this._loc;
+}
+
+
+ViewObject.prototype.set_attr = function(in_attr, in_value)
+{
+	this._attrs[in_attr] = in_value;
+}
+
+
+ViewObject.prototype.get_attr = function(in_attr)
+{
+	return this._attrs[in_attr];
 }
 
 

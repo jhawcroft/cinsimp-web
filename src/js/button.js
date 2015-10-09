@@ -1,6 +1,6 @@
 /*
 CinsImp
-Utilities
+Button
 
 *********************************************************************************
 Copyright (c) 2009-2015, Joshua Hawcroft
@@ -35,40 +35,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-function Util() {}
-
-
-Util.niceSize = function(in_bytes)
+function Button() 
 {
-	return Math.round(in_bytes / 1024) + ' KB';
+	
 }
 
 
-Util.classInheritsFrom = function( in_subclass, in_superclass )
-{ 
-	if ( in_superclass.constructor == Function ) 
-	{ 
-		//Normal Inheritance 
-		in_subclass.prototype = new in_superclass;
-		in_subclass.prototype.constructor = in_subclass;
-		in_subclass.prototype.parent = in_superclass.prototype;
-	} 
-	else 
-	{ 
-		//Pure Virtual Inheritance 
-		in_subclass.prototype = in_superclass;
-		in_subclass.prototype.constructor = in_subclass;
-		in_subclass.prototype.parent = in_superclass;
-	} 
-	return in_subclass;
-}
 
-
-Util.color_to_css = function(in_color)
-{
-	var components = [in_color[0] * 255, in_color[1] * 255, in_color[2] * 255];
-	return 'rgb(' + components.join(',') + ')';
-}
 
 
 
