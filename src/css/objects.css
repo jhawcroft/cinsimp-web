@@ -46,5 +46,19 @@ div.FieldOutlines div.Field.Selected
 }
 
 
+
+div.ResizeHandle
+{
+	display: block;
+	position: absolute;
+	background-color: black;
+	right: 0;
+	bottom: 0;
+	width: 16px;
+	height: 16px;
+}
+
+
+
 ﻿
 

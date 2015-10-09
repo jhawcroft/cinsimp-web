@@ -76,6 +76,10 @@ View.prototype._init_view = function()
 	this._tool = View.TOOL_BROWSE;
 	this._container = document.getElementById('stackWindow');
 	
+	var me = this;
+	this._container.addEventListener('mousedown', 
+		function (in_event) { me._author_point_start(null, [in_event.pageX, in_event.pageY]); });
+	
 	this._size = [this._container.clientWidth, this._container.clientHeight];
 	
 	this._objects_card = [];
@@ -228,6 +232,14 @@ View.prototype.select_none = function()
 
 View.prototype._author_point_start = function(in_object, in_coords)
 {
+	if (this._mode != View.MODE_AUTHORING) return;
+	
+	if (!in_object)
+	{
+		this.select_none();
+		return;
+	}
+	
 	if ((in_object.get_type() == Field.TYPE && this._tool != View.TOOL_FIELD) ||
 		(in_object.get_type() != Field.TYPE && this._tool != View.TOOL_BUTTON)) return;
 

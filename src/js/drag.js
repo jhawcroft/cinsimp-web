@@ -50,6 +50,8 @@ Drag._begin = [0,0];
 Drag._curr = [0,0];
 
 
+
+
 Drag.begin_move = function(in_coords, in_objects)
 {
 	Drag._objects.length = in_objects.length;
@@ -63,6 +65,22 @@ Drag.begin_move = function(in_coords, in_objects)
 	
 	document.addEventListener('mousemove', Drag._handle_move);
 	document.addEventListener('mouseup', Drag._end_move);
+}
+
+
+Drag.begin_resize = function(in_coords, in_objects)
+{
+	Drag._objects.length = in_objects.length;
+	for (var o = 0; o < in_objects.length; o++)
+	{
+		var obj = in_objects[o];
+		Drag._objects[o] = [ obj, obj.get_size() ];
+	}
+	
+	Drag._begin = [in_coords[0], in_coords[1]];
+	
+	document.addEventListener('mousemove', Drag._handle_resize);
+	document.addEventListener('mouseup', Drag._end_resize);
 }
 
 
@@ -80,10 +98,33 @@ Drag._handle_move = function(in_event)
 }
 
 
+Drag._handle_resize = function(in_event)
+{
+	Drag._curr = [in_event.pageX, in_event.pageY];
+	var deltaX = Drag._curr[0] - Drag._begin[0];
+	var deltaY = Drag._curr[1] - Drag._begin[1];
+	
+	for (var o = 0; o < Drag._objects.length; o++)
+	{
+		var rec = Drag._objects[o];
+		rec[0].set_size([ rec[1][0] + deltaX, rec[1][1] + deltaY ]);
+	}
+}
+
+
 Drag._end_move = function(in_event)
 {
 	document.removeEventListener('mousemove', Drag._handle_move);
 	document.removeEventListener('mouseup', Drag._end_move);
+	
+	Drag._objects.length = 0;
+}
+
+
+Drag._end_resize = function(in_event)
+{
+	document.removeEventListener('mousemove', Drag._handle_resize);
+	document.removeEventListener('mouseup', Drag._end_resize);
 	
 	Drag._objects.length = 0;
 }
