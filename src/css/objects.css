@@ -7,12 +7,24 @@ div.Object
 	
 }
 
+
+div.ResizeHandle
+{
+	display: block;
+	position: absolute;
+	background-color: black;
+	right: 0;
+	bottom: 0;
+	width: 16px;
+	height: 16px;
+}
+
+
 div.Field
 {
-	/*background-color: yellow;*/
-	
-	
+	/*outline: none;*/
 }
+
 
 div.Field.Editable
 {
@@ -24,7 +36,6 @@ div.Field.Editable
     -ms-user-select: text;
     user-select: text;
 }
-
 
 
 div.FieldOutlines div.Field
@@ -47,16 +58,34 @@ div.FieldOutlines div.Field.Selected
 
 
 
-div.ResizeHandle
+
+div.Button
 {
-	display: block;
-	position: absolute;
-	background-color: black;
-	right: 0;
-	bottom: 0;
-	width: 16px;
-	height: 16px;
+	/*outline: none;*/
 }
+
+
+div.Button.Editable
+{
+	/*outline: none;*/
+}
+
+
+div.ButtonOutlines div.Button
+{
+	outline: 1px solid #999;
+}
+
+
+div.ButtonOutlines div.Button.Selected
+{
+	border: 3px solid rgba(0,0,255,0.8);  /* outline seems to not work properly in firefox!! */
+}
+
+
+
+
+
 
 
 

@@ -230,6 +230,14 @@ View.prototype.select_none = function()
 }
 
 
+View.prototype._browse_point_start = function(in_object, in_coords)
+{
+	if (this._mode != View.MODE_BROWSE) return;
+	
+	alert('Click on object '+ in_object);
+}
+
+
 View.prototype._author_point_start = function(in_object, in_coords)
 {
 	if (this._mode != View.MODE_AUTHORING) return;
@@ -241,7 +249,7 @@ View.prototype._author_point_start = function(in_object, in_coords)
 	}
 	
 	if ((in_object.get_type() == Field.TYPE && this._tool != View.TOOL_FIELD) ||
-		(in_object.get_type() != Field.TYPE && this._tool != View.TOOL_BUTTON)) return;
+		(in_object.get_type() == Button.TYPE && this._tool != View.TOOL_BUTTON)) return;
 
 	if (Util.modifier_shift)
 	{
@@ -338,27 +346,34 @@ View.prototype._centre_object = function(in_object)
 }
 
 
+View.prototype._add_object = function(in_object)
+{
+	if (!this._edit_bkgnd) 
+	{
+		this._objects_card.push(in_object);
+		this._layer_obj_card.appendChild(in_object._div);
+	}
+	else 
+	{
+		this._objects_bkgnd.push(in_object);
+		this._layer_obj_bkgnd.appendChild(in_object._div);
+	}
+}
+
+
 View.prototype.do_new_field = function()
 {
 	var field = new Field(this);
 	this._centre_object(field);
-	if (!this._edit_bkgnd) 
-	{
-		this._objects_card.push(field);
-		this._layer_obj_card.appendChild(field._div);
-	}
-	else 
-	{
-		this._objects_bkgnd.push(field);
-		this._layer_obj_bkgnd.appendChild(field._div);
-	}
-	//this._container.appendChild(field._div);
+	this._add_object(field);
 }
 
 
 View.prototype.do_new_button = function()
 {
-
+	var button = new Button(this);
+	this._centre_object(button);
+	this._add_object(button);
 }
 
 
@@ -425,7 +440,7 @@ View.prototype.refresh = function()
 
 View.prototype.do_info = function()
 {
-	Dialog.FieldInfo.show();
+	Dialog.ButtonInfo.show();
 }
 
 

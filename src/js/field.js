@@ -72,8 +72,8 @@ function Field(in_view, in_def)
 	if (!in_def)
 	{
 		this.set_size([200, 85]);
-		this.set_attr(Field.ATTR_BORDER, false);
-		this.set_attr(Field.ATTR_COLOR, null);
+		this.set_attr(Field.ATTR_BORDER, true);
+		this.set_attr(Field.ATTR_COLOR, [1,1,1]);
 		this.set_attr(Field.ATTR_SHADOW, false);
 		this.set_attr(Field.ATTR_SCROLL, false);
 		this.set_attr(Field.ATTR_LOCKED, false);
@@ -90,10 +90,8 @@ Util.classInheritsFrom(Field, ViewObject);
 
 Field.prototype.get_type = function()
 {
-	return 'field';
+	return Field.TYPE;
 }
-
-
 Field.TYPE = 'field';
 
 
@@ -111,13 +109,6 @@ Field.prototype._init_with_def = function(in_def)
 }
 
 
-
-Field.prototype.set_size = function(in_size)
-{
-	ViewObject.prototype.set_size.call(this, in_size);
-}
-
-
 Field.prototype._reconfigure = function()
 {
 	this._div.style.border = (this._attrs[Field.ATTR_BORDER] ? '1px solid black' : '');
@@ -128,21 +119,12 @@ Field.prototype._reconfigure = function()
 }
 
 
-/*
-	The view periodically informs all objects as to whether authoring is currently 
-	occurring and whether the card text content is presently editable.
-*/
 Field.prototype._author_edit_changed = function(in_author, in_edit)
 {
 	this._div.contentEditable = (in_edit && (!this._attrs[Field.ATTR_LOCKED]));
 	this._div.classList.toggle('Editable', in_edit);
 }
 
-
-Field.prototype._handle_mousedown = function(in_event)
-{
-	
-}
 
 
 

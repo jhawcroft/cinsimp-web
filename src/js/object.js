@@ -62,7 +62,7 @@ ViewObject.prototype.__install_handlers = function()
 
 ViewObject.prototype.__handle_point_start = function(in_event)
 {
-	if (this._view._mode != View.MODE_BROWSE)
+	if (this._view._mode == View.MODE_AUTHORING)
 	{
 		Util.update_modifiers(in_event);
 		this._view._author_point_start(this, [in_event.pageX, in_event.pageY]);
@@ -87,6 +87,8 @@ ViewObject.prototype._handle_resize_start = function(in_event)
 ViewObject.prototype._set_selected = function(in_selected)
 {
 	this._div.classList.toggle('Selected', in_selected);
+	//this._div.style.outline = 'none';
+	//this._div.style.visibility = 'visible';
 	
 	if (in_selected && (!this._drag_handle))
 	{
