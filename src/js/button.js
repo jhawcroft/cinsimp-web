@@ -41,8 +41,13 @@ function Button(in_view, in_def)
 	ViewObject.call(this, in_view);
 	this._div.classList.add('Button');
 	
+	this._struct = document.createElement('div');
+	this._struct.className = 'St';
+	this._div.appendChild(this._struct);
+	
 	this._caption = document.createElement('div');
-	this._div.appendChild(this._caption);
+	this._caption.className = 'Cp';
+	this._struct.appendChild(this._caption);
 	
 	var me = this;
 	this._div.addEventListener('mousedown', 
@@ -99,6 +104,9 @@ Button.prototype._init_with_def = function(in_def)
 Button.prototype._resized = function()
 {
 	// in case we need to change the configuration
+	this._struct.style.width = this._size[0] + 'px';
+	this._struct.style.height = this._size[1] + 'px';
+	
 	this._reconfigure();
 }
 
