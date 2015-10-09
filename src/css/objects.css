@@ -77,9 +77,10 @@ div.ButtonOutlines div.Button
 }
 
 
-div.ButtonOutlines div.Button.Selected
+div.Button.Selected
 {
 	border: 3px solid rgba(0,0,255,0.8);  /* outline seems to not work properly in firefox!! */
+	
 }
 
 

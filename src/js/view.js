@@ -320,6 +320,8 @@ View.prototype.choose_tool = function(in_tool)
 
 View.prototype.edit_bkgnd = function(in_edit_bkgnd)
 {
+	this.select_none();
+
 	this._edit_bkgnd = in_edit_bkgnd;
 	this._bkgnd_indicator.style.visibility = (this._edit_bkgnd ? 'visible' : 'hidden');
 	

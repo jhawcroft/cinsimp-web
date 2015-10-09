@@ -43,6 +43,8 @@ function ViewObject(in_view)
 	this._attrs = {};
 	this._view = in_view;
 	
+	//this._selected = false;
+	
 	this.__install_handlers();
 }
 
@@ -86,7 +88,12 @@ ViewObject.prototype._handle_resize_start = function(in_event)
 
 ViewObject.prototype._set_selected = function(in_selected)
 {
-	this._div.classList.toggle('Selected', in_selected);
+	//this._div.classList.toggle('Selected', in_selected);
+	
+	if (in_selected)
+		this._div.style.border = '3px solid blue';
+	else
+		this._reconfigure();
 	//this._div.style.outline = 'none';
 	//this._div.style.visibility = 'visible';
 	
