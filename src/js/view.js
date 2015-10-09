@@ -99,6 +99,8 @@ View.prototype._init_view = function()
 	this._tool = View.TOOL_BROWSE;
 	this._container = document.getElementById('stackWindow');
 	
+	this._next_id = 1;
+	
 	var me = this;
 	this._container.addEventListener('mousedown', 
 		function (in_event) { me._author_point_start(null, [in_event.pageX, in_event.pageY]); });
@@ -374,6 +376,10 @@ View.prototype._centre_object = function(in_object)
 
 View.prototype._add_object = function(in_object)
 {
+	var existing_id = in_object.get_attr(ViewObject.ATTR_ID);
+	if (existing_id >= this._next_id)
+		this._next_id = existing_id + 1;
+
 	if (!this._edit_bkgnd) 
 	{
 		this._objects_card.push(in_object);

@@ -37,16 +37,23 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 function ViewObject(in_view) 
 {
+	if (!in_view) return;
+
 	this._div = document.createElement('div');
 	this._div.classList.add('Object');
 	
 	this._attrs = {};
 	this._view = in_view;
 	
+	this._attrs[ViewObject.ATTR_ID] = in_view._next_id ++;
+	
 	this._selected = false;
 	
 	this.__install_handlers();
 }
+
+
+ViewObject.ATTR_ID = -1;
 
 
 ViewObject.prototype.kill = function()

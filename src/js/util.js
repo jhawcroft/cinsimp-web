@@ -49,7 +49,7 @@ Util.classInheritsFrom = function( in_subclass, in_superclass )
 	if ( in_superclass.constructor == Function ) 
 	{ 
 		//Normal Inheritance 
-		in_subclass.prototype = new in_superclass;
+		in_subclass.prototype = new in_superclass; // was new
 		in_subclass.prototype.constructor = in_subclass;
 		in_subclass.prototype.parent = in_superclass.prototype;
 	} 
