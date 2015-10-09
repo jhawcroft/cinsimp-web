@@ -47,6 +47,13 @@ function ViewObject(in_view)
 }
 
 
+ViewObject.prototype.kill = function()
+{
+	this._div.parentElement.removeChild(this._div);
+	this._div = null;
+}
+
+
 ViewObject.prototype.__install_handlers = function()
 {
 	this._div.addEventListener('mousedown', this.__handle_point_start.bind(this));
