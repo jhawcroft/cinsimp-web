@@ -354,18 +354,6 @@ View.prototype.do_new = function()
 }
 
 
-View.prototype.do_new_card = function()
-{
-
-}
-
-
-View.prototype.do_new_bkgnd = function()
-{
-
-}
-
-
 View.prototype._centre_object = function(in_object)
 {
 	var obj_size = in_object.get_size();
@@ -426,12 +414,6 @@ View.prototype.do_delete_objects = function()
 }
 
 
-View.prototype.do_delete_card = function()
-{
-
-}
-
-
 View.prototype.do_delete = function()
 {
 	if (this._mode == View.MODE_BROWSE)
@@ -441,14 +423,106 @@ View.prototype.do_delete = function()
 }
 
 
+View.prototype._save_card = function()
+{
+
+	/* dump the object definitions to the card data block */
+	var objects = new Array(this._objects_card.length);
+	for (var o = 0; o < this._objects_card.length; o++)
+		objects[o] = this._objects_card[o].get_def();
+	this._card.card_object_data = JSON.stringify(objects);
+	
+	objects = new Array(this._objects_bkgnd.length);
+	for (var o = 0; o < this._objects_bkgnd.length; o++)
+		objects[o] = this._objects_bkgnd[o].get_def();
+	this._card.bkgnd_object_data = JSON.stringify(objects);
+	
+	// will need to grab content separately
+	// for bkgnd fields (reference is by ID)
+	
+	/* submit ajax request to save the card */
+	alert(JSON.stringify(this._card));
+}
+
+
+View.prototype._resurect = function(in_def)
+{
+	var id = in_def[ViewObject.ATTR_ID] * 1;
+	if (id >= this._next_id) this._next_id = id + 1;
+		
+	var obj = null;
+	if (in_def[ViewObject.ATTR_TYPE] == ViewObject.TYPE_BUTTON)
+		obj = new Button(this, in_def);
+	else
+		obj = new Field(this, in_def);
+		
+	return obj;
+}
+
+
+View.prototype._load_card = function(in_card_id)
+{
+	/* submit ajax request to load the card */
+	
+	
+	/* dump the current card */
+	this._selected_objects = [];
+	for (o = 0; o < this._objects_card.length; o++)
+		this._objects_card[o].kill();
+	for (o = 0; o < this._objects_bkgnd.length; o++)
+		this._objects_bkgnd[o].kill();
+
+	/* load the object definitions from the card data block */
+	var objects = JSON.parse(this._card.card_object_data);
+	this._objects_card = new Array(objects.length);
+	for (var o = 0; o < objects.length; o++)
+	{
+		var obj = this._resurect(objects[o]);
+
+		this._objects_card[o] = obj;
+		this._layer_obj_card.appendChild(obj._div);
+	}
+	
+	objects = JSON.parse(this._card.bkgnd_object_data);
+	this._objects_bkgnd = new Array(objects.length);
+	for (var o = 0; o < objects.length; o++)
+	{
+		var obj = this._resurect(objects[o]);
+			
+		this._objects_bkgnd[o] = obj;
+		this._layer_obj_bkgnd.appendChild(obj._div);
+	}
+}
+
+
+View.prototype.do_new_card = function()
+{
+
+}
+
+
+View.prototype.do_new_bkgnd = function()
+{
+
+}
+
+
+View.prototype.do_delete_card = function()
+{
+
+}
+
+
 View.prototype.go_first = function()
 {
-	alert('First');
+	// for ease of debugging:
+	this._save_card();
 }
 
 View.prototype.go_prev = function()
 {
-	alert('Prev');
+	// for ease of debugging:
+	this._load_card(this._card.card_id);
 }
 
 View.prototype.go_next = function()

@@ -65,7 +65,7 @@ A note about importing fields from HyperCard:
 function Field(in_view, in_def) 
 {
 	/* create the object */
-	ViewObject.call(this, in_view);
+	ViewObject.call(this, ViewObject.TYPE_FIELD, in_view);
 	this._div.classList.add('Field');
 	
 	/* set defaults */
@@ -79,7 +79,7 @@ function Field(in_view, in_def)
 		this.set_attr(Field.ATTR_LOCKED, false);
 	}
 	else
-		this._init_with_def(in_def);
+		this.set_def(in_def);
 	
 	/* complete configuration */
 	this._reconfigure();
@@ -102,11 +102,6 @@ Field.ATTR_SCROLL = 4;
 
 Field.ATTR_LOCKED = 5;
 
-
-Field.prototype._init_with_def = function(in_def)
-{
-	//alert(in_def);
-}
 
 /*
 Field.prototype._reconfigure = function()

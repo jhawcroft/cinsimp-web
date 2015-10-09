@@ -38,7 +38,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 function Button(in_view, in_def) 
 {
 	/* create the object */
-	ViewObject.call(this, in_view);
+	ViewObject.call(this, ViewObject.TYPE_BUTTON, in_view);
 	this._div.classList.add('Button');
 	
 	this._struct = document.createElement('div');
@@ -65,7 +65,7 @@ function Button(in_view, in_def)
 		this.set_attr(Button.ATTR_NAME, 'New Button');
 	}
 	else
-		this._init_with_def(in_def);
+		this.set_def(in_def);
 	
 	/* complete configuration */
 	this._reconfigure();
@@ -93,12 +93,6 @@ Button.ATTR_SHADOW = 3;
 Button.ATTR_MENU = 4;
 Button.ATTR_ICON = 5;
 Button.ATTR_NAME = 6;
-
-
-Button.prototype._init_with_def = function(in_def)
-{
-	//alert(in_def);
-}
 
 
 Button.prototype._resized = function()

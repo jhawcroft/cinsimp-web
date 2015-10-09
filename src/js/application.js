@@ -37,8 +37,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 function Application() {}
 
-Application._stack = null; 
-Application._card = null;
+Application._stack = {"stack_name":"test","cant_peek":false,"cant_abort":false,"user_level":5,"card_width":600,"card_height":400,"script":{"content":"","selection":0},"cant_delete":false,"cant_modify":false,"private_access":false,"first_card_id":"1","stack_path":"test","count_cards":"2","count_bkgnds":"1","stack_size":4096,"stack_free":0}; 
+Application._card = {"card_id":1,"card_name":"First Card","card_seq":1,"card_cant_delete":false,"card_dont_search":false,"card_marked":false,"card_script":{"content":"","selection":0},"card_has_art":false,"card_object_data":"","bkgnd_id":"1","bkgnd_name":"Initial Bkgnd","bkgnd_cant_delete":false,"bkgnd_dont_search":true,"bkgnd_script":{"content":"","selection":0},"bkgnd_has_art":false,"bkgnd_object_data":"","stack_count":"2","bkgnd_count":"2"};
 Application._view = null;
 
 

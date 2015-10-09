@@ -35,7 +35,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-function ViewObject(in_view) 
+function ViewObject(in_type, in_view) 
 {
 	if (!in_view) return;
 
@@ -45,15 +45,39 @@ function ViewObject(in_view)
 	this._attrs = {};
 	this._view = in_view;
 	
+	this._attrs[ViewObject.ATTR_TYPE] = in_type;
 	this._attrs[ViewObject.ATTR_ID] = in_view._next_id ++;
+	this._attrs[ViewObject.ATTR_LOC] = [0,0];
+	this._attrs[ViewObject.ATTR_SIZE] = [50,50];
 	
 	this._selected = false;
 	
 	this.__install_handlers();
 }
 
+ViewObject.TYPE_BUTTON = 0;
+ViewObject.TYPE_FIELD = 1;
 
-ViewObject.ATTR_ID = -1;
+ViewObject.ATTR_TYPE = -1;
+ViewObject.ATTR_ID = -2;
+ViewObject.ATTR_LOC = -3;
+ViewObject.ATTR_SIZE = -4;
+
+
+ViewObject.prototype.get_def = function()
+{
+	return this._attrs;
+}
+
+
+ViewObject.prototype.set_def = function(in_def)
+{
+	for (var attr_name in in_def)
+	{
+		var attr_value = in_def[attr_name];
+		this.set_attr(attr_name * 1, attr_value);
+	}
+}
 
 
 ViewObject.prototype.kill = function()
@@ -135,6 +159,7 @@ ViewObject.prototype.get_type = function()
 ViewObject.prototype.set_size = function(in_size)
 {
 	this._size = [in_size[0], in_size[1]];
+	this._attrs[ViewObject.ATTR_SIZE] = this._size;
 	this._div.style.width = in_size[0] + 'px';
 	this._div.style.height = in_size[1] + 'px';
 	
@@ -156,6 +181,7 @@ ViewObject.prototype.get_size = function()
 ViewObject.prototype.set_loc = function(in_loc)
 {
 	this._loc = [in_loc[0], in_loc[1]];
+	this._attrs[ViewObject.ATTR_LOC] = this._loc;
 	this._div.style.left = in_loc[0] + 'px';
 	this._div.style.top = in_loc[1] + 'px';
 }
@@ -169,7 +195,17 @@ ViewObject.prototype.get_loc = function()
 
 ViewObject.prototype.set_attr = function(in_attr, in_value)
 {
-	this._attrs[in_attr] = in_value;
+	switch (in_attr)
+	{
+	case ViewObject.ATTR_LOC:
+		this.set_loc(in_value);
+		break;
+	case ViewObject.ATTR_SIZE:
+		this.set_size(in_value);
+		break;
+	default:
+		this._attrs[in_attr] = in_value;
+	}
 	this._attribute_changed(in_attr, in_value);
 }
 
