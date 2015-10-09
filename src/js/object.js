@@ -41,6 +41,12 @@ function ViewObject()
 }
 
 
+ViewObject.prototype.get_type = function()
+{
+	return 'object';
+}
+
+
 ViewObject.prototype.set_size = function(in_size)
 {
 	this._size = [in_size[0], in_size[1]];

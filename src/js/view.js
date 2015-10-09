@@ -163,6 +163,33 @@ View.prototype._show_object_outlines = function()
 }
 
 
+View.prototype._mode_changed = function()
+{
+	this._author_fields = (this._tool == View.TOOL_FIELD);
+	this._author_buttons = (this._tool == View.TOOL_BUTTON);
+	this._text_editable = true; // TODO: user-level, user-modify and cant-modify
+	if (this._mode != View.MODE_BROWSE)
+		this._text_editable = false;
+	
+	for (var o = 0; o < this._objects_card.length; o++)
+	{
+		var obj = this._objects_card[o];
+		if (obj.get_type() == Field.TYPE)
+			obj._author_edit_changed(this._author_fields, this._text_editable);
+		else
+			obj._author_edit_changed(this._author_buttons, this._text_editable);
+	}
+	for (var o = 0; o < this._objects_bkgnd.length; o++)
+	{
+		var obj = this._objects_bkgnd[o];
+		if (obj.get_type() == Field.TYPE)
+			obj._author_edit_changed(this._author_fields, this._text_editable);
+		else
+			obj._author_edit_changed(this._author_buttons, this._text_editable);
+	}
+}
+
+
 View.prototype.choose_tool = function(in_tool)
 {
 	this._tool = in_tool;
@@ -172,6 +199,7 @@ View.prototype.choose_tool = function(in_tool)
 	else if (this._tool == View.TOOL_BUTTON ||
 		this._tool == View.TOOL_FIELD) this._mode = View.MODE_AUTHORING;
 	else this._mode = View.MODE_PAINTING;
+	this._mode_changed();
 	
 	this._indicate_tool(in_tool);
 	

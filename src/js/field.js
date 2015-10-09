@@ -64,28 +64,40 @@ A note about importing fields from HyperCard:
 
 function Field(in_def) 
 {
+	/* create the object */
 	ViewObject.call(this);
 	
 	this._div = document.createElement('div');
 	this._div.classList.add('Object');
 	this._div.classList.add('Field');
 	
-	this._div.contentEditable = true; // to be replaced by an attribute
-	
-	this.set_size([200, 85]);
-	
-	this.set_attr(Field.ATTR_BORDER, false);
-	this.set_attr(Field.ATTR_COLOR, null);
-	this.set_attr(Field.ATTR_SHADOW, false);
-	this.set_attr(Field.ATTR_SCROLL, false);
-	
-	if (in_def)
+	/* set defaults */
+	if (!in_def)
+	{
+		this.set_size([200, 85]);
+		this.set_attr(Field.ATTR_BORDER, false);
+		this.set_attr(Field.ATTR_COLOR, null);
+		this.set_attr(Field.ATTR_SHADOW, false);
+		this.set_attr(Field.ATTR_SCROLL, false);
+		this.set_attr(Field.ATTR_LOCKED, false);
+	}
+	else
 		this._init_with_def(in_def);
 	
+	/* complete configuration */
 	this._reconfigure();
 }
 
 Util.classInheritsFrom(Field, ViewObject);
+
+
+Field.prototype.get_type = function()
+{
+	return 'field';
+}
+
+
+Field.TYPE = 'field';
 
 
 Field.ATTR_BORDER = 1;
@@ -93,10 +105,12 @@ Field.ATTR_COLOR = 2;
 Field.ATTR_SHADOW = 3;
 Field.ATTR_SCROLL = 4;
 
+Field.ATTR_LOCKED = 5;
+
 
 Field.prototype._init_with_def = function(in_def)
 {
-	alert(in_def);
+	//alert(in_def);
 }
 
 
@@ -115,6 +129,15 @@ Field.prototype._reconfigure = function()
 	this._div.style.overflowY = (this._attrs[Field.ATTR_SCROLL] ? 'scroll' : 'hidden');
 }
 
+
+/*
+	The view periodically informs all objects as to whether authoring is currently 
+	occurring and whether the card text content is presently editable.
+*/
+Field.prototype._author_edit_changed = function(in_author, in_edit)
+{
+	this._div.contentEditable = in_edit;
+}
 
 
 
