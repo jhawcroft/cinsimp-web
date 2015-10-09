@@ -10,6 +10,19 @@ div.Object
 div.Field
 {
 	/*background-color: yellow;*/
+	
+	
+}
+
+div.Field.Editable
+{
+	cursor: text;
+	-webkit-touch-callout: text;
+    -webkit-user-select: text;
+    -khtml-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
 }
 
 
@@ -17,10 +30,20 @@ div.Field
 div.FieldOutlines div.Field
 {
 	outline: 1px solid #999;
+	
+	/*-webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;*/
 }
 
 
-
+div.FieldOutlines div.Field.Selected
+{
+	outline: 3px solid rgba(0,0,255,0.8);
+}
 
 
 ﻿

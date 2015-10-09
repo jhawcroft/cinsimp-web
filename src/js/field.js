@@ -62,13 +62,10 @@ A note about importing fields from HyperCard:
 */
 
 
-function Field(in_def) 
+function Field(in_view, in_def) 
 {
 	/* create the object */
-	ViewObject.call(this);
-	
-	this._div = document.createElement('div');
-	this._div.classList.add('Object');
+	ViewObject.call(this, in_view);
 	this._div.classList.add('Field');
 	
 	/* set defaults */
@@ -114,6 +111,7 @@ Field.prototype._init_with_def = function(in_def)
 }
 
 
+
 Field.prototype.set_size = function(in_size)
 {
 	ViewObject.prototype.set_size.call(this, in_size);
@@ -136,8 +134,17 @@ Field.prototype._reconfigure = function()
 */
 Field.prototype._author_edit_changed = function(in_author, in_edit)
 {
-	this._div.contentEditable = in_edit;
+	this._div.contentEditable = (in_edit && (!this._attrs[Field.ATTR_LOCKED]));
+	this._div.classList.toggle('Editable', in_edit);
 }
+
+
+Field.prototype._handle_mousedown = function(in_event)
+{
+	
+}
+
+
 
 
 

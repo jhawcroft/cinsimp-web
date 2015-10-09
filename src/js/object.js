@@ -35,9 +35,36 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-function ViewObject() 
+function ViewObject(in_view) 
 {
+	this._div = document.createElement('div');
+	this._div.classList.add('Object');
+	
 	this._attrs = {};
+	this._view = in_view;
+	
+	this.__install_handlers();
+}
+
+
+ViewObject.prototype.__install_handlers = function()
+{
+	this._div.addEventListener('mousedown', this.__handle_point_start.bind(this));
+}
+
+
+ViewObject.prototype.__handle_point_start = function(in_event)
+{
+	if (this._view._mode != View.MODE_BROWSE)
+		this._view._author_point_start(this, [in_event.pageX, in_event.pageY]);
+	//else
+	return false;
+}
+
+
+ViewObject.prototype._set_selected = function(in_selected)
+{
+	this._div.classList.toggle('Selected', in_selected);
 }
 
 

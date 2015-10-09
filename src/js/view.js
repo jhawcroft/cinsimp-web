@@ -81,6 +81,8 @@ View.prototype._init_view = function()
 	this._objects_card = [];
 	this._objects_bkgnd = [];
 	
+	this._selected_objects = [];
+	
 	this._layer_obj_bkgnd = document.createElement('div');
 	this._layer_obj_bkgnd.id = 'LayerObjBkgnd';
 	this._layer_obj_bkgnd.style.zIndex = 3;
@@ -190,8 +192,60 @@ View.prototype._mode_changed = function()
 }
 
 
+View.prototype.object_is_selected = function(in_object)
+{
+	var idx = this._selected_objects.indexOf(in_object);
+	return (idx >= 0);
+}
+
+
+View.prototype.select_object = function(in_object, in_selected)
+{
+	var idx = this._selected_objects.indexOf(in_object);
+	if (idx >= 0 && (!in_selected))
+	{
+		this._selected_objects.splice(idx, 1);
+		in_object._set_selected(in_selected);
+	}
+	else if (idx < 0 && in_selected)
+	{
+		this._selected_objects.push(in_object);
+		in_object._set_selected(in_selected);
+	}
+}
+
+
+View.prototype.select_none = function()
+{
+	for (var o = this._selected_objects.length - 1; o >= 0; o--)
+	{
+		var obj = this._selected_objects[o];
+		obj._set_selected(false);
+	}
+	this._selected_objects.length = 0;
+}
+
+
+View.prototype._author_point_start = function(in_object, in_coords)
+{
+	if ((in_object.get_type() == Field.TYPE && this._tool != View.TOOL_FIELD) ||
+		(in_object.get_type() != Field.TYPE && this._tool != View.TOOL_BUTTON)) return;
+
+
+	if (this.object_is_selected(in_object))
+		this.select_object(in_object, false);
+	else
+		this.select_object(in_object, true);
+	
+	if (this.object_is_selected(in_object))
+		Drag.begin_move(in_coords, this._selected_objects);
+}
+
+
 View.prototype.choose_tool = function(in_tool)
 {
+	this.select_none();
+	
 	this._tool = in_tool;
 	
 	/* determine the mode */
@@ -261,7 +315,7 @@ View.prototype._centre_object = function(in_object)
 
 View.prototype.do_new_field = function()
 {
-	var field = new Field();
+	var field = new Field(this);
 	this._centre_object(field);
 	if (!this._edit_bkgnd) 
 	{
