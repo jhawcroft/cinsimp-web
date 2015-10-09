@@ -43,7 +43,7 @@ function ViewObject(in_view)
 	this._attrs = {};
 	this._view = in_view;
 	
-	//this._selected = false;
+	this._selected = false;
 	
 	this.__install_handlers();
 }
@@ -86,16 +86,22 @@ ViewObject.prototype._handle_resize_start = function(in_event)
 }
 
 
+ViewObject.prototype._reconfigure = function()
+{
+	for (var attr_name in this._attrs)
+		this._attribute_changed(attr_name * 1, this._attrs[attr_name]);
+}
+
+
 ViewObject.prototype._set_selected = function(in_selected)
 {
 	//this._div.classList.toggle('Selected', in_selected);
 	
+	this._selected = in_selected;
 	if (in_selected)
 		this._div.style.border = '3px solid blue';
 	else
 		this._reconfigure();
-	//this._div.style.outline = 'none';
-	//this._div.style.visibility = 'visible';
 	
 	if (in_selected && (!this._drag_handle))
 	{
@@ -124,6 +130,13 @@ ViewObject.prototype.set_size = function(in_size)
 	this._size = [in_size[0], in_size[1]];
 	this._div.style.width = in_size[0] + 'px';
 	this._div.style.height = in_size[1] + 'px';
+	
+	if (this._resized)
+		this._resized();
+	
+	if (this._selected)
+		this._div.style.border = '3px solid blue';
+	//this._reconfigure();
 }
 
 
@@ -150,6 +163,7 @@ ViewObject.prototype.get_loc = function()
 ViewObject.prototype.set_attr = function(in_attr, in_value)
 {
 	this._attrs[in_attr] = in_value;
+	this._attribute_changed(in_attr, in_value);
 }
 
 

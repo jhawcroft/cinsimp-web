@@ -41,6 +41,9 @@ function Button(in_view, in_def)
 	ViewObject.call(this, in_view);
 	this._div.classList.add('Button');
 	
+	this._caption = document.createElement('div');
+	this._div.appendChild(this._caption);
+	
 	var me = this;
 	this._div.addEventListener('mousedown', 
 		function(in_event) { me._view._browse_point_start(me, [in_event.pageX, in_event.pageY]); });
@@ -54,6 +57,7 @@ function Button(in_view, in_def)
 		this.set_attr(Button.ATTR_SHADOW, true);
 		this.set_attr(Button.ATTR_ICON, 0);
 		this.set_attr(Button.ATTR_MENU, null);
+		this.set_attr(Button.ATTR_NAME, 'New Button');
 	}
 	else
 		this._init_with_def(in_def);
@@ -83,6 +87,7 @@ Button.ATTR_COLOR = 2;
 Button.ATTR_SHADOW = 3;
 Button.ATTR_MENU = 4;
 Button.ATTR_ICON = 5;
+Button.ATTR_NAME = 6;
 
 
 Button.prototype._init_with_def = function(in_def)
@@ -91,13 +96,13 @@ Button.prototype._init_with_def = function(in_def)
 }
 
 
-Button.prototype.set_size = function(in_size)
+Button.prototype._resized = function()
 {
-	ViewObject.prototype.set_size.call(this, in_size);
+	// in case we need to change the configuration
 	this._reconfigure();
 }
 
-
+/*
 Button.prototype._reconfigure = function()
 {
 	this._div.style.backgroundColor = (this._attrs[Button.ATTR_COLOR] ? 
@@ -125,6 +130,50 @@ Button.prototype._reconfigure = function()
 	case Button.STYLE_RADIO:  // ** TODO
 		this._div.style.border = '0';
 		this._div.style.borderRadius = '0';
+		break;
+	}
+}
+*/
+
+
+Button.prototype._attribute_changed = function(in_attr, in_value)
+{
+	switch (in_attr)
+	{
+	case Button.ATTR_COLOR:
+		this._div.style.backgroundColor = (in_value ? Util.color_to_css(in_value) : 'transparent');
+		break;
+	case Button.ATTR_SHADOW:
+		this._div.style.boxShadow = (in_value ? '1px 1px 2px 2px rgba(0,0,0,0.75)' : '');
+		break;
+	case Button.ATTR_STYLE:
+		switch (in_value)
+		{
+		case Button.STYLE_BORDERLESS:
+			this._div.style.border = '0';
+			this._div.style.borderRadius = '0';
+			break;
+		case Button.STYLE_RECTANGLE:
+			this._div.style.border = '1px solid black';
+			this._div.style.borderRadius = '0';
+			break;
+		case Button.STYLE_ROUNDED:
+			this._div.style.border = '1px solid black';
+			this._div.style.borderRadius = '6px';
+			break;
+		case Button.STYLE_CHECK_BOX:  // ** TODO
+			this._div.style.border = '0';
+			this._div.style.borderRadius = '0';
+			break;
+		case Button.STYLE_RADIO:  // ** TODO
+			this._div.style.border = '0';
+			this._div.style.borderRadius = '0';
+			break;
+		}
+		break;
+	case Button.ATTR_NAME:
+		this._caption.innerHTML = '';
+		this._caption.appendChild(document.createTextNode(in_value));
 		break;
 	}
 }

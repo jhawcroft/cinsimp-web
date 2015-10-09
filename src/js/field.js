@@ -108,7 +108,7 @@ Field.prototype._init_with_def = function(in_def)
 	//alert(in_def);
 }
 
-
+/*
 Field.prototype._reconfigure = function()
 {
 	this._div.style.border = (this._attrs[Field.ATTR_BORDER] ? '1px solid black' : '');
@@ -116,7 +116,7 @@ Field.prototype._reconfigure = function()
 		Util.color_to_css(this._attrs[Field.ATTR_COLOR]) : 'transparent');
 	this._div.style.boxShadow = (this._attrs[Field.ATTR_SHADOW] ? '2px 2px 2px 2px rgba(0,0,0,0.75)' : '');
 	this._div.style.overflowY = (this._attrs[Field.ATTR_SCROLL] ? 'scroll' : 'hidden');
-}
+}*/
 
 
 Field.prototype._author_edit_changed = function(in_author, in_edit)
@@ -126,6 +126,25 @@ Field.prototype._author_edit_changed = function(in_author, in_edit)
 }
 
 
+Field.prototype._attribute_changed = function(in_attr, in_value)
+{
+	switch (in_attr)
+	{
+	case Field.ATTR_BORDER:
+		this._div.style.border = (this._attrs[Field.ATTR_BORDER] ? '1px solid black' : '');
+		break;
+	case Field.ATTR_COLOR:
+		this._div.style.backgroundColor = (this._attrs[Field.ATTR_COLOR] ? 
+			Util.color_to_css(this._attrs[Field.ATTR_COLOR]) : 'transparent');
+		break;
+	case Field.ATTR_SHADOW:
+		this._div.style.boxShadow = (this._attrs[Field.ATTR_SHADOW] ? '2px 2px 2px 2px rgba(0,0,0,0.75)' : '');
+		break;
+	case Field.ATTR_SCROLL:
+		this._div.style.overflowY = (this._attrs[Field.ATTR_SCROLL] ? 'scroll' : 'hidden');
+		break;
+	}
+}
 
 
 
