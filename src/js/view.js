@@ -231,14 +231,27 @@ View.prototype._author_point_start = function(in_object, in_coords)
 	if ((in_object.get_type() == Field.TYPE && this._tool != View.TOOL_FIELD) ||
 		(in_object.get_type() != Field.TYPE && this._tool != View.TOOL_BUTTON)) return;
 
-
-	if (this.object_is_selected(in_object))
-		this.select_object(in_object, false);
+	if (Util.modifier_shift)
+	{
+		if (this.object_is_selected(in_object))
+		{
+			this.select_object(in_object, false);
+			return;
+		}
+		else
+			this.select_object(in_object, true);
+	}
 	else
-		this.select_object(in_object, true);
-	
+	{
+		if (!this.object_is_selected(in_object))
+		{
+			this.select_none();
+			this.select_object(in_object, true);
+		}
+	}
 	if (this.object_is_selected(in_object))
-		Drag.begin_move(in_coords, this._selected_objects);
+	
+	Drag.begin_move(in_coords, this._selected_objects);
 }
 
 

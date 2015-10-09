@@ -71,5 +71,25 @@ Util.color_to_css = function(in_color)
 }
 
 
+Util.modifier_shift = false;
+Util.modifier_ctrl = false;
+Util.modifier_alt = false;
+Util.modifier_meta = false;
+
+
+Util.update_modifiers = function(in_event)
+{
+	Util.modifier_shift = (in_event.shiftKey);
+	Util.modifier_ctrl = (in_event.ctrlKey);
+	Util.modifier_alt = (in_event.altKey);
+	Util.modifier_meta = (in_event.metaKey);
+}
+
+
+window.addEventListener('keydown', Util._update_modifiers, true);
+window.addEventListener('keyup', Util._update_modifiers, true);
+
+
+
 
 

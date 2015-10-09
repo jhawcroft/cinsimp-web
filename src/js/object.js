@@ -55,6 +55,8 @@ ViewObject.prototype.__install_handlers = function()
 
 ViewObject.prototype.__handle_point_start = function(in_event)
 {
+	Util.update_modifiers(in_event);
+	
 	if (this._view._mode != View.MODE_BROWSE)
 		this._view._author_point_start(this, [in_event.pageX, in_event.pageY]);
 	//else
