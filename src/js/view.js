@@ -174,22 +174,22 @@ View.prototype._show_object_outlines = function()
 	if (this._tool == View.TOOL_FIELD)
 	{
 		this._layer_obj_card.classList.add('FieldOutlines');
-		this._layer_obj_bkgnd.classList.add('FieldOutlines');
+		//this._layer_obj_bkgnd.classList.add('FieldOutlines');
 	}
 	else
 	{
 		this._layer_obj_card.classList.remove('FieldOutlines');
-		this._layer_obj_bkgnd.classList.remove('FieldOutlines');
+		//this._layer_obj_bkgnd.classList.remove('FieldOutlines');
 	}
 	if (this._tool == View.TOOL_BUTTON)
 	{
 		this._layer_obj_card.classList.add('ButtonOutlines');
-		this._layer_obj_bkgnd.classList.add('ButtonOutlines');
+		//this._layer_obj_bkgnd.classList.add('ButtonOutlines');
 	}
 	else
 	{
 		this._layer_obj_card.classList.remove('ButtonOutlines');
-		this._layer_obj_bkgnd.classList.remove('ButtonOutlines');
+		//this._layer_obj_bkgnd.classList.remove('ButtonOutlines');
 	}
 }
 
@@ -763,15 +763,46 @@ View.prototype.do_info = function()
 }
 
 
+// ie. go through and build a list of the selection in the actual current relative number order,
+// as well as the current index within their respective layer table,
+// then can remove one at a time from the top down, and put in the new location,
+// and offset the remaining indexes as appropriate
+
+View.prototype._enumerate_in_sequence = function()
+{
+	var bkgnd_list = [];
+	for (var o = 0; o < this._objects_bkgnd.length; o++)
+	{
+		var obj = this._objects_bkgnd[o];
+		if (obj._selected)
+			bkgnd_list.push({ obj: obj, num: obj.get_attr(ViewObject.ATTR_NUM), idx: o });
+	}
+	var card_list = [];
+	for (var o = 0; o < this._objects_card.length; o++)
+	{
+		var obj = this._objects_card[o];
+		if (obj._selected)
+			card_list.push({ obj: obj, num: obj.get_attr(ViewObject.ATTR_NUM), idx: o });
+	}
+	return { card: card_list, bkgnd: bkgnd_list };
+}
+
+
 View.prototype.send_to_front = function()
 {
 	if (this._selected_objects.length == 0) return;
 	
-	for (var o = 0; o < this._selected_objects.length; o++)
+	var lists = this._enumerate_in_sequence();
+	
+	var nidx = 0;
+	for (var o = 0; o < lists.card.length; o++)
 	{
-		var obj = this._selected_objects[o];
-		
+		var item = lists.card[o];
+		var obj = this._objects_card.splice(item.idx, 1)[0];
+		this._objects_card.splice(nidx ++, 0, obj);
 	}
+	
+	this._renumber_objects();
 }
 
 
@@ -779,6 +810,17 @@ View.prototype.send_forward = function()
 {
 	if (this._selected_objects.length == 0) return;
 	
+	var lists = this._enumerate_in_sequence();
+	
+	for (var o = 0; o < lists.card.length; o++)
+	{
+		var item = lists.card[o];
+		if (item.idx < 1) return;
+		var obj = this._objects_card.splice(item.idx, 1)[0];
+		this._objects_card.splice(item.idx - 1, 0, obj);
+	}
+	
+	this._renumber_objects();
 }
 
 
@@ -786,6 +828,17 @@ View.prototype.send_backward = function()
 {
 	if (this._selected_objects.length == 0) return;
 	
+	var lists = this._enumerate_in_sequence();
+	
+	for (var o = lists.card.length - 1; o >= 0; o--)
+	{
+		var item = lists.card[o];
+		if (item.idx >= this._objects_card.length - 1) return;
+		var obj = this._objects_card.splice(item.idx, 1)[0];
+		this._objects_card.splice(item.idx + 1, 0, obj);
+	}
+	
+	this._renumber_objects();
 }
 
 
@@ -793,6 +846,16 @@ View.prototype.send_to_back = function()
 {
 	if (this._selected_objects.length == 0) return;
 	
+	var lists = this._enumerate_in_sequence();
+	
+	for (var o = lists.card.length - 1; o >= 0; o--)
+	{
+		var item = lists.card[o];
+		var obj = this._objects_card.splice(item.idx, 1)[0];
+		this._objects_card.push(obj);
+	}
+	
+	this._renumber_objects();
 }
 
 
