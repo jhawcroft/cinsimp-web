@@ -38,9 +38,27 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 function HCImport() {}
 
 
+HCImport._show_scan_result = function(in_msg, in_status)
+{
+	Progress.operation_finished();
+	document.getElementById('DialogLog').textContent = JSON.stringify(in_msg.result, null, 2);
+	Dialog.Log.show();
+}
+
+
 HCImport._scan = function()
 {
-	alert('Begin scan!');
+	Progress.status('Scanning the HyperCard stack...');
+	var msg = { cmd: 'hcimport_scan' };
+	Ajax.send(msg, HCImport._show_scan_result);
+}
+
+
+HCImport._create = function()
+{
+	Progress.status('Creating CinsImp stack...');
+	var msg = { cmd: 'hcimport_create' };
+	Ajax.send(msg, HCImport._scan);
 }
 
 
@@ -50,7 +68,7 @@ HCImport.run = function()
 	var files = document.getElementById('HCStackFile').files;
 	if (files.length != 1) return;
 	
-	Progress.operation_begun();
+	Progress.operation_begun('Uploading HyperCard stack...');
 	
 	var file = files[0];
 	var formData = new FormData();
@@ -61,11 +79,13 @@ HCImport.run = function()
 	xhr.open('POST', '?hcimport=1', true);
 	xhr.onload = function()
 	{
-		Progress.operation_finished();
 		if (xhr.status == 200)
-			HCImport._scan();
+			HCImport._create();
 		else
+		{
+			Progress.operation_finished();
 			alert('There was a problem!');
+		}
 	}
 	
 	xhr.send(formData);

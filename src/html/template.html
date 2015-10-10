@@ -497,12 +497,19 @@ call stack and debug buttons ? -->
 </div>
 
 
+<div id="DialogLog" class="DialogTemplate Inner selectable" style="width: 600px; height: 500px; overflow-y: scroll;">
+	
+</div>
+
+
 
 
 
 
 
 <script>
+
+Dialog.Log = new Dialog('Log', document.getElementById('DialogLog'), 0);
 
 Dialog.HCImport = new Dialog('HyperCard Import', document.getElementById('DialogHCImport'), 0);
 

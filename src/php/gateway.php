@@ -223,6 +223,25 @@ header("Content-type: text/html\n");
 		return $outbound;
 	}
 	
+	
+	
+	public static function hcimport_create($inbound, $outbound)
+	{
+		global $config;
+		require($config->base.'php/hcimport.php');
+		HCImport::create_stack();
+		return $outbound;
+	}
+	
+	public static function hcimport_scan($inbound, $outbound)
+	{
+		global $config;
+		require($config->base.'php/hcimport.php');
+		try { $outbound['result'] = HCImport::scan_stack(); }
+		catch (Exception $e) { $outbound['error'] = $e->getMessage(); }
+		return $outbound;
+	}
+	
 /*
 	public static function list_stacks($inbound, $outbound)
 	{

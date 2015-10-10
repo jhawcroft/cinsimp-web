@@ -39,8 +39,18 @@ Progress._can_hide = false;
 Progress._should_hide = false;
 
 
-Progress.operation_begun = function()
+Progress.status = function(in_status)
 {
+	document.getElementById('ProgressMessage').textContent = in_status;
+}
+
+
+Progress.operation_begun = function(in_status)
+{
+	if (!in_status)
+		in_status = 'Accessing server...';
+	document.getElementById('ProgressMessage').textContent = in_status;
+
 	Progress._in_progress = true;
 	Progress._can_hide = false;
 	Progress._should_hide = false;
