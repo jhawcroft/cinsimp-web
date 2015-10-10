@@ -451,7 +451,8 @@ Accessors and Mutators
 		$card['card_script'] = Stack::nvl($data['card_script'], Array('content'=>'','selection'=>0));
 		$card['card_has_art'] = Stack::nvl($data['card_has_art'], false);
 		
-		$card['content'] = @$data['content'];
+		if (isset($data['content']))
+			$card['content'] = $data['content'];
 		
 		$card['card_object_data'] = $row[8];
 		

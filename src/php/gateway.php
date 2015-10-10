@@ -163,6 +163,8 @@ header("Content-type: text/html\n");
 	public static function load_card($inbound, $outbound)
 	{
 		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
+		if (isset($inbound['stack_num']))
+			$inbound['card_id'] = $stack->stack_get_nth_card_id($inbound['stack_num']);
 		$outbound['card'] = $stack->stack_load_card($inbound['card_id']);
 		return $outbound;
 	}

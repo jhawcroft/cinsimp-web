@@ -423,8 +423,12 @@ View.prototype.do_delete = function()
 }
 
 
-View.prototype._save_card = function()
+View.prototype._save_card = function(in_handler)
 {
+	/* end editing and selections */
+	if (document.activeElement)
+		document.activeElement.blur();
+	this.select_none();
 
 	/* dump the object definitions to the card data block */
 	var objects = new Array(this._objects_card.length);
@@ -458,9 +462,11 @@ View.prototype._save_card = function()
 	
 	Progress.operation_begun();
 	Ajax.send(msg, function(msg, status) {
+		var handler = in_handler;
 		Progress.operation_finished();
 		if ((status != 'ok') || (msg.cmd != 'save_card'))
 			alert('Save card error: '+status+"\n"+JSON.stringify(msg));
+		else if (handler) handler();
 	});
 }
 
@@ -486,40 +492,53 @@ View.prototype._rebuild_card = function()
 	this._selected_objects = [];
 	for (o = 0; o < this._objects_card.length; o++)
 		this._objects_card[o].kill();
+	this._objects_card = [];
 	for (o = 0; o < this._objects_bkgnd.length; o++)
 		this._objects_bkgnd[o].kill();
+	this._objects_bkgnd = [];
 
 	/* load the object definitions from the card data block */
-	var objects = JSON.parse(this._card.bkgnd_object_data);
-	this._objects_bkgnd = new Array(objects.length);
-	for (var o = 0; o < objects.length; o++)
+	try
 	{
-		var obj = this._resurect(objects[o]);
+		var objects = JSON.parse(this._card.bkgnd_object_data);
+		this._objects_bkgnd = new Array(objects.length);
+		for (var o = 0; o < objects.length; o++)
+		{
+			var obj = this._resurect(objects[o]);
 			
-		this._objects_bkgnd[o] = obj;
-		this._layer_obj_card.appendChild(obj._div);
+			this._objects_bkgnd[o] = obj;
+			this._layer_obj_card.appendChild(obj._div);
+		}
 	}
+	catch (e) {}
 	
-	var objects = JSON.parse(this._card.card_object_data);
-	this._objects_card = new Array(objects.length);
-	for (var o = 0; o < objects.length; o++)
-	{
-		var obj = this._resurect(objects[o]);
+	try {
+		var objects = JSON.parse(this._card.card_object_data);
+		this._objects_card = new Array(objects.length);
+		for (var o = 0; o < objects.length; o++)
+		{
+			var obj = this._resurect(objects[o]);
 
-		this._objects_card[o] = obj;
-		this._layer_obj_card.appendChild(obj._div);
+			this._objects_card[o] = obj;
+			this._layer_obj_card.appendChild(obj._div);
+		}
 	}
+	catch (e) {}
 	
 	/* load the object content */
-	var offset = this._objects_card.length;
-	for (var o = 0; o < this._card.content.length; o++)
+	try
 	{
-		var data = this._card.content[o];
-		if (o >= offset)
-			this._objects_bkgnd[o - offset].set_raw_content(data[1]);
-		else
-			this._objects_card[o].set_raw_content(data[1]);
+		var offset = this._objects_card.length;
+		for (var o = 0; o < this._card.content.length; o++)
+		{
+			var data = this._card.content[o];
+			if (o >= offset)
+				this._objects_bkgnd[o - offset].set_raw_content(data[1]);
+			else
+				this._objects_card[o].set_raw_content(data[1]);
+		}
 	}
+	catch (e) {}
 	
 	/* cause fields to be editable where appropriate */
 	this._mode_changed();
@@ -570,26 +589,54 @@ View.prototype.do_delete_card = function()
 }
 
 
+View.prototype._go_nth_card = function(in_num, in_bkgnd)
+{
+	/* submit ajax request to load the card */
+	msg = {
+		cmd: 'load_card',
+		stack_id: this._stack.stack_id,
+		stack_num: in_num
+	};
+	
+	Progress.operation_begun();
+	var me = this;
+	Ajax.send(msg, function(msg, status) {
+		Progress.operation_finished();
+		if ((status != 'ok') || (msg.cmd != 'load_card'))
+			alert('Save card error: '+status+"\n"+JSON.stringify(msg));
+		else
+		{
+			me._card = msg.card;
+			me._rebuild_card();
+		}
+	});
+}
+
+
 View.prototype.go_first = function()
 {
-	// for ease of debugging:
-	this._save_card();
+	this._save_card( this._go_nth_card.bind(this, 1) );
 }
 
 View.prototype.go_prev = function()
 {
-	// for ease of debugging:
-	this._load_card(this._card.card_id);
+	if (this._card.card_seq == 1)
+		this.go_last();
+	else
+		this._save_card( this._go_nth_card.bind(this, this._card.card_seq - 1) );
 }
 
 View.prototype.go_next = function()
 {
-	alert('Next');
+	if (this._card.card_seq == this._stack.count_cards)
+		this.go_first();
+	else
+		this._save_card( this._go_nth_card.bind(this, this._card.card_seq + 1) );
 }
 
 View.prototype.go_last = function()
 {
-	alert('Last');
+	this._save_card( this._go_nth_card.bind(this, this._stack.count_cards) );
 }
 
 
