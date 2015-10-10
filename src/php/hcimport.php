@@ -53,19 +53,91 @@ class HCImport
 	}
 	
 	
+	private static function load_stack()
+	{
+		HCImport::$offset = 0;
+		HCImport::$length = filesize(HCImport::upload_temp());
+		$fp = fopen(HCImport::upload_temp(), 'rb');
+		HCImport::$contents = fread($fp, HCImport::$length);
+		fclose($fp);
+	}
+	
+	
 	public static function create_stack()
 	{
 		$filename = HCImport::stack_temp();
 		if (file_exists($filename)) unlink($filename);
 		Stack::create_file($filename);
+		
+		HCImport::load_stack();
+		HCImport::index_blocks();
+		HCImport::decode_stak();
+		
+		$new_file = new Stack($filename);
+		$new_stack = $new_file->stack_load();
+		
+		$new_stack['card_width'] = HCImport::$stack['card_width'];
+		$new_stack['card_height'] = HCImport::$stack['card_height'];
+		
+		$new_file->stack_save($new_stack);
+		
+		return HCImport::$stack;
 	}
 	
 	
+	public static function list_layers()
+	{
+		HCImport::load_stack();
+		HCImport::index_blocks();
+		HCImport::decode_stak();
+		
+		$result = Array();
+		$result['cards'] = HCImport::decode_sequence();
+		$result['bkgnds'] = HCImport::list_bkgnds();
+		return $result;
+	}
+	
+	
+	public static function import_bkgnd($id)
+	{
+		//return 'BKGD: '.$id;
+		
+		HCImport::load_stack();
+		HCImport::index_blocks();
+		HCImport::decode_stak();
+		
+		HCImport::decode_font_table();
+		HCImport::decode_style_table();
+		
+		$old_bkgnd = HCImport::decode_bkgnd($id);
+		
+		return $old_bkgnd;
+		//$new_file = new Stack($filename);
+	}
+	
+	
+	public static function import_card($id)
+	{
+		//return 'CARD: '.$id;
+		
+		HCImport::load_stack();
+		HCImport::index_blocks();
+		HCImport::decode_stak();
+		
+		HCImport::decode_font_table();
+		HCImport::decode_style_table();
+		
+		$old_card = HCImport::decode_card($id);
+		
+		return $old_card;
+	}
+	
+	/*
 	public static function scan_stack()
 	{
 		$result = Array();
 		
-		HCImport::$block_index = HCImport::index_blocks();
+		HCImport::index_blocks();
 		HCImport::$stack = HCImport::decode_stak();
 		
 		HCImport::decode_font_table();
@@ -78,6 +150,269 @@ class HCImport
 		$result['index'] = HCImport::$block_index;
 		
 		return $result;
+	}
+	*/
+	
+	
+	private static function decode_card($card_id)
+	{
+		//print '<p>';
+		$card = Array();
+		$card_data = substr(HCImport::$contents, 
+			HCImport::$block_index['CARD'][$card_id]['offset'], 
+			HCImport::$block_index['CARD'][$card_id]['size']);
+		
+		$fields = unpack('Nbmap/nflags', substr($card_data, 4, 6));
+		$card['bmap_id'] = $fields['bmap'];
+		$card['cant_delete'] = (($fields['flags'] & 0x4000) != 0);
+		$card['hide_picture'] = (($fields['flags'] & 0x2000) != 0);
+		$card['dont_search'] = (($fields['flags'] & 0x0800) != 0);
+		
+		$fields = unpack('Nbg/nparts', substr($card_data, 24, 6));
+		$card['bkgnd_id'] = $fields['bg'];
+		if (($card['bkgnd_id'] != 0) && isset(HCImport::$block_index['BKGD'][$card['bkgnd_id']]))
+			HCImport::$block_index['BKGD'][$card['bkgnd_id']]['utilised'] = true;
+		$part_count = $fields['parts'];
+		
+		$fields = unpack('npcc/Nstype', substr($card_data, 36, 6));
+		$contents_count = $fields['pcc'];
+		//$script_type = $fields['stype'];
+		
+		//print 'CARD: '.$card['card_id'].' BMAP: '.$card['bmap_id'].' BKGND: '.$card['bkgnd_id'].'  PARTS:'.$part_count.
+		//	'  PCC: '.$contents_count.'<br>';
+
+		$offset = 42;
+		$card['parts'] = HCImport::decode_parts($part_count, $card_data, $offset);
+		$card['content'] = HCImport::decode_content($contents_count, $card_data, $offset);
+		
+		$card['name'] = HCImport::cstring(substr($card_data, $offset));
+		$card['script'] = HCImport::cstring(substr($card_data, $offset + strlen($card['name'])));
+		$card['name'] = HCImport::macroman_decode( $card['name'] );
+		$card['script'] = HCImport::macroman_decode( $card['script'] );
+		
+		return $card;
+	}
+	
+	private static function decode_bkgnd($bkgnd_id)
+	{
+		$bkgnd_data = substr(HCImport::$contents, 
+			HCImport::$block_index['BKGD'][$bkgnd_id]['offset'], 
+			HCImport::$block_index['BKGD'][$bkgnd_id]['size']);
+		$bkgnd = Array();
+		
+		$fields = unpack('Nbmap/nflags', substr($bkgnd_data, 4, 6));
+		$bkgnd['bmap_id'] = $fields['bmap'];
+		$bkgnd['cant_delete'] = (($fields['flags'] & 0x4000) != 0);
+		$bkgnd['hide_picture'] = (($fields['flags'] & 0x2000) != 0);
+		$bkgnd['dont_search'] = (($fields['flags'] & 0x0800) != 0);
+		
+		$fields = unpack('nparts/n3/npcc', substr($bkgnd_data, 24, 16));
+		$part_count = $fields['parts'];
+		$contents_count = $fields['pcc'];
+		
+		//print 'BKGD: '.$bkgnd['bkgnd_id'].' BMAP: '.$bkgnd['bmap_id'].'  PARTS:'.$part_count.
+		//	'  PCC: '.$contents_count.'<br>';
+
+		$offset = 38;
+		$bkgnd['parts'] = HCImport::decode_parts($part_count, $bkgnd_data, $offset);
+		$bkgnd['content'] = HCImport::decode_content($contents_count, $bkgnd_data, $offset);
+		
+		$bkgnd['name'] = HCImport::cstring(substr($bkgnd_data, $offset));
+		$bkgnd['script'] = HCImport::cstring(substr($bkgnd_data, $offset + strlen($bkgnd['name'])));
+		$bkgnd['name'] = HCImport::macroman_decode( $bkgnd['name'] );
+		$bkgnd['script'] = HCImport::macroman_decode( $bkgnd['script'] );
+		
+		return $bkgnd;
+	}
+	
+	
+	private static function decode_parts($part_count, &$layer_data, &$offset)
+	{
+		$parts = Array();
+		
+		//print '<ul>';
+		
+		for ($p = 0; $p < $part_count; $p++)
+		{
+			$part = Array();
+			
+			$fields = unpack('nsz/npid/Ctype/Cflag1/ntop/nleft/nbot/nright/Cflag2/Cstyle'.
+				'/nlsl/nicon/ntalign/nfont/ntsize/Ctstyle/Ccrap2/ntheight', 
+				substr($layer_data, $offset, 100));
+			$sz = $fields['sz'];
+			$part['pid'] = $fields['pid'];
+			$part['type'] = ($fields['type'] == 1 ? 'button' : 'field');
+			$part['rect'] = $fields['left'].','.$fields['top'].','.$fields['right'].','.$fields['bot'];
+			switch ($fields['style'])
+			{
+			case 0:
+				$part['style'] = 'transparent';
+				break;
+			case 1:
+				$part['style'] = 'opaque';
+				break;
+			case 2:
+				$part['style'] = 'rectangle';
+				break;
+			case 3:
+				$part['style'] = 'roundRect';
+				break;
+			case 4:
+				$part['style'] = 'shadow';
+				break;
+			case 5:
+				$part['style'] = 'checkBox';
+				break;
+			case 6:
+				$part['style'] = 'radioButton';
+				break;
+			case 7:
+				$part['style'] = 'scrolling';
+				break;
+			case 8:
+				$part['style'] = 'standard';
+				break;
+			case 9:
+				$part['style'] = 'default';
+				break;
+			case 10:
+				$part['style'] = 'oval';
+				break;
+			case 11:
+				$part['style'] = 'popup';
+				break;
+			}
+			if ($part['type'] == 'button')
+			{
+				$part['invisible'] = (($fields['flag1'] & 0x80) != 0);
+				$part['dont_search'] = (($fields['flag1'] & 0x10) != 0);
+				$part['disabled'] = (($fields['flag1'] & 0x01) != 0);
+				
+				$part['show_name'] = (($fields['flag2'] & 0x80) != 0);
+				$part['hilite'] = (($fields['flag2'] & 0x40) != 0);
+				$part['auto_hilite'] = (($fields['flag2'] & 0x20) != 0);
+				$part['shared'] = (($fields['flag2'] & 0x10) == 0);
+				
+				$part['family'] = ($fields['flag2'] & 0x0F);
+				
+				$part['icon_id'] = $fields['icon'];
+			}
+			else /* field */
+			{
+				$part['invisible'] = (($fields['flag1'] & 0x80) != 0);
+				$part['dont_wrap'] = (($fields['flag1'] & 0x20) != 0);
+				$part['dont_search'] = (($fields['flag1'] & 0x10) != 0);
+				$part['shared'] = (($fields['flag1'] & 0x08) != 0);
+				$part['flex_lines'] = (($fields['flag1'] & 0x04) != 0);
+				$part['auto_tab'] = (($fields['flag1'] & 0x02) != 0);
+				$part['lock_text'] = (($fields['flag1'] & 0x01) != 0);
+				
+				$part['auto_select'] = (($fields['flag2'] & 0x80) != 0);
+				$part['show_lines'] = (($fields['flag2'] & 0x40) != 0);
+				$part['wide_margins'] = (($fields['flag2'] & 0x20) != 0);
+				$part['multiple_lines'] = (($fields['flag2'] & 0x10) != 0);
+				
+				$part['last_selected_line'] = $fields['lsl'];
+				$part['first_selected_line'] = $fields['icon'];
+			}
+			///nlsl/nicon/ntalign/n2font/ntsize/Ctstyle/Ccrap2/ntheight
+			
+			switch ($fields['talign'])
+			{
+			case 0:
+				$part['text_align'] = 'left';
+				break;
+			case 1:
+				$part['text_align'] = 'center';
+				break;
+			case 2:
+				$part['text_align'] = 'right';
+				break;
+			}
+			$part['text_font'] = HCImport::$fonts[$fields['font']];
+			$part['text_size'] = $fields['tsize'];
+			$part['text_height'] = $fields['theight'];
+			
+			$part['text_style'] = HCImport::decode_style_bits($fields['tstyle']);
+			
+			$part['name'] = HCImport::cstring( substr($layer_data, $offset + 30) );
+			$part['script'] = HCImport::cstring( substr($layer_data, $offset + 30 + strlen($part['name']) + 2) );
+			$part['name'] = HCImport::macroman_decode( $part['name'] );
+			$part['script'] = HCImport::macroman_decode( $part['script'] );
+				
+			//print '<li>';
+			//print $part['pid'].' TYPE '.$part['type'].' RECT '.$part['rect'].' STYLE '.$part['style'];
+			//var_dump($part);
+			//print '</li>';
+			
+			$parts[] = $part;
+			$offset += $sz;
+		}
+		
+		//print '</ul>';
+		
+		return $parts;
+	}
+	
+	
+	private static function decode_content($contents_count, &$layer_data, &$offset)
+	{
+		$contents = Array();
+		
+		for ($c = 0; $c < $contents_count; $c++)
+		{
+			$content = Array();
+			
+			$fields = unpack('npid/nsz/Cmarker', substr($layer_data, $offset, 5));
+			$content['part_id'] = $fields['pid'];
+			$sz = $fields['sz'];
+			$content_data = substr($layer_data, $offset + 4, $sz);
+			
+			if ($fields['marker'] == 0)
+				$content['text'] = HCImport::macroman_decode( HCImport::cstring(substr($content_data, 1)) );
+			else
+			{
+				$style_runs = Array();
+				$fields = unpack('nslen', substr($layer_data, $offset + 4, 2));
+				$styles_length = ($fields['slen'] & 0x7FFF) - 2;
+				
+				$text_offset = $offset + 6 + $styles_length;
+				$content['text'] = HCImport::macroman_decode( HCImport::cstring(substr($content_data, 2 + $styles_length)) );
+				
+				$ref_offset = $offset + 4 + 2;
+				$ref_limit = $ref_offset + $styles_length;
+				for (; $ref_offset < $ref_limit; $ref_offset += 4)
+				{
+					$fields = unpack('npos/nstyle', substr($layer_data, $ref_offset, 4));
+					$run = Array();
+					
+					$run['offset'] = $fields['pos'];
+					$run['changes'] = HCImport::$styles[$fields['style']];
+					
+					$style_runs[] = $run;
+				}
+				
+				$content['style_runs'] = $style_runs;
+			}
+			
+			if ($sz % 2 != 0) $sz++; // align the size
+			$offset += $sz + 4;
+			$contents[] = $content;
+		}
+		
+		return $contents;
+	}
+	
+	
+	private static function list_bkgnds()
+	{
+		$list = Array();
+		$table = HCImport::$block_index['BKGD'];
+		foreach ($table as $id => $entry)
+		{
+			$list[] = $id;
+		}
+		return $list;
 	}
 	
 	
@@ -233,9 +568,11 @@ class HCImport
 		$stack['cant_delete'] = (($fields['flags'] & 0x4000) != 0);
 		$stack['cant_modify'] = (($fields['flags'] & 0x8000) != 0);
 		
-		$fields = unpack('nheight/nwidth', substr($stak_data, 428, 4));
+		$fields = unpack('nheight/nwidth', substr($stak_data, 428, 4));//428
 		$stack['card_width'] = $fields['width'];
 		$stack['card_height'] = $fields['height'];
+		if ($stack['card_width'] == 0) $stack['card_width'] = 512;
+		if ($stack['card_height'] == 0) $stack['card_height'] = 342;
 		
 		$stack['script'] = HCImport::macroman_decode( HCImport::cstring(substr($stak_data, 1524)) );
 		
@@ -243,19 +580,13 @@ class HCImport
 		HCImport::$block_index['STAK'][-1]['font_table_id'] = $fields['ftbl'];
 		HCImport::$block_index['STAK'][-1]['style_table_id'] = $fields['stbl'];
 		
-		return $stack;
+		HCImport::$stack = $stack;
 	}
 	
 	
 	private static function index_blocks()
 	{
 		$block_index = Array();
-		
-		HCImport::$offset = 0;
-		HCImport::$length = filesize(HCImport::upload_temp());
-		$fp = fopen(HCImport::upload_temp(), 'rb');
-		HCImport::$contents = fread($fp, HCImport::$length);
-		fclose($fp);
 		
 		while ($info = HCImport::read_next_block())
 		{
@@ -267,7 +598,7 @@ class HCImport
 			$block_index[$info['type']][$info['id']] = $info;
 		}
 		
-		return $block_index;
+		HCImport::$block_index = $block_index;
 	}
 	
 	

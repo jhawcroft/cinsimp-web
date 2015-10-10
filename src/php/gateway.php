@@ -229,10 +229,38 @@ header("Content-type: text/html\n");
 	{
 		global $config;
 		require($config->base.'php/hcimport.php');
-		HCImport::create_stack();
+		$outbound['result'] = HCImport::create_stack();
 		return $outbound;
 	}
 	
+	
+	public static function hcimport_list($inbound, $outbound)
+	{
+		global $config;
+		require($config->base.'php/hcimport.php');
+		$outbound['result'] = HCImport::list_layers();
+		return $outbound;
+	}
+	
+	
+	public static function hcimport_bkgnd($inbound, $outbound)
+	{
+		global $config;
+		require($config->base.'php/hcimport.php');
+		$outbound['result'] = HCImport::import_bkgnd($inbound['id']);
+		return $outbound;
+	}
+	
+	
+	public static function hcimport_card($inbound, $outbound)
+	{
+		global $config;
+		require($config->base.'php/hcimport.php');
+		$outbound['result'] = HCImport::import_card($inbound['id']);
+		return $outbound;
+	}
+	
+	/*
 	public static function hcimport_scan($inbound, $outbound)
 	{
 		global $config;
@@ -240,7 +268,7 @@ header("Content-type: text/html\n");
 		try { $outbound['result'] = HCImport::scan_stack(); }
 		catch (Exception $e) { $outbound['error'] = $e->getMessage(); }
 		return $outbound;
-	}
+	}*/
 	
 /*
 	public static function list_stacks($inbound, $outbound)

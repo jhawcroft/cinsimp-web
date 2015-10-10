@@ -56,9 +56,12 @@ HCImport._scan = function()
 
 HCImport._create = function()
 {
-	Progress.status('Creating CinsImp stack...');
-	var msg = { cmd: 'hcimport_create' };
-	Ajax.send(msg, HCImport._scan);
+	Progress.operation_finished();
+	
+
+	//Progress.status('Creating CinsImp stack...');
+	//var msg = { cmd: 'hcimport_create' };
+	//Ajax.send(msg, HCImport._scan);
 }
 
 
