@@ -114,6 +114,18 @@ Field.prototype._reconfigure = function()
 }*/
 
 
+Field.prototype.get_raw_content = function()
+{
+	return this._div.innerHTML;
+}
+
+
+Field.prototype.set_raw_content = function(in_content)
+{
+	this._div.innerHTML = in_content;
+}
+
+
 Field.prototype._author_edit_changed = function(in_author, in_edit)
 {
 	this._div.contentEditable = (in_edit && (!this._attrs[Field.ATTR_LOCKED]));

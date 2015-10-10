@@ -437,8 +437,16 @@ View.prototype._save_card = function()
 		objects[o] = this._objects_bkgnd[o].get_def();
 	this._card.bkgnd_object_data = JSON.stringify(objects);
 	
-	// will need to grab content separately
-	// for bkgnd fields (reference is by ID)
+	/* dump the card content */
+	var card_data = new Array(this._objects_card.length + this._objects_bkgnd.length);
+	for (var o = 0; o < this._objects_card.length; o++)
+		card_data[o] = [this._objects_card[o]._attrs[ViewObject.ATTR_ID],
+						this._objects_card[o].get_raw_content()];
+	var offset = this._objects_card.length;
+	for (var o = 0; o < this._objects_bkgnd.length; o++)
+		card_data[o + offset] = [this._objects_bkgnd[o]._attrs[ViewObject.ATTR_ID], 
+								this._objects_bkgnd[o].get_raw_content()];
+	this._card.content = card_data;
 	
 	/* submit ajax request to save the card */
 	var msg = {
@@ -482,6 +490,16 @@ View.prototype._rebuild_card = function()
 		this._objects_bkgnd[o].kill();
 
 	/* load the object definitions from the card data block */
+	var objects = JSON.parse(this._card.bkgnd_object_data);
+	this._objects_bkgnd = new Array(objects.length);
+	for (var o = 0; o < objects.length; o++)
+	{
+		var obj = this._resurect(objects[o]);
+			
+		this._objects_bkgnd[o] = obj;
+		this._layer_obj_card.appendChild(obj._div);
+	}
+	
 	var objects = JSON.parse(this._card.card_object_data);
 	this._objects_card = new Array(objects.length);
 	for (var o = 0; o < objects.length; o++)
@@ -492,14 +510,15 @@ View.prototype._rebuild_card = function()
 		this._layer_obj_card.appendChild(obj._div);
 	}
 	
-	objects = JSON.parse(this._card.bkgnd_object_data);
-	this._objects_bkgnd = new Array(objects.length);
-	for (var o = 0; o < objects.length; o++)
+	/* load the object content */
+	var offset = this._objects_card.length;
+	for (var o = 0; o < this._card.content.length; o++)
 	{
-		var obj = this._resurect(objects[o]);
-			
-		this._objects_bkgnd[o] = obj;
-		this._layer_obj_bkgnd.appendChild(obj._div);
+		var data = this._card.content[o];
+		if (o >= offset)
+			this._objects_bkgnd[o - offset].set_raw_content(data[1]);
+		else
+			this._objects_card[o].set_raw_content(data[1]);
 	}
 	
 	/* cause fields to be editable where appropriate */

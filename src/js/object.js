@@ -80,6 +80,16 @@ ViewObject.prototype.set_def = function(in_def)
 }
 
 
+ViewObject.prototype.get_raw_content = function()
+{
+}
+
+
+ViewObject.prototype.set_raw_content = function(in_content)
+{
+}
+
+
 ViewObject.prototype.kill = function()
 {
 	this._div.parentElement.removeChild(this._div);
