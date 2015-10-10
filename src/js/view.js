@@ -448,13 +448,8 @@ View.prototype.do_delete = function()
 }
 
 
-View.prototype._save_card = function(in_handler)
+View.prototype._save_defs_n_content = function()
 {
-	/* end editing and selections */
-	if (document.activeElement)
-		document.activeElement.blur();
-	this.select_none();
-
 	/* dump the object definitions to the card data block */
 	var objects = new Array(this._objects_card.length);
 	for (var o = 0; o < this._objects_card.length; o++)
@@ -476,6 +471,17 @@ View.prototype._save_card = function(in_handler)
 		card_data[o + offset] = [this._objects_bkgnd[o]._attrs[ViewObject.ATTR_ID], 
 								this._objects_bkgnd[o].get_raw_content()];
 	this._card.content = card_data;
+}
+
+
+View.prototype._save_card = function(in_handler)
+{
+	/* end editing and selections */
+	if (document.activeElement)
+		document.activeElement.blur();
+	this.select_none();
+
+	this._save_defs_n_content();
 	
 	/* submit ajax request to save the card */
 	var msg = {
@@ -511,7 +517,7 @@ View.prototype._resurect = function(in_def)
 }
 
 
-View.prototype._rebuild_card = function()
+View.prototype._rebuild_card = function() // will have to do separate load object data & separate reload from object lists
 {
 	/* dump the current card */
 	this._next_id = 1;
@@ -942,6 +948,9 @@ View.prototype.send_to_front = function()
 	}
 	
 	this._renumber_objects();
+	
+	this._save_defs_n_content(); // really need to just reload lists here, not the whole bloody thing
+	this._rebuild_card();// and use the same reload mechanism in the initial card rebuild **
 }
 
 
@@ -960,6 +969,9 @@ View.prototype.send_forward = function()
 	}
 	
 	this._renumber_objects();
+	
+	this._save_defs_n_content();
+	this._rebuild_card();
 }
 
 
@@ -978,6 +990,9 @@ View.prototype.send_backward = function()
 	}
 	
 	this._renumber_objects();
+	
+	this._save_defs_n_content();
+	this._rebuild_card();
 }
 
 
@@ -995,6 +1010,9 @@ View.prototype.send_to_back = function()
 	}
 	
 	this._renumber_objects();
+	
+	this._save_defs_n_content();
+	this._rebuild_card();
 }
 
 
