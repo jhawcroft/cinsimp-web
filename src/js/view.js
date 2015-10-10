@@ -589,6 +589,12 @@ View.prototype._load_card = function(in_card_id)
 
 View.prototype.do_new_card = function()
 {
+	this._save_card( this._do_new_card.bind(this) );
+}
+
+
+View.prototype._do_new_card = function()
+{
 	msg = {
 		cmd: 'new_card',
 		stack_id: this._stack.stack_id,
@@ -612,6 +618,12 @@ View.prototype.do_new_card = function()
 
 
 View.prototype.do_new_bkgnd = function()
+{
+	this._save_card( this._do_new_bkgnd.bind(this) );
+}
+
+
+View.prototype._do_new_bkgnd = function()
 {
 	msg = {
 		cmd: 'new_bkgnd',
@@ -637,6 +649,12 @@ View.prototype.do_new_bkgnd = function()
 
 
 View.prototype.do_delete_card = function()
+{
+	this._save_card( this._do_delete_card.bind(this) );
+}
+
+
+View.prototype._do_delete_card = function()
 {
 	msg = {
 		cmd: 'delete_card',
