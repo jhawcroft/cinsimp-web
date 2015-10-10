@@ -62,8 +62,11 @@ function Dialog(in_title, in_element, in_flags)
 	//this._div.appendChild(this._root);
 	
 	var me = this;
-	this._titlebar.addEventListener('mousedown', function(e) { Drag.beginObjectMove(e, me); });
+	this._titlebar.addEventListener('mousedown', function(e) { Drag.beginObjectMove(e, me); e.preventDefault(); e.stopPropagation(); });
+	this._titlebar.addEventListener('touchstart', function(e) { if (e.touches.length != 1) return;
+		Drag.beginObjectMove(e, me); e.preventDefault(); e.stopPropagation(); });
 	this._closebtn.addEventListener('click', this.hide.bind(this));
+	this._closebtn.addEventListener('touchstart', this.hide.bind(this));
 	
 	if (!this._div.parentElement)
 		document.body.appendChild(this._div);

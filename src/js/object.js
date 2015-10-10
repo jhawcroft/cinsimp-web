@@ -106,6 +106,7 @@ ViewObject.prototype.kill = function()
 ViewObject.prototype.__install_handlers = function()
 {
 	this._div.addEventListener('mousedown', this.__handle_point_start.bind(this));
+	this._div.addEventListener('touchstart', this.__handle_point_start.bind(this));
 }
 
 
@@ -114,7 +115,8 @@ ViewObject.prototype.__handle_point_start = function(in_event)
 	if (this._view._mode == View.MODE_AUTHORING)
 	{
 		Util.update_modifiers(in_event);
-		this._view._author_point_start(this, [in_event.pageX, in_event.pageY]);
+		this._view._author_point_start(this, [(in_event.pageX || in_event.touches[0].pageX), 
+			(in_event.pageY || in_event.touches[0].pageY)]);
 		
 		in_event.preventDefault();
 		in_event.stopPropagation();
@@ -125,7 +127,8 @@ ViewObject.prototype.__handle_point_start = function(in_event)
 
 ViewObject.prototype._handle_resize_start = function(in_event)
 {
-	Drag.begin_resize([in_event.pageX, in_event.pageY], [this]);
+	Drag.begin_resize([(in_event.pageX || in_event.touches[0].pageX), 
+		(in_event.pageY || in_event.touches[0].pageY)], [this]);
 	
 	in_event.preventDefault();
 	in_event.stopPropagation();
@@ -157,6 +160,7 @@ ViewObject.prototype._set_selected = function(in_selected)
 		this._div.appendChild(this._drag_handle);
 		
 		this._drag_handle.addEventListener('mousedown', this._handle_resize_start.bind(this));
+		this._drag_handle.addEventListener('touchstart', this._handle_resize_start.bind(this));
 	}
 	else if ((!in_selected) && this._drag_handle)
 	{

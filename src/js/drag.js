@@ -67,6 +67,9 @@ Drag.begin_move = function(in_coords, in_objects, in_snap_handler)
 	
 	document.addEventListener('mousemove', Drag._handle_move);
 	document.addEventListener('mouseup', Drag._end_move);
+	
+	document.addEventListener('touchmove', Drag._handle_move);
+	document.addEventListener('touchend', Drag._end_move);
 }
 
 
@@ -83,12 +86,16 @@ Drag.begin_resize = function(in_coords, in_objects)
 	
 	document.addEventListener('mousemove', Drag._handle_resize);
 	document.addEventListener('mouseup', Drag._end_resize);
+	
+	document.addEventListener('touchmove', Drag._handle_resize);
+	document.addEventListener('touchend', Drag._end_resize);
 }
 
 
 Drag._handle_move = function(in_event)
 {
-	Drag._curr = [in_event.pageX, in_event.pageY];
+	Drag._curr = [(in_event.pageX || in_event.touches[0].pageX), 
+		(in_event.pageY || in_event.touches[0].pageY)];
 	var deltaX = Drag._curr[0] - Drag._begin[0];
 	var deltaY = Drag._curr[1] - Drag._begin[1];
 	
@@ -100,12 +107,16 @@ Drag._handle_move = function(in_event)
 			Drag._snap_handler(rec[0], new_loc);
 		rec[0].set_loc(new_loc);
 	}
+	
+	in_event.preventDefault();
+	in_event.stopPropagation();
 }
 
 
 Drag._handle_resize = function(in_event)
 {
-	Drag._curr = [in_event.pageX, in_event.pageY];
+	Drag._curr = [(in_event.pageX || in_event.touches[0].pageX), 
+		(in_event.pageY || in_event.touches[0].pageY)];
 	var deltaX = Drag._curr[0] - Drag._begin[0];
 	var deltaY = Drag._curr[1] - Drag._begin[1];
 	
@@ -114,6 +125,9 @@ Drag._handle_resize = function(in_event)
 		var rec = Drag._objects[o];
 		rec[0].set_size([ rec[1][0] + deltaX, rec[1][1] + deltaY ]);
 	}
+	
+	in_event.preventDefault();
+	in_event.stopPropagation();
 }
 
 
@@ -122,7 +136,13 @@ Drag._end_move = function(in_event)
 	document.removeEventListener('mousemove', Drag._handle_move);
 	document.removeEventListener('mouseup', Drag._end_move);
 	
+	document.removeEventListener('touchmove', Drag._handle_move);
+	document.removeEventListener('touchend', Drag._end_move);
+	
 	Drag._objects.length = 0;
+	
+	in_event.preventDefault();
+	in_event.stopPropagation();
 }
 
 
@@ -131,7 +151,13 @@ Drag._end_resize = function(in_event)
 	document.removeEventListener('mousemove', Drag._handle_resize);
 	document.removeEventListener('mouseup', Drag._end_resize);
 	
+	document.removeEventListener('touchmove', Drag._handle_resize);
+	document.removeEventListener('touchend', Drag._end_resize);
+	
 	Drag._objects.length = 0;
+	
+	in_event.preventDefault();
+	in_event.stopPropagation();
 }
 
 
@@ -142,12 +168,14 @@ Drag.beginObjectResize = function(e, o)
 	Drag._gObjResize = o;
 	Drag._gDragInitSz = o.getSize();
 	
-	Drag._gDragStart[0] = e.pageX;
-	Drag._gDragStart[1] = e.pageY;
+	Drag._gDragStart[0] = (e.pageX || e.touches[0].pageX);
+	Drag._gDragStart[1] = (e.pageY || e.touches[0].pageY);
 		
 	document.addEventListener('mousemove', Drag.handleObjectResize);
 	document.addEventListener('mouseup', Drag.endObjectResize);
-
+	
+	document.addEventListener('touchmove', Drag.handleObjectResize);
+	document.addEventListener('touchend', Drag.endObjectResize);
 }
 
 
@@ -156,55 +184,78 @@ Drag.beginObjectMove = function(e, o)
 	Drag._gObjResize = o;
 	Drag._gDragInitSz = o.getLoc();	
 	
-	Drag._gDragStart[0] = e.pageX;
-	Drag._gDragStart[1] = e.pageY;
+	Drag._gDragStart[0] = (e.pageX || e.touches[0].pageX);
+	Drag._gDragStart[1] = (e.pageY || e.touches[0].pageY);
 	
 	document.addEventListener('mousemove', Drag.handleObjectMove);
 	document.addEventListener('mouseup', Drag.endObjectMove);
+	
+	document.addEventListener('touchmove', Drag.handleObjectMove);
+	document.addEventListener('touchend', Drag.endObjectMove);
+}
+
+
+Drag.handleObjectResize = function(e)
+{
+	Drag._gDragCurrent[0] = (e.pageX || e.touches[0].pageX);
+	Drag._gDragCurrent[1] = (e.pageY || e.touches[0].pageY);
+	
+	var deltaX = Drag._gDragCurrent[0] - Drag._gDragStart[0];
+	var deltaY = Drag._gDragCurrent[1] - Drag._gDragStart[1];
+	
+	Drag._gObjResize.setSize([Drag._gDragInitSz[0] + deltaX, Drag._gDragInitSz[1] + deltaY]);
 	
 	e.preventDefault();
 	e.stopPropagation();
 }
 
 
-Drag.handleObjectResize = function(e)
-{
-	Drag._gDragCurrent[0] = e.pageX;
-	Drag._gDragCurrent[1] = e.pageY;
-	
-	var deltaX = Drag._gDragCurrent[0] - Drag._gDragStart[0];
-	var deltaY = Drag._gDragCurrent[1] - Drag._gDragStart[1];
-	
-	Drag._gObjResize.setSize([Drag._gDragInitSz[0] + deltaX, Drag._gDragInitSz[1] + deltaY]);
-}
-
-
 Drag.handleObjectMove = function(e)
 {
-	Drag._gDragCurrent[0] = e.pageX;
-	Drag._gDragCurrent[1] = e.pageY;
+	Drag._gDragCurrent[0] = (e.pageX || e.touches[0].pageX);
+	Drag._gDragCurrent[1] = (e.pageY || e.touches[0].pageY);
 	
 	var deltaX = Drag._gDragCurrent[0] - Drag._gDragStart[0];
 	var deltaY = Drag._gDragCurrent[1] - Drag._gDragStart[1];
 	
 	Drag._gObjResize.setLoc([Drag._gDragInitSz[0] + deltaX, Drag._gDragInitSz[1] + deltaY]);
+	
+	e.preventDefault();
+	e.stopPropagation();
 }
 
 
-Drag.endObjectResize = function()
+Drag.endObjectResize = function(e)
 {
 	document.removeEventListener('mousemove', Drag.handleObjectResize);
 	document.removeEventListener('mouseup', Drag.endObjectResize);
+	
+	document.removeEventListener('touchmove', Drag.handleObjectResize);
+	document.removeEventListener('touchend', Drag.endObjectResize);
+	
 	Drag._gObjResize = null;
+	
+	e.preventDefault();
+	e.stopPropagation();
 }
 
 
-Drag.endObjectMove = function()
+Drag.endObjectMove = function(e)
 {
 	document.removeEventListener('mousemove', Drag.handleObjectMove);
 	document.removeEventListener('mouseup', Drag.endObjectMove);
+	
+	document.removeEventListener('touchmove', Drag.handleObjectMove);
+	document.removeEventListener('touchend', Drag.endObjectMove);
+	
 	Drag._gObjResize = null;
+	
+	e.preventDefault();
+	e.stopPropagation();
 }
+
+
+
 
 
 Drag.handleMouseMove = function(e)

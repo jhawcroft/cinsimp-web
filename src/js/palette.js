@@ -53,8 +53,11 @@ function Palette(in_div, in_flags)
 	this._titlebar.appendChild(this._closebtn);
 	
 	var me = this;
-	this._titlebar.addEventListener('mousedown', function(e) { me.bringToFront(); Drag.beginObjectMove(e, me); });
+	this._titlebar.addEventListener('mousedown', function(e) { me.bringToFront(); Drag.beginObjectMove(e, me); e.preventDefault(); e.stopPropagation(); });
+	this._titlebar.addEventListener('touchstart', function(e) { if (e.touches.length != 1) return;
+		 me.bringToFront(); Drag.beginObjectMove(e, me); e.preventDefault(); e.stopPropagation(); });
 	this._closebtn.addEventListener('click', function(e) { me.hide(); e.preventDefault(); e.stopPropagation(); });
+	this._closebtn.addEventListener('touchstart', function(e) { me.hide(); e.preventDefault(); e.stopPropagation(); });
 	
 	document.body.appendChild(this._div);
 	
