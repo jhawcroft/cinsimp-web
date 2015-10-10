@@ -34,15 +34,20 @@ function Progress() {}
 
 Progress._in_progress = false;
 Progress._auto_show_timer = null;
-
+Progress._can_hide_timer = null;
+Progress._can_hide = false;
+Progress._should_hide = false;
 
 
 Progress.operation_begun = function()
 {
 	Progress._in_progress = true;
+	Progress._can_hide = false;
+	Progress._should_hide = false;
+	
 	if (Progress._auto_show_timer)
 		window.clearTimeout(Progress._auto_show_timer);
-	Progress._auto_show_timer = window.setTimeout(Progress._show, 750);	
+	Progress._auto_show_timer = window.setTimeout(Progress._show, 250);	
 }
 
 
@@ -50,12 +55,27 @@ Progress._show = function()
 {
 	if (!Progress._in_progress) return;
 	Dialog.Progress.show();
+	
+	if (Progress._can_hide_timer)
+		window.clearTimeout(Progress._can_hide_timer);
+	Progress._can_hide_timer = window.setTimeout(Progress._set_can_hide, 1750);
+}
+
+
+Progress._set_can_hide = function()
+{
+	Progress._can_hide = true;
+	if (Progress._should_hide)
+		Progress._hide();
 }
 
 
 Progress._hide = function()
 {
-	Dialog.Progress.hide();
+	if (Progress._can_hide)
+		Dialog.Progress.hide();
+	else
+		Progress._should_hide = true;
 }
 
 
@@ -63,6 +83,7 @@ Progress.operation_finished = function()
 {
 	if (Progress._auto_show_timer)
 		window.clearTimeout(Progress._auto_show_timer);
+	
 	Progress._in_progress = false;
 	Progress._hide();
 }
