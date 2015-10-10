@@ -112,12 +112,12 @@ View.prototype._init_view = function()
 	
 	this._selected_objects = [];
 	
-	this._layer_obj_bkgnd = document.createElement('div');
+	/*this._layer_obj_bkgnd = document.createElement('div');
 	this._layer_obj_bkgnd.id = 'LayerObjBkgnd';
 	this._layer_obj_bkgnd.style.zIndex = 3;
 	this._layer_obj_bkgnd.className = 'Layer';
 	this._layer_obj_bkgnd.style.width = this._size[0] + 'px';
-	this._layer_obj_bkgnd.style.height = this._size[1] + 'px';
+	this._layer_obj_bkgnd.style.height = this._size[1] + 'px';*/
 	
 	this._layer_obj_card = document.createElement('div');
 	this._layer_obj_card.id = 'LayerObjCard';
@@ -128,7 +128,7 @@ View.prototype._init_view = function()
 	
 	//this._layer_obj_card = document.createElement('div');
 	//this._layer_obj_card = document.createElement('div');
-	this._container.appendChild(this._layer_obj_bkgnd);
+	//this._container.appendChild(this._layer_obj_bkgnd);
 	this._container.appendChild(this._layer_obj_card);
 	
 	this._bkgnd_indicator = document.createElement('div');
@@ -362,19 +362,30 @@ View.prototype._centre_object = function(in_object)
 }
 
 
+View.prototype._renumber_objects = function()
+{
+	for (var o = 0; o < this._objects_bkgnd.length; o++)
+		this._objects_bkgnd[o].set_attr(ViewObject.ATTR_NUM, o + 1);
+	for (var o = 0; o < this._objects_card.length; o++)
+		this._objects_card[o].set_attr(ViewObject.ATTR_NUM, o + 1);
+}
+
+
 View.prototype._add_object = function(in_object)
 {
 	var existing_id = in_object.get_attr(ViewObject.ATTR_ID);
 	if (existing_id >= this._next_id)
 		this._next_id = existing_id + 1;
-
+		
 	if (!this._edit_bkgnd) 
 	{
+		in_object.set_attr(ViewObject.ATTR_NUM, this._objects_card.length + 1);
 		this._objects_card.push(in_object);
 		this._layer_obj_card.appendChild(in_object._div);
 	}
 	else 
 	{
+		in_object.set_attr(ViewObject.ATTR_NUM, this._objects_bkgnd.length + 1);
 		this._objects_bkgnd.push(in_object);
 		this._layer_obj_card.appendChild(in_object._div);
 	}
@@ -411,6 +422,8 @@ View.prototype.do_delete_objects = function()
 		obj.kill();
 	}
 	this._selected_objects.length = 0;
+	
+	this._renumber_objects();
 }
 
 
@@ -489,6 +502,7 @@ View.prototype._resurect = function(in_def)
 View.prototype._rebuild_card = function()
 {
 	/* dump the current card */
+	this._next_id = 1;
 	this._selected_objects = [];
 	for (o = 0; o < this._objects_card.length; o++)
 		this._objects_card[o].kill();
@@ -539,6 +553,8 @@ View.prototype._rebuild_card = function()
 		}
 	}
 	catch (e) {}
+	
+	this._renumber_objects();
 	
 	/* cause fields to be editable where appropriate */
 	this._mode_changed();
@@ -703,9 +719,47 @@ View.prototype.refresh = function()
 }
 
 
+View.prototype._do_button_info = function()
+{
+	
+	Dialog.ButtonInfo.show();
+}
+
+
+View.prototype._do_field_info = function()
+{
+
+	Dialog.FieldInfo.show();
+}
+
+
+View.prototype._do_card_info = function()
+{
+	
+	Dialog.CardInfo.show();
+}
+
+
+View.prototype._do_bkgnd_info = function()
+{
+
+	Dialog.BkgndInfo.show();
+}
+
+
 View.prototype.do_info = function()
 {
-	Dialog.ButtonInfo.show();
+	if (this._selected_objects.length == 1)
+	{
+		if (this._selected_objects[0].get_type() == Button.TYPE)
+			this._do_button_info();
+		else
+			this._do_field_info();
+	}
+	else if (!this._edit_bkgnd)
+		this._do_card_info();
+	else
+		this._do_bkgnd_info();
 }
 
 
