@@ -206,7 +206,9 @@ header("Content-type: text/html\n");
 	{
 		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
 		$inbound['card_id'] = $stack->stack_delete_card($inbound['card_id']);
-		return Gateway::load_card($inbound, $outbound);
+		$outbound = Gateway::load_card($inbound, $outbound);
+		$outbound['stack'] = $stack->stack_load();
+		return $outbound;
 	}
 	
 

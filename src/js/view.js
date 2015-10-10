@@ -573,19 +573,74 @@ View.prototype._load_card = function(in_card_id)
 
 View.prototype.do_new_card = function()
 {
-
+	msg = {
+		cmd: 'new_card',
+		stack_id: this._stack.stack_id,
+		card_id: this._card.card_id
+	};
+	
+	Progress.operation_begun();
+	var me = this;
+	Ajax.send(msg, function(msg, status) {
+		Progress.operation_finished();
+		if ((status != 'ok') || (msg.cmd != 'new_card'))
+			alert('New card error: '+status+"\n"+JSON.stringify(msg));
+		else
+		{
+			me._card = msg.card;
+			me._stack.count_cards ++;
+			me._rebuild_card();
+		}
+	});
 }
 
 
 View.prototype.do_new_bkgnd = function()
 {
-
+	msg = {
+		cmd: 'new_bkgnd',
+		stack_id: this._stack.stack_id,
+		card_id: this._card.card_id
+	};
+	
+	Progress.operation_begun();
+	var me = this;
+	Ajax.send(msg, function(msg, status) {
+		Progress.operation_finished();
+		if ((status != 'ok') || (msg.cmd != 'new_bkgnd'))
+			alert('New bkgnd error: '+status+"\n"+JSON.stringify(msg));
+		else
+		{
+			me._card = msg.card;
+			me._stack.count_cards ++;
+			me._stack.count_bkgnds ++;
+			me._rebuild_card();
+		}
+	});
 }
 
 
 View.prototype.do_delete_card = function()
 {
-
+	msg = {
+		cmd: 'delete_card',
+		stack_id: this._stack.stack_id,
+		card_id: this._card.card_id
+	};
+	
+	Progress.operation_begun();
+	var me = this;
+	Ajax.send(msg, function(msg, status) {
+		Progress.operation_finished();
+		if ((status != 'ok') || (msg.cmd != 'delete_card'))
+			alert('Delete card error: '+status+"\n"+JSON.stringify(msg));
+		else
+		{
+			me._card = msg.card;
+			me._stack = msg.stack;
+			me._rebuild_card();
+		}
+	});
 }
 
 
