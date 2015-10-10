@@ -1,7 +1,7 @@
 <?php
 /*
 CinsImp
-Application bootstrap
+HyperCard Import
 
 *********************************************************************************
 Copyright (c) 2009-2015, Joshua Hawcroft
@@ -30,34 +30,19 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-require(dirname(__FILE__).'/config.php');
-
-require($config->base.'php/stack.php');
-require($config->base.'php/util.php');
-
-
-if (isset($_REQUEST['hcimport']))
+class HCImport
 {
-	require($config->base.'php/hcimport.php');
-	HCImport::handle_upload();
-	exit;
-}
+	public static function handle_upload()
+	{
+		if ($_FILES['HCStackFile']['size'] > 100 * 1024 * 1024)
+			return;
+		
+		if (!move_uploaded_file($_FILES['HCStackFile']['tmp_name'], $config->base.'tmp/hcstack.tmp')) 
+			return;
+		
+		
+	}
 
-if (isset($_REQUEST['stack']))
-{
-	require($config->base.'php/application.php');
-	Application::open_stack(Util::safe_stack_id($_REQUEST['stack']));
-	exit;
-}
-
-if (isset($_REQUEST['io']))
-{
-	require($config->base.'php/gateway.php');
-	/*if (isset($_REQUEST['request']))
-		Gateway::handle_request($_REQUEST['request']);
-	else*/
-	Gateway::handle_request();
-	exit;
 }
 
 

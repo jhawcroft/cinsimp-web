@@ -46,6 +46,7 @@ var gBase = '../';
 <script language="javascript" type="text/javascript" src="../js/paint.js"></script>
 <script language="javascript" type="text/javascript" src="../js/application.js"></script>
 <script language="javascript" type="text/javascript" src="../js/progress.js"></script>
+<script language="javascript" type="text/javascript" src="../js/hcimport.js"></script>
 
 <script>
 
@@ -482,8 +483,17 @@ call stack and debug buttons ? -->
 
 
 <div id="DialogProgress" class="DialogTemplate Inner" style=" width: 400px; height: 80px; cursor: progress;">
-	<div class="Label" id="ProgressMessage">Saving changes...</div>
+	<div class="Label" id="ProgressMessage">Accessing server...</div>
 	<div class="Progress Indeterminate VertGap" style="width: 370px;"><div style="width: 100%"></div></div>
+</div>
+
+
+<div id="DialogHCImport" class="DialogTemplate Inner" style="width: 500px; height: 120px;">
+	<div class="Label">HyperCard Stack: <input type="file" id="HCStackFile" style="width:340px"></div>
+	
+	<div class="Right Bottom">
+		<input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="Import" onclick="HCImport.run();"> 
+	</div>
 </div>
 
 
@@ -493,6 +503,9 @@ call stack and debug buttons ? -->
 
 
 <script>
+
+Dialog.HCImport = new Dialog('HyperCard Import', document.getElementById('DialogHCImport'), 0);
+
 
 Dialog.Progress = new Dialog('Please Wait', document.getElementById('DialogProgress'), Dialog.FLAG_NOCLOSE);
 //Dialog.Progress.show();
@@ -561,9 +574,11 @@ m.appendItem('Authoring', Palette.Authoring.toggle.bind(Palette.Authoring));
 m.appendItem('Colours', Palette.Colours.toggle.bind(Palette.Colours));
 //m.appendItem('Line Sizes', null);
 m.appendItem('-', null);
-m.appendItem('New Stack', null);
+/*m.appendItem('New Stack', null);
 m.appendItem('Save a Copy', null);
 m.appendItem('Delete Stack', null);
+m.appendItem('-', null);*/
+m.appendItem('HyperCard Import', Dialog.HCImport.show.bind(Dialog.HCImport));
 m.appendItem('-', null);
 m.appendItem('About CinsImp', function() { Dialog.About.centre(); Dialog.About.show(); });
 

@@ -1,11 +1,15 @@
-<?php
 /*
 CinsImp
-Application bootstrap
+HyperCard Import Controller
 
 *********************************************************************************
 Copyright (c) 2009-2015, Joshua Hawcroft
 All rights reserved.
+
+ May all beings have happiness and the cause of happiness.
+ May all beings be free of suffering and the cause of suffering.
+ May all beings rejoice for the supreme happiness which is without suffering.
+ May all beings abide in the great equanimity; free of attachment and delusion.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -30,34 +34,42 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-require(dirname(__FILE__).'/config.php');
 
-require($config->base.'php/stack.php');
-require($config->base.'php/util.php');
+function HCImport() {}
 
 
-if (isset($_REQUEST['hcimport']))
+HCImport._scan = function()
 {
-	require($config->base.'php/hcimport.php');
-	HCImport::handle_upload();
-	exit;
+	alert('Begin scan!');
 }
 
-if (isset($_REQUEST['stack']))
+
+HCImport.run = function()
 {
-	require($config->base.'php/application.php');
-	Application::open_stack(Util::safe_stack_id($_REQUEST['stack']));
-	exit;
+	Dialog.dismiss(); 
+	var files = document.getElementById('HCStackFile').files;
+	if (files.length != 1) return;
+	
+	Progress.operation_begun();
+	
+	var file = files[0];
+	var formData = new FormData();
+	
+	formData.append('HCStackFile', file, file.name);
+	
+	var xhr = new XMLHttpRequest();
+	xhr.open('POST', '?hcimport=1', true);
+	xhr.onload = function()
+	{
+		Progress.operation_finished();
+		if (xhr.status == 200)
+			HCImport._scan();
+		else
+			alert('There was a problem!');
+	}
+	
+	xhr.send(formData);
 }
 
-if (isset($_REQUEST['io']))
-{
-	require($config->base.'php/gateway.php');
-	/*if (isset($_REQUEST['request']))
-		Gateway::handle_request($_REQUEST['request']);
-	else*/
-	Gateway::handle_request();
-	exit;
-}
 
 
