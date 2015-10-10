@@ -111,6 +111,49 @@ class HCImport
 		
 		$old_bkgnd = HCImport::decode_bkgnd($id);
 		
+		$new_file = new Stack(HCImport::stack_temp());
+		
+		$new_bkgnd = Array();
+		$new_bkgnd['bkgnd_id'] = $id;
+		$new_bkgnd['bkgnd_name'] = $old_bkgnd['name'];
+		$new_bkgnd['bkgnd_cant_delete'] = $old_bkgnd['cant_delete'];
+		$new_bkgnd['bkgnd_dont_search'] = $old_bkgnd['dont_search'];
+		$new_bkgnd['bkgnd_script'] = Array('content'=>$old_bkgnd['script'], 'selection'=>0);
+		$new_bkgnd['bkgnd_has_art'] = false;
+		
+		$new_parts = Array();
+		$n = 1;
+		foreach ($old_bkgnd['parts'] as $part)
+		{
+			$new_part = Array();
+			
+			
+			$new_part[-1] = ($part['type'] =='button'? 0 : 1);
+			$new_part[-2] = $part['pid'];
+			$new_part[-3] = $n;
+			$rect = explode(',', $part['rect']);
+			$new_part[-4] = Array($rect[0], $rect[1]);
+			$new_part[-5] = Array($rect[2], $rect[3]);
+			$new_part[-6] = $part['name'];
+			$new_part[-7] = $part['shared'];
+			
+			if ($part['type'] == 'button')
+			{
+				//$new_part[1
+			}
+			else
+			{
+			
+			}
+			
+			$new_parts[] = $new_part;
+			$n++;
+		}
+		
+		$new_bkgnd['bkgnd_object_data'] = json_encode($new_parts);
+		
+		 $new_file->stack_inject_bkgnd($new_bkgnd);
+		
 		return $old_bkgnd;
 		//$new_file = new Stack($filename);
 	}
@@ -128,6 +171,11 @@ class HCImport
 		HCImport::decode_style_table();
 		
 		$old_card = HCImport::decode_card($id);
+		
+		$new_file = new Stack(HCImport::stack_temp());
+		
+		
+		
 		
 		return $old_card;
 	}

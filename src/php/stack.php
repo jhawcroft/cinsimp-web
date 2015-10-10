@@ -524,6 +524,35 @@ Accessors and Mutators
 		
 		$this->file_db->commit();
 	}
+	
+
+/*
+	Allows 'direct injection' of a complete background into the stack.
+*/
+	public function stack_inject_bkgnd($card)
+	{
+		$data = array();
+		$data['bkgnd_script'] = $card['bkgnd_script'];
+		$data['bkgnd_has_art'] = $card['bkgnd_has_art'];
+		
+		$stmt = $this->file_db->prepare(
+			'INSERT INTO bkgnd (bkgnd_id,object_data,bkgnd_name,cant_delete,dont_search,bkgnd_data) '.
+			'VALUES (?,?,?,?,?,?)'
+		);
+		Stack::sl_ok($stmt, $this->file_db, 'Injecting Bkgnd (1)');
+		$rows = $stmt->execute(array(
+			$card['bkgnd_id'],
+			$card['bkgnd_object_data'],
+			$card['bkgnd_name'],
+			Stack::encode_bool($card['bkgnd_cant_delete']),
+			Stack::encode_bool($card['bkgnd_dont_search']),
+			json_encode($data)
+		));
+		if ($rows == 0) Stack::sl_ok(false, $this->file_db, 'Injecting Bkgnd (2)');
+		Stack::sl_ok($rows, $this->file_db, 'Injecting Bkgnd (3)');
+		
+		return $this->file_db->lastInsertId();
+	}
 
 
 /*
