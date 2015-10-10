@@ -203,10 +203,13 @@ Dialog.prototype.hide = function()
 	this._div.style.visibility = 'hidden';
 	
 	Dialog._visibleCount--;
-	if (Dialog._visibleCount == 0)
-		Dialog._cover.style.visibility = 'hidden';
-	else
-		Dialog._cover.style.zIndex = Dialog.active()._div.style.zIndex - 1;
+	if (Dialog._cover)
+	{
+		if (Dialog._visibleCount == 0)
+			Dialog._cover.style.visibility = 'hidden';
+		else
+			Dialog._cover.style.zIndex = Dialog.active()._div.style.zIndex - 1;
+	}
 }
 
 

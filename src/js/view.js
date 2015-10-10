@@ -441,7 +441,19 @@ View.prototype._save_card = function()
 	// for bkgnd fields (reference is by ID)
 	
 	/* submit ajax request to save the card */
-	alert(JSON.stringify(this._card));
+	var msg = {
+		cmd: 'save_card',
+		stack_id: this._stack.stack_id,
+		card: this._card
+	};
+	//alert(JSON.stringify(msg));
+	
+	Progress.operation_begun();
+	Ajax.send(msg, function(msg, status) {
+		Progress.operation_finished();
+		if ((status != 'ok') || (msg.cmd != 'save_card'))
+			alert('Save card error: '+status+"\n"+JSON.stringify(msg));
+	});
 }
 
 
@@ -460,11 +472,8 @@ View.prototype._resurect = function(in_def)
 }
 
 
-View.prototype._load_card = function(in_card_id)
+View.prototype._rebuild_card = function()
 {
-	/* submit ajax request to load the card */
-	
-	
 	/* dump the current card */
 	this._selected_objects = [];
 	for (o = 0; o < this._objects_card.length; o++)
@@ -492,6 +501,35 @@ View.prototype._load_card = function(in_card_id)
 		this._objects_bkgnd[o] = obj;
 		this._layer_obj_bkgnd.appendChild(obj._div);
 	}
+	
+	/* cause fields to be editable where appropriate */
+	this._mode_changed();
+}
+
+
+View.prototype._load_card = function(in_card_id)
+{
+	/* submit ajax request to load the card */
+	msg = {
+		cmd: 'load_card',
+		stack_id: this._stack.stack_id,
+		card_id: in_card_id
+	};
+	
+	Progress.operation_begun();
+	var me = this;
+	Ajax.send(msg, function(msg, status) {
+		Progress.operation_finished();
+		if ((status != 'ok') || (msg.cmd != 'load_card'))
+			alert('Save card error: '+status+"\n"+JSON.stringify(msg));
+		else
+		{
+			me._card = msg.card;
+			me._rebuild_card();
+		}
+	});
+	
+	
 }
 
 
@@ -538,7 +576,7 @@ View.prototype.go_last = function()
 
 View.prototype.refresh = function()
 {
-	
+	this._rebuild_card();
 
 	//alert(JSON.stringify(this._card));
 }

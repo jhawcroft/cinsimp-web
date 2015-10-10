@@ -60,6 +60,7 @@ header("Content-type: text/html\n");
 <p><textarea name="request" style="width: 500px; height: 400px;"><?php print (isset($_REQUEST['request']) ? $_REQUEST['request'] : '{"cmd":"test","echo":"Hello"}' ); ?></textarea></p>
 <p><input type="submit" value="Submit JSON Request"></p>
 <input type="hidden" name="io" value="1">
+<input type="hidden" name="debug" value="true">
 
 <h3>Last Server Response</h3>
 <p><pre style="width: 500px;"><?php print $response; ?></pre></p>
@@ -73,8 +74,13 @@ header("Content-type: text/html\n");
 	{
 		global $g_error_log;
 		
+		$debug = false;
+		if (isset($_REQUEST['debug']) && ($_REQUEST['debug'] == true))
+			$debug = true;
+		
 		if ($_REQUEST['io'] == 'test')
 		{
+			$debug = true;
 			Gateway::print_test_form('');
 			exit;
 		}
@@ -113,7 +119,7 @@ header("Content-type: text/html\n");
 			$outbound['msg'] = $g_error_log;
 		}
 		
-		if ($inbound != '')
+		if ($debug)
 		{
 			//if ($testing)
 			Gateway::print_test_form(json_encode($outbound));
