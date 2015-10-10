@@ -380,12 +380,14 @@ View.prototype._add_object = function(in_object)
 	if (!this._edit_bkgnd) 
 	{
 		in_object.set_attr(ViewObject.ATTR_NUM, this._objects_card.length + 1);
+		in_object._is_bkgnd = false;
 		this._objects_card.push(in_object);
 		this._layer_obj_card.appendChild(in_object._div);
 	}
 	else 
 	{
 		in_object.set_attr(ViewObject.ATTR_NUM, this._objects_bkgnd.length + 1);
+		in_object._is_bkgnd = true;
 		this._objects_bkgnd.push(in_object);
 		this._layer_obj_card.appendChild(in_object._div);
 	}
@@ -394,17 +396,27 @@ View.prototype._add_object = function(in_object)
 
 View.prototype.do_new_field = function()
 {
+	this.select_none();
+	this.choose_tool(View.TOOL_FIELD);
+	
 	var field = new Field(this);
 	this._centre_object(field);
 	this._add_object(field);
+	
+	this.select_object(field, true);
 }
 
 
 View.prototype.do_new_button = function()
 {
+	this.select_none();
+	this.choose_tool(View.TOOL_BUTTON);
+	
 	var button = new Button(this);
 	this._centre_object(button);
 	this._add_object(button);
+	
+	this.select_object(button, true);
 }
 
 
@@ -519,7 +531,7 @@ View.prototype._rebuild_card = function()
 		for (var o = 0; o < objects.length; o++)
 		{
 			var obj = this._resurect(objects[o]);
-			
+			obj._is_bkgnd = true;
 			this._objects_bkgnd[o] = obj;
 			this._layer_obj_card.appendChild(obj._div);
 		}
@@ -532,7 +544,7 @@ View.prototype._rebuild_card = function()
 		for (var o = 0; o < objects.length; o++)
 		{
 			var obj = this._resurect(objects[o]);
-
+			obj._is_bkgnd = false;
 			this._objects_card[o] = obj;
 			this._layer_obj_card.appendChild(obj._div);
 		}
@@ -739,8 +751,101 @@ View.prototype.refresh = function()
 
 View.prototype._do_button_info = function()
 {
+	var obj = this._selected_objects[0];
 	
+	document.getElementById('ButtonInfoName').value = obj.get_attr(ViewObject.ATTR_NAME);
+	document.getElementById('ButtonInfoNumber').textContent = 
+		(obj._is_bkgnd ? 'Bkgnd' : 'Card') + ' button number: ' + obj.get_attr(ViewObject.ATTR_NUM);
+	document.getElementById('ButtonInfoID').textContent = 
+		(obj._is_bkgnd ? 'Bkgnd' : 'Card') + ' button ID: ' + obj.get_attr(ViewObject.ATTR_ID);
+		
+	document.getElementById('ButtonInfoShowName').checked = obj.get_attr(Button.ATTR_SHOW_NAME);
+	document.getElementById('ButtonInfoAutoHilite').checked = obj.get_attr(Button.ATTR_AUTO_HILITE);
+	
+	document.getElementById('ButtonInfoSharedHilite').checked = obj.get_attr(ViewObject.ATTR_SHARED);
+	
+	var color = obj.get_attr(Button.ATTR_COLOR);
+	var style = obj.get_attr(Button.ATTR_STYLE);
+	var shdw = obj.get_attr(Button.ATTR_SHADOW);
+	if (style == Button.STYLE_BORDERLESS && color == null)
+		document.getElementById('ButtonInfoType1').checked = true;//transparent
+	else if (style == Button.STYLE_BORDERLESS && color != null)
+		document.getElementById('ButtonInfoType2').checked = true;//opaque
+	else if (style == Button.STYLE_RECTANGLE && (!shdw))
+		document.getElementById('ButtonInfoType3').checked = true;//rectangle
+		else if (style == Button.STYLE_RECTANGLE && shdw)
+		document.getElementById('ButtonInfoType4').checked = true;//shadow
+	else if (style == Button.STYLE_ROUNDED)
+		document.getElementById('ButtonInfoType5').checked = true;//round-rect
+	else if (style == Button.STYLE_CHECK_BOX)
+		document.getElementById('ButtonInfoType6').checked = true;//check box
+	else if (style == Button.STYLE_RADIO)
+		document.getElementById('ButtonInfoType7').checked = true;//radio
+	else
+		document.getElementById('ButtonInfoType8').checked = true;//popup menu
+		
 	Dialog.ButtonInfo.show();
+}
+
+
+View.prototype._save_button_info = function()
+{
+	var obj = this._selected_objects[0];
+	
+	obj.set_attr(ViewObject.ATTR_NAME, document.getElementById('ButtonInfoName').value);
+	
+	obj.set_attr(Button.ATTR_SHOW_NAME, document.getElementById('ButtonInfoShowName').checked);
+	obj.set_attr(Button.ATTR_AUTO_HILITE, document.getElementById('ButtonInfoAutoHilite').checked);
+	obj.set_attr(Button.ATTR_SHARED, document.getElementById('ButtonInfoSharedHilite').checked);
+	
+	if (document.getElementById('ButtonInfoType1').checked)// transparent
+	{
+		obj.set_attr(Button.ATTR_COLOR, null);
+		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_BORDERLESS);
+		obj.set_attr(Button.ATTR_SHADOW, false);
+	}
+	else if (document.getElementById('ButtonInfoType2').checked) // opaque
+	{
+		obj.set_attr(Button.ATTR_COLOR, [1,1,1]);
+		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_BORDERLESS);
+		obj.set_attr(Button.ATTR_SHADOW, false);
+	}
+	else if (document.getElementById('ButtonInfoType3').checked)//rectangle
+	{
+		obj.set_attr(Button.ATTR_COLOR, [1,1,1]);
+		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_RECTANGLE);
+		obj.set_attr(Button.ATTR_SHADOW, false);
+	}
+	else if (document.getElementById('ButtonInfoType4').checked)//shadow
+	{
+		obj.set_attr(Button.ATTR_COLOR, [1,1,1]);
+		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_RECTANGLE);
+		obj.set_attr(Button.ATTR_SHADOW, true);
+	}
+	else if (document.getElementById('ButtonInfoType5').checked)//round rect
+	{
+		obj.set_attr(Button.ATTR_COLOR, [1,1,1]);
+		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_ROUNDED);
+		obj.set_attr(Button.ATTR_SHADOW, true);
+	}
+	else if (document.getElementById('ButtonInfoType6').checked)//check box
+	{
+		obj.set_attr(Button.ATTR_COLOR, [1,1,1]);
+		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_CHECK_BOX);
+		obj.set_attr(Button.ATTR_SHADOW, false);
+	}
+	else if (document.getElementById('ButtonInfoType7').checked)//radio
+	{
+		obj.set_attr(Button.ATTR_COLOR, [1,1,1]);
+		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_RADIO);
+		obj.set_attr(Button.ATTR_SHADOW, false);
+	}
+	else if (document.getElementById('ButtonInfoType8').checked)//popup menu
+	{
+		
+	}
+
+	Dialog.dismiss();
 }
 
 
@@ -778,6 +883,22 @@ View.prototype.do_info = function()
 		this._do_card_info();
 	else
 		this._do_bkgnd_info();
+}
+
+
+View.prototype.save_info = function()
+{
+	if (this._selected_objects.length == 1)
+	{
+		if (this._selected_objects[0].get_type() == Button.TYPE)
+			this._save_button_info();
+		else
+			this._save_field_info();
+	}
+	else if (!this._edit_bkgnd)
+		this._save_card_info();
+	else
+		this._save_bkgnd_info();
 }
 
 

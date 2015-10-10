@@ -115,6 +115,12 @@ Application.do_info = function()
 }
 
 
+Application.save_info = function()
+{
+	if (Application._view) Application._view.save_info();
+}
+
+
 Application.showStackInfo = function()
 {
 	//alert(JSON.stringify(Application._initialStackData));

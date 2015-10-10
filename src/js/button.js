@@ -62,7 +62,9 @@ function Button(in_view, in_def)
 		this.set_attr(Button.ATTR_SHADOW, true);
 		this.set_attr(Button.ATTR_ICON, 0);
 		this.set_attr(Button.ATTR_MENU, null);
-		this.set_attr(Button.ATTR_NAME, 'New Button');
+		this.set_attr(ViewObject.ATTR_NAME, 'New Button');
+		this.set_attr(Button.ATTR_SHOW_NAME, true);
+		this.set_attr(Button.ATTR_AUTO_HILITE, false);
 	}
 	else
 		this.set_def(in_def);
@@ -92,7 +94,8 @@ Button.ATTR_COLOR = 2;
 Button.ATTR_SHADOW = 3;
 Button.ATTR_MENU = 4;
 Button.ATTR_ICON = 5;
-Button.ATTR_NAME = 6;
+Button.ATTR_SHOW_NAME = 6;
+Button.ATTR_AUTO_HILITE = 7;
 
 
 Button.prototype._resized = function()
@@ -173,7 +176,7 @@ Button.prototype._attribute_changed = function(in_attr, in_value)
 			break;
 		}
 		break;
-	case Button.ATTR_NAME:
+	case ViewObject.ATTR_NAME:
 		this._caption.innerHTML = '';
 		this._caption.appendChild(document.createTextNode(in_value));
 		break;

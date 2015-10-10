@@ -50,6 +50,8 @@ function ViewObject(in_type, in_view)
 	this._attrs[ViewObject.ATTR_NUM] = 1;
 	this._attrs[ViewObject.ATTR_LOC] = [0,0];
 	this._attrs[ViewObject.ATTR_SIZE] = [50,50];
+	this._attrs[ViewObject.ATTR_NAME] = '';
+	this._attrs[ViewObject.ATTR_SHARED] = false;
 	
 	this._selected = false;
 	
@@ -64,6 +66,8 @@ ViewObject.ATTR_ID = -2;
 ViewObject.ATTR_NUM = -3;
 ViewObject.ATTR_LOC = -4;
 ViewObject.ATTR_SIZE = -5;
+ViewObject.ATTR_NAME = -6;
+ViewObject.ATTR_SHARED = -7;
 
 
 ViewObject.prototype.get_def = function()
