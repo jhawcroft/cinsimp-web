@@ -763,4 +763,36 @@ View.prototype.do_info = function()
 }
 
 
+View.prototype.send_to_front = function()
+{
+	if (this._selected_objects.length == 0) return;
+	
+	for (var o = 0; o < this._selected_objects.length; o++)
+	{
+		var obj = this._selected_objects[o];
+		
+	}
+}
+
+
+View.prototype.send_forward = function()
+{
+	if (this._selected_objects.length == 0) return;
+	
+}
+
+
+View.prototype.send_backward = function()
+{
+	if (this._selected_objects.length == 0) return;
+	
+}
+
+
+View.prototype.send_to_back = function()
+{
+	if (this._selected_objects.length == 0) return;
+	
+}
+
 

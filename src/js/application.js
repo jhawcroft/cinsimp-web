@@ -186,4 +186,29 @@ Application.handleSaveCardSize = function()
 }
 
 
+Application.send_to_front = function()
+{
+	if (Application._view) Application._view.send_to_front();
+}
+
+
+Application.send_forward = function()
+{
+	if (Application._view) Application._view.send_forward();
+}
+
+
+Application.send_backward = function()
+{
+	if (Application._view) Application._view.send_backward();
+}
+
+
+Application.send_to_back = function()
+{
+	if (Application._view) Application._view.send_to_back();
+}
+
+
+
 

@@ -113,10 +113,10 @@ layers depending on the mode of the application -->
 	<div title="Object Info" title="Object Info" onclick="Application.do_info()"><img src="../gfx/info.png" width="32"><div>Object Info</div></div>
 	<div title="Edit Bkgnd" onclick="Application.edit_bkgnd()"><img src="../gfx/bkgnd.png" width="32"><div id="EditBkgndLabel">Edit Bkgnd</div></div>
 	<div class="Spacer"></div>
-	<div title="Front"><img src="../gfx/tofront.png" width="32"><div>Front</div></div>
-	<div title="Closer"><img src="../gfx/forward.png" width="32"><div>Closer</div></div>
-	<div title="Farther"><img src="../gfx/backward.png" width="32"><div>Farther</div></div>
-	<div title="Back"><img src="../gfx/toback.png" width="32"><div>Back</div></div>
+	<div title="Front" onclick="Application.send_to_front();"><img src="../gfx/tofront.png" width="32"><div>Front</div></div>
+	<div title="Closer" onclick="Application.send_forward();"><img src="../gfx/forward.png" width="32"><div>Closer</div></div>
+	<div title="Farther" onclick="Application.send_backward();"><img src="../gfx/backward.png" width="32"><div>Farther</div></div>
+	<div title="Back" onclick="Application.send_to_back();"><img src="../gfx/toback.png" width="32"><div>Back</div></div>
 	<div class="Spacer"></div>
 	<div title="Options"><img src="../gfx/options.png" width="32"><div>Options</div></div>
 	<div class="Spacer"></div>
