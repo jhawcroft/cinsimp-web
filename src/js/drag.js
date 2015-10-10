@@ -48,12 +48,14 @@ Drag._gDragInitSz = Array(0,0);
 Drag._objects = [];
 Drag._begin = [0,0];
 Drag._curr = [0,0];
+Drag._snap_handler = null;
 
 
 
-
-Drag.begin_move = function(in_coords, in_objects)
+Drag.begin_move = function(in_coords, in_objects, in_snap_handler)
 {
+	Drag._snap_handler = in_snap_handler;
+
 	Drag._objects.length = in_objects.length;
 	for (var o = 0; o < in_objects.length; o++)
 	{
@@ -93,7 +95,10 @@ Drag._handle_move = function(in_event)
 	for (var o = 0; o < Drag._objects.length; o++)
 	{
 		var rec = Drag._objects[o];
-		rec[0].set_loc([ rec[1][0] + deltaX, rec[1][1] + deltaY ]);
+		var new_loc = [ rec[1][0] + deltaX, rec[1][1] + deltaY ];
+		if (Drag._snap_handler)
+			Drag._snap_handler(rec[0], new_loc);
+		rec[0].set_loc(new_loc);
 	}
 }
 
