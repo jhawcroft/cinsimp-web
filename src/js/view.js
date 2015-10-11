@@ -741,10 +741,35 @@ View.prototype._rebuild_card = function() // will have to do separate load objec
 	}
 	catch (e) {}
 	
+	/* new content mechanism? CAN only use for card content in bkgnd fields */
+	try
+	{
+		var objects = JSON.parse(this._card.data);
+		for (var o = 0; o < objects.length; o++)
+		{
+			var data = objects[o];
+			var obj = this._lookup_bkgnd_part_by_id(data[0]);
+			if (obj) obj.set_raw_content($data[1]);
+		}
+	}
+	catch (e) {}
+	
 	this._renumber_objects();
 	
 	/* cause fields to be editable where appropriate */
 	this._mode_changed();
+}
+
+
+View.prototype._lookup_bkgnd_part_by_id = function(in_part_id)
+{
+	for (var o = 0; o < this._objects_bkgnd.length; o++)
+	{
+		var obj = this._objects_bkgnd[o];
+		if (obj.get_attr(ViewObject.ATTR_ID) == in_part_id)
+			return obj;
+	}
+	return null;
 }
 
 

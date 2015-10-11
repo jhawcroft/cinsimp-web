@@ -282,12 +282,25 @@ class HCImport
 		$new_bkgnd['bkgnd_has_art'] = false;
 		
 		$new_parts = Array();
+		$part_index = Array();
 		$n = 1;
 		foreach ($old_bkgnd['parts'] as $part)
 		{
 			$new_part = HCImport::convert_part($part);
+			$part_index[ $part['pid'] ] = count($new_parts);
 			$new_parts[] = $new_part;
 			$n++;
+		}
+		
+		foreach ($old_bkgnd['content'] as $fdata)
+		{
+			if (isset($part_index[ $fdata['part_id'] ]))
+			{
+				$idx = $part_index[ $fdata['part_id'] ];
+				$new_part = $new_parts[$idx];
+				$new_part[-99] = $fdata['text'];
+			}
+			
 		}
 		
 		$new_bkgnd['bkgnd_object_data'] = json_encode($new_parts);
@@ -325,16 +338,32 @@ class HCImport
 		$new_card['card_seq'] = intval($seq) * 10;
 		
 		$new_parts = Array();
+		$part_index = Array();
 		$n = 1;
 		foreach ($old_card['parts'] as $part)
 		{
 			$new_part = HCImport::convert_part($part);
+			$part_index[ $part['pid'] ] = count($new_parts);
 			$new_parts[] = $new_part;
 			$n++;
 		}
 		
+		$datas = Array();
+		foreach ($old_card['content'] as $fdata)
+		{
+			if (isset($part_index[ $fdata['part_id'] ]))
+			{
+				$idx = $part_index[ $fdata['part_id'] ];
+				$new_part = $new_parts[$idx];
+				$new_part[-99] = $fdata['text'];
+			}
+			else
+				$datas[] = Array($fdata['part_id'], $fdata['text']);
+		}
+		
 		$new_card['card_object_data'] = json_encode($new_parts);
-		$new_card['content'] = ''; // WILL NEED TO BE FILLED
+		$new_card['data'] = json_encode($datas);
+		$new_card['content'] = '';
 		
 		$new_file->stack_inject_card($new_card);
 		

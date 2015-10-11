@@ -450,6 +450,7 @@ Accessors and Mutators
 		$data = json_decode($row[5], true);
 		$card['card_script'] = Stack::nvl($data['card_script'], Array('content'=>'','selection'=>0));
 		$card['card_has_art'] = Stack::nvl($data['card_has_art'], false);
+		if (isset($data['data'])) $card['data'] = $data['data'];
 		
 		if (isset($data['content']))
 			$card['content'] = $data['content'];
@@ -561,6 +562,7 @@ Accessors and Mutators
 		$data['card_script'] = $card['card_script'];
 		$data['card_has_art'] = $card['card_has_art'];
 		$data['content'] = $card['content'];
+		$data['data'] = $card['data'];
 	
 		$stmt = $this->file_db->prepare(
 			'INSERT INTO card (card_id,object_data,card_name,cant_delete,dont_search,marked,card_data,bkgnd_id,card_seq) '.

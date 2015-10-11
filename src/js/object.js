@@ -99,6 +99,8 @@ ViewObject.ATTR_THEIGHT = -17;
 ViewObject.ATTR_COLOR = -18;
 ViewObject.ATTR_SHADOW = -19;
 
+ViewObject.ATTR_CONTENT = -99;
+
 
 ViewObject.prototype.get_def = function()
 {
@@ -274,6 +276,9 @@ ViewObject.prototype.set_attr = function(in_attr, in_value)
 		break;
 	case ViewObject.ATTR_SIZE:
 		this.set_size(in_value);
+		break;
+	case ViewObject.ATTR_CONTENT:
+		this.set_raw_content(in_value);
 		break;
 	default:
 		this._attrs[in_attr] = in_value;
