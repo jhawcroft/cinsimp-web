@@ -50,9 +50,11 @@ Drag._begin = [0,0];
 Drag._curr = [0,0];
 Drag._snap_handler = null;
 
-
 Drag._snap_guide_x = null;
 Drag._snap_guide_y = null;
+
+Drag._inertia = false;
+Drag._INERTIA_THRESHOLD = 8;
 
 
 Drag._init_snap_guides = function()
@@ -69,11 +71,11 @@ Drag._init_snap_guides = function()
 	
 	Drag._snap_guide_x.style.top = '1px';
 	Drag._snap_guide_x.style.width = '1px';
-	Drag._snap_guide_x.style.height = window.innerHeight + 'px';
+	Drag._snap_guide_x.style.height = document.getElementById('stackWindow').clientHeight + 'px';
 	
 	Drag._snap_guide_y.style.left = '1px';
 	Drag._snap_guide_y.style.height = '1px';
-	Drag._snap_guide_y.style.width = window.innerWidth + 'px';
+	Drag._snap_guide_y.style.width = document.getElementById('stackWindow').clientWidth + 'px';
 }
 
 
@@ -105,6 +107,7 @@ Drag.begin_move = function(in_coords, in_objects, in_snap_handler)
 {
 	Drag._snap_handler = in_snap_handler;
 	Drag._init_snap_guides();
+	Drag._inertia = true;
 
 	Drag._objects.length = in_objects.length;
 	for (var o = 0; o < in_objects.length; o++)
@@ -127,6 +130,7 @@ Drag.begin_resize = function(in_coords, in_objects, in_snap_handler)
 {
 	Drag._snap_handler = in_snap_handler;
 	Drag._init_snap_guides();
+	Drag._inertia = true;
 	
 	Drag._objects.length = in_objects.length;
 	for (var o = 0; o < in_objects.length; o++)
@@ -152,21 +156,30 @@ Drag._handle_move = function(in_event)
 	var deltaX = Drag._curr[0] - Drag._begin[0];
 	var deltaY = Drag._curr[1] - Drag._begin[1];
 	
-	for (var o = 0; o < Drag._objects.length; o++)
+	if (Drag._inertia)
 	{
-		var rec = Drag._objects[o];
-		var new_loc = [ rec[1][0] + deltaX, rec[1][1] + deltaY ];
-		if (Drag._snap_handler)
+		if (Math.abs(deltaX) >= Drag._INERTIA_THRESHOLD ||
+			Math.abs(deltaY) >= Drag._INERTIA_THRESHOLD) Drag._inertia = false;
+	}
+	
+	if (!Drag._inertia)
+	{
+		for (var o = 0; o < Drag._objects.length; o++)
 		{
-			var did_snap = [0,0];
-			Drag._snap_handler(rec[0], new_loc, false, did_snap); // consider both left-top and right-bottom of object
+			var rec = Drag._objects[o];
+			var new_loc = [ rec[1][0] + deltaX, rec[1][1] + deltaY ];
+			if (Drag._snap_handler)
+			{
+				var did_snap = [0,0];
+				Drag._snap_handler(rec[0], new_loc, false, did_snap); // consider both left-top and right-bottom of object
 			
-			var snap_loc = [new_loc[0], new_loc[1]];
-			if (did_snap[0] > 0) snap_loc[0] += rec[2][0];
-			if (did_snap[1] > 0) snap_loc[1] += rec[2][1];
-			Drag._show_snap_guides(did_snap, snap_loc);
+				var snap_loc = [new_loc[0], new_loc[1]];
+				if (did_snap[0] > 0) snap_loc[0] += rec[2][0];
+				if (did_snap[1] > 0) snap_loc[1] += rec[2][1];
+				Drag._show_snap_guides(did_snap, snap_loc);
+			}
+			rec[0].set_loc(new_loc);
 		}
-		rec[0].set_loc(new_loc);
 	}
 	
 	in_event.preventDefault();
@@ -181,21 +194,30 @@ Drag._handle_resize = function(in_event)
 	var deltaX = Drag._curr[0] - Drag._begin[0];
 	var deltaY = Drag._curr[1] - Drag._begin[1];
 	
-	for (var o = 0; o < Drag._objects.length; o++)
+	if (Drag._inertia)
 	{
-		var rec = Drag._objects[o];
-		var new_size = [ rec[1][0] + deltaX, rec[1][1] + deltaY ];
-		if (Drag._snap_handler)
+		if (Math.abs(deltaX) >= Drag._INERTIA_THRESHOLD ||
+			Math.abs(deltaY) >= Drag._INERTIA_THRESHOLD) Drag._inertia = false;
+	}
+	
+	if (!Drag._inertia)
+	{
+		for (var o = 0; o < Drag._objects.length; o++)
 		{
-			var rb_loc = [new_size[0] + rec[2][0], new_size[1] + rec[2][1]];
-			var new_loc = [rb_loc[0], rb_loc[1]];
-			var did_snap = [0,0];
-			Drag._snap_handler(rec[0], new_loc, true, did_snap); // only consider right-bottom of object
-			new_size[0] += new_loc[0] - rb_loc[0];
-			new_size[1] += new_loc[1] - rb_loc[1];
-			Drag._show_snap_guides(did_snap, new_loc);
+			var rec = Drag._objects[o];
+			var new_size = [ rec[1][0] + deltaX, rec[1][1] + deltaY ];
+			if (Drag._snap_handler)
+			{
+				var rb_loc = [new_size[0] + rec[2][0], new_size[1] + rec[2][1]];
+				var new_loc = [rb_loc[0], rb_loc[1]];
+				var did_snap = [0,0];
+				Drag._snap_handler(rec[0], new_loc, true, did_snap); // only consider right-bottom of object
+				new_size[0] += new_loc[0] - rb_loc[0];
+				new_size[1] += new_loc[1] - rb_loc[1];
+				Drag._show_snap_guides(did_snap, new_loc);
+			}
+			rec[0].set_size(new_size);
 		}
-		rec[0].set_size(new_size);
 	}
 	
 	in_event.preventDefault();

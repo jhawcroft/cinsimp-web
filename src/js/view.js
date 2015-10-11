@@ -345,7 +345,7 @@ View.prototype._guide_drag_layer = function(in_context, in_object, in_rect, in_l
 // we can use this for resize too in theory...
 View.prototype._guide_drag = function(in_object, in_loc, no_size, out_snapped)
 {
-	const THRESHOLD = 5;
+	const THRESHOLD = 8;
 
 	var context = {
 		objY: 		null,
