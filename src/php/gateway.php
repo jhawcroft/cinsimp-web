@@ -63,7 +63,7 @@ header("Content-type: text/html\n");
 <input type="hidden" name="debug" value="true">
 
 <h3>Last Server Response</h3>
-<p><pre style="width: 500px;"><?php print $response; ?></pre></p>
+<p><pre style="display: block; width: 500px;"><?php print $response; ?></pre></p>
 </form>
 </body>
 </html><?php
@@ -122,7 +122,7 @@ header("Content-type: text/html\n");
 		if ($debug)
 		{
 			//if ($testing)
-			Gateway::print_test_form(json_encode($outbound));
+			Gateway::print_test_form(json_encode($outbound, JSON_PRETTY_PRINT));
 			//print '<h3>Server Response:</h3><p><pre>'.json_encode($outbound).'</pre></p>';
 		}
 		else
@@ -224,6 +224,13 @@ header("Content-type: text/html\n");
 	}
 	
 	
+	public static function hcimport_data($inbound, $outbound)
+	{
+		global $config;
+		require($config->base.'php/hcimport.php');
+		$outbound['result'] = HCImport::import_stack_data();
+		return $outbound;
+	}
 	
 	public static function hcimport_create($inbound, $outbound)
 	{

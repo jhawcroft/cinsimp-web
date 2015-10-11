@@ -63,6 +63,17 @@ class HCImport
 	}
 	
 	
+	public static function import_stack_data()
+	{
+		HCImport::create_stack();
+		$lists = HCImport::list_layers();
+		foreach ($lists['bkgnds'] as $bkgnd)
+			HCImport::import_bkgnd($bkgnd);
+		for ($i = 0; $i < count($lists['cards']); $i++)
+			HCImport::import_card($lists['cards'][$i], $i + 1);
+	}
+	
+	
 	public static function create_stack()
 	{
 		$filename = HCImport::stack_temp();
@@ -297,8 +308,8 @@ class HCImport
 			if (isset($part_index[ $fdata['part_id'] ]))
 			{
 				$idx = $part_index[ $fdata['part_id'] ];
-				$new_part = $new_parts[$idx];
-				$new_part[-99] = $fdata['text'];
+				$new_parts[$idx][-99] = nl2br($fdata['text'], false);
+				//print 'IDX: '.$idx.' = '.$fdata['text'].'<br>';
 			}
 			
 		}
@@ -351,14 +362,22 @@ class HCImport
 		$datas = Array();
 		foreach ($old_card['content'] as $fdata)
 		{
-			if (isset($part_index[ $fdata['part_id'] ]))
+			$pid = $fdata['part_id'];
+			$is_bkgnd = true;
+			if ($pid > 32765)
 			{
-				$idx = $part_index[ $fdata['part_id'] ];
-				$new_part = $new_parts[$idx];
-				$new_part[-99] = $fdata['text'];
+				$pid = 65536 - $pid;
+				$is_bkgnd = false;
+				//print 'ID: '.$pid.' (card)<br>';
+			}
+			if (isset($part_index[ $pid ]) && (!$is_bkgnd))
+			{
+				$idx = $part_index[ $pid ];
+				$new_parts[$idx][-99] = nl2br($fdata['text'], false);
+				//print 'IDX: '.$idx.' = '.$fdata['text'].'<br>';
 			}
 			else
-				$datas[] = Array($fdata['part_id'], $fdata['text']);
+				$datas[] = Array($fdata['part_id'], nl2br($fdata['text'], false));
 		}
 		
 		$new_card['card_object_data'] = json_encode($new_parts);
@@ -903,7 +922,7 @@ class HCImport
 	{
 		$input = substr($input, 0, 32768);
 		list($input) = explode("\0", $input, 2);
-		return $input;
+		return str_replace("\r","\n",$input);
 	}
 	
 }

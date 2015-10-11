@@ -749,7 +749,7 @@ View.prototype._rebuild_card = function() // will have to do separate load objec
 		{
 			var data = objects[o];
 			var obj = this._lookup_bkgnd_part_by_id(data[0]);
-			if (obj) obj.set_raw_content($data[1]);
+			if (obj) obj.set_raw_content(data[1]);
 		}
 	}
 	catch (e) {}

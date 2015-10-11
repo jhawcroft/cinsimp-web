@@ -37,31 +37,93 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 function HCImport() {}
 
+HCImport._card_list = null;
+HCImport._bkgnd_list = null;
+HCImport._card_index = 0;
+HCImport._bkgnd_index = 0;
 
+/*
 HCImport._show_scan_result = function(in_msg, in_status)
 {
 	Progress.operation_finished();
 	document.getElementById('DialogLog').textContent = JSON.stringify(in_msg.result, null, 2);
 	Dialog.Log.show();
+}*/
+
+
+
+HCImport._next_layer = function(in_msg, in_status)
+{
+	if (HCImport._bkgnd_index < HCImport._bkgnd_list.length)
+	{
+		Progress.status('Importing background '+(HCImport._bkgnd_index+1)+' of '+HCImport._bkgnd_list.length+'...');
+		var msg = {
+			cmd: 'hcimport_bkgnd',
+			id: HCImport._bkgnd_list[HCImport._bkgnd_index++]
+		};
+		Ajax.send(msg, HCImport._next_layer);
+	}
+	else if (HCImport._card_index < HCImport._card_list.length)
+	{
+		Progress.status('Importing card '+(HCImport._card_index+1)+' of '+HCImport._card_list.length+'...');
+		var msg = {
+			cmd: 'hcimport_card',
+			id: HCImport._card_list[HCImport._card_index++],
+			seq: HCImport._card_index
+		};
+		Ajax.send(msg, HCImport._next_layer);
+	}
+	else 
+	{
+		Progress.operation_finished();
+		window.location.href = '?stack=tmp/stack';
+	}
 }
 
 
-HCImport._scan = function()
+HCImport._save_list = function(in_msg, in_status)
+{
+	HCImport._card_list = in_msg.result.cards;
+	HCImport._bkgnd_list = in_msg.result.bkgnds;
+	HCImport._next_layer(null, 'ok');
+}
+
+HCImport._list = function(in_msg, in_status)
 {
 	Progress.status('Scanning the HyperCard stack...');
-	var msg = { cmd: 'hcimport_scan' };
-	Ajax.send(msg, HCImport._show_scan_result);
+	var msg = { cmd: 'hcimport_list' };
+	Ajax.send(msg, HCImport._save_list);
 }
 
 
-HCImport._create = function()
+HCImport._create = function(in_msg, in_status)
 {
-	Progress.operation_finished();
+	Progress.status('Creating CinsImp stack...');
 	
+	HCImport._card_list = null;
+	HCImport._bkgnd_list = null;
+	HCImport._card_index = 0;
+	HCImport._bkgnd_index = 0;
+	
+	var msg = { cmd: 'hcimport_create' };
+	Ajax.send(msg, HCImport._list);
+}
 
-	//Progress.status('Creating CinsImp stack...');
-	//var msg = { cmd: 'hcimport_create' };
-	//Ajax.send(msg, HCImport._scan);
+
+HCImport._create = function(in_msg, in_status)
+{
+	Progress.status('Importing CinsImp stack data...');
+	
+	HCImport._card_list = null;
+	HCImport._bkgnd_list = null;
+	HCImport._card_index = 0;
+	HCImport._bkgnd_index = 0;
+	
+	var msg = { cmd: 'hcimport_data' };
+	Ajax.send(msg, function() {
+		Progress.operation_finished();
+		window.location.href = '?stack=tmp/stack';
+	});
 }
 
 
