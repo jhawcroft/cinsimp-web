@@ -68,6 +68,11 @@ function Field(in_view, in_def)
 	ViewObject.call(this, ViewObject.TYPE_FIELD, in_view);
 	this._div.classList.add('Field');
 	
+	this._num_tag = document.createElement('div');
+	this._num_tag.className = 'NumTag';
+	this._num_tag.textContent = 'T';
+	this._div.appendChild(this._num_tag);
+	
 	/* set defaults */
 	if (!in_def)
 	{

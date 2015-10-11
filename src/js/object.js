@@ -230,6 +230,9 @@ ViewObject.prototype.get_loc = function()
 
 ViewObject.prototype.set_attr = function(in_attr, in_value)
 {
+	if (in_attr == ViewObject.ATTR_KLAS_NUM && this._num_tag)
+		this._num_tag.textContent = in_value;
+
 	switch (in_attr)
 	{
 	case ViewObject.ATTR_LOC:

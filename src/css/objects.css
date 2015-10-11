@@ -21,6 +21,29 @@ div.ResizeHandle
 }
 
 
+div.NumTag
+{
+	display: block;
+	position: absolute;
+	background-color: black;
+	left: 0;
+	top: 0;
+	z-index: 10;
+	visibility: hidden;
+	color: white;
+	font-size: 9pt;
+	font-family: sans-serif;
+	padding: 2px;
+}
+
+
+div.FieldOutlines div.NumTag
+{
+	visibility: visible;
+}
+
+
+
 div.Field
 {
 	/*outline: none;*/
