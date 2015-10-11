@@ -553,6 +553,54 @@ Accessors and Mutators
 		
 		return $this->file_db->lastInsertId();
 	}
+	
+	
+	public function stack_inject_card($card)
+	{
+		$data = array();
+		$data['card_script'] = $card['card_script'];
+		$data['card_has_art'] = $card['card_has_art'];
+		$data['content'] = $card['content'];
+	
+		$stmt = $this->file_db->prepare(
+			'INSERT INTO card (card_id,object_data,card_name,cant_delete,dont_search,marked,card_data,bkgnd_id,card_seq) '.
+			'VALUES (?,?,?,?,?,?,?,?,?)'
+		);
+		Stack::sl_ok($stmt, $this->file_db, 'Injecting Card (1)');
+		$rows = $stmt->execute(array(
+			$card['card_id'],
+			$card['card_object_data'],
+			$card['card_name'],
+			Stack::encode_bool($card['card_cant_delete']),
+			Stack::encode_bool($card['card_dont_search']),
+			0, // not marked
+			json_encode($data),
+			$card['card_bkgnd_id'],
+			$card['card_seq']
+		));
+		if ($rows == 0) Stack::sl_ok(false, $this->file_db, 'Injecting Card (2)');
+		Stack::sl_ok($rows, $this->file_db, 'Injecting Card (3)');
+		
+		return $this->file_db->lastInsertId();
+	}
+	
+	
+	public function zap_all_cards()
+	{
+		$stmt = $this->file_db->prepare(
+			'DELETE FROM card'
+		);
+		Stack::sl_ok($stmt, $this->file_db, 'Deleting All Cards (1)');
+		$rows = $stmt->execute();
+		Stack::sl_ok($rows, $this->file_db, 'Deleting All Cards (2)');
+	
+		$stmt = $this->file_db->prepare(
+			'DELETE FROM bkgnd'
+		);
+		Stack::sl_ok($stmt, $this->file_db, 'Deleting All Cards (3)');
+		$rows = $stmt->execute();
+		Stack::sl_ok($rows, $this->file_db, 'Deleting All Cards (4)');
+	}
 
 
 /*

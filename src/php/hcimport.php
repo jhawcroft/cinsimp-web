@@ -81,6 +81,8 @@ class HCImport
 		
 		$new_file->stack_save($new_stack);
 		
+		$new_file->zap_all_cards();
+		
 		return HCImport::$stack;
 	}
 	
@@ -98,6 +100,164 @@ class HCImport
 	}
 	
 	
+	private static function convert_part($part_data)
+	{
+		$new_part = Array();
+		
+		$new_part[-1] = ($part_data['type'] == 'button' ? 0 : 1);
+		$new_part[-2] = $part_data['pid'];
+		$new_part[-3] = -1; // invalid part #
+		$new_part[-4] = -1; // invalid class #
+		$new_part[-5] = Array($part_data['rect'][0], $part_data['rect'][1]);
+		$new_part[-6] = Array($part_data['rect'][2] - $part_data['rect'][0],
+			$part_data['rect'][3] - $part_data['rect'][1]);
+		$new_part[-7] = $part_data['name'];
+		$new_part[-8] = $part_data['shared'];
+		$new_part[-9] = (! $part_data['dont_search']);
+		$new_part[-10] = (! $part_data['invisible']);
+		$new_part[-11] = $part_data['script'];
+		switch ($part_data['text_align'])
+		{
+		case 'left':
+			$new_part[-13] = 0;
+			break;
+		case 'right':
+			$new_part[-13] = 2;
+			break;
+		default:
+			$new_part[-13] = 1;
+			break;
+		}
+		$new_part[-14] = $part_data['text_font'];
+		$new_part[-15] = $part_data['text_size'];
+		$new_part[-16] = 0;
+		$style_flags = $part_data['text_style'];
+		if ($style_flags['b']) $new_part[-16] = $new_part[-16] & 0x01;
+		if ($style_flags['i']) $new_part[-16] = $new_part[-16] & 0x02;
+		if ($style_flags['u']) $new_part[-16] = $new_part[-16] & 0x04;
+		if ($style_flags['s']) $new_part[-16] = $new_part[-16] & 0x08;
+		if ($style_flags['c']) $new_part[-16] = $new_part[-16] & 0x10;
+		if ($style_flags['e']) $new_part[-16] = $new_part[-16] & 0x20;
+		$new_part[-17] = $part_data['text_height'];
+		
+		if ($part_data['type'] == 'button')
+		{
+			$new_part[-12] = $part_data['disabled'];
+			$new_part[3] = null; // no menu
+			
+			switch ($part_data['style'])
+			{
+			case 'opaque': // borderless, white, no shadow
+				$new_part[1] = 0;
+				$new_part[-18] = Array(1,1,1);
+				$new_part[-19] = false;
+				break;
+			case 'rectangle': // rectangular, white, no shadow
+				$new_part[1] = 1;
+				$new_part[-18] = Array(1,1,1);
+				$new_part[-19] = false;
+				break;
+			case 'roundRect': // rounded, white, shadow
+				$new_part[1] = 2;
+				$new_part[-18] = Array(1,1,1);
+				$new_part[-19] = true;
+				break;
+			case 'shadow': // rectangular, white, shadow
+				$new_part[1] = 1;
+				$new_part[-18] = Array(1,1,1);
+				$new_part[-19] = true;
+				break;
+			case 'checkBox': // checkbox, white, no shadow
+				$new_part[1] = 3;
+				$new_part[-18] = Array(1,1,1);
+				$new_part[-19] = false;
+				break;
+			case 'radioButton': // radio button, white, no shadow
+				$new_part[1] = 4;
+				$new_part[-18] = Array(1,1,1);
+				$new_part[-19] = false;
+				break;
+			case 'standard':
+			case 'default': // rounded, opaque
+				$new_part[1] = 2;
+				$new_part[-18] = Array(1,1,1);
+				$new_part[-19] = false;
+				break;
+			case 'popup': // rectangle, opaque, shadow w/ menu
+				$new_part[1] = 1;
+				$new_part[-18] = Array(1,1,1);
+				$new_part[-19] = true;
+				$new_part[3] = true; // has menu - should actually be the content, can replace later?
+				break;
+			default: // transparent/oval => transparent, borderless, no shadow
+				$new_part[1] = 0;
+				$new_part[-18] = null;
+				$new_part[-19] = false;
+				break;
+			}
+			
+			$new_part[2] = $part_data['family'];
+			$new_part[4] = $part_data['icon_id'];
+			$new_part[5] = $part_data['show_name'];
+			$new_part[6] = $part_data['hilite'];
+			$new_part[7] = $part_data['auto_hilite'];
+			
+		}
+		else /* field */
+		{
+			$new_part[-12] = false; // disabled
+			
+			$new_part[-18] = Array(1,1,1); // color
+			$new_part[-19] = false; // shadow
+			
+			$new_part[2] = false;// no scroll
+			
+			switch ($part_data['style'])
+			{
+			case 'opaque': // no border, white, no shadow
+				$new_part[1] = false;
+				$new_part[-18] = Array(1,1,1);
+				$new_part[-19] = false;
+				break;
+			case 'rectangle':
+				$new_part[1] = true;
+				$new_part[-18] = Array(1,1,1);
+				$new_part[-19] = false;
+				break;
+			case 'shadow':
+				$new_part[1] = true;
+				$new_part[-18] = Array(1,1,1);
+				$new_part[-19] = true;
+				break;
+			case 'scrolling':
+				$new_part[1] = true;
+				$new_part[2] = true;// scroll
+				$new_part[-18] = Array(1,1,1);
+				$new_part[-19] = false;
+				break;
+			default: // transparent
+				$new_part[1] = false;
+				$new_part[-18] = null;
+				$new_part[-19] = false;
+				break;
+			}
+			
+			$new_part[3] = $part_data['lock_text'];
+			$new_part[4] = $part_data['dont_wrap'];
+			$new_part[5] = (! $part_data['flex_lines']);
+			$new_part[6] = $part_data['auto_tab'];
+			$new_part[7] = $part_data['wide_margins'];
+			$new_part[8] = $part_data['show_lines'];
+			$new_part[9] = $part_data['auto_select'];
+			//$new_part[9] = $part_data['multiple_lines']; // no equiv at present - should be **
+			$new_part[10] = $part_data['first_selected_line'];
+			$new_part[11] = $part_data['last_selected_line'];
+		}
+	
+		return $new_part;
+	}
+	
+	
 	public static function import_bkgnd($id)
 	{
 		//return 'BKGD: '.$id;
@@ -109,12 +269,12 @@ class HCImport
 		HCImport::decode_font_table();
 		HCImport::decode_style_table();
 		
-		$old_bkgnd = HCImport::decode_bkgnd($id);
+		$old_bkgnd = HCImport::decode_bkgnd(intval($id));
 		
 		$new_file = new Stack(HCImport::stack_temp());
 		
 		$new_bkgnd = Array();
-		$new_bkgnd['bkgnd_id'] = $id;
+		$new_bkgnd['bkgnd_id'] = intval($id);
 		$new_bkgnd['bkgnd_name'] = $old_bkgnd['name'];
 		$new_bkgnd['bkgnd_cant_delete'] = $old_bkgnd['cant_delete'];
 		$new_bkgnd['bkgnd_dont_search'] = $old_bkgnd['dont_search'];
@@ -125,41 +285,21 @@ class HCImport
 		$n = 1;
 		foreach ($old_bkgnd['parts'] as $part)
 		{
-			$new_part = Array();
-			
-			
-			$new_part[-1] = ($part['type'] =='button'? 0 : 1);
-			$new_part[-2] = $part['pid'];
-			$new_part[-3] = $n;
-			$rect = explode(',', $part['rect']);
-			$new_part[-4] = Array($rect[0], $rect[1]);
-			$new_part[-5] = Array($rect[2], $rect[3]);
-			$new_part[-6] = $part['name'];
-			$new_part[-7] = $part['shared'];
-			
-			if ($part['type'] == 'button')
-			{
-				//$new_part[1
-			}
-			else
-			{
-			
-			}
-			
+			$new_part = HCImport::convert_part($part);
 			$new_parts[] = $new_part;
 			$n++;
 		}
 		
 		$new_bkgnd['bkgnd_object_data'] = json_encode($new_parts);
 		
-		 $new_file->stack_inject_bkgnd($new_bkgnd);
+		$new_file->stack_inject_bkgnd($new_bkgnd);
 		
 		return $old_bkgnd;
 		//$new_file = new Stack($filename);
 	}
 	
 	
-	public static function import_card($id)
+	public static function import_card($id, $seq)
 	{
 		//return 'CARD: '.$id;
 		
@@ -170,12 +310,33 @@ class HCImport
 		HCImport::decode_font_table();
 		HCImport::decode_style_table();
 		
-		$old_card = HCImport::decode_card($id);
+		$old_card = HCImport::decode_card(intval($id));
 		
 		$new_file = new Stack(HCImport::stack_temp());
 		
+		$new_card = Array();
+		$new_card['card_id'] = intval($id);
+		$new_card['card_name'] = $old_card['name'];
+		$new_card['card_cant_delete'] = $old_card['cant_delete'];
+		$new_card['card_dont_search'] = $old_card['dont_search'];
+		$new_card['card_script'] = Array('content'=>$old_card['script'], 'selection'=>0);
+		$new_card['card_has_art'] = false;
+		$new_card['card_bkgnd_id'] = $old_card['bkgnd_id'];
+		$new_card['card_seq'] = intval($seq) * 10;
 		
+		$new_parts = Array();
+		$n = 1;
+		foreach ($old_card['parts'] as $part)
+		{
+			$new_part = HCImport::convert_part($part);
+			$new_parts[] = $new_part;
+			$n++;
+		}
 		
+		$new_card['card_object_data'] = json_encode($new_parts);
+		$new_card['content'] = ''; // WILL NEED TO BE FILLED
+		
+		$new_file->stack_inject_card($new_card);
 		
 		return $old_card;
 	}
@@ -290,7 +451,7 @@ class HCImport
 			$sz = $fields['sz'];
 			$part['pid'] = $fields['pid'];
 			$part['type'] = ($fields['type'] == 1 ? 'button' : 'field');
-			$part['rect'] = $fields['left'].','.$fields['top'].','.$fields['right'].','.$fields['bot'];
+			$part['rect'] = [$fields['left'], $fields['top'], $fields['right'], $fields['bot']];
 			switch ($fields['style'])
 			{
 			case 0:

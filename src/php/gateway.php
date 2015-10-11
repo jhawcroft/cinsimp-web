@@ -256,7 +256,7 @@ header("Content-type: text/html\n");
 	{
 		global $config;
 		require($config->base.'php/hcimport.php');
-		$outbound['result'] = HCImport::import_card($inbound['id']);
+		$outbound['result'] = HCImport::import_card($inbound['id'], $inbound['seq']);
 		return $outbound;
 	}
 	
