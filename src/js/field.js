@@ -76,11 +76,21 @@ function Field(in_view, in_def)
 	if (!in_def)
 	{
 		this.set_size([200, 85]);
-		this.set_attr(Field.ATTR_BORDER, true);
 		this.set_attr(ViewObject.ATTR_COLOR, [1,1,1]);
 		this.set_attr(ViewObject.ATTR_SHADOW, false);
+		
+		this.set_attr(Field.ATTR_BORDER, true);
 		this.set_attr(Field.ATTR_SCROLL, false);
 		this.set_attr(Field.ATTR_LOCKED, false);
+		
+		this.set_attr(Field.ATTR_DONT_WRAP, false);
+		this.set_attr(Field.ATTR_FIXED_LINES, false);
+		this.set_attr(Field.ATTR_AUTO_TAB, false);
+		this.set_attr(Field.ATTR_WIDE_MARGINS, false);
+		this.set_attr(Field.ATTR_SHOW_LINES, false);
+		this.set_attr(Field.ATTR_AUTO_SELECT, false);
+		this.set_attr(Field.ATTR_FIRST_SELECTED, -1);
+		this.set_attr(Field.ATTR_LAST_SELECTED, -1);
 	}
 	else
 		this.set_def(in_def);
@@ -100,9 +110,17 @@ Field.TYPE = 'field';
 
 
 Field.ATTR_BORDER = 1;
-Field.ATTR_SCROLL = 4;
+Field.ATTR_SCROLL = 2;
+Field.ATTR_LOCKED = 3;
+Field.ATTR_DONT_WRAP = 4;
+Field.ATTR_FIXED_LINES = 5;
+Field.ATTR_AUTO_TAB = 6;
+Field.ATTR_WIDE_MARGINS = 7;
+Field.ATTR_SHOW_LINES = 8;
+Field.ATTR_AUTO_SELECT = 9;
+Field.ATTR_FIRST_SELECTED = 10;
+Field.ATTR_LAST_SELECTED = 11;
 
-Field.ATTR_LOCKED = 5;
 
 
 /*

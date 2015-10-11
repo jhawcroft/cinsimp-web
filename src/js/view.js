@@ -971,7 +971,7 @@ View.prototype._save_button_info = function()
 	
 	obj.set_attr(Button.ATTR_SHOW_NAME, document.getElementById('ButtonInfoShowName').checked);
 	obj.set_attr(Button.ATTR_AUTO_HILITE, document.getElementById('ButtonInfoAutoHilite').checked);
-	obj.set_attr(Button.ATTR_SHARED, document.getElementById('ButtonInfoSharedHilite').checked);
+	obj.set_attr(ViewObject.ATTR_SHARED, document.getElementById('ButtonInfoSharedHilite').checked);
 	
 	if (document.getElementById('ButtonInfoType1').checked)// transparent
 	{

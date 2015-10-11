@@ -56,14 +56,17 @@ function Button(in_view, in_def)
 	/* set defaults */
 	if (!in_def)
 	{
-		this.set_size([95, 22]);
-		this.set_attr(Button.ATTR_STYLE, Button.STYLE_ROUNDED);
 		this.set_attr(ViewObject.ATTR_COLOR, [1,1,1]);
 		this.set_attr(ViewObject.ATTR_SHADOW, true);
-		this.set_attr(Button.ATTR_ICON, 0);
-		this.set_attr(Button.ATTR_MENU, null);
 		this.set_attr(ViewObject.ATTR_NAME, 'New Button');
+		this.set_size([95, 22]);
+		
+		this.set_attr(Button.ATTR_STYLE, Button.STYLE_ROUNDED);
+		this.set_attr(Button.ATTR_FAMILY, 0);
+		this.set_attr(Button.ATTR_MENU, null);
+		this.set_attr(Button.ATTR_ICON, 0);
 		this.set_attr(Button.ATTR_SHOW_NAME, true);
+		this.set_attr(Button.ATTR_HILITE, false);
 		this.set_attr(Button.ATTR_AUTO_HILITE, false);
 	}
 	else
@@ -90,9 +93,11 @@ Button.STYLE_CHECK_BOX = 3;
 Button.STYLE_RADIO = 4;
 
 Button.ATTR_STYLE = 1;
-Button.ATTR_MENU = 4;
-Button.ATTR_ICON = 5;
-Button.ATTR_SHOW_NAME = 6;
+Button.ATTR_FAMILY = 2;
+Button.ATTR_MENU = 3;
+Button.ATTR_ICON = 4;
+Button.ATTR_SHOW_NAME = 5;
+Button.ATTR_HILITE = 6;
 Button.ATTR_AUTO_HILITE = 7;
 
 
