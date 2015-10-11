@@ -263,7 +263,7 @@ View.prototype._browse_point_start = function(in_object, in_coords)
 }
 
 
-View.prototype._guide_drag_layer = function(in_context, in_object, in_rect, in_layer)
+View.prototype._guide_drag_layer = function(in_context, in_object, in_rect, in_layer, no_size)
 {
 	for (var o = 0; o < in_layer.length; o++)
 	{
@@ -304,6 +304,7 @@ View.prototype._guide_drag_layer = function(in_context, in_object, in_rect, in_l
 			in_context.alignX = 0;
 		}
 		
+		if (no_size) continue;
 		var deltaT = Math.abs(obj._loc[1] - in_rect[3]);
 		var deltaB = Math.abs(obj._rb[1] - in_rect[3]);
 		var deltaL = Math.abs(obj._loc[0] - in_rect[2]);
@@ -342,7 +343,7 @@ View.prototype._guide_drag_layer = function(in_context, in_object, in_rect, in_l
 
 
 // we can use this for resize too in theory...
-View.prototype._guide_drag = function(in_object, in_loc)
+View.prototype._guide_drag = function(in_object, in_loc, no_size)
 {
 	const THRESHOLD = 5;
 
@@ -360,8 +361,8 @@ View.prototype._guide_drag = function(in_object, in_loc)
 	var proposed_rect = [in_loc[0], in_loc[1], 
 		in_loc[0] + in_object._size[0], in_loc[1] + in_object._size[1]];
 	
-	this._guide_drag_layer(context, in_object, proposed_rect, this._objects_card);
-	this._guide_drag_layer(context, in_object, proposed_rect, this._objects_bkgnd);
+	this._guide_drag_layer(context, in_object, proposed_rect, this._objects_card, no_size);
+	this._guide_drag_layer(context, in_object, proposed_rect, this._objects_bkgnd, no_size);
 	
 	if (context.objY != null && context.objYDelta <= THRESHOLD)
 	{

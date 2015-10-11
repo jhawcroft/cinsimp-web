@@ -73,13 +73,15 @@ Drag.begin_move = function(in_coords, in_objects, in_snap_handler)
 }
 
 
-Drag.begin_resize = function(in_coords, in_objects)
+Drag.begin_resize = function(in_coords, in_objects, in_snap_handler)
 {
+	Drag._snap_handler = in_snap_handler;
+	
 	Drag._objects.length = in_objects.length;
 	for (var o = 0; o < in_objects.length; o++)
 	{
 		var obj = in_objects[o];
-		Drag._objects[o] = [ obj, obj.get_size() ];
+		Drag._objects[o] = [ obj, obj.get_size(), obj.get_loc() ];
 	}
 	
 	Drag._begin = [in_coords[0], in_coords[1]];
@@ -104,7 +106,7 @@ Drag._handle_move = function(in_event)
 		var rec = Drag._objects[o];
 		var new_loc = [ rec[1][0] + deltaX, rec[1][1] + deltaY ];
 		if (Drag._snap_handler)
-			Drag._snap_handler(rec[0], new_loc);
+			Drag._snap_handler(rec[0], new_loc, false); // consider both left-top and right-bottom of object
 		rec[0].set_loc(new_loc);
 	}
 	
@@ -123,7 +125,16 @@ Drag._handle_resize = function(in_event)
 	for (var o = 0; o < Drag._objects.length; o++)
 	{
 		var rec = Drag._objects[o];
-		rec[0].set_size([ rec[1][0] + deltaX, rec[1][1] + deltaY ]);
+		var new_size = [ rec[1][0] + deltaX, rec[1][1] + deltaY ];
+		if (Drag._snap_handler)
+		{
+			var rb_loc = [new_size[0] + rec[2][0], new_size[1] + rec[2][1]];
+			var new_loc = [rb_loc[0], rb_loc[1]];
+			Drag._snap_handler(rec[0], new_loc, true); // only consider right-bottom of object
+			new_size[0] += new_loc[0] - rb_loc[0];
+			new_size[1] += new_loc[1] - rb_loc[1];
+		}
+		rec[0].set_size(new_size);
 	}
 	
 	in_event.preventDefault();

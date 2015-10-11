@@ -131,8 +131,11 @@ ViewObject.prototype.__handle_point_start = function(in_event)
 
 ViewObject.prototype._handle_resize_start = function(in_event)
 {
-	Drag.begin_resize([(in_event.pageX || in_event.touches[0].pageX), 
-		(in_event.pageY || in_event.touches[0].pageY)], [this]);
+	Drag.begin_resize(
+		[(in_event.pageX || in_event.touches[0].pageX), 
+		(in_event.pageY || in_event.touches[0].pageY)], [this], 
+		this._view._guide_drag.bind(this._view)
+	);
 	
 	in_event.preventDefault();
 	in_event.stopPropagation();
