@@ -449,4 +449,18 @@ div.ColourSwatchTable
 }
 
 
+/*****************************************************************************************
+Layout 'Snap' Guides
+*/
+
+div.SnapGuide
+{
+	display: block;
+	position: absolute;
+	z-index: 20000;
+	background-color: blue;
+	visibility: hidden;
+}
+
+
 

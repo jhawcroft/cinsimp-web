@@ -343,7 +343,7 @@ View.prototype._guide_drag_layer = function(in_context, in_object, in_rect, in_l
 
 
 // we can use this for resize too in theory...
-View.prototype._guide_drag = function(in_object, in_loc, no_size)
+View.prototype._guide_drag = function(in_object, in_loc, no_size, out_snapped)
 {
 	const THRESHOLD = 5;
 
@@ -368,12 +368,16 @@ View.prototype._guide_drag = function(in_object, in_loc, no_size)
 	{
 		in_loc[1] = context.objYCoord;
 		if (context.alignY != 0) in_loc[1] -= in_object._size[1];
+		out_snapped[1] = (context.alignY == 0 ? -1 : 1);
 	}
+	else out_snapped[1] = 0;
 	if (context.objX != null && context.objXDelta <= THRESHOLD)
 	{
 		in_loc[0] = context.objXCoord;
 		if (context.alignX != 0) in_loc[0] -= in_object._size[0];
+		out_snapped[0] = (context.alignX == 0 ? -1 : 1);
 	}
+	else out_snapped[0] = 0;
 }
 
 
