@@ -38,6 +38,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 function ViewObject(in_type, in_view) 
 {
 	if (!in_view) return;
+	
+	this._rb = [0,0];
+	this._loc = [0,0];
+	this._size = [0,0];
 
 	this._div = document.createElement('div');
 	this._div.classList.add('Object');
@@ -183,6 +187,9 @@ ViewObject.prototype.set_size = function(in_size)
 	this._div.style.width = in_size[0] + 'px';
 	this._div.style.height = in_size[1] + 'px';
 	
+	this._rb[0] = this._loc[0] + this._size[0];
+	this._rb[1] = this._loc[1] + this._size[1];
+	
 	if (this._resized)
 		this._resized();
 	
@@ -204,6 +211,9 @@ ViewObject.prototype.set_loc = function(in_loc)
 	this._attrs[ViewObject.ATTR_LOC] = this._loc;
 	this._div.style.left = in_loc[0] + 'px';
 	this._div.style.top = in_loc[1] + 'px';
+	
+	this._rb[0] = this._loc[0] + this._size[0];
+	this._rb[1] = this._loc[1] + this._size[1];
 }
 
 

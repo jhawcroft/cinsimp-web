@@ -263,6 +263,119 @@ View.prototype._browse_point_start = function(in_object, in_coords)
 }
 
 
+View.prototype._guide_drag_layer = function(in_context, in_object, in_rect, in_layer)
+{
+	for (var o = 0; o < in_layer.length; o++)
+	{
+		var obj = in_layer[o];
+		if (obj == in_object) continue;
+		
+		var deltaT = Math.abs(obj._loc[1] - in_rect[1]);
+		var deltaB = Math.abs(obj._rb[1] - in_rect[1]);
+		var deltaL = Math.abs(obj._loc[0] - in_rect[0]);
+		var deltaR = Math.abs(obj._rb[0] - in_rect[0]);
+		
+		if (deltaT < in_context.objYDelta)
+		{
+			in_context.objYDelta = deltaT;
+			in_context.objY = obj;
+			in_context.objYCoord = obj._loc[1];
+			in_context.alignY = 0;
+		}
+		if (deltaB < in_context.objYDelta)
+		{
+			in_context.objYDelta = deltaB;
+			in_context.objY = obj;
+			in_context.objYCoord = obj._rb[1];
+			in_context.alignY = 0;
+		}
+		if (deltaL < in_context.objXDelta)
+		{
+			in_context.objXDelta = deltaL;
+			in_context.objX = obj;
+			in_context.objXCoord = obj._loc[0];
+			in_context.alignX = 0;
+		}
+		if (deltaR < in_context.objXDelta)
+		{
+			in_context.objXDelta = deltaR;
+			in_context.objX = obj;
+			in_context.objXCoord = obj._rb[0];
+			in_context.alignX = 0;
+		}
+		
+		var deltaT = Math.abs(obj._loc[1] - in_rect[3]);
+		var deltaB = Math.abs(obj._rb[1] - in_rect[3]);
+		var deltaL = Math.abs(obj._loc[0] - in_rect[2]);
+		var deltaR = Math.abs(obj._rb[0] - in_rect[2]);
+		
+		if (deltaT < in_context.objYDelta)
+		{
+			in_context.objYDelta = deltaT;
+			in_context.objY = obj;
+			in_context.objYCoord = obj._loc[1];
+			in_context.alignY = 1;
+		}
+		if (deltaB < in_context.objYDelta)
+		{
+			in_context.objYDelta = deltaB;
+			in_context.objY = obj;
+			in_context.objYCoord = obj._rb[1];
+			in_context.alignY = 1;
+		}
+		if (deltaL < in_context.objXDelta)
+		{
+			in_context.objXDelta = deltaL;
+			in_context.objX = obj;
+			in_context.objXCoord = obj._loc[0];
+			in_context.alignX = 1;
+		}
+		if (deltaR < in_context.objXDelta)
+		{
+			in_context.objXDelta = deltaR;
+			in_context.objX = obj;
+			in_context.objXCoord = obj._rb[0];
+			in_context.alignX = 1;
+		}
+	}
+}
+
+
+// we can use this for resize too in theory...
+View.prototype._guide_drag = function(in_object, in_loc)
+{
+	const THRESHOLD = 5;
+
+	var context = {
+		objY: 		null,
+		objYDelta:	1000000,
+		objYCoord: 	0,
+		alignY:		0,		// 0 = top, 1 = bottom (of object)
+		objX:		null,
+		objXDelta:	1000000,
+		objXCoord:	0,
+		alignX: 	0		// 0 = left, 1 = right (of object)
+	};
+	
+	var proposed_rect = [in_loc[0], in_loc[1], 
+		in_loc[0] + in_object._size[0], in_loc[1] + in_object._size[1]];
+	
+	this._guide_drag_layer(context, in_object, proposed_rect, this._objects_card);
+	this._guide_drag_layer(context, in_object, proposed_rect, this._objects_bkgnd);
+	
+	if (context.objY != null && context.objYDelta <= THRESHOLD)
+	{
+		in_loc[1] = context.objYCoord;
+		if (context.alignY != 0) in_loc[1] -= in_object._size[1];
+	}
+	if (context.objX != null && context.objXDelta <= THRESHOLD)
+	{
+		in_loc[0] = context.objXCoord;
+		if (context.alignX != 0) in_loc[0] -= in_object._size[0];
+	}
+}
+
+
 View.prototype._author_point_start = function(in_object, in_coords)
 {
 	if (this._mode != View.MODE_AUTHORING) return;
@@ -296,7 +409,7 @@ View.prototype._author_point_start = function(in_object, in_coords)
 	}
 	if (this.object_is_selected(in_object))
 	
-	Drag.begin_move(in_coords, this._selected_objects);
+	Drag.begin_move(in_coords, this._selected_objects, this._guide_drag.bind(this));
 }
 
 
