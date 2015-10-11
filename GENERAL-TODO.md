@@ -2,7 +2,7 @@ In Progress/Todo
 ================
 
 * HyperCard import
-* Drag guides
+* Drag guides [DONE]
 * Field info
 * Rejigging button and field attributes
 * Card and bkgnd info

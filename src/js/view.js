@@ -482,10 +482,28 @@ View.prototype._centre_object = function(in_object)
 
 View.prototype._renumber_objects = function()
 {
+	var btn_num = 1;
+	var fld_num = 1;
 	for (var o = 0; o < this._objects_bkgnd.length; o++)
-		this._objects_bkgnd[o].set_attr(ViewObject.ATTR_NUM, o + 1);
+	{
+		var obj = this._objects_bkgnd[o];
+		obj.set_attr(ViewObject.ATTR_PART_NUM, o + 1);
+		if (obj.get_type() == Button.TYPE)
+			obj.set_attr(ViewObject.ATTR_KLAS_NUM, btn_num ++);
+		else
+			obj.set_attr(ViewObject.ATTR_KLAS_NUM, fld_num ++);
+	}
+	var btn_num = 1;
+	var fld_num = 1;
 	for (var o = 0; o < this._objects_card.length; o++)
-		this._objects_card[o].set_attr(ViewObject.ATTR_NUM, o + 1);
+	{
+		var obj = this._objects_card[o];
+		obj.set_attr(ViewObject.ATTR_PART_NUM, o + 1);
+		if (obj.get_type() == Button.TYPE)
+			obj.set_attr(ViewObject.ATTR_KLAS_NUM, btn_num ++);
+		else
+			obj.set_attr(ViewObject.ATTR_KLAS_NUM, fld_num ++);
+	}
 }
 
 
@@ -497,18 +515,20 @@ View.prototype._add_object = function(in_object)
 		
 	if (!this._edit_bkgnd) 
 	{
-		in_object.set_attr(ViewObject.ATTR_NUM, this._objects_card.length + 1);
+		in_object.set_attr(ViewObject.ATTR_PART_NUM, this._objects_card.length + 1);
 		in_object._is_bkgnd = false;
 		this._objects_card.push(in_object);
 		this._layer_obj_card.appendChild(in_object._div);
 	}
 	else 
 	{
-		in_object.set_attr(ViewObject.ATTR_NUM, this._objects_bkgnd.length + 1);
+		in_object.set_attr(ViewObject.ATTR_PART_NUM, this._objects_bkgnd.length + 1);
 		in_object._is_bkgnd = true;
 		this._objects_bkgnd.push(in_object);
 		this._layer_obj_card.appendChild(in_object._div);
 	}
+	
+	this._renumber_objects();
 }
 
 
@@ -879,7 +899,7 @@ View.prototype._do_button_info = function()
 	
 	document.getElementById('ButtonInfoName').value = obj.get_attr(ViewObject.ATTR_NAME);
 	document.getElementById('ButtonInfoNumber').textContent = 
-		(obj._is_bkgnd ? 'Bkgnd' : 'Card') + ' button number: ' + obj.get_attr(ViewObject.ATTR_NUM);
+		(obj._is_bkgnd ? 'Bkgnd' : 'Card') + ' button number: ' + obj.get_attr(ViewObject.ATTR_KLAS_NUM);
 	document.getElementById('ButtonInfoID').textContent = 
 		(obj._is_bkgnd ? 'Bkgnd' : 'Card') + ' button ID: ' + obj.get_attr(ViewObject.ATTR_ID);
 		
@@ -1038,14 +1058,14 @@ View.prototype._enumerate_in_sequence = function()
 	{
 		var obj = this._objects_bkgnd[o];
 		if (obj._selected)
-			bkgnd_list.push({ obj: obj, num: obj.get_attr(ViewObject.ATTR_NUM), idx: o });
+			bkgnd_list.push({ obj: obj, num: obj.get_attr(ViewObject.ATTR_PART_NUM), idx: o });
 	}
 	var card_list = [];
 	for (var o = 0; o < this._objects_card.length; o++)
 	{
 		var obj = this._objects_card[o];
 		if (obj._selected)
-			card_list.push({ obj: obj, num: obj.get_attr(ViewObject.ATTR_NUM), idx: o });
+			card_list.push({ obj: obj, num: obj.get_attr(ViewObject.ATTR_PART_NUM), idx: o });
 	}
 	return { card: card_list, bkgnd: bkgnd_list };
 }

@@ -51,7 +51,8 @@ function ViewObject(in_type, in_view)
 	
 	this._attrs[ViewObject.ATTR_TYPE] = in_type;
 	this._attrs[ViewObject.ATTR_ID] = in_view._next_id ++;
-	this._attrs[ViewObject.ATTR_NUM] = 1;
+	this._attrs[ViewObject.ATTR_PART_NUM] = 1;
+	this._attrs[ViewObject.ATTR_KLAS_NUM] = 1;
 	this._attrs[ViewObject.ATTR_LOC] = [0,0];
 	this._attrs[ViewObject.ATTR_SIZE] = [50,50];
 	this._attrs[ViewObject.ATTR_NAME] = '';
@@ -67,11 +68,12 @@ ViewObject.TYPE_FIELD = 1;
 
 ViewObject.ATTR_TYPE = -1;
 ViewObject.ATTR_ID = -2;
-ViewObject.ATTR_NUM = -3;
-ViewObject.ATTR_LOC = -4;
-ViewObject.ATTR_SIZE = -5;
-ViewObject.ATTR_NAME = -6;
-ViewObject.ATTR_SHARED = -7;
+ViewObject.ATTR_PART_NUM = -3;
+ViewObject.ATTR_KLAS_NUM = -4;
+ViewObject.ATTR_LOC = -5;
+ViewObject.ATTR_SIZE = -6;
+ViewObject.ATTR_NAME = -7;
+ViewObject.ATTR_SHARED = -8;
 
 
 ViewObject.prototype.get_def = function()
