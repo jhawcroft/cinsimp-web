@@ -159,13 +159,15 @@ View.prototype._indicate_tool = function(in_tool)
 	switch (in_tool)
 	{
 	case View.TOOL_BROWSE:
-		this._container.className = 'CursBrowse';
+		this._container.classList.toggle('CursBrowse', true);
 		break;
 	case View.TOOL_BUTTON:
 	case View.TOOL_FIELD:
 		this._container.className = 'CursAuthor';
 		break;
 	}
+	
+	this._container.classList.toggle('ShowNumTags', (this._tool == View.TOOL_FIELD));
 }
 
 

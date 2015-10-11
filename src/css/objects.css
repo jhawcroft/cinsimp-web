@@ -26,8 +26,6 @@ div.NumTag
 	display: block;
 	position: absolute;
 	background-color: black;
-	left: 0;
-	top: 0;
 	z-index: 10;
 	visibility: hidden;
 	color: white;
@@ -37,7 +35,7 @@ div.NumTag
 }
 
 
-div.FieldOutlines div.NumTag
+.ShowNumTags div.NumTag
 {
 	visibility: visible;
 }

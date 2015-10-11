@@ -70,8 +70,7 @@ function Field(in_view, in_def)
 	
 	this._num_tag = document.createElement('div');
 	this._num_tag.className = 'NumTag';
-	this._num_tag.textContent = 'T';
-	this._div.appendChild(this._num_tag);
+	this._view._container.appendChild(this._num_tag);
 	
 	/* set defaults */
 	if (!in_def)

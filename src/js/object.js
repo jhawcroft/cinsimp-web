@@ -39,6 +39,8 @@ function ViewObject(in_type, in_view)
 {
 	if (!in_view) return;
 	
+	this._num_tag = null;
+	
 	this._rb = [0,0];
 	this._loc = [0,0];
 	this._size = [0,0];
@@ -106,6 +108,10 @@ ViewObject.prototype.kill = function()
 {
 	this._div.parentElement.removeChild(this._div);
 	this._div = null;
+	
+	if (this._num_tag != null)
+		this._view._container.removeChild(this._num_tag);
+	this._num_tag = null;
 }
 
 
@@ -219,6 +225,12 @@ ViewObject.prototype.set_loc = function(in_loc)
 	
 	this._rb[0] = this._loc[0] + this._size[0];
 	this._rb[1] = this._loc[1] + this._size[1];
+	
+	if (this._num_tag != null)
+	{
+		this._num_tag.style.left = this._loc[0] + 'px';
+		this._num_tag.style.top = this._loc[1] + 'px';
+	}
 }
 
 
@@ -230,8 +242,8 @@ ViewObject.prototype.get_loc = function()
 
 ViewObject.prototype.set_attr = function(in_attr, in_value)
 {
-	if (in_attr == ViewObject.ATTR_KLAS_NUM && this._num_tag)
-		this._num_tag.textContent = in_value;
+	if ((in_attr == ViewObject.ATTR_KLAS_NUM) && (this._num_tag != null))
+		this._num_tag.innerHTML = in_value * 1;
 
 	switch (in_attr)
 	{
