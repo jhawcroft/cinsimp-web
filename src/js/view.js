@@ -586,6 +586,21 @@ View.prototype.do_delete = function()
 }
 
 
+View.prototype._keep_content = function()
+{
+	/* dump the card content */
+	var card_data = new Array(this._objects_card.length + this._objects_bkgnd.length);
+	for (var o = 0; o < this._objects_card.length; o++)
+		card_data[o] = [this._objects_card[o]._attrs[ViewObject.ATTR_ID],
+						this._objects_card[o].get_raw_content()];
+	var offset = this._objects_card.length;
+	for (var o = 0; o < this._objects_bkgnd.length; o++)
+		card_data[o + offset] = [this._objects_bkgnd[o]._attrs[ViewObject.ATTR_ID], 
+								this._objects_bkgnd[o].get_raw_content()];
+	this._card.content = card_data;
+}
+
+
 View.prototype._save_defs_n_content = function()
 {
 	/* dump the object definitions to the card data block */
@@ -599,16 +614,7 @@ View.prototype._save_defs_n_content = function()
 		objects[o] = this._objects_bkgnd[o].get_def();
 	this._card.bkgnd_object_data = JSON.stringify(objects);
 	
-	/* dump the card content */
-	var card_data = new Array(this._objects_card.length + this._objects_bkgnd.length);
-	for (var o = 0; o < this._objects_card.length; o++)
-		card_data[o] = [this._objects_card[o]._attrs[ViewObject.ATTR_ID],
-						this._objects_card[o].get_raw_content()];
-	var offset = this._objects_card.length;
-	for (var o = 0; o < this._objects_bkgnd.length; o++)
-		card_data[o + offset] = [this._objects_bkgnd[o]._attrs[ViewObject.ATTR_ID], 
-								this._objects_bkgnd[o].get_raw_content()];
-	this._card.content = card_data;
+	this._keep_content();
 }
 
 
@@ -655,6 +661,27 @@ View.prototype._resurect = function(in_def)
 }
 
 
+/*
+	** only rebuild the actual display of the layers
+*/
+View.prototype._rebuild_layers = function()
+{
+	while (this._layer_obj_card.children.length > 0)
+		this._layer_obj_card.removeChild( this._layer_obj_card.children[0] );
+
+	for (var o = 0; o < this._objects_bkgnd.length; o++)
+	{
+		var obj = this._objects_bkgnd[o];
+		this._layer_obj_card.appendChild(obj._div);
+	}
+	for (var o = 0; o < this._objects_card.length; o++)
+	{
+		var obj = this._objects_card[o];
+		this._layer_obj_card.appendChild(obj._div);
+	}
+}
+
+
 View.prototype._rebuild_card = function() // will have to do separate load object data & separate reload from object lists
 {
 	/* dump the current card */
@@ -677,7 +704,7 @@ View.prototype._rebuild_card = function() // will have to do separate load objec
 			var obj = this._resurect(objects[o]);
 			obj._is_bkgnd = true;
 			this._objects_bkgnd[o] = obj;
-			this._layer_obj_card.appendChild(obj._div);
+			//this._layer_obj_card.appendChild(obj._div);
 		}
 	}
 	catch (e) {}
@@ -690,10 +717,12 @@ View.prototype._rebuild_card = function() // will have to do separate load objec
 			var obj = this._resurect(objects[o]);
 			obj._is_bkgnd = false;
 			this._objects_card[o] = obj;
-			this._layer_obj_card.appendChild(obj._div);
+			//this._layer_obj_card.appendChild(obj._div);
 		}
 	}
 	catch (e) {}
+	
+	this._rebuild_layers();
 	
 	/* load the object content */
 	try
@@ -1077,43 +1106,21 @@ View.prototype.send_to_front = function()
 	
 	var lists = this._enumerate_in_sequence();
 	
-	var nidx = 0;
-	for (var o = 0; o < lists.card.length; o++)
+	for (var o = lists.card.length - 1; o >= 0; o--)
 	{
 		var item = lists.card[o];
 		var obj = this._objects_card.splice(item.idx, 1)[0];
-		this._objects_card.splice(nidx ++, 0, obj);
+		this._objects_card.push(obj);
 	}
 	
 	this._renumber_objects();
 	
-	this._save_defs_n_content(); // really need to just reload lists here, not the whole bloody thing
-	this._rebuild_card();// and use the same reload mechanism in the initial card rebuild **
+	this._keep_content();
+	this._rebuild_layers();
 }
 
 
 View.prototype.send_forward = function()
-{
-	if (this._selected_objects.length == 0) return;
-	
-	var lists = this._enumerate_in_sequence();
-	
-	for (var o = 0; o < lists.card.length; o++)
-	{
-		var item = lists.card[o];
-		if (item.idx < 1) return;
-		var obj = this._objects_card.splice(item.idx, 1)[0];
-		this._objects_card.splice(item.idx - 1, 0, obj);
-	}
-	
-	this._renumber_objects();
-	
-	this._save_defs_n_content();
-	this._rebuild_card();
-}
-
-
-View.prototype.send_backward = function()
 {
 	if (this._selected_objects.length == 0) return;
 	
@@ -1129,8 +1136,29 @@ View.prototype.send_backward = function()
 	
 	this._renumber_objects();
 	
-	this._save_defs_n_content();
-	this._rebuild_card();
+	this._keep_content();
+	this._rebuild_layers();
+}
+
+
+View.prototype.send_backward = function()
+{
+	if (this._selected_objects.length == 0) return;
+	
+	var lists = this._enumerate_in_sequence();
+	
+	for (var o = 0; o < lists.card.length; o++)
+	{
+		var item = lists.card[o];
+		if (item.idx < 1) return;
+		var obj = this._objects_card.splice(item.idx, 1)[0];
+		this._objects_card.splice(item.idx - 1, 0, obj);
+	}
+	
+	this._renumber_objects();
+	
+	this._keep_content();
+	this._rebuild_layers();
 }
 
 
@@ -1140,17 +1168,18 @@ View.prototype.send_to_back = function()
 	
 	var lists = this._enumerate_in_sequence();
 	
-	for (var o = lists.card.length - 1; o >= 0; o--)
+	var nidx = 0;
+	for (var o = 0; o < lists.card.length; o++)
 	{
 		var item = lists.card[o];
 		var obj = this._objects_card.splice(item.idx, 1)[0];
-		this._objects_card.push(obj);
+		this._objects_card.splice(nidx ++, 0, obj);
 	}
 	
 	this._renumber_objects();
 	
-	this._save_defs_n_content();
-	this._rebuild_card();
+	this._keep_content();
+	this._rebuild_layers();
 }
 
 
