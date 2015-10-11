@@ -59,6 +59,17 @@ function ViewObject(in_type, in_view)
 	this._attrs[ViewObject.ATTR_SIZE] = [50,50];
 	this._attrs[ViewObject.ATTR_NAME] = '';
 	this._attrs[ViewObject.ATTR_SHARED] = false;
+	this._attrs[ViewObject.ATTR_SEARCHABLE] = true;
+	this._attrs[ViewObject.ATTR_VISIBLE] = true;
+	this._attrs[ViewObject.ATTR_SCRIPT] = ['',0];
+	this._attrs[ViewObject.ATTR_DISABLED] = false;
+	this._attrs[ViewObject.ATTR_TALIGN] = Text.ALIGN_LEFT;
+	this._attrs[ViewObject.ATTR_TFONT] = 'sans-serif';
+	this._attrs[ViewObject.ATTR_TSIZE] = 12;
+	this._attrs[ViewObject.ATTR_TSTYLE] = 0;
+	this._attrs[ViewObject.ATTR_THEIGHT] = 0;
+	this._attrs[ViewObject.ATTR_COLOR] = [1,1,1];
+	this._attrs[ViewObject.ATTR_SHADOW] = false;
 	
 	this._selected = false;
 	
@@ -76,6 +87,17 @@ ViewObject.ATTR_LOC = -5;
 ViewObject.ATTR_SIZE = -6;
 ViewObject.ATTR_NAME = -7;
 ViewObject.ATTR_SHARED = -8;
+ViewObject.ATTR_SEARCHABLE = -9;
+ViewObject.ATTR_VISIBLE = -10;
+ViewObject.ATTR_SCRIPT = -11;
+ViewObject.ATTR_DISABLED = -12;
+ViewObject.ATTR_TALIGN = -13;
+ViewObject.ATTR_TFONT = -14;
+ViewObject.ATTR_TSIZE = -15;
+ViewObject.ATTR_TSTYLE = -16;
+ViewObject.ATTR_THEIGHT = -17;
+ViewObject.ATTR_COLOR = -18;
+ViewObject.ATTR_SHADOW = -19;
 
 
 ViewObject.prototype.get_def = function()

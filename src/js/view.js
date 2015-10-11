@@ -939,9 +939,9 @@ View.prototype._do_button_info = function()
 	
 	document.getElementById('ButtonInfoSharedHilite').checked = obj.get_attr(ViewObject.ATTR_SHARED);
 	
-	var color = obj.get_attr(Button.ATTR_COLOR);
+	var color = obj.get_attr(ViewObject.ATTR_COLOR);
+	var shdw = obj.get_attr(ViewObject.ATTR_SHADOW);
 	var style = obj.get_attr(Button.ATTR_STYLE);
-	var shdw = obj.get_attr(Button.ATTR_SHADOW);
 	if (style == Button.STYLE_BORDERLESS && color == null)
 		document.getElementById('ButtonInfoType1').checked = true;//transparent
 	else if (style == Button.STYLE_BORDERLESS && color != null)
@@ -975,45 +975,45 @@ View.prototype._save_button_info = function()
 	
 	if (document.getElementById('ButtonInfoType1').checked)// transparent
 	{
-		obj.set_attr(Button.ATTR_COLOR, null);
+		obj.set_attr(ViewObject.ATTR_COLOR, null);
 		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_BORDERLESS);
-		obj.set_attr(Button.ATTR_SHADOW, false);
+		obj.set_attr(ViewObject.ATTR_SHADOW, false);
 	}
 	else if (document.getElementById('ButtonInfoType2').checked) // opaque
 	{
-		obj.set_attr(Button.ATTR_COLOR, [1,1,1]);
+		obj.set_attr(ViewObject.ATTR_COLOR, [1,1,1]);
 		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_BORDERLESS);
-		obj.set_attr(Button.ATTR_SHADOW, false);
+		obj.set_attr(ViewObject.ATTR_SHADOW, false);
 	}
 	else if (document.getElementById('ButtonInfoType3').checked)//rectangle
 	{
-		obj.set_attr(Button.ATTR_COLOR, [1,1,1]);
+		obj.set_attr(ViewObject.ATTR_COLOR, [1,1,1]);
 		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_RECTANGLE);
-		obj.set_attr(Button.ATTR_SHADOW, false);
+		obj.set_attr(ViewObject.ATTR_SHADOW, false);
 	}
 	else if (document.getElementById('ButtonInfoType4').checked)//shadow
 	{
-		obj.set_attr(Button.ATTR_COLOR, [1,1,1]);
+		obj.set_attr(ViewObject.ATTR_COLOR, [1,1,1]);
 		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_RECTANGLE);
-		obj.set_attr(Button.ATTR_SHADOW, true);
+		obj.set_attr(ViewObject.ATTR_SHADOW, true);
 	}
 	else if (document.getElementById('ButtonInfoType5').checked)//round rect
 	{
-		obj.set_attr(Button.ATTR_COLOR, [1,1,1]);
+		obj.set_attr(ViewObject.ATTR_COLOR, [1,1,1]);
 		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_ROUNDED);
-		obj.set_attr(Button.ATTR_SHADOW, true);
+		obj.set_attr(ViewObject.ATTR_SHADOW, true);
 	}
 	else if (document.getElementById('ButtonInfoType6').checked)//check box
 	{
-		obj.set_attr(Button.ATTR_COLOR, [1,1,1]);
+		obj.set_attr(ViewObject.ATTR_COLOR, [1,1,1]);
 		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_CHECK_BOX);
-		obj.set_attr(Button.ATTR_SHADOW, false);
+		obj.set_attr(ViewObject.ATTR_SHADOW, false);
 	}
 	else if (document.getElementById('ButtonInfoType7').checked)//radio
 	{
-		obj.set_attr(Button.ATTR_COLOR, [1,1,1]);
+		obj.set_attr(ViewObject.ATTR_COLOR, [1,1,1]);
 		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_RADIO);
-		obj.set_attr(Button.ATTR_SHADOW, false);
+		obj.set_attr(ViewObject.ATTR_SHADOW, false);
 	}
 	else if (document.getElementById('ButtonInfoType8').checked)//popup menu
 	{

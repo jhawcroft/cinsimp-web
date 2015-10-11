@@ -58,8 +58,8 @@ function Button(in_view, in_def)
 	{
 		this.set_size([95, 22]);
 		this.set_attr(Button.ATTR_STYLE, Button.STYLE_ROUNDED);
-		this.set_attr(Button.ATTR_COLOR, [1,1,1]);
-		this.set_attr(Button.ATTR_SHADOW, true);
+		this.set_attr(ViewObject.ATTR_COLOR, [1,1,1]);
+		this.set_attr(ViewObject.ATTR_SHADOW, true);
 		this.set_attr(Button.ATTR_ICON, 0);
 		this.set_attr(Button.ATTR_MENU, null);
 		this.set_attr(ViewObject.ATTR_NAME, 'New Button');
@@ -90,8 +90,6 @@ Button.STYLE_CHECK_BOX = 3;
 Button.STYLE_RADIO = 4;
 
 Button.ATTR_STYLE = 1;
-Button.ATTR_COLOR = 2;
-Button.ATTR_SHADOW = 3;
 Button.ATTR_MENU = 4;
 Button.ATTR_ICON = 5;
 Button.ATTR_SHOW_NAME = 6;
@@ -145,10 +143,10 @@ Button.prototype._attribute_changed = function(in_attr, in_value)
 {
 	switch (in_attr)
 	{
-	case Button.ATTR_COLOR:
+	case ViewObject.ATTR_COLOR:
 		this._div.style.backgroundColor = (in_value ? Util.color_to_css(in_value) : 'transparent');
 		break;
-	case Button.ATTR_SHADOW:
+	case ViewObject.ATTR_SHADOW:
 		this._div.style.boxShadow = (in_value ? '1px 1px 2px 2px rgba(0,0,0,0.75)' : '');
 		break;
 	case Button.ATTR_STYLE:

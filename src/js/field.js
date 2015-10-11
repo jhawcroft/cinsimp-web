@@ -77,8 +77,8 @@ function Field(in_view, in_def)
 	{
 		this.set_size([200, 85]);
 		this.set_attr(Field.ATTR_BORDER, true);
-		this.set_attr(Field.ATTR_COLOR, [1,1,1]);
-		this.set_attr(Field.ATTR_SHADOW, false);
+		this.set_attr(ViewObject.ATTR_COLOR, [1,1,1]);
+		this.set_attr(ViewObject.ATTR_SHADOW, false);
 		this.set_attr(Field.ATTR_SCROLL, false);
 		this.set_attr(Field.ATTR_LOCKED, false);
 	}
@@ -100,8 +100,6 @@ Field.TYPE = 'field';
 
 
 Field.ATTR_BORDER = 1;
-Field.ATTR_COLOR = 2;
-Field.ATTR_SHADOW = 3;
 Field.ATTR_SCROLL = 4;
 
 Field.ATTR_LOCKED = 5;
@@ -142,17 +140,16 @@ Field.prototype._attribute_changed = function(in_attr, in_value)
 	switch (in_attr)
 	{
 	case Field.ATTR_BORDER:
-		this._div.style.border = (this._attrs[Field.ATTR_BORDER] ? '1px solid black' : '');
+		this._div.style.border = (in_value ? '1px solid black' : '');
 		break;
-	case Field.ATTR_COLOR:
-		this._div.style.backgroundColor = (this._attrs[Field.ATTR_COLOR] ? 
-			Util.color_to_css(this._attrs[Field.ATTR_COLOR]) : 'transparent');
+	case ViewObject.ATTR_COLOR:
+		this._div.style.backgroundColor = (in_value ? Util.color_to_css(in_value) : 'transparent');
 		break;
-	case Field.ATTR_SHADOW:
-		this._div.style.boxShadow = (this._attrs[Field.ATTR_SHADOW] ? '2px 2px 2px 2px rgba(0,0,0,0.75)' : '');
+	case ViewObject.ATTR_SHADOW:
+		this._div.style.boxShadow = (in_value ? '2px 2px 2px 2px rgba(0,0,0,0.75)' : '');
 		break;
 	case Field.ATTR_SCROLL:
-		this._div.style.overflowY = (this._attrs[Field.ATTR_SCROLL] ? 'scroll' : 'hidden');
+		this._div.style.overflowY = (in_value ? 'scroll' : 'hidden');
 		break;
 	}
 }
