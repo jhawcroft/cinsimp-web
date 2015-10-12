@@ -35,10 +35,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-function Button(in_view, in_def) 
+function Button(in_view, in_def, in_bkgnd) 
 {
 	/* create the object */
-	ViewObject.call(this, ViewObject.TYPE_BUTTON, in_view);
+	ViewObject.call(this, ViewObject.TYPE_BUTTON, in_view, in_bkgnd);
 	this._div.classList.add('Button');
 	
 	this._struct = document.createElement('div');
@@ -187,7 +187,7 @@ Button.prototype._attribute_changed = function(in_attr, in_value)
 }
 
 
-Button.prototype._author_edit_changed = function(in_author, in_edit)
+Button.prototype._display_changed = function(in_author, in_edit)
 {
 	this._div.classList.toggle('Editable', in_edit);
 }

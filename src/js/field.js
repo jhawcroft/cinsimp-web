@@ -62,10 +62,10 @@ A note about importing fields from HyperCard:
 */
 
 
-function Field(in_view, in_def) 
+function Field(in_view, in_def, in_bkgnd) 
 {
 	/* create the object */
-	ViewObject.call(this, ViewObject.TYPE_FIELD, in_view);
+	ViewObject.call(this, ViewObject.TYPE_FIELD, in_view, in_bkgnd);
 	this._div.classList.add('Field');
 	
 	this._num_tag = document.createElement('div');
@@ -146,10 +146,12 @@ Field.prototype.set_raw_content = function(in_content)
 }
 
 
-Field.prototype._author_edit_changed = function(in_author, in_edit)
+Field.prototype._display_changed = function(in_author, in_edit)
 {
 	this._div.contentEditable = (in_edit && (!this._attrs[Field.ATTR_LOCKED]));
 	this._div.classList.toggle('Editable', in_edit);
+	//if (this._num_tag)
+	//	this._num_tag.style.visibility = (this._visible && this._view._tool == View.TOOL_FIELD ? 'visible' : 'hidden');
 }
 
 

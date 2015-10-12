@@ -35,11 +35,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-function ViewObject(in_type, in_view) 
+function ViewObject(in_type, in_view, in_bkgnd) 
 {
 	if (!in_view) return;
 	
 	this._num_tag = null;
+	this._is_bkgnd = in_bkgnd;
 	
 	this._rb = [0,0];
 	this._loc = [0,0];
@@ -296,6 +297,8 @@ ViewObject.prototype.get_attr = function(in_attr)
 ViewObject.prototype._layer_visibility = function(in_visible)
 {
 	this._div.style.visibility = (in_visible ? 'visible' : 'hidden');
+	if (this._num_tag)
+		this._num_tag.style.visibility = (in_visible && this._view._tool == View.TOOL_FIELD ? 'visible' : 'hidden');
 }
 
 

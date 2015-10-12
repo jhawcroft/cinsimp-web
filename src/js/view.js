@@ -167,7 +167,8 @@ View.prototype._indicate_tool = function(in_tool)
 		break;
 	}
 	
-	this._container.classList.toggle('ShowNumTags', (this._tool == View.TOOL_FIELD));
+	//this._container.classList.toggle('ShowBkgndNumTags', (this._tool == View.TOOL_FIELD));
+	//this._container.classList.toggle('ShowCardNumTags', (this._tool == View.TOOL_FIELD && (!this._edit_bkgnd)));
 }
 
 
@@ -196,30 +197,40 @@ View.prototype._show_object_outlines = function()
 }
 
 
-View.prototype._mode_changed = function()
+View.prototype._configure_obj_display = function()
 {
 	this._author_fields = (this._tool == View.TOOL_FIELD);
 	this._author_buttons = (this._tool == View.TOOL_BUTTON);
 	this._text_editable = true; // TODO: user-level, user-modify and cant-modify
 	if (this._mode != View.MODE_BROWSE)
 		this._text_editable = false;
-	
+		
 	for (var o = 0; o < this._objects_card.length; o++)
 	{
 		var obj = this._objects_card[o];
+		obj._layer_visibility(!this._edit_bkgnd);
 		if (obj.get_type() == Field.TYPE)
-			obj._author_edit_changed(this._author_fields, this._text_editable);
+			obj._display_changed(this._author_fields, this._text_editable);
 		else
-			obj._author_edit_changed(this._author_buttons, this._text_editable);
+			obj._display_changed(this._author_buttons, this._text_editable);
 	}
 	for (var o = 0; o < this._objects_bkgnd.length; o++)
 	{
 		var obj = this._objects_bkgnd[o];
+		obj._layer_visibility(true);
 		if (obj.get_type() == Field.TYPE)
-			obj._author_edit_changed(this._author_fields, this._text_editable);
+			obj._display_changed(this._author_fields, this._text_editable);
 		else
-			obj._author_edit_changed(this._author_buttons, this._text_editable);
+			obj._display_changed(this._author_buttons, this._text_editable);
 	}
+}
+
+
+View.prototype._mode_changed = function()
+{
+	
+	
+	this._configure_obj_display();
 }
 
 
@@ -447,9 +458,10 @@ View.prototype.edit_bkgnd = function(in_edit_bkgnd)
 	this._edit_bkgnd = in_edit_bkgnd;
 	this._bkgnd_indicator.style.visibility = (this._edit_bkgnd ? 'visible' : 'hidden');
 	
+	this._configure_obj_display();
 	//this._layer_obj_card.style.visibility = (this._edit_bkgnd ? 'hidden' : 'visible');
-	for (var o = 0; o < this._objects_card.length; o++)
-		this._objects_card[o]._layer_visibility(!in_edit_bkgnd);
+	//for (var o = 0; o < this._objects_card.length; o++)
+	//	this._objects_card[o]._layer_visibility(!in_edit_bkgnd);
 }
 
 
@@ -539,7 +551,7 @@ View.prototype.do_new_field = function()
 	this.select_none();
 	this.choose_tool(View.TOOL_FIELD);
 	
-	var field = new Field(this);
+	var field = new Field(this, null, this._edit_bkgnd);
 	this._centre_object(field);
 	this._add_object(field);
 	
@@ -552,7 +564,7 @@ View.prototype.do_new_button = function()
 	this.select_none();
 	this.choose_tool(View.TOOL_BUTTON);
 	
-	var button = new Button(this);
+	var button = new Button(this, null, this._edit_bkgnd);
 	this._centre_object(button);
 	this._add_object(button);
 	
@@ -648,16 +660,16 @@ View.prototype._save_card = function(in_handler)
 }
 
 
-View.prototype._resurect = function(in_def)
+View.prototype._resurect = function(in_def, in_bkgnd)
 {
 	var id = in_def[ViewObject.ATTR_ID] * 1;
 	if (id >= this._next_id) this._next_id = id + 1;
 		
 	var obj = null;
 	if (in_def[ViewObject.ATTR_TYPE] == ViewObject.TYPE_BUTTON)
-		obj = new Button(this, in_def);
+		obj = new Button(this, in_def, in_bkgnd);
 	else
-		obj = new Field(this, in_def);
+		obj = new Field(this, in_def, in_bkgnd);
 		
 	return obj;
 }
@@ -703,8 +715,8 @@ View.prototype._rebuild_card = function() // will have to do separate load objec
 		this._objects_bkgnd = new Array(objects.length);
 		for (var o = 0; o < objects.length; o++)
 		{
-			var obj = this._resurect(objects[o]);
-			obj._is_bkgnd = true;
+			var obj = this._resurect(objects[o], true);
+			//obj._is_bkgnd = true;
 			this._objects_bkgnd[o] = obj;
 			//this._layer_obj_card.appendChild(obj._div);
 		}
@@ -716,8 +728,8 @@ View.prototype._rebuild_card = function() // will have to do separate load objec
 		this._objects_card = new Array(objects.length);
 		for (var o = 0; o < objects.length; o++)
 		{
-			var obj = this._resurect(objects[o]);
-			obj._is_bkgnd = false;
+			var obj = this._resurect(objects[o], false);
+			//obj._is_bkgnd = false;
 			this._objects_card[o] = obj;
 			//this._layer_obj_card.appendChild(obj._div);
 		}

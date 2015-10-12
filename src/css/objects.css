@@ -27,7 +27,7 @@ div.NumTag
 	position: absolute;
 	background-color: black;
 	z-index: 10;
-	visibility: hidden;
+	visibility: visible;
 	color: white;
 	font-size: 9pt;
 	font-family: sans-serif;
@@ -35,7 +35,14 @@ div.NumTag
 }
 
 
-.ShowNumTags div.NumTag
+
+.ShowCardNumTags div.CdNumTag
+{
+	visibility: visible;
+}
+
+
+.ShowBkgndNumTags div.BgNumTag
 {
 	visibility: visible;
 }
