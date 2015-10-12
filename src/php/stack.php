@@ -464,8 +464,8 @@ Accessors and Mutators
 		$card['card_has_art'] = Stack::nvl($data['card_has_art'], false);
 		if (isset($data['data'])) $card['data'] = $data['data'];
 		
-		if (isset($data['content']))
-			$card['content'] = $data['content'];
+		//if (isset($data['content']))
+		//	$card['content'] = $data['content'];
 		
 		$card['card_object_data'] = $row[8];
 		
@@ -497,7 +497,8 @@ Accessors and Mutators
 		$data = array();
 		$data['card_script'] = $card['card_script'];
 		$data['card_has_art'] = $card['card_has_art'];
-		$data['content'] = $card['content'];
+		//$data['content'] = $card['content'];
+		$data['data'] = $card['data'];
 	
 		$stmt = $this->file_db->prepare(
 			'UPDATE card SET object_data=?,card_name=?,cant_delete=?,dont_search=?,marked=?,card_data=? WHERE card_id=?'

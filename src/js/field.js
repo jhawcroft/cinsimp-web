@@ -123,24 +123,13 @@ Field.ATTR_LAST_SELECTED = 11;
 
 
 
-/*
-Field.prototype._reconfigure = function()
-{
-	this._div.style.border = (this._attrs[Field.ATTR_BORDER] ? '1px solid black' : '');
-	this._div.style.backgroundColor = (this._attrs[Field.ATTR_COLOR] ? 
-		Util.color_to_css(this._attrs[Field.ATTR_COLOR]) : 'transparent');
-	this._div.style.boxShadow = (this._attrs[Field.ATTR_SHADOW] ? '2px 2px 2px 2px rgba(0,0,0,0.75)' : '');
-	this._div.style.overflowY = (this._attrs[Field.ATTR_SCROLL] ? 'scroll' : 'hidden');
-}*/
-
-
-Field.prototype.get_raw_content = function()
+Field.prototype._get_raw_content = function()
 {
 	return this._div.innerHTML;
 }
 
 
-Field.prototype.set_raw_content = function(in_content)
+Field.prototype._set_raw_content = function(in_content)
 {
 	this._div.innerHTML = in_content;
 }

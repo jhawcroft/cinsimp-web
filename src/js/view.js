@@ -600,18 +600,41 @@ View.prototype.do_delete = function()
 }
 
 
-View.prototype._keep_content = function()
+View.prototype._keep_content = function() // need to replace this for resequencing with something that will ensure object content is saved
+// probably duplicate content within object - store a buffer TOO, which doubles as a mechanism for dirty flagging?
 {
 	/* dump the card content */
-	var card_data = new Array(this._objects_card.length + this._objects_bkgnd.length);
+	/*var card_data = new Array(this._objects_card.length + this._objects_bkgnd.length);
 	for (var o = 0; o < this._objects_card.length; o++)
 		card_data[o] = [this._objects_card[o]._attrs[ViewObject.ATTR_ID],
-						this._objects_card[o].get_raw_content()];
+						this._objects_card[o].get_attr(ViewObject.ATTR_CONTENT)];
 	var offset = this._objects_card.length;
 	for (var o = 0; o < this._objects_bkgnd.length; o++)
 		card_data[o + offset] = [this._objects_bkgnd[o]._attrs[ViewObject.ATTR_ID], 
-								this._objects_bkgnd[o].get_raw_content()];
-	this._card.content = card_data;
+								this._objects_bkgnd[o].get_attr(ViewObject.ATTR_CONTENT)];
+	this._card.content = card_data;*/
+	
+	
+	/*
+	
+	
+	var objects = [];
+	for (var o = 0; o < this._objects_bkgnd.length; o++)
+	{
+		var obj = this._objects_bkgnd[o];
+		if (obj.get_attr(ViewObject.ATTR_SHARED)) continue;
+		
+		if (obj.get_type() == Button.TYPE)
+			var data = [obj.get_attr(ViewObject.ATTR_ID),
+				obj.get_attr(ViewObject.ATTR_CONTENT),
+				obj.get_attr(Button.ATTR_HILITE)];
+		else
+			var data = [obj.get_attr(ViewObject.ATTR_ID),
+				obj.get_attr(ViewObject.ATTR_CONTENT)];
+			
+		objects.push(data);
+	}
+	this._card.data = JSON.stringify(objects);*/
 }
 
 
@@ -628,7 +651,24 @@ View.prototype._save_defs_n_content = function()
 		objects[o] = this._objects_bkgnd[o].get_def();
 	this._card.bkgnd_object_data = JSON.stringify(objects);
 	
-	this._keep_content();
+	/* get non-shared background content */
+	var objects = [];
+	for (var o = 0; o < this._objects_bkgnd.length; o++)
+	{
+		var obj = this._objects_bkgnd[o];
+		if (obj.get_attr(ViewObject.ATTR_SHARED)) continue;
+		
+		if (obj.get_type() == Button.TYPE)
+			var data = [obj.get_attr(ViewObject.ATTR_ID),
+				obj.get_attr(ViewObject.ATTR_CONTENT),
+				obj.get_attr(Button.ATTR_HILITE)];
+		else
+			var data = [obj.get_attr(ViewObject.ATTR_ID),
+				obj.get_attr(ViewObject.ATTR_CONTENT)];
+			
+		objects.push(data);
+	}
+	this._card.data = JSON.stringify(objects);
 }
 
 
@@ -739,19 +779,19 @@ View.prototype._rebuild_card = function() // will have to do separate load objec
 	this._rebuild_layers();
 	
 	/* load the object content */
-	try
+	/*try
 	{
 		var offset = this._objects_card.length;
 		for (var o = 0; o < this._card.content.length; o++)
 		{
 			var data = this._card.content[o];
 			if (o >= offset)
-				this._objects_bkgnd[o - offset].set_raw_content(data[1]);
+				this._objects_bkgnd[o - offset].set_attr(ViewObject.ATTR_CONTENT, data[1]);
 			else
-				this._objects_card[o].set_raw_content(data[1]);
+				this._objects_card[o].set_attr(ViewObject.ATTR_CONTENT, data[1]);
 		}
 	}
-	catch (e) {}
+	catch (e) {}*/
 	
 	/* new content mechanism? CAN only use for card content in bkgnd fields */
 	try
@@ -761,7 +801,12 @@ View.prototype._rebuild_card = function() // will have to do separate load objec
 		{
 			var data = objects[o];
 			var obj = this._lookup_bkgnd_part_by_id(data[0]);
-			if (obj) obj.set_raw_content(data[1]);
+			if (obj) 
+			{
+				obj.set_attr(ViewObject.ATTR_CONTENT, data[1]);
+				if (data.length == 3)
+					obj.set_attr(Button.HILITE, data[2]);
+			}
 		}
 	}
 	catch (e) {}
@@ -1234,7 +1279,7 @@ View.prototype.send_to_front = function()
 	
 	this._renumber_objects();
 	
-	this._keep_content();
+	this._save_defs_n_content();
 	this._rebuild_layers();
 }
 
@@ -1255,7 +1300,7 @@ View.prototype.send_forward = function()
 	
 	this._renumber_objects();
 	
-	this._keep_content();
+	this._save_defs_n_content();
 	this._rebuild_layers();
 }
 
@@ -1276,7 +1321,7 @@ View.prototype.send_backward = function()
 	
 	this._renumber_objects();
 	
-	this._keep_content();
+	this._save_defs_n_content();
 	this._rebuild_layers();
 }
 
@@ -1297,7 +1342,7 @@ View.prototype.send_to_back = function()
 	
 	this._renumber_objects();
 	
-	this._keep_content();
+	this._save_defs_n_content();
 	this._rebuild_layers();
 }
 

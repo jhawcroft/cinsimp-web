@@ -105,6 +105,11 @@ ViewObject.ATTR_CONTENT = -99;
 
 ViewObject.prototype.get_def = function()
 {
+	if ((!this._is_bkgnd) || this.get_attr(ViewObject.ATTR_SHARED))
+		this._attrs[ViewObject.ATTR_CONTENT] = this._get_raw_content();
+	else
+		this._attrs[ViewObject.ATTR_CONTENT] = '';
+		
 	return this._attrs;
 }
 
@@ -119,12 +124,13 @@ ViewObject.prototype.set_def = function(in_def)
 }
 
 
-ViewObject.prototype.get_raw_content = function()
+ViewObject.prototype._get_raw_content = function()
 {
+	return '';
 }
 
 
-ViewObject.prototype.set_raw_content = function(in_content)
+ViewObject.prototype._set_raw_content = function(in_content)
 {
 }
 
@@ -279,7 +285,7 @@ ViewObject.prototype.set_attr = function(in_attr, in_value)
 		this.set_size(in_value);
 		break;
 	case ViewObject.ATTR_CONTENT:
-		this.set_raw_content(in_value);
+		this._set_raw_content(in_value);
 		break;
 	default:
 		this._attrs[in_attr] = in_value;
@@ -318,7 +324,10 @@ ViewObject.prototype.set_attr = function(in_attr, in_value)
 
 ViewObject.prototype.get_attr = function(in_attr)
 {
-	return this._attrs[in_attr];
+	if (in_attr == ViewObject.ATTR_CONTENT)
+		return this._get_raw_content();
+	else
+		return this._attrs[in_attr];
 }
 
 
