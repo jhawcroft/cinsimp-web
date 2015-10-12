@@ -205,9 +205,30 @@ Application.setDefaultPositions = function(in_card_width, in_card_height)
 }
 
 
-Application.handleSaveStackInfo = function()
+Application.save_stack_info = function()
 {
+	var do_rename = false;
+	if (this._stack.stack_name != document.getElementById('StackInfoName').value)
+		do_rename = true;	
+	this._stack.stack_name = document.getElementById('StackInfoName').value;
 	Dialog.dismiss();
+	
+	if (do_rename)
+	{
+		Progress.operation_begun('Renaming Stack...');
+		var msg = {
+			cmd: 'rename_stack',
+			stack_id: this._stack.stack_id
+		};
+		Ajax.send(msg, function(msg, status)
+		{
+			Progress.operation_finished();
+			if ((status != 'ok') || (msg.cmd != 'load_card'))
+				alert('Rename stack error: '+status+"\n"+JSON.stringify(msg));
+			else
+				this._stack = msg.stack;
+		});
+	}
 }
 
 Application.handleSaveCardSize = function()

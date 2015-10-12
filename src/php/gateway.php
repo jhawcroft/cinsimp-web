@@ -160,6 +160,12 @@ header("Content-type: text/html\n");
 	}
 	
 	
+	public static function rename_stack($inbound, $outbound)
+	{
+		throw Exception('Unimplemented');
+	}
+	
+	
 	public static function compact_stack($inbound, $outbound)
 	{
 		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
