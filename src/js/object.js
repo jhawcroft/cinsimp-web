@@ -333,9 +333,10 @@ ViewObject.prototype.get_attr = function(in_attr)
 
 ViewObject.prototype._layer_visibility = function(in_visible)
 {
-	this._div.style.visibility = (in_visible ? 'visible' : 'hidden');
+	var visible =  (in_visible && this.get_attr(ViewObject.ATTR_VISIBLE));
+	this._div.style.visibility = (visible ? 'visible' : 'hidden');
 	if (this._num_tag)
-		this._num_tag.style.visibility = (in_visible && this._view._tool == View.TOOL_FIELD ? 'visible' : 'hidden');
+		this._num_tag.style.visibility = (visible && this._view._tool == View.TOOL_FIELD ? 'visible' : 'hidden');
 }
 
 
