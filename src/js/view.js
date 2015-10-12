@@ -1045,6 +1045,7 @@ View.prototype._do_field_info = function()
 	document.getElementById('FieldInfoBorder').checked = obj.get_attr(Field.ATTR_BORDER);
 	document.getElementById('FieldInfoShadow').checked = obj.get_attr(ViewObject.ATTR_SHADOW);
 	document.getElementById('FieldInfoOpaque').checked = (obj.get_attr(ViewObject.ATTR_COLOR) != null);
+	document.getElementById('FieldInfoScrolling').checked = obj.get_attr(Field.ATTR_SCROLL);
 	
 	document.getElementById('FieldInfoShowLines').checked = obj.get_attr(Field.ATTR_SHOW_LINES);
 	document.getElementById('FieldInfoWideMargins').checked = obj.get_attr(Field.ATTR_WIDE_MARGINS);
@@ -1072,6 +1073,7 @@ View.prototype._save_field_info = function()
 	obj.set_attr(Field.ATTR_BORDER, document.getElementById('FieldInfoBorder').checked);
 	obj.set_attr(ViewObject.ATTR_SHADOW, document.getElementById('FieldInfoShadow').checked);
 	obj.set_attr(ViewObject.ATTR_COLOR, (document.getElementById('FieldInfoOpaque').checked ? [1,1,1] : null));
+	obj.set_attr(Field.ATTR_SCROLL, document.getElementById('FieldInfoScrolling').checked);
 	
 	obj.set_attr(Field.ATTR_SHOW_LINES, document.getElementById('FieldInfoShowLines').checked);
 	obj.set_attr(Field.ATTR_WIDE_MARGINS, document.getElementById('FieldInfoWideMargins').checked);
