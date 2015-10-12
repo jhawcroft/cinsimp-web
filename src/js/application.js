@@ -115,6 +115,30 @@ Application.do_info = function()
 }
 
 
+
+Application.compact = function()
+{
+	var msg = {
+		cmd: 'compact_stack',
+		stack_id: this._stack.stack_id
+	};
+	
+	Progress.operation_begun('Compacting this stack...', true);
+	Ajax.send(msg, function(msg, status) 
+	{
+		Progress.operation_finished();
+		
+		if ((status != 'ok') || (msg.cmd != 'compact_stack'))
+			alert('Compact error: '+status+"\n"+JSON.stringify(msg));
+		else
+		{
+			Application._stack = msg.stack;
+			if (Application._view) Application._view._stack = msg.stack;
+		}
+	});
+}
+
+
 Application.save_info = function()
 {
 	if (Application._view) Application._view.save_info();

@@ -160,6 +160,14 @@ header("Content-type: text/html\n");
 	}
 	
 	
+	public static function compact_stack($inbound, $outbound)
+	{
+		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
+		$stack->stack_compact();
+		return Gateway::load_stack($inbound, $outbound);
+	}
+	
+	
 	public static function load_card($inbound, $outbound)
 	{
 		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
@@ -212,7 +220,6 @@ header("Content-type: text/html\n");
 	}
 	
 
-
 	public static function new_stack($inbound, $outbound)
 	{
 		Stack::create_file(Util::safe_stack_id($inbound['stack_id']));
@@ -222,6 +229,7 @@ header("Content-type: text/html\n");
 			throw new Exception("Couldn't create stack.");
 		return $outbound;
 	}
+	
 	
 	
 	public static function hcimport_data($inbound, $outbound)

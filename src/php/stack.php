@@ -288,6 +288,18 @@ Accessors and Mutators
 		)), $this->file_db, 'Loading Stack (2)');
 	}
 	
+
+/*
+	Causes the free space that is unused but allocated within the disk file to be 
+	removed.
+	
+	(May also run diagnostics and minor repairs in future)
+*/
+	public function stack_compact()
+	{
+		Stack::sl_ok($this->file_db->exec('VACUUM'), $this->file_db, 'Compacting Stack (1)');
+	}
+	
 	
 /*
 	Returns the approximate amount of free space in the stack (prior to compacting).
@@ -529,6 +541,7 @@ Accessors and Mutators
 
 /*
 	Allows 'direct injection' of a complete background into the stack.
+	(currently used for HC Import)
 */
 	public function stack_inject_bkgnd($card)
 	{
@@ -555,7 +568,11 @@ Accessors and Mutators
 		return $this->file_db->lastInsertId();
 	}
 	
-	
+
+/*
+	Allows 'direct injection' of a complete card into the stack.
+	(currently used for HC Import)
+*/
 	public function stack_inject_card($card)
 	{
 		$data = array();
@@ -587,6 +604,10 @@ Accessors and Mutators
 	}
 	
 	
+/*
+	Deletes all cards and backgrounds from the stack.
+	(currently used ONLY for HC Import, which requires a completely empty stack)
+*/
 	public function zap_all_cards()
 	{
 		$stmt = $this->file_db->prepare(

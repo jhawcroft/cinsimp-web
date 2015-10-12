@@ -45,7 +45,7 @@ Progress.status = function(in_status)
 }
 
 
-Progress.operation_begun = function(in_status)
+Progress.operation_begun = function(in_status, in_immediate)
 {
 	if (!in_status)
 		in_status = 'Accessing server...';
@@ -55,9 +55,14 @@ Progress.operation_begun = function(in_status)
 	Progress._can_hide = false;
 	Progress._should_hide = false;
 	
-	if (Progress._auto_show_timer)
-		window.clearTimeout(Progress._auto_show_timer);
-	Progress._auto_show_timer = window.setTimeout(Progress._show, 250);	
+	if (in_immediate === true)
+		Progress._show();
+	else
+	{
+		if (Progress._auto_show_timer)
+			window.clearTimeout(Progress._auto_show_timer);
+		Progress._auto_show_timer = window.setTimeout(Progress._show, 250);	
+	}
 }
 
 
