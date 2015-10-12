@@ -964,6 +964,7 @@ View.prototype.refresh = function()
 View.prototype._do_button_info = function()
 {
 	var obj = this._selected_objects[0];
+	Application._objects = this._selected_objects;
 	
 	document.getElementById('ButtonInfoName').value = obj.get_attr(ViewObject.ATTR_NAME);
 	document.getElementById('ButtonInfoNumber').textContent = 
@@ -1035,6 +1036,7 @@ View.prototype._save_button_info = function()
 View.prototype._do_field_info = function()
 {
 	var obj = this._selected_objects[0];
+	Application._objects = this._selected_objects;
 	
 	document.getElementById('FieldInfoName').value = obj.get_attr(ViewObject.ATTR_NAME);
 	document.getElementById('FieldInfoNumber').textContent = 

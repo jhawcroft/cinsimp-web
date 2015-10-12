@@ -35,11 +35,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-function Dialog(in_title, in_element, in_flags) 
+function Dialog(in_title, in_element, in_flags, in_cleanup) 
 {
 	Dialog._list.push(this);
 	
 	this._flags = in_flags;
+	this._cleanup = in_cleanup;
 	
 	this._div = document.createElement('div');
 	this._div.className = 'Dialog';
@@ -213,6 +214,9 @@ Dialog.prototype.hide = function()
 		else
 			Dialog._cover.style.zIndex = Dialog.active()._div.style.zIndex - 1;
 	}
+	
+	if (this._cleanup)
+		this._cleanup();
 }
 
 

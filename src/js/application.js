@@ -43,6 +43,7 @@ Application._view = null;
 
 
 
+
 Application.init = function()
 {
 	Application._view = new View(Application._stack, Application._card);

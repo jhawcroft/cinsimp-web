@@ -51,4 +51,106 @@ Text.STYLE_CONDENSE = 0x10;
 Text.STYLE_EXTEND = 0x20;
 
 
+Text.edit_style = function(in_objects, in_prior)
+{
+	Text._objects = in_objects;
+	var obj = Text._objects[0];
+	
+	if (in_prior) in_prior();
+	
+	document.getElementById('TextFont').value = obj.get_attr(ViewObject.ATTR_TFONT);
+	document.getElementById('TextSize').value = obj.get_attr(ViewObject.ATTR_TSIZE);
+	switch (obj.get_attr(ViewObject.ATTR_TALIGN))
+	{
+	case Text.ALIGN_LEFT:
+		document.getElementById('TextAlign1').checked = true;
+		break;
+	case Text.ALIGN_CENTRE:
+		document.getElementById('TextAlign2').checked = true;
+		break;
+	case Text.ALIGN_RIGHT:
+		document.getElementById('TextAlign3').checked = true;
+		break;
+	case Text.ALIGN_JUSTIFY:
+		document.getElementById('TextAlign4').checked = true;
+		break;
+	}
+	var style = obj.get_attr(ViewObject.ATTR_TSTYLE);
+	document.getElementById('TextStyle1').checked = (style & Text.STYLE_BOLD);
+	document.getElementById('TextStyle2').checked = (style & Text.STYLE_ITALIC);
+	document.getElementById('TextStyle3').checked = (style & Text.STYLE_SHADOW);
+	document.getElementById('TextStyle4').checked = (style & Text.STYLE_CONDENSE);
+	document.getElementById('TextStyle5').checked = (style & Text.STYLE_EXTEND);
+	
+	Text._update_sample();
+	Dialog.TextStyle.show();
+}
+
+
+Text._save_style = function()
+{
+	var obj = Text._objects[0];
+	
+	obj.set_attr(ViewObject.ATTR_TFONT, document.getElementById('TextFont').value);
+	obj.set_attr(ViewObject.ATTR_TSIZE, document.getElementById('TextSize').value);
+	if (document.getElementById('TextAlign1').checked)
+		obj.set_attr(ViewObject.ATTR_TALIGN, Text.ALIGN_LEFT);
+	else if (document.getElementById('TextAlign2').checked)
+		obj.set_attr(ViewObject.ATTR_TALIGN, Text.ALIGN_CENTRE);
+	else if (document.getElementById('TextAlign3').checked)
+		obj.set_attr(ViewObject.ATTR_TALIGN, Text.ALIGN_RIGHT);
+	else if (document.getElementById('TextAlign4').checked)
+		obj.set_attr(ViewObject.ATTR_TALIGN, Text.ALIGN_JUSTIFY);
+	var style = 0;
+	if (document.getElementById('TextStyle1').checked) style |= Text.STYLE_BOLD;
+	if (document.getElementById('TextStyle2').checked) style |= Text.STYLE_ITALIC;
+	if (document.getElementById('TextStyle3').checked) style |= Text.STYLE_SHADOW;
+	if (document.getElementById('TextStyle4').checked) style |= Text.STYLE_CONDENSE;
+	if (document.getElementById('TextStyle5').checked) style |= Text.STYLE_EXTEND;
+	obj.set_attr(ViewObject.ATTR_TSTYLE, style);
+
+	Dialog.dismiss();
+}
+
+
+Text._update_sample = function()
+{
+	var sample = document.getElementById('TextSample');
+	
+	sample.style.fontFamily = document.getElementById('TextFont').value;
+	sample.style.fontSize = document.getElementById('TextSize').value + 'pt';
+	if (document.getElementById('TextAlign1').checked)
+		sample.style.textAlign = 'left';
+	else if (document.getElementById('TextAlign2').checked)
+		sample.style.textAlign = 'center';
+	else if (document.getElementById('TextAlign3').checked)
+		sample.style.textAlign = 'right';
+	else if (document.getElementById('TextAlign4').checked)
+		sample.style.textAlign = 'justify';
+	sample.style.fontWeight = (document.getElementById('TextStyle1').checked ? 'bold' : 'normal');
+	sample.style.fontStyle = (document.getElementById('TextStyle2').checked ? 'italic' : 'normal');
+	sample.style.textShadow = (document.getElementById('TextStyle3').checked ? 
+		'2px 2px black' : 'none');
+	
+	/*
+	Possible Outline implementation:
+	.strokeme
+{
+    color: white;
+    text-shadow:
+    -1px -1px 0 #000,
+    1px -1px 0 #000,
+    -1px 1px 0 #000,
+    1px 1px 0 #000;  
+}
+	*/
+	
+	if (document.getElementById('TextStyle5').checked)
+		sample.style.letterSpacing = '1px';
+	else
+		sample.style.letterSpacing = (document.getElementById('TextStyle4').checked ? '-1px' : 'normal');
+}
+
+
+
 
