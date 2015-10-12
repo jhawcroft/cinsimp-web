@@ -1093,15 +1093,70 @@ View.prototype._save_field_info = function()
 
 View.prototype._do_card_info = function()
 {
+	document.getElementById('CardInfoName').value = this._card.card_name;
+	
+	document.getElementById('CardInfoNumber').textContent = 'Card '+this._card.card_seq+' out of '+this._stack.count_cards;
+	document.getElementById('CardInfoID').textContent = 'Card ID: '+this._card.card_id;
+	document.getElementById('CardInfoFieldCount').textContent = 'Contains '+Util.plural(this._count_klass(this._objects_card, Field.TYPE),'field','fields');
+	document.getElementById('CardInfoButtonCount').textContent = 'Contains '+Util.plural(this._count_klass(this._objects_card, Button.TYPE),'button','buttons');
+	
+	document.getElementById('CardInfoCantDelete').checked = this._card.card_cant_delete;
+	document.getElementById('CardInfoDontSearch').checked = this._card.card_dont_search;
+	document.getElementById('CardInfoMarked').checked = this._card.card_marked;
 	
 	Dialog.CardInfo.show();
 }
 
 
+
+
+
+View.prototype._save_card_info = function()
+{
+	this._card.card_name = document.getElementById('CardInfoName').value;
+	
+	this._card.card_cant_delete = document.getElementById('CardInfoCantDelete').checked;
+	this._card.card_dont_search = document.getElementById('CardInfoDontSearch').checked;
+	this._card.card_marked = document.getElementById('CardInfoMarked').checked;
+
+	Dialog.dismiss();
+}
+
+
+View.prototype._count_klass = function(in_table, in_klass)
+{
+	var count = 0;
+	for (var o = 0; o < in_table.length; o++)
+		if (in_table[o].get_type() == in_klass) count++;
+	return count;
+}
+
+
 View.prototype._do_bkgnd_info = function()
 {
+	document.getElementById('BkgndInfoName').value = this._card.bkgnd_name;
+	
+	document.getElementById('BkgndInfoID').textContent = 'Background ID: '+this._card.bkgnd_id;
+	document.getElementById('BkgndInfoCardCount').textContent = 'Background shared by '+
+		this._card.bkgnd_count+' '+(this._card.bkgnd_count == 1 ? 'card' : 'cards')+'.';
+	document.getElementById('BkgndInfoFieldCount').textContent = 'Contains '+Util.plural(this._count_klass(this._objects_bkgnd, Field.TYPE),'field','fields');
+	document.getElementById('BkgndInfoButtonCount').textContent = 'Contains '+Util.plural(this._count_klass(this._objects_bkgnd, Button.TYPE),'button','buttons');
+	
+	document.getElementById('BkgndInfoCantDelete').checked = this._card.bkgnd_cant_delete;
+	document.getElementById('BkgndInfoDontSearch').checked = this._card.bkgnd_dont_search;
 
 	Dialog.BkgndInfo.show();
+}
+
+
+View.prototype._save_bkgnd_info = function()
+{
+	this._card.bkgnd_name = document.getElementById('BkgndInfoName').value;
+	
+	this._card.bkgnd_cant_delete = document.getElementById('BkgndInfoCantDelete').checked;
+	this._card.bkgnd_dont_search = document.getElementById('BkgndInfoDontSearch').checked;
+	
+	Dialog.dismiss();
 }
 
 

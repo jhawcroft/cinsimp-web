@@ -91,5 +91,10 @@ window.addEventListener('keyup', Util._update_modifiers, true);
 
 
 
+Util.plural = function(in_value, in_singular, in_plural)
+{
+	if (in_value == 1) return in_value + ' ' + in_singular;
+	else return in_value + ' ' + in_plural;
+}
 
 
