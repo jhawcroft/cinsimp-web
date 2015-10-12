@@ -284,6 +284,34 @@ ViewObject.prototype.set_attr = function(in_attr, in_value)
 	default:
 		this._attrs[in_attr] = in_value;
 	}
+	
+	switch (in_attr)
+	{
+	case ViewObject.ATTR_TFONT:
+		this._div.style.fontFamily = in_value;
+		break;
+	case ViewObject.ATTR_TSIZE:
+		this._div.style.fontSize = in_value +'pt';
+		break;
+	case ViewObject.ATTR_TSTYLE:
+		this._div.style.fontWeight = ((in_value & Text.STYLE_BOLD) ? 'bold' : 'normal');
+		this._div.style.fontStyle = ((in_value & Text.STYLE_ITALIC) ? 'italic' : 'normal');
+		this._div.style.textShadow = (in_value & Text.STYLE_SHADOW ? '2px 2px 1px #CCC' : 'none');
+		if (in_value & Text.STYLE_EXTEND) this._div.style.letterSpacing = '1px';
+		else this._div.style.letterSpacing = (in_value & Text.STYLE_CONDENSE ? '-1px' : 'normal');
+		break;
+	case ViewObject.ATTR_TALIGN:
+		if (in_value == Text.ALIGN_LEFT)
+			this._div.style.textAlign = 'left';
+		else if (in_value == Text.ALIGN_CENTRE)
+			this._div.style.textAlign = 'center';
+		else if (in_value == Text.ALIGN_RIGHT)
+			this._div.style.textAlign = 'right';
+		else if (in_value == Text.ALIGN_JUSTIFY)
+			this._div.style.textAlign = 'justify';
+		break;
+	}
+	
 	this._attribute_changed(in_attr, in_value);
 }
 

@@ -129,8 +129,7 @@ Text._update_sample = function()
 		sample.style.textAlign = 'justify';
 	sample.style.fontWeight = (document.getElementById('TextStyle1').checked ? 'bold' : 'normal');
 	sample.style.fontStyle = (document.getElementById('TextStyle2').checked ? 'italic' : 'normal');
-	sample.style.textShadow = (document.getElementById('TextStyle3').checked ? 
-		'2px 2px black' : 'none');
+	sample.style.textShadow = (document.getElementById('TextStyle3').checked ? '2px 2px 1px #CCC' : 'none');
 	
 	/*
 	Possible Outline implementation:

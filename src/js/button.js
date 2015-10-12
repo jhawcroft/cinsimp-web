@@ -158,6 +158,7 @@ Button.prototype._attribute_changed = function(in_attr, in_value)
 			break;
 		}
 		break;
+	
 	case ViewObject.ATTR_NAME:
 	case Button.ATTR_SHOW_NAME:
 		this._display_name();
