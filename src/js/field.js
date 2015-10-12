@@ -148,8 +148,9 @@ Field.prototype.set_raw_content = function(in_content)
 
 Field.prototype._display_changed = function(in_author, in_edit)
 {
-	this._div.contentEditable = (in_edit && (!this._attrs[Field.ATTR_LOCKED]));
-	this._div.classList.toggle('Editable', in_edit);
+	var editable = (in_edit && (!this._attrs[Field.ATTR_LOCKED]));
+	this._div.contentEditable = editable;
+	this._div.classList.toggle('Editable', editable);
 	//if (this._num_tag)
 	//	this._num_tag.style.visibility = (this._visible && this._view._tool == View.TOOL_FIELD ? 'visible' : 'hidden');
 }
@@ -170,6 +171,12 @@ Field.prototype._attribute_changed = function(in_attr, in_value)
 		break;
 	case Field.ATTR_SCROLL:
 		this._div.style.overflowY = (in_value ? 'scroll' : 'hidden');
+		break;
+	case Field.ATTR_WIDE_MARGINS:
+		this._div.style.padding = (in_value ? '10px' : '0px');
+		break;
+	case Field.ATTR_DONT_WRAP:
+		this._div.style.whiteSpace = (in_value ? 'nowrap' : 'normal');
 		break;
 	}
 }

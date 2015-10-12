@@ -52,6 +52,7 @@ div.NumTag
 div.Field
 {
 	/*outline: none;*/
+	overflow-x: hidden;
 }
 
 

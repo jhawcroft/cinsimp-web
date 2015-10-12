@@ -971,30 +971,34 @@ View.prototype._do_button_info = function()
 	document.getElementById('ButtonInfoID').textContent = 
 		(obj._is_bkgnd ? 'Bkgnd' : 'Card') + ' button ID: ' + obj.get_attr(ViewObject.ATTR_ID);
 		
+	switch (obj.get_attr(Button.ATTR_STYLE))
+	{
+	case Button.STYLE_RECTANGLE:
+		document.getElementById('ButtonInfoType2').checked = true;
+		break;
+	case Button.STYLE_ROUNDED:
+		document.getElementById('ButtonInfoType3').checked = true;
+		break;
+	case Button.STYLE_CHECKBOX:
+		document.getElementById('ButtonInfoType4').checked = true;
+		break;
+	case Button.STYLE_RADIO:
+		document.getElementById('ButtonInfoType5').checked = true;
+		break;
+	case Button.STYLE_BORDERLESS:
+	default:
+		document.getElementById('ButtonInfoType1').checked = true;
+		break;
+	}
+	
+	document.getElementById('ButtonInfoShadow').checked = obj.get_attr(ViewObject.ATTR_SHADOW);
+	document.getElementById('ButtonInfoOpaque').checked = (obj.get_attr(ViewObject.ATTR_COLOR) != null);
 	document.getElementById('ButtonInfoShowName').checked = obj.get_attr(Button.ATTR_SHOW_NAME);
+	
 	document.getElementById('ButtonInfoAutoHilite').checked = obj.get_attr(Button.ATTR_AUTO_HILITE);
 	
-	document.getElementById('ButtonInfoSharedHilite').checked = obj.get_attr(ViewObject.ATTR_SHARED);
-	
-	var color = obj.get_attr(ViewObject.ATTR_COLOR);
-	var shdw = obj.get_attr(ViewObject.ATTR_SHADOW);
-	var style = obj.get_attr(Button.ATTR_STYLE);
-	if (style == Button.STYLE_BORDERLESS && color == null)
-		document.getElementById('ButtonInfoType1').checked = true;//transparent
-	else if (style == Button.STYLE_BORDERLESS && color != null)
-		document.getElementById('ButtonInfoType2').checked = true;//opaque
-	else if (style == Button.STYLE_RECTANGLE && (!shdw))
-		document.getElementById('ButtonInfoType3').checked = true;//rectangle
-		else if (style == Button.STYLE_RECTANGLE && shdw)
-		document.getElementById('ButtonInfoType4').checked = true;//shadow
-	else if (style == Button.STYLE_ROUNDED)
-		document.getElementById('ButtonInfoType5').checked = true;//round-rect
-	else if (style == Button.STYLE_CHECK_BOX)
-		document.getElementById('ButtonInfoType6').checked = true;//check box
-	else if (style == Button.STYLE_RADIO)
-		document.getElementById('ButtonInfoType7').checked = true;//radio
-	else
-		document.getElementById('ButtonInfoType8').checked = true;//popup menu
+	document.getElementById('ButtonInfoBkgndOnly').style.visibility = (obj._is_bkgnd ? 'visible' : 'hidden');
+	document.getElementById('ButtonInfoShared').checked = obj.get_attr(ViewObject.ATTR_SHARED);	
 		
 	Dialog.ButtonInfo.show();
 }
@@ -1006,56 +1010,23 @@ View.prototype._save_button_info = function()
 	
 	obj.set_attr(ViewObject.ATTR_NAME, document.getElementById('ButtonInfoName').value);
 	
+	obj.set_attr(ViewObject.ATTR_SHADOW, document.getElementById('ButtonInfoShadow').checked);
+	obj.set_attr(ViewObject.ATTR_COLOR, (document.getElementById('ButtonInfoOpaque').checked ? [1,1,1] : null));
 	obj.set_attr(Button.ATTR_SHOW_NAME, document.getElementById('ButtonInfoShowName').checked);
-	obj.set_attr(Button.ATTR_AUTO_HILITE, document.getElementById('ButtonInfoAutoHilite').checked);
-	obj.set_attr(ViewObject.ATTR_SHARED, document.getElementById('ButtonInfoSharedHilite').checked);
 	
-	if (document.getElementById('ButtonInfoType1').checked)// transparent
-	{
-		obj.set_attr(ViewObject.ATTR_COLOR, null);
+	obj.set_attr(Button.ATTR_AUTO_HILITE, document.getElementById('ButtonInfoAutoHilite').checked);
+	obj.set_attr(ViewObject.ATTR_SHARED, document.getElementById('ButtonInfoShared').checked);
+	
+	if (document.getElementById('ButtonInfoType1').checked)
 		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_BORDERLESS);
-		obj.set_attr(ViewObject.ATTR_SHADOW, false);
-	}
-	else if (document.getElementById('ButtonInfoType2').checked) // opaque
-	{
-		obj.set_attr(ViewObject.ATTR_COLOR, [1,1,1]);
-		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_BORDERLESS);
-		obj.set_attr(ViewObject.ATTR_SHADOW, false);
-	}
-	else if (document.getElementById('ButtonInfoType3').checked)//rectangle
-	{
-		obj.set_attr(ViewObject.ATTR_COLOR, [1,1,1]);
+	else if (document.getElementById('ButtonInfoType2').checked)
 		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_RECTANGLE);
-		obj.set_attr(ViewObject.ATTR_SHADOW, false);
-	}
-	else if (document.getElementById('ButtonInfoType4').checked)//shadow
-	{
-		obj.set_attr(ViewObject.ATTR_COLOR, [1,1,1]);
-		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_RECTANGLE);
-		obj.set_attr(ViewObject.ATTR_SHADOW, true);
-	}
-	else if (document.getElementById('ButtonInfoType5').checked)//round rect
-	{
-		obj.set_attr(ViewObject.ATTR_COLOR, [1,1,1]);
+	else if (document.getElementById('ButtonInfoType3').checked)
 		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_ROUNDED);
-		obj.set_attr(ViewObject.ATTR_SHADOW, true);
-	}
-	else if (document.getElementById('ButtonInfoType6').checked)//check box
-	{
-		obj.set_attr(ViewObject.ATTR_COLOR, [1,1,1]);
-		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_CHECK_BOX);
-		obj.set_attr(ViewObject.ATTR_SHADOW, false);
-	}
-	else if (document.getElementById('ButtonInfoType7').checked)//radio
-	{
-		obj.set_attr(ViewObject.ATTR_COLOR, [1,1,1]);
+	else if (document.getElementById('ButtonInfoType4').checked)
+		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_CHECKBOX);
+	else if (document.getElementById('ButtonInfoType5').checked)
 		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_RADIO);
-		obj.set_attr(ViewObject.ATTR_SHADOW, false);
-	}
-	else if (document.getElementById('ButtonInfoType8').checked)//popup menu
-	{
-		
-	}
 
 	Dialog.dismiss();
 }
@@ -1063,8 +1034,58 @@ View.prototype._save_button_info = function()
 
 View.prototype._do_field_info = function()
 {
+	var obj = this._selected_objects[0];
+	
+	document.getElementById('FieldInfoName').value = obj.get_attr(ViewObject.ATTR_NAME);
+	document.getElementById('FieldInfoNumber').textContent = 
+		(obj._is_bkgnd ? 'Bkgnd' : 'Card') + ' field number: ' + obj.get_attr(ViewObject.ATTR_KLAS_NUM);
+	document.getElementById('FieldInfoID').textContent = 
+		(obj._is_bkgnd ? 'Bkgnd' : 'Card') + ' field ID: ' + obj.get_attr(ViewObject.ATTR_ID);
+	
+	document.getElementById('FieldInfoBorder').checked = obj.get_attr(Field.ATTR_BORDER);
+	document.getElementById('FieldInfoShadow').checked = obj.get_attr(ViewObject.ATTR_SHADOW);
+	document.getElementById('FieldInfoOpaque').checked = (obj.get_attr(ViewObject.ATTR_COLOR) != null);
+	
+	document.getElementById('FieldInfoShowLines').checked = obj.get_attr(Field.ATTR_SHOW_LINES);
+	document.getElementById('FieldInfoWideMargins').checked = obj.get_attr(Field.ATTR_WIDE_MARGINS);
+	document.getElementById('FieldInfoLocked').checked = obj.get_attr(Field.ATTR_LOCKED);
+	document.getElementById('FieldInfoDontWrap').checked = obj.get_attr(Field.ATTR_DONT_WRAP);
+	document.getElementById('FieldInfoAutoTab').checked = obj.get_attr(Field.ATTR_AUTO_TAB);
 
+	document.getElementById('FieldInfoBkgndOnly').style.visibility = (obj._is_bkgnd ? 'visible' : 'hidden');
+	document.getElementById('FieldInfoShared').checked = obj.get_attr(ViewObject.ATTR_SHARED);
+	document.getElementById('FieldInfoDontSearch').checked = ! obj.get_attr(ViewObject.ATTR_SEARCHABLE);
+	
+	document.getElementById('FieldInfoAutoSelect').checked = obj.get_attr(Field.ATTR_AUTO_SELECT);
+	document.getElementById('FieldInfoMultipleLines').checked = obj.get_attr(Field.ATTR_MULTIPLE_LINES);
+	
 	Dialog.FieldInfo.show();
+}
+
+
+View.prototype._save_field_info = function()
+{
+	var obj = this._selected_objects[0];
+	
+	obj.set_attr(ViewObject.ATTR_NAME, document.getElementById('FieldInfoName').value);
+	
+	obj.set_attr(Field.ATTR_BORDER, document.getElementById('FieldInfoBorder').checked);
+	obj.set_attr(ViewObject.ATTR_SHADOW, document.getElementById('FieldInfoShadow').checked);
+	obj.set_attr(ViewObject.ATTR_COLOR, (document.getElementById('FieldInfoOpaque').checked ? [1,1,1] : null));
+	
+	obj.set_attr(Field.ATTR_SHOW_LINES, document.getElementById('FieldInfoShowLines').checked);
+	obj.set_attr(Field.ATTR_WIDE_MARGINS, document.getElementById('FieldInfoWideMargins').checked);
+	obj.set_attr(Field.ATTR_LOCKED, document.getElementById('FieldInfoLocked').checked);
+	obj.set_attr(Field.ATTR_DONT_WRAP, document.getElementById('FieldInfoDontWrap').checked);
+	obj.set_attr(Field.ATTR_AUTO_TAB, document.getElementById('FieldInfoAutoTab').checked);
+
+	obj.set_attr(ViewObject.ATTR_SHARED, document.getElementById('FieldInfoShared').checked);
+	obj.set_attr(ViewObject.ATTR_SEARCHABLE, ! document.getElementById('FieldInfoDontSearch').checked);
+	
+	obj.set_attr(Field.ATTR_AUTO_SELECT, document.getElementById('FieldInfoAutoSelect').checked);
+	obj.set_attr(Field.ATTR_MULTIPLE_LINES, document.getElementById('FieldInfoMultipleLines').checked);
+	
+	Dialog.dismiss();
 }
 
 

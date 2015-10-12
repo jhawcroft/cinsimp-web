@@ -110,38 +110,17 @@ Button.prototype._resized = function()
 	this._reconfigure();
 }
 
-/*
-Button.prototype._reconfigure = function()
+
+Button.prototype._display_name = function()
 {
-	this._div.style.backgroundColor = (this._attrs[Button.ATTR_COLOR] ? 
-		Util.color_to_css(this._attrs[Button.ATTR_COLOR]) : 'transparent');
-	this._div.style.boxShadow = (this._attrs[Button.ATTR_SHADOW] ? '1px 1px 2px 2px rgba(0,0,0,0.75)' : '');
-	
-	switch (this._attrs[Button.ATTR_STYLE])
+	if (this.get_attr(Button.ATTR_SHOW_NAME))
 	{
-	case Button.STYLE_BORDERLESS:
-		this._div.style.border = '0';
-		this._div.style.borderRadius = '0';
-		break;
-	case Button.STYLE_RECTANGLE:
-		this._div.style.border = '1px solid black';
-		this._div.style.borderRadius = '0';
-		break;
-	case Button.STYLE_ROUNDED:
-		this._div.style.border = '1px solid black';
-		this._div.style.borderRadius = '6px';
-		break;
-	case Button.STYLE_CHECK_BOX:  // ** TODO
-		this._div.style.border = '0';
-		this._div.style.borderRadius = '0';
-		break;
-	case Button.STYLE_RADIO:  // ** TODO
-		this._div.style.border = '0';
-		this._div.style.borderRadius = '0';
-		break;
+		this._caption.innerHTML = '';
+		this._caption.appendChild(document.createTextNode(this.get_attr(ViewObject.ATTR_NAME)));
 	}
+	else
+		this._caption.innerHTML = '';
 }
-*/
 
 
 Button.prototype._attribute_changed = function(in_attr, in_value)
@@ -180,8 +159,8 @@ Button.prototype._attribute_changed = function(in_attr, in_value)
 		}
 		break;
 	case ViewObject.ATTR_NAME:
-		this._caption.innerHTML = '';
-		this._caption.appendChild(document.createTextNode(in_value));
+	case Button.ATTR_SHOW_NAME:
+		this._display_name();
 		break;
 	}
 }
