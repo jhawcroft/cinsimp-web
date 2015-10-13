@@ -7,17 +7,20 @@ In Progress/Todo
 * Rejigging button and field attributes [DONE]
 * Card and bkgnd info [DONE]
 * Stack info [DONE]
-* Script editor
+* Script editor; need to write the JS code formatter
 * Card resize
 * Picklist/content dialog
 * Alerts
-* Icons for buttons
-* Button tasks
+* Icons for buttons; import via server from server list, preload somewhere? all icons in stack? track use in stack and preload all < certain #  
+eventually list in resources screen, ensuring the headers for the supplied images are designed to enable caching
+* Button tasks; link, ? hide for now until can think of things for it to do.
 * Button link to?
 * Protect stack, incl. Password
 
 * Options menu?
 * Core navigation vs browser nav?
+
+* nice loading screen behaviour and stack transitions within a single session
 
 * Paint tools!
   * Cut/Copy/Paste + Rectangular Selection
