@@ -13,7 +13,10 @@ In Progress/Todo
 * Alerts
 * Icons for buttons; import via server from server list, preload somewhere? all icons in stack? track use in stack and preload all < certain #  
 eventually list in resources screen, ensuring the headers for the supplied images are designed to enable caching
-* Button tasks; link, ? hide for now until can think of things for it to do.
+* Button tasks; link, ? hide for now until can think of things for it to do.;
+	visual transition effects, text to speech (via 'mespeak' javascript library or similar)
+	opening a URL, playing a sound (stack resources), playing a movie 
+	Alternately, a visual effect window to accompany the Link button.
 * Button link to?
 * Protect stack, incl. Password
 
