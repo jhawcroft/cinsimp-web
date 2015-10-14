@@ -1,0 +1,72 @@
+div.codeedit
+{
+	display: block;
+	position: absolute;
+	overflow: hidden;
+}
+
+div.codeedit-linenums
+{
+	font-family: monospace;
+	font-size: 11pt;
+	display: block;
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 40px;
+	text-align: right;
+	padding: 2px;
+}
+
+div.codeedit-margin
+{
+	background-color: #CCCCCC;
+	border-right: 1px solid #666666;
+	display: block;
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 44px;
+}
+
+div.codeedit-content
+{
+	display: block;
+	position: absolute;
+	left: 50px;
+	top: 0;
+	width: 100%;
+	background-color: #FFFFFF;
+}
+
+textarea.codeedit-text
+{
+	font-family: monospace;
+	font-size: 11pt;
+	border: 0;
+	width: 100%;
+	resize: none;
+	white-space: pre;
+	margin: 0;
+	padding: 2px;
+	overflow-y: scroll;
+	overflow-x: auto;
+	
+	-webkit-box-shadow: none; 
+	box-shadow: none;
+	background-color: #FFFFFF;
+}
+
+div.codeedit-linemark
+{
+	display: inline-block;
+	position: relative;
+	width: 40px;
+}
+
+div.codeedit-breakpoint
+{
+	background-color: red;
+	color: white;
+}
+

@@ -262,5 +262,10 @@ Application.send_to_back = function()
 }
 
 
+Application.do_edit_script = function(in_subject, in_prior)
+{
+	if (Application._view) Application._view.do_edit_script(in_subject, in_prior);
+}
+
 
 

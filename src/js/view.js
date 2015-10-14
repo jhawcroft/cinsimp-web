@@ -68,6 +68,14 @@ View.TOOL_REG_POLY = 17;
 View.TOOL_FREE_POLY = 18;
 View.TOOL_EYEDROPPER = 19;
 
+
+View.CURRENT_STACK = 0;
+View.CURRENT_BKGND = 1;
+View.CURRENT_CARD = 2;
+View.CURRENT_OBJECT = 3;
+View.CURRENT_BUTTON = 4;
+View.CURRENT_FIELD = 5;
+
 /*
 
 Experimental technology - not stable - also doesn't work this easily since the event object must be cloned.
@@ -1345,5 +1353,34 @@ View.prototype.send_to_back = function()
 	this._save_defs_n_content();
 	this._rebuild_layers();
 }
+///ScriptEditorObject
 
+View.prototype.do_edit_script = function(in_subject, in_prior)
+{
+	if (in_subject == View.CURRENT_OBJECT)
+	{
+		Dialog.ScriptEditor._object = this._selected_objects[0];
+		if (Dialog.ScriptEditor._object.get_type() == Button.TYPE)
+			Dialog.ScriptEditor._type = View.CURRENT_BUTTON;
+		else
+			Dialog.ScriptEditor._type = View.CURRENT_FIELD;
+	}
+	else if (in_subject == View.CURRENT_STACK)
+	{
+		Dialog.ScriptEditor._object = this._stack;
+		Dialog.ScriptEditor._type = View.CURRENT_STACK;
+	}
+	else if (in_subject == View.CURRENT_BKGND)
+	{
+		Dialog.ScriptEditor._object = this._card;
+		Dialog.ScriptEditor._type = View.CURRENT_BKGND;
+	}
+	else
+	{
+		Dialog.ScriptEditor._object = this._card;
+		Dialog.ScriptEditor._type = View.CURRENT_CARD;
+	}
 
+	if (in_prior) in_prior();
+	Dialog.ScriptEditor.show();
+}

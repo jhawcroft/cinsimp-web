@@ -98,3 +98,27 @@ Util.plural = function(in_value, in_singular, in_plural)
 }
 
 
+
+Util.insert_at_cursor = function(in_textarea, in_value) 
+{
+    /* for Internet Explorer: */
+    if (document.selection) 
+    {
+        in_textarea.focus();
+        var rge = document.selection.createRange();
+        rge.text = in_value;
+    }
+    /* for other browsers */
+    else if (in_textarea.selectionStart || in_textarea.selectionStart == 0) 
+    {
+        var pos_begin = in_textarea.selectionStart;
+        var pos_end = in_textarea.selectionEnd;
+        in_textarea.value = in_textarea.value.substring(0, pos_begin) + in_value + 
+        	in_textarea.value.substring(pos_end, in_textarea.value.length);
+    }
+    /* otherwise append */
+    else
+        in_textarea.value += in_value;
+}
+
+
