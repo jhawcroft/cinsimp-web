@@ -1009,6 +1009,8 @@ View.prototype.go_last = function()
 View.prototype.refresh = function()
 {
 	this._rebuild_card();
+	
+	
 
 	//alert(JSON.stringify(this._card));
 }

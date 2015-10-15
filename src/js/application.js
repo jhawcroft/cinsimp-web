@@ -46,6 +46,8 @@ Application._view = null;
 
 Application.init = function()
 {
+	Application.init_card_size_dragger();
+
 	Application._view = new View(Application._stack, Application._card);
 	Application._view.refresh();
 	
@@ -232,10 +234,80 @@ Application.save_stack_info = function()
 	}
 }
 
-Application.handleSaveCardSize = function()
+
+Application.do_card_size = function()
+{
+	Application._csw.set_card_size([this._stack.card_width, this._stack.card_height]);
+	Dialog.CardSize.show();
+}
+
+
+Application.save_card_size = function()
 {
 	Dialog.dismiss();
+	Progress.operation_begun('Resizing card...');
+	
+	var sz = Application._csw.get_card_size();
+	this._stack.card_width = sz[0];
+	this._stack.card_height = sz[1];
+	this._view._container.style.width = sz[0] + 'px';
+	this._view._container.style.height = sz[1] + 'px';
+	
+	var msg = {
+		cmd: 'save_stack',
+		stack_id: this._stack.stack_id,
+		stack: this._stack
+	};
+	Ajax.send(msg, function(msg, status)
+	{
+		Progress.operation_finished();
+		if ((status != 'ok') || (msg.cmd != 'save_stack'))
+			alert('Saving stack changes, error: '+status+"\n"+JSON.stringify(msg));
+		else
+			this._stack = msg.stack;
+	});
 }
+
+
+Application._card_size_picked = function()
+{
+	var picklist = document.getElementById('CardSizeList');
+	var t_sz = picklist.value;
+	if (t_sz == '?,?') this._card_size_changed(this._csw.get_card_size());
+	else this._csw.set_card_size(t_sz.split(','));
+}
+
+
+Application._card_size_changed = function(in_new_size)
+{
+	if (Application._csc) return;
+	Application._csc = true;
+	document.getElementById('CardSizeSize').textContent = in_new_size[0] + ' x ' + in_new_size[1];
+	var t_sz = in_new_size[0] + ',' + in_new_size[1];
+	var picklist = document.getElementById('CardSizeList');
+	var found = false;
+	for (var i = 0; i < picklist.children.length; i++)
+	{
+		var item = picklist.children[i];
+		if (item.value == t_sz) { found = true; break; }
+	}
+	if (!found)
+		picklist.value = '?,?';
+	else
+		picklist.value = t_sz;
+	Application._csc = false;
+}
+
+
+Application.init_card_size_dragger = function()
+{
+	Application._csw = new CardSizeWidget(document.getElementById('CardSizeWidg'),
+		Application._card_size_changed);
+	var picklist = document.getElementById('CardSizeList');
+	picklist.addEventListener('change', Application._card_size_picked.bind(Application));
+}
+
+
 
 
 Application.send_to_front = function()

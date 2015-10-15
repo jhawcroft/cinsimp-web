@@ -50,6 +50,7 @@ var gBase = '../';
 <script language="javascript" type="text/javascript" src="../js/progress.js"></script>
 <script language="javascript" type="text/javascript" src="../js/hcimport.js"></script>
 <script language="javascript" type="text/javascript" src="../js/codeedit.js"></script>
+<script language="javascript" type="text/javascript" src="../js/cardsize-widg.js"></script>
 
 <script>
 
@@ -223,7 +224,7 @@ layers depending on the mode of the application -->
 	
 	<div id="StackInfoCardSize" class="Label x2VertGap">Card size: ^0</div>
 	
-	<div class="Bottom"><input type="button" value="Resize..." onclick="Dialog.dismiss();Dialog.CardSize.show()"> <input type="button" value="Script..." onclick="Application.do_edit_script(View.CURRENT_STACK, Application.save_stack_info());""></div>
+	<div class="Bottom"><input type="button" value="Resize..." onclick="Dialog.dismiss();Application.do_card_size();"> <input type="button" value="Script..." onclick="Application.do_edit_script(View.CURRENT_STACK, Application.save_stack_info());""></div>
 	
 	<div class="Bottom Right"><input type="button" value="Compact" class="SameSizeStacked" onclick="Dialog.dismiss(); Application.compact();"> <input type="button" value="Cancel" class="SameSizeStacked x2VertGap" onclick="Dialog.dismiss()"> <input type="button" value="OK" class="SameSizeStacked VertGap" onclick="Application.save_stack_info()"></div>
 	
@@ -236,13 +237,14 @@ layers depending on the mode of the application -->
 		<option value="512,342">Nostalgia</option>
 		<option value="600,400">Small</option>
 		<option value="800,600">Standard</option>
+		<option value="?,?">Custom</option>
 	</select></div></div>
 	
 	<div class="Label VertGap" id="CardSizeSize">200 x 100</div>
 	
-	<div class="VertGap" style="display: block; position: relative; border: 1px solid black; background-color: #333; width: 200px; height: 200px; overflow: hidden;"><div style="display: block; position: absolute; left: 0; top: 0; width: 100px; height: 80px; background-color: white; border: 1px solid black; min-width: 18px; min-height: 18px; overflow: hidden;" id="CardSizeDragger""><div style="display: block; position: absolute; right: 1px; bottom: 1px; width: 16px; height: 16px; background-color: black;"></div></div></div>
+	<div class="VertGap" style="display: block; position: relative; border: 1px solid black; background-color: #333; width: 200px; height: 200px; overflow: hidden;" id="CardSizeWidg"></div>
 	
-	<div class="Bottom Right"><input type="button" class="SameSizeStacked" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" class="SameSizeStacked VertGap" value="OK" onclick="Application.handleSaveCardSize()"></div>
+	<div class="Bottom Right"><input type="button" class="SameSizeStacked" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" class="SameSizeStacked VertGap" value="OK" onclick="Application.save_card_size()"></div>
 	
 </div>
 

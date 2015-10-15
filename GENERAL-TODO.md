@@ -8,7 +8,7 @@ In Progress/Todo
 * Card and bkgnd info [DONE]
 * Stack info [DONE]
 * Script editor; need to write the JS code formatter
-* Card resize
+* Card resize [DONE]
 * Picklist/content dialog
 * Alerts
 * Icons for buttons; import via server from server list, preload somewhere? all icons in stack? track use in stack and preload all < certain #  
