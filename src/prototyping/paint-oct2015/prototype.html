@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>CinsImp Paint Tool Prototype</title>
-<script src="Drag.js"></script>
+<script language="javascript" type="text/javascript" src="drag.js"></script>
 <style>
 
 .PaintCanvas
@@ -173,7 +173,8 @@ Paint.prototype._rel_loc = function(in_event)
 	}
 	else
 	{
-		// do touch point extraction here
+		loc[0] = in_event.touches[0].pageX;
+		loc[1] = in_event.touches[0].pageY;
 	}
 	
 	var cr = this._container.getBoundingClientRect();
@@ -181,6 +182,15 @@ Paint.prototype._rel_loc = function(in_event)
 	loc[1] -= cr.top;
 	
 	return loc;
+}
+
+
+Paint.prototype._page_loc = function(in_event)
+{
+	if (in_event.pageX)
+		return [in_event.pageX, in_event.pageY];
+	else
+		return [in_event.touches[0].pageX, in_event.touches[0].pageY];
 }
 
 
@@ -196,16 +206,27 @@ Paint.prototype._init = function()
 	this._main.height = this._size[1];
 	
 	this._main.addEventListener('mousedown', function(in_event) { 
-		me._touching = true; me._handle_touch_begin([in_event.pageX, in_event.pageY], me._rel_loc(in_event)); 
+		me._touching = true; me._handle_touch_begin(me._page_loc(in_event), me._rel_loc(in_event)); 
 		in_event.preventDefault(); in_event.stopPropagation(); });
 	this._main.addEventListener('mousemove', function(in_event) { 
-		if (!me._touching) return; me._handle_touch_continue([in_event.pageX, in_event.pageY], me._rel_loc(in_event)); 
+		if (!me._touching) return; me._handle_touch_continue(me._page_loc(in_event), me._rel_loc(in_event)); 
 		//in_event.preventDefault(); in_event.stopPropagation(); 
 		});
 	this._main.addEventListener('mouseup', function(in_event) { 
 		me._touching = false;  
 		//in_event.preventDefault(); in_event.stopPropagation();
 		 });
+		 
+	this._main.addEventListener('touchstart', function(in_event) {
+		me._touching = true; me._handle_touch_begin(me._page_loc(in_event), me._rel_loc(in_event)); 
+		in_event.preventDefault(); in_event.stopPropagation();
+	});
+	this._main.addEventListener('touchmove', function(in_event) {
+		if (!me._touching) return; me._handle_touch_continue(me._page_loc(in_event), me._rel_loc(in_event)); 
+	});
+	this._main.addEventListener('touchend', function(in_event) {
+		me._touching = false; 
+	});
 	
 	this._ctx = this._main.getContext('2d');
 	
@@ -323,8 +344,11 @@ Paint.prototype._drop_selection = function()
 
 Paint.prototype._selection_grab = function(in_event)
 {
-	//alert('Grab selection');
-	Drag.begin_move([in_event.pageX, in_event.pageY], [this._selection], null);
+	var loc = this._page_loc(in_event);
+
+	/* really should be doing pickup here if the thing isn't picked up - ie. is not having an image... */
+	Drag.begin_move(loc, [this._selection], null, null);
+	
 	in_event.preventDefault();
 	in_event.stopPropagation();
 }

@@ -127,6 +127,7 @@ Drag.begin_move = function(in_coords, in_objects, in_snap_handler, in_completion
 	
 	document.addEventListener('touchmove', Drag._handle_move);
 	document.addEventListener('touchend', Drag._end_move);
+	
 }
 
 
@@ -385,7 +386,6 @@ Drag.init = function()
 	document.addEventListener('mousemove', Drag.handleMouseMove);
 }
 Drag.init();
-
 
 
 
