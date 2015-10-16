@@ -460,6 +460,8 @@ Paint.prototype._redraw_poly = function()
 	this._poly_ctx.strokeStyle = 'rgb('+this._color.join(',')+')';
 	this._poly_ctx.beginPath();
 	this._poly_ctx.moveTo(this._poly_points[0][0], this._poly_points[0][1]);
+	for (var p = 1; p < this._poly_points.length; p++)
+		this._poly_ctx.lineTo(this._poly_points[p][0], this._poly_points[p][1]);
 	this._poly_ctx.lineTo(this._poly_end[0], this._poly_end[1]);
 	this._poly_ctx.stroke();
 }
@@ -480,13 +482,13 @@ Paint.prototype._begin_poly = function(in_loc, in_completion)
 	
 	var me = this;
 	this._poly_layer.addEventListener('mousemove', function(in_event) { 
-		if (!me._touching) return; me._handle_touch_continue(me._page_loc(in_event), me._rel_loc(in_event)); 
+		me._handle_touch_continue(me._page_loc(in_event), me._rel_loc(in_event)); 
 	});
-	this._poly_layer.addEventListener('mouseup', function(in_event) { me._touching = false; me._poly_completion(); });
+	this._poly_layer.addEventListener('mouseup', function(in_event) { me._poly_completion(me._rel_loc(in_event)); });
 	this._poly_layer.addEventListener('touchmove', function(in_event) {
-		if (!me._touching) return; me._handle_touch_continue(me._page_loc(in_event), me._rel_loc(in_event)); 
+		me._handle_touch_continue(me._page_loc(in_event), me._rel_loc(in_event)); 
 	});
-	this._poly_layer.addEventListener('touchend', function(in_event) { me._touching = false; me._poly_completion(); });
+	this._poly_layer.addEventListener('touchend', function(in_event) { me._poly_completion(me._rel_loc(in_event)); });
 	
 	this._redraw_poly();
 }
@@ -499,6 +501,8 @@ Paint.prototype._end_poly = function()
 	this._poly_ctx = null;
 	
 	this._poly_points.push(this._poly_end);
+	
+	this._touching = false;
 }
 
 
@@ -513,7 +517,7 @@ Paint.prototype._stroke_poly = function()
 }
 
 
-Paint.prototype._finish_line = function()
+Paint.prototype._finish_line = function(in_loc)
 {
 	this._end_poly();
 	this._stroke_poly();
@@ -525,6 +529,36 @@ Paint.prototype._draw_line = function(in_loc, in_initial)
 	if (in_initial)
 	{
 		this._begin_poly(in_loc, this._finish_line.bind(this));
+		return;
+	}
+	
+	this._poly_end = [in_loc[0], in_loc[1]];
+	this._redraw_poly();
+}
+
+
+Paint.prototype._finish_free_poly_seg = function(in_loc)
+{
+	if (Math.abs(in_loc[0] - this._poly_points[0][0]) <= 5 &&
+		Math.abs(in_loc[1] - this._poly_points[0][1]) <= 5 &&
+		this._poly_points.length > 1)
+	{
+		this._poly_end = [this._poly_points[0][0], this._poly_points[0][1]];
+		this._end_poly();
+		this._stroke_poly();
+		return;
+	}
+
+	this._poly_points.push(this._poly_end);
+	this._redraw_poly();
+}
+
+
+Paint.prototype._draw_free_poly = function(in_loc, in_initial)
+{
+	if (in_initial)
+	{
+		this._begin_poly(in_loc, this._finish_free_poly_seg.bind(this));
 		return;
 	}
 	
@@ -662,6 +696,9 @@ Paint.prototype._handle_touch_continue = function(in_page_loc, in_rel_loc)
 	case Paint.TOOL_LINE:
 		this._draw_line(in_rel_loc, false);
 		break;
+	case Paint.TOOL_FREE_POLY:
+		this._draw_free_poly(in_rel_loc, false);
+		break;
 	}
 }
 
@@ -716,6 +753,9 @@ Paint.prototype._handle_touch_begin = function(in_page_loc, in_rel_loc)
 		
 	case Paint.TOOL_LINE:
 		this._draw_line(in_rel_loc, true);
+		break;
+	case Paint.TOOL_FREE_POLY:
+		this._draw_free_poly(in_rel_loc, true);
 		break;
 	}
 }
