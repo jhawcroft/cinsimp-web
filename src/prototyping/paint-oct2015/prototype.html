@@ -6,13 +6,17 @@
 <script language="javascript" type="text/javascript" src="drag.js"></script>
 <style>
 
+body
+{
+	background: linear-gradient(30deg, #AAA, gray);
+}
+
 .PaintCanvas
 {
 	display: block;
 	position: relative;
 	margin: 20px;
 	border: 1px solid black;
-	background-color: white;
 	width: 600px;
 	height: 400px;
 	float: left;
@@ -968,9 +972,6 @@ gPaint.choose_color([0,0,0]);
 <div><input type="file" id="ImportPaintFile" onchange="gPaint.import_paint(this);"></div>
 
 
-<h2>Preview</h2>
-
-<div><img src="" id="PasteCheck"></div>
 
 </body>
 </html>
