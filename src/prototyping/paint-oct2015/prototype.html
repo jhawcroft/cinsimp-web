@@ -490,7 +490,7 @@ Paint.prototype._begin_poly = function(in_loc, in_completion)
 		me._handle_touch_continue(me._page_loc(in_event), me._rel_loc(in_event)); 
 	});
 	this._poly_layer.addEventListener('touchend', function(in_event) { 
-		alert('touchend');
+		//alert('touchend');
 		me._poly_completion(me._rel_loc(in_event)); 
 	});
 	
