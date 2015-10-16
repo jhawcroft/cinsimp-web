@@ -39,7 +39,7 @@ function View(in_stack, in_card)
 {
 	this._stack = in_stack;
 	this._card = in_card;
-	
+	this._paint = null;
 	
 	this._init_view();
 }
@@ -127,6 +127,12 @@ View.prototype._init_view = function()
 	this._layer_obj_bkgnd.style.width = this._size[0] + 'px';
 	this._layer_obj_bkgnd.style.height = this._size[1] + 'px';*/
 	
+	this._layer_paint = document.createElement('div');
+	this._layer_paint.className = 'PaintCanvas';
+	this._layer_paint.style.zIndex = 4;
+	this._layer_paint.style.width = this._size[0] + 'px';
+	this._layer_paint.style.height = this._size[1] + 'px';
+	
 	this._layer_obj_card = document.createElement('div');
 	this._layer_obj_card.id = 'LayerObjCard';
 	this._layer_obj_card.style.zIndex = 5;
@@ -137,6 +143,7 @@ View.prototype._init_view = function()
 	//this._layer_obj_card = document.createElement('div');
 	//this._layer_obj_card = document.createElement('div');
 	//this._container.appendChild(this._layer_obj_bkgnd);
+	this._container.appendChild(this._layer_paint);
 	this._container.appendChild(this._layer_obj_card);
 	
 	this._bkgnd_indicator = document.createElement('div');
@@ -174,6 +181,8 @@ View.prototype._indicate_tool = function(in_tool)
 	case View.TOOL_BUTTON:
 	case View.TOOL_FIELD:
 		this._container.classList.toggle('CursAuthor', true);
+		break;
+	default:
 		break;
 	}
 	
@@ -446,6 +455,25 @@ View.prototype.choose_tool = function(in_tool)
 	this.select_none();
 	
 	this._tool = in_tool;
+	
+	/* instantiate the paint subsystem if appropriate
+	and configure the paint environment */
+	if (in_tool != View.TOOL_BROWSE && in_tool != View.TOOL_BUTTON && in_tool != View.TOOL_FIELD)
+	{
+		if (!this._paint) this._paint = new Paint(this._layer_paint, this._size);
+		if (this._paint) 
+		{
+			this._paint.choose_tool(in_tool);
+			// probably need to reinit with a different card size here; only if different?
+			this._layer_paint.style.visibility = 'visible';
+		}
+	}
+	else
+	{
+		if (this._paint)
+			this._paint.choose_tool(in_tool);
+		this._layer_paint.style.visibility = 'hidden';
+	}
 	
 	/* determine the mode */
 	if (this._tool == View.TOOL_BROWSE) this._mode = View.MODE_BROWSE;

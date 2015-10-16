@@ -110,7 +110,7 @@ function Paint(in_container, in_size)
 	this._pt_end = [0,0];
 	this._pt_prev = [0,0];
 	this._brush_shape = null;
-	this._prev_tool = Paint.TOOL_BROWSE;
+	this._prev_tool = View.TOOL_BROWSE;
 	this._line_size = 1;
 	this._dbl_click_check = null;
 	
@@ -130,24 +130,6 @@ function Paint(in_container, in_size)
 	this._blank_url = this.get_data_png();
 }
 
-
-Paint.TOOL_BROWSE = 1;
-Paint.TOOL_SELECT = 4;
-Paint.TOOL_LASSO = 5;
-Paint.TOOL_PENCIL = 6;
-Paint.TOOL_BRUSH = 7;
-Paint.TOOL_ERASER = 8;
-Paint.TOOL_LINE = 9;
-Paint.TOOL_SPRAY = 10;
-Paint.TOOL_RECTANGLE = 11;
-Paint.TOOL_ROUND_RECT = 12;
-Paint.TOOL_BUCKET = 13;
-Paint.TOOL_OVAL = 14;
-Paint.TOOL_FREE_SHAPE = 15;
-Paint.TOOL_TEXT = 16;
-Paint.TOOL_REG_POLY = 17;
-Paint.TOOL_FREE_POLY = 18;
-Paint.TOOL_EYEDROPPER = 19;
 
 
 Paint.prototype._rel_loc = function(in_event)
@@ -628,13 +610,13 @@ Paint.prototype._finish_reg_shape = function(in_loc)
 	var rect = this._reg_shape_rect();
 	switch (this._tool)
 	{
-	case Paint.TOOL_RECTANGLE:
+	case View.TOOL_RECTANGLE:
 		this._ctx.rect(rect[0], rect[1], rect[2], rect[3]);
 		break;
-	case Paint.TOOL_OVAL:
+	case View.TOOL_OVAL:
 		this._elipse(this._ctx, rect[0], rect[1], rect[2], rect[3]);
 		break;
-	case Paint.TOOL_ROUND_RECT:
+	case View.TOOL_ROUND_RECT:
 		this._roundrect(this._ctx, rect[0], rect[1], rect[2], rect[3], 10);
 		break;
 	}
@@ -658,13 +640,13 @@ Paint.prototype._draw_reg_shape = function(in_loc, in_initial, in_shape)
 	var rect = this._reg_shape_rect();
 	switch (this._tool)
 	{
-	case Paint.TOOL_RECTANGLE:
+	case View.TOOL_RECTANGLE:
 		this._poly_ctx.rect(rect[0], rect[1], rect[2], rect[3]);
 		break;
-	case Paint.TOOL_OVAL:
+	case View.TOOL_OVAL:
 		this._elipse(this._poly_ctx, rect[0], rect[1], rect[2], rect[3]);
 		break;
-	case Paint.TOOL_ROUND_RECT:
+	case View.TOOL_ROUND_RECT:
 		this._roundrect(this._poly_ctx, rect[0], rect[1], rect[2], rect[3], 10);
 		break;
 	}
@@ -786,31 +768,31 @@ Paint.prototype._handle_touch_continue = function(in_page_loc, in_rel_loc)
 	
 	switch (this._tool)
 	{
-	case Paint.TOOL_ERASER:
+	case View.TOOL_ERASER:
 		this._apply_eraser(in_rel_loc, false);
 		break;
-	case Paint.TOOL_PENCIL:
+	case View.TOOL_PENCIL:
 		this._apply_pencil(in_rel_loc, false);
 		break;
-	case Paint.TOOL_BRUSH:
+	case View.TOOL_BRUSH:
 		this._apply_brush(in_rel_loc, false);
 		break;
-	case Paint.TOOL_SPRAY:
+	case View.TOOL_SPRAY:
 		this._apply_spray(in_rel_loc, false);
 		break;
 		
-	case Paint.TOOL_LINE:
+	case View.TOOL_LINE:
 		this._draw_line(in_rel_loc, false);
 		break;
-	case Paint.TOOL_FREE_POLY:
+	case View.TOOL_FREE_POLY:
 		this._draw_free_poly(in_rel_loc, false);
 		break;
-	case Paint.TOOL_FREE_SHAPE:
+	case View.TOOL_FREE_SHAPE:
 		this._draw_free_shape(in_rel_loc, false);
 		break;
-	case Paint.TOOL_RECTANGLE:
-	case Paint.TOOL_OVAL:
-	case Paint.TOOL_ROUND_RECT:
+	case View.TOOL_RECTANGLE:
+	case View.TOOL_OVAL:
+	case View.TOOL_ROUND_RECT:
 		this._draw_reg_shape(in_rel_loc, false);
 		break;
 	}
@@ -827,7 +809,7 @@ Paint.prototype._handle_touch_begin = function(in_page_loc, in_rel_loc)
 	
 	switch (this._tool)
 	{
-	case Paint.TOOL_SELECT:
+	case View.TOOL_SELECT:
 		this._selected.innerHTML = '';
 		this._selection.set_loc(in_rel_loc);
 		this._selection.set_size([0,0]);
@@ -835,7 +817,7 @@ Paint.prototype._handle_touch_begin = function(in_page_loc, in_rel_loc)
 		Drag.begin_resize(in_page_loc, [this._selection], null, this._selection_finish.bind(this));
 		break;
 	
-	case Paint.TOOL_LASSO:
+	case View.TOOL_LASSO:
 		/* can handle this by: a) allowing the construction of a path,
 		b) filling the shape formed by the path, within an offscreen context,
 		c) copying the pixels 1-by-1 from the main canvas to the selection canvas
@@ -845,39 +827,39 @@ Paint.prototype._handle_touch_begin = function(in_page_loc, in_rel_loc)
 		a rectangular outline. */
 		break;
 	
-	case Paint.TOOL_ERASER:
+	case View.TOOL_ERASER:
 		this._apply_eraser(in_rel_loc, true);
 		break;
-	case Paint.TOOL_PENCIL:
+	case View.TOOL_PENCIL:
 		this._apply_pencil(in_rel_loc, true);
 		break;
-	case Paint.TOOL_BRUSH:
+	case View.TOOL_BRUSH:
 		this._apply_brush(in_rel_loc, true);
 		break;
-	case Paint.TOOL_SPRAY:
+	case View.TOOL_SPRAY:
 		this._apply_spray(in_rel_loc, true);
 		break;
-	case Paint.TOOL_BUCKET:
+	case View.TOOL_BUCKET:
 		this._apply_bucket(in_rel_loc);
 		break;
-	case Paint.TOOL_EYEDROPPER:
+	case View.TOOL_EYEDROPPER:
 		this.choose_color(this._get_color(in_rel_loc));
 		this.choose_tool(this._prev_tool);
 		break;
 		
-	case Paint.TOOL_LINE:
+	case View.TOOL_LINE:
 		this._draw_line(in_rel_loc, true);
 		break;
-	case Paint.TOOL_FREE_POLY:
+	case View.TOOL_FREE_POLY:
 		this._draw_free_poly(in_rel_loc, true);
 		break;
-	case Paint.TOOL_FREE_SHAPE:
+	case View.TOOL_FREE_SHAPE:
 		this._draw_free_shape(in_rel_loc, true);
 		break;
 		
-	case Paint.TOOL_RECTANGLE:
-	case Paint.TOOL_OVAL:
-	case Paint.TOOL_ROUND_RECT:
+	case View.TOOL_RECTANGLE:
+	case View.TOOL_OVAL:
+	case View.TOOL_ROUND_RECT:
 		this._draw_reg_shape(in_rel_loc, true);
 		break;
 	}
@@ -971,7 +953,7 @@ Paint.prototype._paste_create_image = function(in_source)
 	var img = document.createElement('img');
 	img.onload = function()
 	{
-		me.choose_tool(Paint.TOOL_SELECT);
+		me.choose_tool(View.TOOL_SELECT);
 		
 		me._selected.innerHTML = '';
 		me._selected.appendChild(img);
@@ -1048,17 +1030,17 @@ Paint.prototype._tool_double_click = function()
 {
 	switch (this._tool)
 	{
-	case Paint.TOOL_ERASER:
+	case View.TOOL_ERASER:
 		this._ctx.clearRect(0, 0, this._size[0], this._size[1]);
 		if (this._prev_tool != this._tool)
 			this.choose_tool(this._prev_tool);
 		break;
-	case Paint.TOOL_LINE:
+	case View.TOOL_LINE:
 		if (this.onchooseline) this.onchooseline();
 		if (this._prev_tool != this._tool)
 			this.choose_tool(this._prev_tool);
 		break;
-	case Paint.TOOL_BRUSH:
+	case View.TOOL_BRUSH:
 		if (this.onchoosebrush) this.onchoosebrush();
 		break;
 	}
@@ -1087,19 +1069,19 @@ Paint.prototype.choose_tool = function(in_tool)
 		return;
 	}
 	
-	if (this._tool != Paint.TOOL_EYEDROPPER)
+	if (this._tool != View.TOOL_EYEDROPPER)
 		this._prev_tool = this._tool;
 	
 	this._tool = in_tool;
-	if (in_tool == Paint.TOOL_BROWSE && this._in_paint)
+	if (in_tool == View.TOOL_BROWSE && this._in_paint)
 		this._exit_paint();
-	else if (in_tool != Paint.TOOL_BROWSE && (!this._in_paint))
+	else if (in_tool != View.TOOL_BROWSE && (!this._in_paint))
 	{
 		this._enter_paint();
 		this._prev_tool = this._tool;
 	}
 		
-	//if (in_tool == Paint.TOOL_BROWSE) /* eventually may be able to use other tools within the selection - if it's canvas based */
+	//if (in_tool == View.TOOL_BROWSE) /* eventually may be able to use other tools within the selection - if it's canvas based */
 		this._drop_selection();
 		
 	this._main.classList.remove('CursCrosshair');
@@ -1111,33 +1093,33 @@ Paint.prototype.choose_tool = function(in_tool)
 	this._main.classList.remove('CursBucket');
 	switch (in_tool)
 	{
-	case Paint.TOOL_SELECT:
-	case Paint.TOOL_LASSO:
-	case Paint.TOOL_LINE:
-	case Paint.TOOL_RECTANGLE:
-	case Paint.TOOL_ROUND_RECT:
-	case Paint.TOOL_OVAL:
-	case Paint.TOOL_FREE_SHAPE:
-	case Paint.TOOL_REG_POLY:
-	case Paint.TOOL_FREE_POLY:
+	case View.TOOL_SELECT:
+	case View.TOOL_LASSO:
+	case View.TOOL_LINE:
+	case View.TOOL_RECTANGLE:
+	case View.TOOL_ROUND_RECT:
+	case View.TOOL_OVAL:
+	case View.TOOL_FREE_SHAPE:
+	case View.TOOL_REG_POLY:
+	case View.TOOL_FREE_POLY:
 		this._main.classList.add('CursCrosshair');
 		break;
-	case Paint.TOOL_ERASER:
+	case View.TOOL_ERASER:
 		this._main.classList.add('CursEraser');
 		break;
-	case Paint.TOOL_PENCIL:
+	case View.TOOL_PENCIL:
 		this._main.classList.add('CursPencil');
 		break;
-	case Paint.TOOL_BRUSH:
+	case View.TOOL_BRUSH:
 		this._main.classList.add('CursPaint');
 		break;
-	case Paint.TOOL_SPRAY:
+	case View.TOOL_SPRAY:
 		this._main.classList.add('CursSpray');
 		break;
-	case Paint.TOOL_EYEDROPPER:
+	case View.TOOL_EYEDROPPER:
 		this._main.classList.add('CursEyedropper');
 		break;
-	case Paint.TOOL_BUCKET:
+	case View.TOOL_BUCKET:
 		this._main.classList.add('CursBucket');
 		break;
 	}
