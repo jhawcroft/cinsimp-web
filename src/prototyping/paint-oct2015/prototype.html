@@ -506,6 +506,12 @@ Paint.prototype._end_poly = function()
 }
 
 
+Paint.prototype._end_poly_seg = function()
+{
+	this._poly_points.push(this._poly_end);
+}
+
+
 Paint.prototype._stroke_poly = function()
 {
 	this._ctx.strokeStyle = 'rgb('+this._color.join(',')+')';
@@ -537,19 +543,25 @@ Paint.prototype._draw_line = function(in_loc, in_initial)
 }
 
 
+Paint.prototype._finish_free_poly = function()
+{
+	this._poly_end = [this._poly_points[0][0], this._poly_points[0][1]]; // close the shape
+	this._end_poly();
+	this._stroke_poly();
+}
+
+
 Paint.prototype._finish_free_poly_seg = function(in_loc)
 {
 	if (Math.abs(in_loc[0] - this._poly_points[0][0]) <= 5 &&
 		Math.abs(in_loc[1] - this._poly_points[0][1]) <= 5 &&
 		this._poly_points.length > 1)
 	{
-		this._poly_end = [this._poly_points[0][0], this._poly_points[0][1]];
-		this._end_poly();
-		this._stroke_poly();
+		this._finish_free_poly();
 		return;
 	}
 
-	this._poly_points.push(this._poly_end);
+	this._end_poly_seg();
 	this._redraw_poly();
 }
 
@@ -563,6 +575,28 @@ Paint.prototype._draw_free_poly = function(in_loc, in_initial)
 	}
 	
 	this._poly_end = [in_loc[0], in_loc[1]];
+	this._redraw_poly();
+}
+
+
+Paint.prototype._finish_free_shape = function(in_loc, in_initial)
+{
+	this._poly_end = [this._poly_points[0][0], this._poly_points[0][1]]; // close the shape
+	this._end_poly();
+	this._stroke_poly();
+}
+
+
+Paint.prototype._draw_free_shape = function(in_loc, in_initial)
+{
+	if (in_initial)
+	{
+		this._begin_poly(in_loc, this._finish_free_shape.bind(this));
+		return;
+	}
+	
+	this._poly_end = [in_loc[0], in_loc[1]];
+	this._end_poly_seg();
 	this._redraw_poly();
 }
 
@@ -699,6 +733,9 @@ Paint.prototype._handle_touch_continue = function(in_page_loc, in_rel_loc)
 	case Paint.TOOL_FREE_POLY:
 		this._draw_free_poly(in_rel_loc, false);
 		break;
+	case Paint.TOOL_FREE_SHAPE:
+		this._draw_free_shape(in_rel_loc, false);
+		break;
 	}
 }
 
@@ -756,6 +793,9 @@ Paint.prototype._handle_touch_begin = function(in_page_loc, in_rel_loc)
 		break;
 	case Paint.TOOL_FREE_POLY:
 		this._draw_free_poly(in_rel_loc, true);
+		break;
+	case Paint.TOOL_FREE_SHAPE:
+		this._draw_free_shape(in_rel_loc, true);
 		break;
 	}
 }
