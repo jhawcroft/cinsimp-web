@@ -67,6 +67,12 @@
 	cursor: url('gfx/CursorPencil.png') 0 15, crosshair;
 }
 
+.CursPaint
+{
+	cursor: url('gfx/CursorRound.png') 5 5, crosshair;
+}
+
+
 </style>
 <script>
 
@@ -150,10 +156,15 @@ function Paint(in_container, in_size)
 	this._pt_start = [0,0];
 	this._pt_end = [0,0];
 	this._pt_prev = [0,0];
+	this._brush_shape = null;
 	
 	this.ontoolchange = null;
 	
 	this._init();
+	
+	var brush = new Image();
+	brush.src = 'gfx/brush_mask_1.png';
+	this.set_brush(brush);
 }
 
 
@@ -205,6 +216,12 @@ Paint.prototype._page_loc = function(in_event)
 		return [in_event.pageX, in_event.pageY];
 	else
 		return [in_event.touches[0].pageX, in_event.touches[0].pageY];
+}
+
+
+Paint.prototype.set_brush = function(in_image)
+{
+	this._brush_shape = in_image;
 }
 
 
@@ -363,7 +380,23 @@ Paint.prototype._apply_pencil = function(in_loc, in_initial) // need to iterate 
 
 Paint.prototype._apply_brush = function(in_loc, in_initial)// need to iterate over the line and use the configurable head
 {
+	if (in_initial)
+	{
+		// setup the brush
+		this._brush = document.createElement('canvas');
+		this._brush.width = this._brush_shape.width;
+		this._brush.height = this._brush_shape.height;
+		var brush_ctx = this._brush.getContext('2d');
+		brush_ctx.drawImage(this._brush_shape, 0, 0);
+		brush_ctx.fillStyle = 'rgb('+this._color.join(',')+')';
+		brush_ctx.globalCompositeOperation = 'source-in';
+		brush_ctx.fillRect(0, 0, this._brush.width, this._brush.height);
+	}
 	
+	var me = this;
+	this._apply_between(this._pt_prev, this._pt_end, function(in_loc) {
+		me._ctx.drawImage(me._brush, in_loc[0], in_loc[1]);
+	});
 }
 
 
@@ -612,7 +645,14 @@ Paint.prototype._handle_event_paste = function(in_event)
 
 Paint.prototype.choose_tool = function(in_tool)
 {
-	if (this._tool == in_tool) return;
+	if (this._notifying_tool_change) return;
+	
+	if (this._tool == in_tool) 
+	{
+		// check for double-click
+		
+		return;
+	}
 	
 	this._tool = in_tool;
 	if (in_tool == Paint.TOOL_BROWSE && this._in_paint)
@@ -626,6 +666,7 @@ Paint.prototype.choose_tool = function(in_tool)
 	this._main.classList.remove('CursCrosshair');
 	this._main.classList.remove('CursEraser');
 	this._main.classList.remove('CursPencil');
+	this._main.classList.remove('CursPaint');
 	switch (in_tool)
 	{
 	case Paint.TOOL_SELECT:
@@ -637,10 +678,18 @@ Paint.prototype.choose_tool = function(in_tool)
 	case Paint.TOOL_PENCIL:
 		this._main.classList.add('CursPencil');
 		break;
+	case Paint.TOOL_BRUSH:
+		this._main.classList.add('CursPaint');
+		break;
 	}
 	
-	if (this.ontoolchange)
-		this.ontoolchange(this._tool);
+	this._notifying_tool_change = true;
+	try {
+		if (this.ontoolchange)
+			this.ontoolchange(this._tool);
+	}
+	catch (err) {}
+	this._notifying_tool_change = false;
 }
 
 
