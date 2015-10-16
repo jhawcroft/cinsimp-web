@@ -188,8 +188,11 @@ function Paint(in_container, in_size)
 	this._brush_shape = null;
 	this._prev_tool = Paint.TOOL_BROWSE;
 	this._line_size = 1;
+	this._dbl_click_check = null;
 	
 	this.ontoolchange = null;
+	this.onchoosebrush = null;
+	this.onchooseline = null;
 	
 	this._init();
 	
@@ -1114,14 +1117,46 @@ Paint.prototype._handle_event_paste = function(in_event)
 }
 
 
+Paint.prototype._tool_double_click = function()
+{
+	switch (this._tool)
+	{
+	case Paint.TOOL_ERASER:
+		this._ctx.clearRect(0, 0, this._size[0], this._size[1]);
+		if (this._prev_tool != this._tool)
+			this.choose_tool(this._prev_tool);
+		break;
+	case Paint.TOOL_LINE:
+		if (this.onchooseline) this.onchooseline();
+		if (this._prev_tool != this._tool)
+			this.choose_tool(this._prev_tool);
+		break;
+	case Paint.TOOL_BRUSH:
+		if (this.onchoosebrush) this.onchoosebrush();
+		break;
+	}
+}
+
+
 Paint.prototype.choose_tool = function(in_tool)
 {
 	if (this._notifying_tool_change) return;
 	
+	var dbl_click = false;
+	if (this._dbl_click_check)
+	{
+		window.clearTimeout(this._dbl_click_check);
+		this._dbl_click_check = null;
+		dbl_click = true;
+	}
+	var me = this;
+	this._dbl_click_check = window.setTimeout(function() { me._dbl_click_check = null; }, 500);
+	
 	if (this._tool == in_tool) 
 	{
 		// check for double-click
-		
+		if (dbl_click)
+			this._tool_double_click();
 		return;
 	}
 	
@@ -1317,6 +1352,9 @@ function setupColours()
 setupColours();
 choose_tool(Paint.TOOL_BROWSE);
 gPaint.choose_color([0,0,0]);
+
+gPaint.onchooseline = function() { alert('Show line palette'); }
+gPaint.onchoosebrush = function() { alert('Show brush choice dialog'); }
 
 </script>
 
