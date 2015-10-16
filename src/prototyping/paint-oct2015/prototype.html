@@ -8,6 +8,7 @@
 .PaintCanvas
 {
 	display: block;
+	position: relative;
 	margin: 20px;
 	border: 1px solid black;
 	background-color: white;
@@ -29,10 +30,20 @@
 </style>
 <script>
 
-function Paint()
+/*
+Aside from paste from clipboard, can potentially do an Import Paint command,
+which would upload the picture or provide it via a file select dialog,
+and then provide the usual rectangular selection mechanism to allow positioning.
+*/
+
+
+function Paint(in_container)
 {
-	
+	this._container = in_container;
+	this._in_paint = false;
+	this._init();
 }
+
 
 Paint.TOOL_BROWSE = 1;
 Paint.TOOL_SELECT = 4;
@@ -53,10 +64,140 @@ Paint.TOOL_FREE_POLY = 18;
 Paint.TOOL_EYEDROPPER = 19;
 
 
+Paint.prototype._init = function()
+{
+	this._main = document.createElement('canvas');
+	this._main.style.position = 'absolute';
+	this._main.style.left = '0px';
+	this._main.style.top = '0px';
+	this._main.style.width = this._container.clientWidth + 'px';
+	this._main.style.height = this._container.clientHeight + 'px';
+	
+	this._pastecatcher = document.createElement('div');
+	this._pastecatcher.style.cssText = 'opacity: 0; position: fixed; top: 0px; left: 0px; width: 0px; height: 0px; overflow: hidden;';
+	this._pastecatcher.contentEditable = true;
+	this._pastecatcher.addEventListener('DOMSubtreeModified', this._handle_dom_paste.bind(this));
+	document.body.appendChild(this._pastecatcher);
+	
+	//this._main.style.backgroundColor = 'gray';
+	//this._main.contentEditable = true;
+	this._container.appendChild(this._main);
+}
+
+
+Paint.prototype._enter_paint = function()
+{
+	this._in_paint = true;
+	
+	this._listeners = [
+		this._handle_keydown.bind(this),
+		this._handle_keydown.bind(this),
+		this._handle_event_paste.bind(this)
+		];
+	document.addEventListener('keydown', this._listeners[0]);
+	document.addEventListener('keyup', this._listeners[1]);
+	document.addEventListener('paste', this._listeners[2]);
+}
+
+
+Paint.prototype._exit_paint = function()
+{
+	this._in_paint = false;
+	
+	document.removeEventListener('keydown', this._listeners[0]);
+	document.removeEventListener('keyup', this._listeners[1]);
+	document.removeEventListener('paste', this._listeners[2]);
+}
+
+
+Paint.prototype._handle_keydown = function(in_event)
+{
+	if (in_event.ctrlKey || in_event.metaKey)
+		this._pastecatcher.focus();
+}
+
+
+Paint.prototype._handle_keyup = function(in_event)
+{
+	
+}
+
+
+/*
+	This receives an image source as the result of a paste or import paint operation.
+*/
+Paint.prototype._paste_create_image = function(in_source)
+{
+	//var pasted_image = new Image();
+    //pasted_image.src = in_source;
+
+	document.getElementById('PasteCheck').src = in_source;
+}
+
+
+/*
+	Allows a direct import by file selection.
+*/
+Paint.prototype.import_paint = function(in_input_element)
+{
+	this._paste_create_image(URL.createObjectURL(in_input_element.files[0]));
+}
+
+
+/*
+	For browsers such as Firefox, where a pasted image must go into an editable
+	content element, we retrieve the pasted image from this element.
+*/
+Paint.prototype._handle_dom_paste = function()
+{
+	if (this._pastecatcher.children.length == 1)
+	{
+		try 
+		{
+			var source = this._pastecatcher.firstElementChild.src;
+			this._paste_create_image(source);
+		}
+		catch (err) {}
+	}
+    
+    this._pastecatcher.innerHTML = '';
+}
+
+
+/*
+	For browsers such as Chrome, which support the HTML5 Clipboard functionality,
+	we retrieve the pasted image directly.
+*/
+Paint.prototype._handle_event_paste = function(in_event)
+{
+	if (!in_event.clipboardData) 
+	{
+		window.setTimeout(this._handle_dom_paste.bind(this), 1);
+		return;
+	}
+	
+	var items = in_event.clipboardData.items;
+	if (!items) return;
+	
+	for (var i = 0; i < items.length; i++)
+	{
+		if (items[i].type.indexOf('image') == -1) continue;
+		var blob = items[i].getAsFile();
+		var url = window.URL || window.webkitURL;
+		var source = url.createObjectURL(blob);
+		
+		this._paste_create_image(source);
+	}
+}
+
 
 Paint.prototype.choose_tool = function(in_tool)
 {
 	this._tool = in_tool;
+	if (in_tool == Paint.TOOL_BROWSE && this._in_paint)
+		this._exit_paint();
+	else if (in_tool != Paint.TOOL_BROWSE && (!this._in_paint))
+		this._enter_paint();
 }
 
 
@@ -74,7 +215,7 @@ Paint.prototype.choose_color = function(in_color)
 </head>
 <body>
 
-<div class="PaintCanvas">
+<div id="Container" class="PaintCanvas">
 
 
 
@@ -108,7 +249,7 @@ Paint.prototype.choose_color = function(in_color)
 <script>
 
 
-var gPaint = new Paint();
+var gPaint = new Paint(document.getElementById('Container'));
 
 function choose_tool(in_tool)
 {
@@ -173,6 +314,15 @@ gPaint.choose_color([0,0,0]);
 
 </script>
 
+
+
+<h2>Import Paint</h2>
+<div><input type="file" id="ImportPaintFile" onchange="gPaint.import_paint(this);"></div>
+
+
+<h2>Preview</h2>
+
+<div><img src="" id="PasteCheck"></div>
 
 </body>
 </html>
