@@ -62,6 +62,11 @@
 	cursor: url('gfx/CursorEraser.png'), crosshair;
 }
 
+.CursPencil 
+{
+	cursor: url('gfx/CursorPencil.png') 0 15, crosshair;
+}
+
 </style>
 <script>
 
@@ -142,6 +147,9 @@ function Paint(in_container, in_size)
 	this._in_paint = false;
 	this._size = in_size;
 	this._touching = false;
+	this._pt_start = [0,0];
+	this._pt_end = [0,0];
+	this._pt_prev = [0,0];
 	
 	this.ontoolchange = null;
 	
@@ -290,24 +298,66 @@ Paint.prototype.pickup_selection = function()
 }
 
 
+Paint.hyp = function(in_a, in_b)
+{
+	return Math.sqrt( Math.pow(in_a, 2.0) + Math.pow(in_b, 2.0) );
+}
+
+
+Paint.prototype._apply_between = function(in_loc1, in_loc2, in_func)
+{
+	if (in_loc1[0] == in_loc2[0] &&
+		in_loc1[1] == in_loc2[1])
+	{
+		in_func([in_loc1[0], in_loc1[1]]);
+		return;
+	}
+
+	var vector = [in_loc2[0] - in_loc1[0], in_loc2[1] - in_loc1[1]];
+	var distance = Paint.hyp(vector[0], vector[1]);
+   	vector[0] /= distance;
+   	vector[1] /= distance;
+   
+    for (var i = 0; i < distance; i += 1.0) 
+    {
+    	in_func([in_loc1[0] + i * vector[0], in_loc1[1] + i * vector[1]]);
+    }
+}
+
+
 Paint.prototype._apply_eraser = function(in_loc, in_initial) // need to iterate over the line
 {
-	this._ctx.clearRect(in_loc[0], in_loc[1], 16, 16);
+	var me = this;
+	this._apply_between(this._pt_prev, this._pt_end, function(in_loc) {
+		me._ctx.clearRect(in_loc[0], in_loc[1], 16, 16);
+	});
 }
 
 
 Paint.prototype._apply_pencil = function(in_loc, in_initial) // need to iterate over the line and determine the mode: color / clear
 {
+	this._pencil_erase = false;
+	
 	if (in_initial)
 	{
-		// if the initial pixel is the same color as the current color, AND the first pixel isn't transparent,
-		// then it's a clear operation,
-		// if the first pixel is transparent, or it's a different color, then its a paint operation
-	
+		var data = this._ctx.getImageData(in_loc[0], in_loc[1], 1, 1).data;
+		if (data[3] != 0 && 
+			data[0] == this._color[0] &&
+			data[1] == this._color[1] &&
+			data[2] == this._color[2]) // starting point is opaque with same color as active color => pencil is eraser
+			this._pencil_erase = true;
 		this._ctx.fillStyle = 'rgb('+this._color.join(',')+')';
 	}
 	
-	this._ctx.fillRect(in_loc[0], in_loc[1], 1, 1);
+	var me = this;
+	if (!this._pencil_erase)
+		this._apply_between(this._pt_prev, this._pt_end, function(in_loc) {
+			me._ctx.fillRect(in_loc[0] -1, in_loc[1], 1, 1);
+		});
+	else
+		this._apply_between(this._pt_prev, this._pt_end, function(in_loc) {
+			me._ctx.clearRect(in_loc[0] -1, in_loc[1], 1, 1);
+		});
 }
 
 
@@ -331,6 +381,9 @@ Paint.prototype._apply_bucket = function(in_loc) // flood fill
 
 Paint.prototype._handle_touch_continue = function(in_page_loc, in_rel_loc)
 {
+	this._pt_prev = [this._pt_end[0], this._pt_end[1]];
+	this._pt_end = [in_rel_loc[0], in_rel_loc[1]];
+	
 	switch (this._tool)
 	{
 	case Paint.TOOL_ERASER:
@@ -351,6 +404,10 @@ Paint.prototype._handle_touch_continue = function(in_page_loc, in_rel_loc)
 
 Paint.prototype._handle_touch_begin = function(in_page_loc, in_rel_loc)
 {
+	this._pt_start = [in_rel_loc[0], in_rel_loc[1]];
+	this._pt_end = [in_rel_loc[0], in_rel_loc[1]];
+	this._pt_prev = [in_rel_loc[0], in_rel_loc[1]];
+
 	this._drop_selection();
 	
 	switch (this._tool)
@@ -568,6 +625,7 @@ Paint.prototype.choose_tool = function(in_tool)
 		
 	this._main.classList.remove('CursCrosshair');
 	this._main.classList.remove('CursEraser');
+	this._main.classList.remove('CursPencil');
 	switch (in_tool)
 	{
 	case Paint.TOOL_SELECT:
@@ -575,6 +633,9 @@ Paint.prototype.choose_tool = function(in_tool)
 		break;
 	case Paint.TOOL_ERASER:
 		this._main.classList.add('CursEraser');
+		break;
+	case Paint.TOOL_PENCIL:
+		this._main.classList.add('CursPencil');
 		break;
 	}
 	
