@@ -54,7 +54,12 @@
 
 .CursCrosshair
 {
-	cursor: crosshair;
+	cursor: url('gfx/CursorCrosshair.png'), crosshair;
+}
+
+.CursEraser
+{
+	cursor: url('gfx/CursorEraser.png'), crosshair;
 }
 
 </style>
@@ -117,6 +122,12 @@ _PaintSelection.prototype.show = function()
 }
 
 
+_PaintSelection.prototype.is_active = function()
+{
+	return (this._element.style.visibility == 'visible');
+}
+
+
 
 
 function Paint(in_container, in_size)
@@ -124,6 +135,7 @@ function Paint(in_container, in_size)
 	this._container = in_container;
 	this._in_paint = false;
 	this._size = in_size;
+	this._touching = false;
 	
 	this.ontoolchange = null;
 	
@@ -184,8 +196,16 @@ Paint.prototype._init = function()
 	this._main.height = this._size[1];
 	
 	this._main.addEventListener('mousedown', function(in_event) { 
-		me._handle_touch_begin([in_event.pageX, in_event.pageY], me._rel_loc(in_event)); 
+		me._touching = true; me._handle_touch_begin([in_event.pageX, in_event.pageY], me._rel_loc(in_event)); 
 		in_event.preventDefault(); in_event.stopPropagation(); });
+	this._main.addEventListener('mousemove', function(in_event) { 
+		if (!me._touching) return; me._handle_touch_continue([in_event.pageX, in_event.pageY], me._rel_loc(in_event)); 
+		//in_event.preventDefault(); in_event.stopPropagation(); 
+		});
+	this._main.addEventListener('mouseup', function(in_event) { 
+		me._touching = false;  
+		//in_event.preventDefault(); in_event.stopPropagation();
+		 });
 	
 	this._ctx = this._main.getContext('2d');
 	
@@ -242,6 +262,23 @@ Paint.prototype.pickup_selection = function()
 }
 
 
+Paint.prototype._apply_eraser = function(in_rel_loc)
+{
+	this._ctx.clearRect(in_rel_loc[0], in_rel_loc[1], 16, 16);
+}
+
+
+Paint.prototype._handle_touch_continue = function(in_page_loc, in_rel_loc)
+{
+	switch (this._tool)
+	{
+	case Paint.TOOL_ERASER:
+		this._apply_eraser(in_rel_loc);
+		break;
+	}
+}
+
+
 Paint.prototype._handle_touch_begin = function(in_page_loc, in_rel_loc)
 {
 	this._drop_selection();
@@ -255,18 +292,32 @@ Paint.prototype._handle_touch_begin = function(in_page_loc, in_rel_loc)
 		this._selected.style.visibility = 'visible';
 		Drag.begin_resize(in_page_loc, [this._selection], null, this._selection_finish.bind(this));
 		break;
+	
+	case Paint.TOOL_LASSO:
+		/* can handle this by: a) allowing the construction of a path,
+		b) filling the shape formed by the path, within an offscreen context,
+		c) copying the pixels 1-by-1 from the main canvas to the selection canvas
+			based on the presence of a non-white pixel in the offscreen context,
+			or contained within the lasso path;
+		Then selection operates as virtually as normal, even potentially with
+		a rectangular outline. */
+		break;
+	
+	case Paint.TOOL_ERASER:
+		this._apply_eraser(in_rel_loc);
+		break;
 	}
 }
 
 
 Paint.prototype._drop_selection = function()
 {
-	if (this._selected.style.visibility == 'hidden') return;
+	if (!this._selection.is_active()) return;
 	
 	if (this._selected.children.length == 1)
 		this._ctx.drawImage(this._selected.children[0], this._selected.offsetLeft + 2, this._selected.offsetTop + 2);
 	
-	this._selected.style.visibility = 'hidden';
+	this._selection.hide();
 }
 
 
@@ -420,16 +471,18 @@ Paint.prototype.choose_tool = function(in_tool)
 	else if (in_tool != Paint.TOOL_BROWSE && (!this._in_paint))
 		this._enter_paint();
 		
-	if (in_tool == Paint.TOOL_BROWSE)
+	//if (in_tool == Paint.TOOL_BROWSE) /* eventually may be able to use other tools within the selection - if it's canvas based */
 		this._drop_selection();
 		
+	this._main.classList.remove('CursCrosshair');
+	this._main.classList.remove('CursEraser');
 	switch (in_tool)
 	{
-	case Paint.TOOL_BROWSE:
-		this._main.classList.remove('CursCrosshair');
-		break;
 	case Paint.TOOL_SELECT:
 		this._main.classList.add('CursCrosshair');
+		break;
+	case Paint.TOOL_ERASER:
+		this._main.classList.add('CursEraser');
 		break;
 	}
 	
