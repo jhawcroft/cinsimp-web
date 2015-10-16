@@ -446,6 +446,7 @@ Paint.prototype._apply_spray = function(in_loc, in_initial) // no line iteration
   
 Paint.prototype._bucket_match_start_color = function(in_pos)
 {
+	in_pos = Math.trunc(in_pos);
 	var r = this._bucket_pixel_data.data[in_pos];	
 	var g = this._bucket_pixel_data.data[in_pos + 1];	
 	var b = this._bucket_pixel_data.data[in_pos + 2];
@@ -460,6 +461,7 @@ Paint.prototype._bucket_match_start_color = function(in_pos)
 
 Paint.prototype._bucket_color_pixel = function(in_pos)
 {
+	in_pos = Math.trunc(in_pos);
 	this._bucket_pixel_data.data[in_pos] = this._color[0];
 	this._bucket_pixel_data.data[in_pos + 1] = this._color[1];
 	this._bucket_pixel_data.data[in_pos + 2] = this._color[2];
@@ -474,6 +476,9 @@ Paint.prototype._bucket_color_pixel = function(in_pos)
 */
 Paint.prototype._apply_bucket = function(in_loc)
 {
+	in_loc[0] = Math.round(in_loc[0]); // these need to be integers to work properly on mobile
+	in_loc[1] = Math.round(in_loc[1]);
+
 	var pixel = this._get_color(in_loc, true);
 	this._bucket_startR = pixel[0];
 	this._bucket_startG = pixel[1];
@@ -488,14 +493,14 @@ Paint.prototype._apply_bucket = function(in_loc)
 	/* don't try to fill if the active color is the same as the clicked pixel color */
 	if (pixel[0] == this._color[0] && pixel[1] == this._color[1] && pixel[2] == this._color[2] && pixel[3] != 0) return;
 	
-	while(stack.length)
+	while (stack.length)
 	{
 		var newPos, x, y, pixelPos, reachLeft, reachRight;
 		newPos = stack.pop();
 		x = newPos[0];
 		y = newPos[1];
 
-		pixelPos = (y*canvas_width + x) * 4;
+		pixelPos = (y * canvas_width + x) * 4;
 		while(y-- >= 0 && this._bucket_match_start_color(pixelPos))
 			pixelPos -= canvas_width * 4;
 		pixelPos += canvas_width * 4;
