@@ -23,6 +23,15 @@ body
 	overflow: hidden;
 }
 
+canvas.PaintOverlay
+{
+	display: block;
+	position: relative;
+	margin: 0;
+	top: 0;
+	left: 0;
+}
+
 .Swatch
 {
 	display: inline-block;
@@ -360,7 +369,7 @@ Paint.prototype._apply_between = function(in_loc1, in_loc2, in_func)
 }
 
 
-Paint.prototype._apply_eraser = function(in_loc, in_initial) // need to iterate over the line
+Paint.prototype._apply_eraser = function(in_loc, in_initial)
 {
 	var me = this;
 	this._apply_between(this._pt_prev, this._pt_end, function(in_loc) {
@@ -377,7 +386,7 @@ Paint.prototype._get_color = function(in_loc, in_with_alpha)
 }
 
 
-Paint.prototype._apply_pencil = function(in_loc, in_initial) // need to iterate over the line and determine the mode: color / clear
+Paint.prototype._apply_pencil = function(in_loc, in_initial)
 {
 	this._pencil_erase = false;
 	
@@ -387,7 +396,7 @@ Paint.prototype._apply_pencil = function(in_loc, in_initial) // need to iterate 
 		if (data[3] != 0 && 
 			data[0] == this._color[0] &&
 			data[1] == this._color[1] &&
-			data[2] == this._color[2]) // starting point is opaque with same color as active color => pencil is eraser
+			data[2] == this._color[2])
 			this._pencil_erase = true;
 		this._ctx.fillStyle = 'rgb('+this._color.join(',')+')';
 	}
@@ -404,7 +413,7 @@ Paint.prototype._apply_pencil = function(in_loc, in_initial) // need to iterate 
 }
 
 
-Paint.prototype._apply_brush = function(in_loc, in_initial)// need to iterate over the line and use the configurable head
+Paint.prototype._apply_brush = function(in_loc, in_initial)
 {
 	if (in_initial)
 	{
@@ -426,7 +435,7 @@ Paint.prototype._apply_brush = function(in_loc, in_initial)// need to iterate ov
 }
 
 
-Paint.prototype._apply_spray = function(in_loc, in_initial) // no line iteration!
+Paint.prototype._apply_spray = function(in_loc, in_initial)
 {
 	if (in_initial)
 	{
@@ -445,6 +454,83 @@ Paint.prototype._apply_spray = function(in_loc, in_initial) // no line iteration
 }
 
 
+Paint.prototype._redraw_poly = function()
+{
+	this._poly_ctx.clearRect(0, 0, this._size[0], this._size[1]);
+	this._poly_ctx.strokeStyle = 'rgb('+this._color.join(',')+')';
+	this._poly_ctx.beginPath();
+	this._poly_ctx.moveTo(this._poly_points[0][0], this._poly_points[0][1]);
+	this._poly_ctx.lineTo(this._poly_end[0], this._poly_end[1]);
+	this._poly_ctx.stroke();
+}
+
+
+Paint.prototype._begin_poly = function(in_loc, in_completion)
+{
+	this._poly_completion = in_completion;
+	this._poly_points = [ [in_loc[0], in_loc[1]] ];
+	this._poly_end = [in_loc[0], in_loc[1]];
+	
+	this._poly_layer = document.createElement('canvas');
+	this._poly_layer.className = 'PaintOverlay';
+	this._poly_layer.width = this._container.clientWidth;
+	this._poly_layer.height = this._container.clientHeight;
+	this._poly_ctx = this._poly_layer.getContext('2d');
+	this._container.appendChild(this._poly_layer);
+	
+	var me = this;
+	this._poly_layer.addEventListener('mousemove', function(in_event) { 
+		if (!me._touching) return; me._handle_touch_continue(me._page_loc(in_event), me._rel_loc(in_event)); 
+	});
+	this._poly_layer.addEventListener('mouseup', function(in_event) { me._touching = false; me._poly_completion(); });
+	this._poly_layer.addEventListener('touchmove', function(in_event) {
+		if (!me._touching) return; me._handle_touch_continue(me._page_loc(in_event), me._rel_loc(in_event)); 
+	});
+	this._poly_layer.addEventListener('touchend', function(in_event) { me._touching = false; me._poly_completion(); });
+	
+	this._redraw_poly();
+}
+
+
+Paint.prototype._end_poly = function()
+{
+	this._poly_layer.parentElement.removeChild(this._poly_layer);
+	this._poly_layer = null;
+	this._poly_ctx = null;
+	
+	this._poly_points.push(this._poly_end);
+}
+
+
+Paint.prototype._stroke_poly = function()
+{
+	this._ctx.strokeStyle = 'rgb('+this._color.join(',')+')';
+	this._ctx.beginPath();
+	this._ctx.moveTo(this._poly_points[0][0], this._poly_points[0][1]);
+	for (var p = 1; p < this._poly_points.length; p++)
+		this._ctx.lineTo(this._poly_points[p][0], this._poly_points[p][1]);
+	this._ctx.stroke();
+}
+
+
+Paint.prototype._finish_line = function()
+{
+	this._end_poly();
+	this._stroke_poly();
+}
+
+
+Paint.prototype._draw_line = function(in_loc, in_initial)
+{
+	if (in_initial)
+	{
+		this._begin_poly(in_loc, this._finish_line.bind(this));
+		return;
+	}
+	
+	this._poly_end = [in_loc[0], in_loc[1]];
+	this._redraw_poly();
+}
 
 
   
@@ -572,6 +658,10 @@ Paint.prototype._handle_touch_continue = function(in_page_loc, in_rel_loc)
 	case Paint.TOOL_SPRAY:
 		this._apply_spray(in_rel_loc, false);
 		break;
+		
+	case Paint.TOOL_LINE:
+		this._draw_line(in_rel_loc, false);
+		break;
 	}
 }
 
@@ -622,6 +712,10 @@ Paint.prototype._handle_touch_begin = function(in_page_loc, in_rel_loc)
 	case Paint.TOOL_EYEDROPPER:
 		this.choose_color(this._get_color(in_rel_loc));
 		this.choose_tool(this._prev_tool);
+		break;
+		
+	case Paint.TOOL_LINE:
+		this._draw_line(in_rel_loc, true);
 		break;
 	}
 }
