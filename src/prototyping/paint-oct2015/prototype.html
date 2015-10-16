@@ -298,6 +298,7 @@ Paint.prototype._init = function()
 	});
 	
 	this._ctx = this._main.getContext('2d');
+	this._ctx.clearRect(0, 0, me._size[0], me._size[1]);
 	
 	this._pastecatcher = document.createElement('div');
 	this._pastecatcher.style.cssText = 'opacity: 0; position: fixed; top: 0px; left: 0px; width: 0px; height: 0px; overflow: hidden;';
@@ -1238,6 +1239,30 @@ Paint.prototype.set_line_size = function(in_size)
 }
 
 
+Paint.prototype.get_data_png = function()
+{
+	var source = this._main.toDataURL();
+	return source;
+}
+
+
+Paint.prototype.set_data_png = function(in_data)
+{
+	if (in_data == '')
+	{
+		this._ctx.clearRect(0, 0, me._size[0], me._size[1]);
+		return;
+	}
+	var temp = new Image();
+	var me = this;
+	temp.onload = function()
+	{
+		me._ctx.clearRect(0, 0, me._size[0], me._size[1]);
+		me._ctx.drawImage(this, 0, 0);
+	};
+	temp.src = in_data;
+}
+
 
 
 </script>
@@ -1356,15 +1381,40 @@ gPaint.choose_color([0,0,0]);
 gPaint.onchooseline = function() { alert('Show line palette'); }
 gPaint.onchoosebrush = function() { alert('Show brush choice dialog'); }
 
+
+
+function keep()
+{
+	var data = gPaint.get_data_png();
+	document.getElementById('pngdata').value = data;
+}
+
+function revert()
+{
+	var data = document.getElementById('pngdata').value;
+	gPaint.set_data_png(data);
+}
+
+
+
 </script>
 
+<h2>Load/Store OR Keep/Revert</h2>
 
+<p><a href="#" onclick="keep();">Keep</a> <a href="#" onclick="revert();">Revert</a></p>
 
 
 <h2>Import Paint</h2>
 <div><input type="file" id="ImportPaintFile" onchange="gPaint.import_paint(this);"></div>
 
+<hr>
 
+<textarea id="pngdata" style="width: 700px; height: 300px;">data:image/png;base64,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</textarea>
+
+<script>
+revert();
+
+</script>
 
 </body>
 </html>
