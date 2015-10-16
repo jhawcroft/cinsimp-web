@@ -284,6 +284,7 @@ Paint.prototype._init = function()
 	});
 	this._main.addEventListener('touchend', function(in_event) {
 		me._touching = false; 
+		if (me._poly_layer) me._poly_completion(me._poly_end); 
 	});
 	
 	this._ctx = this._main.getContext('2d');
@@ -488,7 +489,10 @@ Paint.prototype._begin_poly = function(in_loc, in_completion)
 	this._poly_layer.addEventListener('touchmove', function(in_event) {
 		me._handle_touch_continue(me._page_loc(in_event), me._rel_loc(in_event)); 
 	});
-	this._poly_layer.addEventListener('touchend', function(in_event) { me._poly_completion(me._rel_loc(in_event)); });
+	this._poly_layer.addEventListener('touchend', function(in_event) { 
+		alert('touchend');
+		me._poly_completion(me._rel_loc(in_event)); 
+	});
 	
 	this._redraw_poly();
 }
