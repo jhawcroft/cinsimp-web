@@ -512,6 +512,18 @@ Paint.prototype._end_poly_seg = function()
 }
 
 
+Paint.prototype._begin_reg_shape = function(in_loc, in_completion)
+{
+	this._begin_poly(in_loc, in_completion);
+}
+
+
+Paint.prototype._end_reg_shape = function()
+{
+	this._end_poly();
+}
+
+
 Paint.prototype._stroke_poly = function()
 {
 	this._ctx.strokeStyle = 'rgb('+this._color.join(',')+')';
@@ -521,6 +533,8 @@ Paint.prototype._stroke_poly = function()
 		this._ctx.lineTo(this._poly_points[p][0], this._poly_points[p][1]);
 	this._ctx.stroke();
 }
+
+
 
 
 Paint.prototype._finish_line = function(in_loc)
@@ -579,7 +593,7 @@ Paint.prototype._draw_free_poly = function(in_loc, in_initial)
 }
 
 
-Paint.prototype._finish_free_shape = function(in_loc, in_initial)
+Paint.prototype._finish_free_shape = function(in_loc)
 {
 	this._poly_end = [this._poly_points[0][0], this._poly_points[0][1]]; // close the shape
 	this._end_poly();
@@ -599,6 +613,39 @@ Paint.prototype._draw_free_shape = function(in_loc, in_initial)
 	this._end_poly_seg();
 	this._redraw_poly();
 }
+
+
+
+Paint.prototype._finish_rectangle = function(in_loc)
+{
+	this._end_reg_shape();
+	
+	this._ctx.beginPath();
+	this._ctx.strokeStyle = 'rgb('+this._color.join(',')+')';
+	this._ctx.rect(this._poly_points[0][0], this._poly_points[0][1], 
+		this._poly_end[0]-this._poly_points[0][0], this._poly_end[1]-this._poly_points[0][1]);
+	this._ctx.stroke();
+}
+
+
+Paint.prototype._draw_rectangle = function(in_loc, in_initial)
+{
+	if (in_initial)
+	{
+		this._begin_reg_shape(in_loc, this._finish_rectangle.bind(this));
+		return;
+	}
+	
+	this._poly_end = [in_loc[0], in_loc[1]];
+	
+	this._poly_ctx.clearRect(0, 0, this._size[0], this._size[1]);
+	this._poly_ctx.beginPath();
+	this._poly_ctx.strokeStyle = 'rgb('+this._color.join(',')+')';
+	this._poly_ctx.rect(this._poly_points[0][0], this._poly_points[0][1], 
+		this._poly_end[0]-this._poly_points[0][0], this._poly_end[1]-this._poly_points[0][1]);
+	this._poly_ctx.stroke();
+}
+
 
 
   
@@ -736,6 +783,9 @@ Paint.prototype._handle_touch_continue = function(in_page_loc, in_rel_loc)
 	case Paint.TOOL_FREE_SHAPE:
 		this._draw_free_shape(in_rel_loc, false);
 		break;
+	case Paint.TOOL_RECTANGLE:
+		this._draw_rectangle(in_rel_loc, false);
+		break;
 	}
 }
 
@@ -796,6 +846,10 @@ Paint.prototype._handle_touch_begin = function(in_page_loc, in_rel_loc)
 		break;
 	case Paint.TOOL_FREE_SHAPE:
 		this._draw_free_shape(in_rel_loc, true);
+		break;
+		
+	case Paint.TOOL_RECTANGLE:
+		this._draw_rectangle(in_rel_loc, true);
 		break;
 	}
 }
