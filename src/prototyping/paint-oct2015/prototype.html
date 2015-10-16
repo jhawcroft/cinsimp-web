@@ -37,6 +37,8 @@
 	border: 1px dashed gray;
 	/*z-index: 1;*/
 	cursor: move;
+	margin: 0;
+	padding: 0;
 }
 
 </style>
@@ -69,10 +71,11 @@ _PaintSelection.prototype.setLoc = function(in_loc)
 
 
 
-function Paint(in_container)
+function Paint(in_container, in_size)
 {
 	this._container = in_container;
 	this._in_paint = false;
+	this._size = in_size;
 	
 	this.ontoolchange = null;
 	
@@ -107,8 +110,8 @@ Paint.prototype._init = function()
 	this._main.style.position = 'absolute';
 	this._main.style.left = '0px';
 	this._main.style.top = '0px';
-	this._main.style.width = this._container.clientWidth + 'px';
-	this._main.style.height = this._container.clientHeight + 'px';
+	this._main.width = this._size[0];
+	this._main.height = this._size[1];
 	
 	this._main.addEventListener('mousedown', function(in_event) { 
 		me._handle_touch_begin([in_event.pageX, in_event.pageY]); 
@@ -147,7 +150,7 @@ Paint.prototype._drop_selection = function()
 {
 	if (this._selected.style.visibility == 'hidden') return;
 	
-	
+	this._ctx.drawImage(this._selected.children[0], this._selected.offsetLeft + 2, this._selected.offsetTop + 2);
 	
 	this._selected.style.visibility = 'hidden';
 }
@@ -349,7 +352,7 @@ Paint.prototype.choose_color = function(in_color)
 <script>
 
 
-var gPaint = new Paint(document.getElementById('Container'));
+var gPaint = new Paint(document.getElementById('Container'), [600,400]);
 
 
 function choose_tool(in_tool)
