@@ -365,9 +365,10 @@ Paint.prototype._apply_eraser = function(in_loc, in_initial) // need to iterate 
 }
 
 
-Paint.prototype._get_color = function(in_loc)
+Paint.prototype._get_color = function(in_loc, in_with_alpha)
 {
 	var data = this._ctx.getImageData(in_loc[0], in_loc[1], 1, 1).data;
+	if (in_with_alpha) return [data[0], data[1], data[2], data[3]];
 	return [data[0], data[1], data[2]]; 
 }
 
@@ -440,9 +441,106 @@ Paint.prototype._apply_spray = function(in_loc, in_initial) // no line iteration
 }
 
 
-Paint.prototype._apply_bucket = function(in_loc) // flood fill
-{
 
+
+  
+Paint.prototype._bucket_match_start_color = function(in_pos)
+{
+	var r = this._bucket_pixel_data.data[in_pos];	
+	var g = this._bucket_pixel_data.data[in_pos + 1];	
+	var b = this._bucket_pixel_data.data[in_pos + 2];
+	var a = this._bucket_pixel_data.data[in_pos + 3];
+	if (this._bucket_startA == 0)
+	{
+		return (a == 0);
+	}
+	return (r == this._bucket_startR && g == this._bucket_startG && b == this._bucket_startB);
+}
+
+
+Paint.prototype._bucket_color_pixel = function(in_pos)
+{
+	this._bucket_pixel_data.data[in_pos] = this._color[0];
+	this._bucket_pixel_data.data[in_pos + 1] = this._color[1];
+	this._bucket_pixel_data.data[in_pos + 2] = this._color[2];
+	this._bucket_pixel_data.data[in_pos + 3] = 255;
+}
+
+
+/*
+	Flood fill algorithm
+	Based upon the algorithm published by William Malone here:
+	http://www.williammalone.com/articles/html5-canvas-javascript-paint-bucket-tool/
+*/
+Paint.prototype._apply_bucket = function(in_loc)
+{
+	var pixel = this._get_color(in_loc, true);
+	this._bucket_startR = pixel[0];
+	this._bucket_startG = pixel[1];
+	this._bucket_startB = pixel[2];
+	this._bucket_startA = pixel[3];
+
+	this._bucket_pixel_data = this._ctx.getImageData(0, 0, this._size[0], this._size[1]);
+	var stack = [ [in_loc[0], in_loc[1]] ];
+	var canvas_width = this._size[0];
+	var canvas_height = this._size[1];
+	
+	/* don't try to fill if the active color is the same as the clicked pixel color */
+	if (pixel[0] == this._color[0] && pixel[1] == this._color[1] && pixel[2] == this._color[2] && pixel[3] != 0) return;
+	
+	while(stack.length)
+	{
+		var newPos, x, y, pixelPos, reachLeft, reachRight;
+		newPos = stack.pop();
+		x = newPos[0];
+		y = newPos[1];
+
+		pixelPos = (y*canvas_width + x) * 4;
+		while(y-- >= 0 && this._bucket_match_start_color(pixelPos))
+			pixelPos -= canvas_width * 4;
+		pixelPos += canvas_width * 4;
+		++y;
+		reachLeft = false;
+		reachRight = false;
+		
+		while (y++ < canvas_height-1 && this._bucket_match_start_color(pixelPos))
+		{
+			this._bucket_color_pixel(pixelPos);
+
+			if (x > 0)
+			{
+				if (this._bucket_match_start_color(pixelPos - 4))
+				{
+					if (!reachLeft)
+					{
+						stack.push([x - 1, y]);
+						reachLeft = true;
+					}
+				}
+				else if (reachLeft)
+					reachLeft = false;
+			}
+
+			if (x < canvas_width-1)
+			{
+				if (this._bucket_match_start_color(pixelPos + 4))
+				{
+					if(!reachRight)
+					{
+						stack.push([x + 1, y]);
+						reachRight = true;
+					}
+				}
+				else if(reachRight)
+					reachRight = false;
+			}
+
+			pixelPos += canvas_width * 4;
+		}
+	}
+	
+	this._ctx.putImageData(this._bucket_pixel_data, 0, 0);
+	this._bucket_pixel_data = null;
 }
 
 
