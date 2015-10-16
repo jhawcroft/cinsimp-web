@@ -181,6 +181,7 @@ function Paint(in_container, in_size)
 	this._pt_prev = [0,0];
 	this._brush_shape = null;
 	this._prev_tool = Paint.TOOL_BROWSE;
+	this._line_size = 1;
 	
 	this.ontoolchange = null;
 	
@@ -481,6 +482,8 @@ Paint.prototype._begin_poly = function(in_loc, in_completion)
 	this._poly_ctx = this._poly_layer.getContext('2d');
 	this._container.appendChild(this._poly_layer);
 	
+	this._poly_ctx.lineWidth = this._line_size;
+	
 	var me = this;
 	this._poly_layer.addEventListener('mousemove', function(in_event) { 
 		me._handle_touch_continue(me._page_loc(in_event), me._rel_loc(in_event)); 
@@ -530,11 +533,21 @@ Paint.prototype._end_reg_shape = function()
 
 Paint.prototype._stroke_poly = function()
 {
+	this._ctx.lineWidth = this._line_size;
 	this._ctx.strokeStyle = 'rgb('+this._color.join(',')+')';
 	this._ctx.beginPath();
 	this._ctx.moveTo(this._poly_points[0][0], this._poly_points[0][1]);
-	for (var p = 1; p < this._poly_points.length; p++)
-		this._ctx.lineTo(this._poly_points[p][0], this._poly_points[p][1]);
+	if (this._poly_points.length == 2)
+	{
+		for (var p = 1; p < this._poly_points.length; p++)
+			this._ctx.lineTo(this._poly_points[p][0], this._poly_points[p][1]);
+	}
+	else
+	{
+		for (var p = 1; p < this._poly_points.length - 1; p++)
+			this._ctx.lineTo(this._poly_points[p][0], this._poly_points[p][1]);
+		this._ctx.closePath();
+	}
 	this._ctx.stroke();
 }
 
@@ -674,6 +687,7 @@ Paint.prototype._finish_reg_shape = function(in_loc)
 	this._end_reg_shape();
 	
 	this._ctx.beginPath();
+	this._ctx.lineWidth = this._line_size;
 	this._ctx.strokeStyle = 'rgb('+this._color.join(',')+')';
 	var rect = this._reg_shape_rect();
 	switch (this._tool)
@@ -1165,6 +1179,12 @@ Paint.prototype.choose_color = function(in_color)
 }
 
 
+Paint.prototype.set_line_size = function(in_size)
+{
+	this._line_size = in_size;
+}
+
+
 
 
 </script>
@@ -1196,6 +1216,15 @@ Paint.prototype.choose_color = function(in_color)
 <img src="gfx/regpoly-normal.png" width="32" onclick="choose_tool(Paint.TOOL_REG_POLY);">
 <img src="gfx/freepoly-normal.png" width="32" onclick="choose_tool(Paint.TOOL_FREE_POLY);">
 <img src="gfx/eyedrop-normal.png" width="32" onclick="choose_tool(Paint.TOOL_EYEDROPPER);">
+</div>
+
+<div style="float: left; margin-top: 40px; background-color: white;">
+	<div style="padding: 10px;" onclick="gPaint.set_line_size(1);"><div style="background-color: black; width: 70px; height: 1px;"></div></div>
+	<div style="padding: 10px;" onclick="gPaint.set_line_size(2);"><div style="background-color: black; width: 70px; height: 2px;"></div></div>
+	<div style="padding: 10px;" onclick="gPaint.set_line_size(3);"><div style="background-color: black; width: 70px; height: 3px;"></div></div>
+	<div style="padding: 10px;" onclick="gPaint.set_line_size(4);"><div style="background-color: black; width: 70px; height: 4px;"></div></div>
+	<div style="padding: 10px;" onclick="gPaint.set_line_size(5);"><div style="background-color: black; width: 70px; height: 5px;"></div></div>
+	<div style="padding: 10px;" onclick="gPaint.set_line_size(6);"><div style="background-color: black; width: 70px; height: 6px;"></div></div>
 </div>
 
 
@@ -1272,6 +1301,7 @@ choose_tool(Paint.TOOL_BROWSE);
 gPaint.choose_color([0,0,0]);
 
 </script>
+
 
 
 
