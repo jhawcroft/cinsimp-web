@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>CinsImp Paint Tool Prototype</title>
+<script src="Drag.js"></script>
 <style>
 
 .PaintCanvas
@@ -15,6 +16,7 @@
 	width: 600px;
 	height: 400px;
 	float: left;
+	overflow: hidden;
 }
 
 .Swatch
@@ -27,6 +29,16 @@
 	margin-bottom: 1px;
 }
 
+.SelectedGfx
+{
+	display: block;
+	position: absolute;
+	visibility: hidden;
+	border: 1px dashed gray;
+	/*z-index: 1;*/
+	cursor: move;
+}
+
 </style>
 <script>
 
@@ -37,10 +49,33 @@ and then provide the usual rectangular selection mechanism to allow positioning.
 */
 
 
+function _PaintSelection(in_element)
+{
+	this._element = in_element;
+}
+
+
+_PaintSelection.prototype.getLoc = function()
+{
+	return [this._element.offsetLeft, this._element.offsetTop];
+}
+
+
+_PaintSelection.prototype.setLoc = function(in_loc)
+{
+	this._element.style.left = in_loc[0] + 'px';
+	this._element.style.top = in_loc[1] + 'px';
+}
+
+
+
 function Paint(in_container)
 {
 	this._container = in_container;
 	this._in_paint = false;
+	
+	this.ontoolchange = null;
+	
 	this._init();
 }
 
@@ -66,6 +101,8 @@ Paint.TOOL_EYEDROPPER = 19;
 
 Paint.prototype._init = function()
 {
+	var me = this;
+	
 	this._main = document.createElement('canvas');
 	this._main.style.position = 'absolute';
 	this._main.style.left = '0px';
@@ -73,15 +110,55 @@ Paint.prototype._init = function()
 	this._main.style.width = this._container.clientWidth + 'px';
 	this._main.style.height = this._container.clientHeight + 'px';
 	
+	this._main.addEventListener('mousedown', function(in_event) { 
+		me._handle_touch_begin([in_event.pageX, in_event.pageY]); 
+		in_event.preventDefault(); in_event.stopPropagation(); });
+	
+	this._ctx = this._main.getContext('2d');
+	
 	this._pastecatcher = document.createElement('div');
 	this._pastecatcher.style.cssText = 'opacity: 0; position: fixed; top: 0px; left: 0px; width: 0px; height: 0px; overflow: hidden;';
 	this._pastecatcher.contentEditable = true;
 	this._pastecatcher.addEventListener('DOMSubtreeModified', this._handle_dom_paste.bind(this));
 	document.body.appendChild(this._pastecatcher);
 	
-	//this._main.style.backgroundColor = 'gray';
-	//this._main.contentEditable = true;
+	this._selected = document.createElement('div');
+	this._selected.className = 'SelectedGfx';
+	
+	
+	this._selected.addEventListener('mousedown', this._selection_grab.bind(this));
+	this._selected.addEventListener('touchstart', this._selection_grab.bind(this));
+	
+	this._selection = new _PaintSelection(this._selected);
+	
 	this._container.appendChild(this._main);
+	this._container.appendChild(this._selected);
+}
+
+
+Paint.prototype._handle_touch_begin = function(in_loc)
+{
+	this._drop_selection();
+	
+}
+
+
+Paint.prototype._drop_selection = function()
+{
+	if (this._selected.style.visibility == 'hidden') return;
+	
+	
+	
+	this._selected.style.visibility = 'hidden';
+}
+
+
+Paint.prototype._selection_grab = function(in_event)
+{
+	//alert('Grab selection');
+	Drag.beginObjectMove(in_event, this._selection);
+	in_event.preventDefault();
+	in_event.stopPropagation();
 }
 
 
@@ -128,10 +205,24 @@ Paint.prototype._handle_keyup = function(in_event)
 */
 Paint.prototype._paste_create_image = function(in_source)
 {
-	//var pasted_image = new Image();
-    //pasted_image.src = in_source;
+	if (!in_source) return;
+	
+	var me = this;
+	var img = document.createElement('img');
+	img.onload = function()
+	{
+		me.choose_tool(Paint.TOOL_SELECT);
+		
+		me._selected.innerHTML = '';
+		me._selected.appendChild(img);
+	
+		me._selected.style.left = (me._container.clientWidth - this.clientWidth) / 2 + 'px';
+		me._selected.style.top = (me._container.clientHeight - this.clientHeight) / 2 + 'px';
+		me._selected.style.visibility = 'visible';
+	}
+	img.src = in_source;
 
-	document.getElementById('PasteCheck').src = in_source;
+	//document.getElementById('PasteCheck').src = in_source;
 }
 
 
@@ -187,17 +278,26 @@ Paint.prototype._handle_event_paste = function(in_event)
 		var source = url.createObjectURL(blob);
 		
 		this._paste_create_image(source);
+		break;
 	}
 }
 
 
 Paint.prototype.choose_tool = function(in_tool)
 {
+	if (this._tool == in_tool) return;
+	
 	this._tool = in_tool;
 	if (in_tool == Paint.TOOL_BROWSE && this._in_paint)
 		this._exit_paint();
 	else if (in_tool != Paint.TOOL_BROWSE && (!this._in_paint))
 		this._enter_paint();
+		
+	if (in_tool == Paint.TOOL_BROWSE)
+		this._drop_selection();
+	
+	if (this.ontoolchange)
+		this.ontoolchange(this._tool);
 }
 
 
@@ -251,6 +351,7 @@ Paint.prototype.choose_color = function(in_color)
 
 var gPaint = new Paint(document.getElementById('Container'));
 
+
 function choose_tool(in_tool)
 {
 	var img_list = document.getElementById('ToolPalette').children;
@@ -261,13 +362,14 @@ function choose_tool(in_tool)
 	}
 	
 	/* set the new tool indication */
-	in_tool--;
-	if (in_tool > 1) in_tool -= 2;
-	var palette_img = document.getElementById('ToolPalette').children[in_tool];
+	var tool_idx = in_tool - 1;
+	if (tool_idx > 1) tool_idx -= 2;
+	var palette_img = document.getElementById('ToolPalette').children[tool_idx];
 	palette_img.src = palette_img.src.replace('normal', 'hilite');
 	
 	gPaint.choose_tool(in_tool);
 }
+gPaint.ontoolchange = choose_tool;
 
 
 function chooseColour(in_event)
