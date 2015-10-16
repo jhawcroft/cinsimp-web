@@ -30,6 +30,7 @@ canvas.PaintOverlay
 	margin: 0;
 	top: 0;
 	left: 0;
+	
 }
 
 .Swatch
@@ -67,7 +68,7 @@ canvas.PaintOverlay
 
 .CursCrosshair
 {
-	cursor: url('gfx/CursorCrosshair.png'), crosshair;
+	cursor: url('gfx/CursorCrosshair.png') 7 7, crosshair;
 }
 
 .CursEraser
@@ -93,6 +94,11 @@ canvas.PaintOverlay
 .CursEyedropper
 {
 	cursor: url('gfx/CursorEyedropper.png') 0 15, crosshair;
+}
+
+.CursBucket
+{
+	cursor: url('gfx/CursorBucket.png') 0 15, crosshair;
 }
 
 
@@ -476,7 +482,7 @@ Paint.prototype._begin_poly = function(in_loc, in_completion)
 	this._poly_end = [in_loc[0], in_loc[1]];
 	
 	this._poly_layer = document.createElement('canvas');
-	this._poly_layer.className = 'PaintOverlay';
+	this._poly_layer.className = 'PaintOverlay CursCrosshair';
 	this._poly_layer.width = this._container.clientWidth;
 	this._poly_layer.height = this._container.clientHeight;
 	this._poly_ctx = this._poly_layer.getContext('2d');
@@ -584,8 +590,8 @@ Paint.prototype._finish_free_poly = function()
 
 Paint.prototype._finish_free_poly_seg = function(in_loc)
 {
-	if (Math.abs(in_loc[0] - this._poly_points[0][0]) <= 5 &&
-		Math.abs(in_loc[1] - this._poly_points[0][1]) <= 5 &&
+	if (Math.abs(in_loc[0] - this._poly_points[0][0]) <= 15 &&
+		Math.abs(in_loc[1] - this._poly_points[0][1]) <= 15 &&
 		this._poly_points.length > 1)
 	{
 		this._finish_free_poly();
@@ -1140,9 +1146,18 @@ Paint.prototype.choose_tool = function(in_tool)
 	this._main.classList.remove('CursPaint');
 	this._main.classList.remove('CursSpray');
 	this._main.classList.remove('CursEyedropper');
+	this._main.classList.remove('CursBucket');
 	switch (in_tool)
 	{
 	case Paint.TOOL_SELECT:
+	case Paint.TOOL_LASSO:
+	case Paint.TOOL_LINE:
+	case Paint.TOOL_RECTANGLE:
+	case Paint.TOOL_ROUND_RECT:
+	case Paint.TOOL_OVAL:
+	case Paint.TOOL_FREE_SHAPE:
+	case Paint.TOOL_REG_POLY:
+	case Paint.TOOL_FREE_POLY:
 		this._main.classList.add('CursCrosshair');
 		break;
 	case Paint.TOOL_ERASER:
@@ -1159,6 +1174,9 @@ Paint.prototype.choose_tool = function(in_tool)
 		break;
 	case Paint.TOOL_EYEDROPPER:
 		this._main.classList.add('CursEyedropper');
+		break;
+	case Paint.TOOL_BUCKET:
+		this._main.classList.add('CursBucket');
 		break;
 	}
 	
