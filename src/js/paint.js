@@ -113,6 +113,8 @@ function Paint(in_container, in_size)
 	this._prev_tool = View.TOOL_BROWSE;
 	this._line_size = 1;
 	this._dbl_click_check = null;
+	this._color = [0,0,0];
+	this._tool = View.TOOL_BROWSE;
 	
 	this.ontoolchange = null;
 	this.onchoosebrush = null;
@@ -121,11 +123,11 @@ function Paint(in_container, in_size)
 	this._init();
 	
 	var brush = new Image();
-	brush.src = 'gfx/brush_mask_1.png';
+	brush.src = gBase+'gfx/brush_mask_1.png';
 	this.set_brush(brush);
 	
 	this._spray_head = new Image();
-	this._spray_head.src = 'gfx/spray-head.png';
+	this._spray_head.src = gBase+'gfx/spray-head.png';
 	
 	this._blank_url = this.get_data_png();
 }

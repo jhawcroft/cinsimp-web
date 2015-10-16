@@ -140,31 +140,35 @@ layers depending on the mode of the application -->
 <div id="PaletteTools" class="PaletteTemplate" style="left: 830px; top: 200px;">
 
 <div id="ToolButtonGrid">
-	<div onclick="Application.choose_tool(View.TOOL_BROWSE);"><img src="../gfx/browse-hilite.png" title="Browse"></div>
-	<div onclick="Application.choose_tool(View.TOOL_BUTTON);"><img src="../gfx/button-normal.png" title="Button"></div>
-	<div onclick="Application.choose_tool(View.TOOL_FIELD);"><img src="../gfx/field-normal.png" title="Field"></div>
+	<div onclick="Application.choose_tool(View.TOOL_BROWSE);"><img src="../gfx/browse-hilite.png" title="Browse" id="Tool1"></div>
+	<div onclick="Application.choose_tool(View.TOOL_BUTTON);"><img src="../gfx/button-normal.png" title="Button" id="Tool2"></div>
+	<div onclick="Application.choose_tool(View.TOOL_FIELD);"><img src="../gfx/field-normal.png" title="Field" id="Tool3"></div>
 	
-	<div onclick="Application.choose_tool(View.TOOL_SELECT);"><img src="../gfx/select-normal.png" title="Select"></div>
-	<div onclick="Application.choose_tool(View.TOOL_LASSO);"><img src="../gfx/lasso-normal.png" title="Lasso"></div>
-	<div onclick="Application.choose_tool(View.TOOL_PENCIL);"><img src="../gfx/pencil-normal.png" title="Pencil"></div>
+	<div onclick="Application.choose_tool(View.TOOL_SELECT);"><img src="../gfx/select-normal.png" title="Select" id="Tool4"></div>
+	<!--<div onclick="Application.choose_tool(View.TOOL_LASSO);"><img src="../gfx/lasso-normal.png" title="Lasso" id="Tool5"></div>-->
+	<div onclick="Application.choose_tool(View.TOOL_PENCIL);"><img src="../gfx/pencil-normal.png" title="Pencil" id="Tool6"></div>
+	<div onclick="Application.choose_tool(View.TOOL_ERASER);"><img src="../gfx/eraser-normal.png" title="Eraser" id="Tool8"></div>
 	
-	<div onclick="Application.choose_tool(View.TOOL_BRUSH);"><img src="../gfx/brush-normal.png" title="Paint Brush"></div>
-	<div onclick="Application.choose_tool(View.TOOL_ERASER);"><img src="../gfx/eraser-normal.png" title="Eraser"></div>
-	<div onclick="Application.choose_tool(View.TOOL_LINE);"><img src="../gfx/line-normal.png" title="Line"></div>
+	<div onclick="Application.choose_tool(View.TOOL_BRUSH);"><img src="../gfx/brush-normal.png" title="Paint Brush" id="Tool7"></div>
+	<div onclick="Application.choose_tool(View.TOOL_SPRAY);"><img src="../gfx/spray-normal.png" title="Spray" id="Tool10"></div>
+	<div onclick="Application.choose_tool(View.TOOL_BUCKET);"><img src="../gfx/bucket-normal.png" title="Paint Bucket" id="Tool13"></div>
 	
-	<div onclick="Application.choose_tool(View.TOOL_SPRAY);"><img src="../gfx/spray-normal.png" title="Spray"></div>
-	<div onclick="Application.choose_tool(View.TOOL_RECTANGLE);"><img src="../gfx/rectangle-normal.png" title="Rectangle"></div>
-	<div onclick="Application.choose_tool(View.TOOL_ROUND_RECT);"><img src="../gfx/roundrect-normal.png" title="Round Rectangle"></div>
+	<div onclick="Application.choose_tool(View.TOOL_LINE);"><img src="../gfx/line-normal.png" title="Line" id="Tool9"></div>
+	<div onclick="Application.choose_tool(View.TOOL_RECTANGLE);"><img src="../gfx/rectangle-normal.png" title="Rectangle" id="Tool11"></div>
+	<div onclick="Application.choose_tool(View.TOOL_ROUND_RECT);"><img src="../gfx/roundrect-normal.png" title="Round Rectangle" id="Tool12"></div>
 	
-	<div onclick="Application.choose_tool(View.TOOL_BUCKET);"><img src="../gfx/bucket-normal.png" title="Paint Bucket"></div>
-	<div onclick="Application.choose_tool(View.TOOL_OVAL);"><img src="../gfx/oval-normal.png" title="Oval"></div>
-	<div onclick="Application.choose_tool(View.TOOL_FREE_SHAPE);"><img src="../gfx/freeshape-normal.png" title="Free Shape"></div>
+	<div onclick="Application.choose_tool(View.TOOL_OVAL);"><img src="../gfx/oval-normal.png" title="Oval" id="Tool14"></div>
+	<div onclick="Application.choose_tool(View.TOOL_FREE_SHAPE);"><img src="../gfx/freeshape-normal.png" title="Free Shape" id="Tool15"></div>
+	<div onclick="Application.choose_tool(View.TOOL_FREE_POLY);"><img src="../gfx/freepoly-normal.png" title="Free Polygon" id="Tool18"></div>
 	
-	<div onclick="Application.choose_tool(View.TOOL_TEXT);"><img src="../gfx/text-normal.png" title="Text"></div>
-	<div onclick="Application.choose_tool(View.TOOL_REG_POLY);"><img src="../gfx/regpoly-normal.png" title="Regular Polygon"></div>
-	<div onclick="Application.choose_tool(View.TOOL_FREE_POLY);"><img src="../gfx/freepoly-normal.png" title="Free Polygon"></div>
 	
-	<div onclick="Application.choose_tool(View.TOOL_EYEDROPPER);"><img src="../gfx/eyedrop-normal.png" title="Eyedropper"></div>
+	
+	
+	<!--<div onclick="Application.choose_tool(View.TOOL_TEXT);"><img src="../gfx/text-normal.png" title="Text" id="Tool16"></div>-->
+	<!--<div onclick="Application.choose_tool(View.TOOL_REG_POLY);"><img src="../gfx/regpoly-normal.png" title="Regular Polygon" id="Tool17"></div>-->
+	
+	
+	<div onclick="Application.choose_tool(View.TOOL_EYEDROPPER);"><img src="../gfx/eyedrop-normal.png" title="Eyedropper" id="Tool19"></div>
 	
 </div>
 
@@ -641,49 +645,6 @@ Dialog.About = new Dialog('About CinsImp', document.getElementById('DialogAbout'
 
 //Palette.Navigator.show();
 //Palette.Tools.show();
-
-
-
-
-
-
-function chooseColour(in_event)
-{
-	var e = in_event || window.event;
-	var dom_swatch = e.target;
-	alert(dom_swatch.style.backgroundColor);
-}
-
-
-function setupColours()
-{
-	var dom_table = document.createElement('div');
-	dom_table.className = 'ColourSwatchTable';
-	for (var c = 0; c < Colours.DEFAULT_SET.length; c++)
-	{
-		var colour = Colours.DEFAULT_SET[c];
-		
-		var dom_swatch = document.createElement('div');
-		dom_swatch.style.backgroundColor = 'rgba('+colour[0]+','+colour[1]+','+colour[2]+',1)';
-		dom_table.appendChild(dom_swatch);
-		
-		dom_swatch.addEventListener('mousedown', chooseColour);
-	}
-	Palette.Colours._root.appendChild(dom_table);
-	
-	var cell_size = dom_table.children[0].clientWidth;
-	var per_row = Math.floor(dom_table.clientWidth / dom_table.children[0].clientWidth);
-	var rows = Math.ceil(Colours.DEFAULT_SET.length / per_row);
-	
-	Palette.Colours.setSize([per_row * cell_size, rows * cell_size]);
-	Palette.Colours._div.style.opacity = 1.0; /* not appropriate to have translucent colour swatches */
-	
-	//var dom_selector = document.createElement('img');
-	
-}
-
-setupColours();
-
 
 
 

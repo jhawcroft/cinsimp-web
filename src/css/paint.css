@@ -81,37 +81,37 @@ canvas.PaintOverlay
 
 .CursCrosshair
 {
-	cursor: url('gfx/CursorCrosshair.png') 7 7, crosshair;
+	cursor: url('../gfx/CursorCrosshair.png') 7 7, crosshair;
 }
 
 .CursEraser
 {
-	cursor: url('gfx/CursorEraser.png'), crosshair;
+	cursor: url('../gfx/CursorEraser.png'), crosshair;
 }
 
 .CursPencil 
 {
-	cursor: url('gfx/CursorPencil.png') 0 15, crosshair;
+	cursor: url('../gfx/CursorPencil.png') 0 15, crosshair;
 }
 
 .CursPaint
 {
-	cursor: url('gfx/CursorRound.png') 5 5, crosshair;
+	cursor: url('../gfx/CursorRound.png') 5 5, crosshair;
 }
 
 .CursSpray
 {
-	cursor: url('gfx/CursorRound.png') 0 0, crosshair;
+	cursor: url('../gfx/CursorRound.png') 0 0, crosshair;
 }
 
 .CursEyedropper
 {
-	cursor: url('gfx/CursorEyedropper.png') 0 15, crosshair;
+	cursor: url('../gfx/CursorEyedropper.png') 0 15, crosshair;
 }
 
 .CursBucket
 {
-	cursor: url('gfx/CursorBucket.png') 0 15, crosshair;
+	cursor: url('../gfx/CursorBucket.png') 0 15, crosshair;
 }
 
 

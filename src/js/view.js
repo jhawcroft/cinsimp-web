@@ -129,7 +129,7 @@ View.prototype._init_view = function()
 	
 	this._layer_paint = document.createElement('div');
 	this._layer_paint.className = 'PaintCanvas';
-	this._layer_paint.style.zIndex = 4;
+	this._layer_paint.style.zIndex = 6;
 	this._layer_paint.style.width = this._size[0] + 'px';
 	this._layer_paint.style.height = this._size[1] + 'px';
 	
@@ -167,7 +167,7 @@ View.prototype._indicate_tool = function(in_tool)
 	}
 	
 	/* set the new tool indication */
-	var palette_img = Palette.Tools._root.children[0].children[in_tool - 1].children[0];
+	var palette_img = document.getElementById('Tool'+in_tool);//Palette.Tools._root.children[0].children[in_tool - 1].children[0];
 	palette_img.src = palette_img.src.replace('normal', 'hilite');
 	
 	/* change the cursor on the view */
@@ -188,6 +188,13 @@ View.prototype._indicate_tool = function(in_tool)
 	
 	//this._container.classList.toggle('ShowBkgndNumTags', (this._tool == View.TOOL_FIELD));
 	//this._container.classList.toggle('ShowCardNumTags', (this._tool == View.TOOL_FIELD && (!this._edit_bkgnd)));
+}
+
+
+View.prototype.choose_color = function(in_color)
+{
+	if (this._paint)
+		this._paint.choose_color(in_color);
 }
 
 

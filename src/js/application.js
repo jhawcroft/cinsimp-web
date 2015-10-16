@@ -47,6 +47,7 @@ Application._view = null;
 Application.init = function()
 {
 	Application.init_card_size_dragger();
+	Application._setup_colours();
 
 	Application._view = new View(Application._stack, Application._card);
 	Application._view.refresh();
@@ -55,6 +56,54 @@ Application.init = function()
 	Application._msgtxt = document.getElementById('MessageBoxText');
 	Application._msgtxt.addEventListener('keydown', function(e) { if (e.keyCode == 13) Application.do_message(); });
 }
+
+
+
+Application._setup_colours = function()
+{
+	var dom_table = document.createElement('div');
+	dom_table.className = 'ColourSwatchTable';
+	for (var c = 0; c < Colours.DEFAULT_SET.length; c++)
+	{
+		var colour = Colours.DEFAULT_SET[c];
+		
+		var dom_swatch = document.createElement('div');
+		dom_swatch.style.backgroundColor = 'rgba('+colour[0]+','+colour[1]+','+colour[2]+',1)';
+		dom_table.appendChild(dom_swatch);
+		
+		dom_swatch.addEventListener('mousedown', Application._handle_choose_colour);
+	}
+	
+	Palette.Colours._root.appendChild(dom_table);
+	
+	var cell_size = dom_table.children[0].clientWidth;
+	var per_row = Math.floor(dom_table.clientWidth / dom_table.children[0].clientWidth);
+	var rows = Math.ceil(Colours.DEFAULT_SET.length / per_row);
+	
+	Palette.Colours.setSize([per_row * cell_size, rows * cell_size]);
+	Palette.Colours._div.style.opacity = 1.0; /* not appropriate to have translucent colour swatches */
+	
+	
+}
+
+
+Application._handle_choose_colour = function(in_event)
+{
+	var e = in_event || window.event;
+	var dom_swatch = e.target;
+	var color = dom_swatch.style.backgroundColor.replace('rgb(','').replace(')','').split(',');
+	color[0] = color[0] * 1;
+	color[1] = color[1] * 1;
+	color[2] = color[2] * 1;
+	Application.choose_color(color);
+}
+
+
+Application.choose_color = function(in_color)
+{
+	if (Application._view) Application._view.choose_color(in_color);
+}
+
 
 
 Application.do_message = function()
