@@ -41,6 +41,11 @@
 	padding: 0;
 }
 
+.CursCrosshair
+{
+	cursor: crosshair;
+}
+
 </style>
 <script>
 
@@ -127,7 +132,7 @@ Paint.prototype._init = function()
 	
 	this._selected = document.createElement('div');
 	this._selected.className = 'SelectedGfx';
-	
+	this._selected.style.visibility = 'hidden';
 	
 	this._selected.addEventListener('mousedown', this._selection_grab.bind(this));
 	this._selected.addEventListener('touchstart', this._selection_grab.bind(this));
@@ -298,6 +303,16 @@ Paint.prototype.choose_tool = function(in_tool)
 		
 	if (in_tool == Paint.TOOL_BROWSE)
 		this._drop_selection();
+		
+	switch (in_tool)
+	{
+	case Paint.TOOL_BROWSE:
+		this._main.classList.remove('CursCrosshair');
+		break;
+	case Paint.TOOL_SELECT:
+		this._main.classList.add('CursCrosshair');
+		break;
+	}
 	
 	if (this.ontoolchange)
 		this.ontoolchange(this._tool);
