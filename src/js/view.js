@@ -164,6 +164,8 @@ View.prototype._indicate_tool = function(in_tool)
 	palette_img.src = palette_img.src.replace('normal', 'hilite');
 	
 	/* change the cursor on the view */
+	this._container.classList.toggle('CursBrowse', false);
+	this._container.classList.toggle('CursAuthor', false);
 	switch (in_tool)
 	{
 	case View.TOOL_BROWSE:
@@ -171,7 +173,7 @@ View.prototype._indicate_tool = function(in_tool)
 		break;
 	case View.TOOL_BUTTON:
 	case View.TOOL_FIELD:
-		this._container.className = 'CursAuthor';
+		this._container.classList.toggle('CursAuthor', true);
 		break;
 	}
 	
