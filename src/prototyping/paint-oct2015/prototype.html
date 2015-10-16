@@ -110,6 +110,12 @@ _PaintSelection.prototype.is_zero = function()
 }
 
 
+_PaintSelection.prototype.is_outline = function()
+{
+	return (this._element.children.length == 0);
+}
+
+
 _PaintSelection.prototype.hide = function()
 {
 	this._element.style.visibility = 'hidden';
@@ -254,13 +260,14 @@ Paint.prototype._selection_finish = function()
 {
 	if (this._selection.is_zero())
 		this._selection.hide();
-	else
-		this.pickup_selection();
+	//else
+		//this.pickup_selection();
 }
 
 
 Paint.prototype.pickup_selection = function()
 {
+//alert('pickup');
 	var loc = this._selection.get_loc();
 	var size = this._selection.get_size();
 	
@@ -344,10 +351,16 @@ Paint.prototype._drop_selection = function()
 
 Paint.prototype._selection_grab = function(in_event)
 {
-	var loc = this._page_loc(in_event);
-
-	/* really should be doing pickup here if the thing isn't picked up - ie. is not having an image... */
-	Drag.begin_move(loc, [this._selection], null, null);
+	if (this._selection.is_outline())
+	{
+		this.pickup_selection();
+		// also erase under the selection
+		var loc = this._selection.get_loc();
+		var size = this._selection.get_size();
+		this._ctx.clearRect(loc[0], loc[1], size[0], size[1]);
+	}
+	
+	Drag.begin_move(this._page_loc(in_event), [this._selection], null, null);
 	
 	in_event.preventDefault();
 	in_event.stopPropagation();
