@@ -646,6 +646,25 @@ Paint.prototype._elipse = function(ctx, x, y, w, h)
 }
 
 
+/*
+	Generates a path for a round rectangle.
+	Based on code by Grumdrig on StackOverflow:
+	http://stackoverflow.com/questions/1255512/how-to-draw-a-rounded-rectangle-on-html-canvas
+*/
+Paint.prototype._roundrect = function(ctx, x, y, w, h, r)
+{
+	if (w < 2 * r) r = w / 2;
+	if (h < 2 * r) r = h / 2;
+	ctx.beginPath();
+	ctx.moveTo(x+r, y);
+	ctx.arcTo(x+w, y,   x+w, y+h, r);
+	ctx.arcTo(x+w, y+h, x,   y+h, r);
+	ctx.arcTo(x,   y+h, x,   y,   r);
+	ctx.arcTo(x,   y,   x+w, y,   r);
+	ctx.closePath();
+}
+
+
 Paint.prototype._finish_reg_shape = function(in_loc)
 {
 	this._end_reg_shape();
@@ -660,6 +679,9 @@ Paint.prototype._finish_reg_shape = function(in_loc)
 		break;
 	case Paint.TOOL_OVAL:
 		this._elipse(this._ctx, rect[0], rect[1], rect[2], rect[3]);
+		break;
+	case Paint.TOOL_ROUND_RECT:
+		this._roundrect(this._ctx, rect[0], rect[1], rect[2], rect[3], 10);
 		break;
 	}
 	this._ctx.stroke();
@@ -687,6 +709,9 @@ Paint.prototype._draw_reg_shape = function(in_loc, in_initial, in_shape)
 		break;
 	case Paint.TOOL_OVAL:
 		this._elipse(this._poly_ctx, rect[0], rect[1], rect[2], rect[3]);
+		break;
+	case Paint.TOOL_ROUND_RECT:
+		this._roundrect(this._poly_ctx, rect[0], rect[1], rect[2], rect[3], 10);
 		break;
 	}
 	this._poly_ctx.stroke();
@@ -831,6 +856,7 @@ Paint.prototype._handle_touch_continue = function(in_page_loc, in_rel_loc)
 		break;
 	case Paint.TOOL_RECTANGLE:
 	case Paint.TOOL_OVAL:
+	case Paint.TOOL_ROUND_RECT:
 		this._draw_reg_shape(in_rel_loc, false);
 		break;
 	}
@@ -897,6 +923,7 @@ Paint.prototype._handle_touch_begin = function(in_page_loc, in_rel_loc)
 		
 	case Paint.TOOL_RECTANGLE:
 	case Paint.TOOL_OVAL:
+	case Paint.TOOL_ROUND_RECT:
 		this._draw_reg_shape(in_rel_loc, true);
 		break;
 	}
