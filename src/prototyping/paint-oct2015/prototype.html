@@ -40,6 +40,16 @@
 	margin: 0;
 	padding: 0;
 	overflow: hidden;
+	font-size: 0;
+}
+
+.SelectedGfx img
+{
+	display: block;
+	position: absolute;
+	left: 0;
+	top: 0;
+	margin: 0;
 }
 
 .CursCrosshair
@@ -203,6 +213,32 @@ Paint.prototype._selection_finish = function()
 {
 	if (this._selection.is_zero())
 		this._selection.hide();
+	else
+		this.pickup_selection();
+}
+
+
+Paint.prototype.pickup_selection = function()
+{
+	var loc = this._selection.get_loc();
+	var size = this._selection.get_size();
+	
+	var temp = document.createElement('canvas');
+	temp.width = size[0];
+	temp.height = size[1];
+	var ctx2 = temp.getContext('2d');
+	
+	ctx2.drawImage(this._main, loc[0]+2, loc[1]+2, size[0], size[1], 0, 0, size[0], size[1]);
+	
+	var source = temp.toDataURL("image/png");
+	var img = document.createElement('img');
+	img.src = source;
+	
+	this._selected.innerHTML = '';
+	this._selected.appendChild(img);
+	this._selected.style.width = size[0] + 'px';
+	this._selected.style.height = size[1] + 'px';
+	this._selection.show();
 }
 
 
@@ -281,6 +317,15 @@ Paint.prototype._handle_keyup = function(in_event)
 }
 
 
+Paint.prototype._centre_selection = function()
+{
+	this._selected.style.left = (this._container.clientWidth - this._selected.clientWidth) / 2 + 'px';
+	this._selected.style.top = (this._container.clientHeight - this._selected.clientHeight) / 2 + 'px';
+	this._selected.style.width = this._selected.clientWidth + 'px';
+	this._selected.style.height = this._selected.clientHeight + 'px';
+}
+
+
 /*
 	This receives an image source as the result of a paste or import paint operation.
 */
@@ -290,10 +335,6 @@ Paint.prototype._paste_create_image = function(in_source)
 	
 	var me = this;
 	var img = document.createElement('img');
-	img.style.display = 'block';
-	img.style.position = 'absolute';
-	img.style.left = '0px';
-	img.style.top = '0px';
 	img.onload = function()
 	{
 		me.choose_tool(Paint.TOOL_SELECT);
@@ -301,10 +342,9 @@ Paint.prototype._paste_create_image = function(in_source)
 		me._selected.innerHTML = '';
 		me._selected.appendChild(img);
 	
-		me._selected.style.left = (me._container.clientWidth - this.clientWidth) / 2 + 'px';
-		me._selected.style.top = (me._container.clientHeight - this.clientHeight) / 2 + 'px';
-		me._selected.style.width = this.clientWidth + 'px';
-		me._selected.style.height = this.clientHeight + 'px';
+		me._selected.style.width = img.clientWidth + 'px';
+		me._selected.style.height = img.clientHeight + 'px';
+		me._centre_selection();
 		me._selected.style.visibility = 'visible';
 	}
 	img.src = in_source;
