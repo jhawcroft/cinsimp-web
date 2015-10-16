@@ -290,9 +290,42 @@ Paint.prototype.pickup_selection = function()
 }
 
 
-Paint.prototype._apply_eraser = function(in_rel_loc)
+Paint.prototype._apply_eraser = function(in_loc, in_initial) // need to iterate over the line
 {
-	this._ctx.clearRect(in_rel_loc[0], in_rel_loc[1], 16, 16);
+	this._ctx.clearRect(in_loc[0], in_loc[1], 16, 16);
+}
+
+
+Paint.prototype._apply_pencil = function(in_loc, in_initial) // need to iterate over the line and determine the mode: color / clear
+{
+	if (in_initial)
+	{
+		// if the initial pixel is the same color as the current color, AND the first pixel isn't transparent,
+		// then it's a clear operation,
+		// if the first pixel is transparent, or it's a different color, then its a paint operation
+	
+		this._ctx.fillStyle = 'rgb('+this._color.join(',')+')';
+	}
+	
+	this._ctx.fillRect(in_loc[0], in_loc[1], 1, 1);
+}
+
+
+Paint.prototype._apply_brush = function(in_loc, in_initial)// need to iterate over the line and use the configurable head
+{
+	
+}
+
+
+Paint.prototype._apply_spray = function(in_loc, in_initial) // no line iteration!
+{
+	// draw the picture of the spray head without any further processing
+}
+
+
+Paint.prototype._apply_bucket = function(in_loc) // flood fill
+{
+
 }
 
 
@@ -301,7 +334,16 @@ Paint.prototype._handle_touch_continue = function(in_page_loc, in_rel_loc)
 	switch (this._tool)
 	{
 	case Paint.TOOL_ERASER:
-		this._apply_eraser(in_rel_loc);
+		this._apply_eraser(in_rel_loc, false);
+		break;
+	case Paint.TOOL_PENCIL:
+		this._apply_pencil(in_rel_loc, false);
+		break;
+	case Paint.TOOL_BRUSH:
+		this._apply_brush(in_rel_loc, false);
+		break;
+	case Paint.TOOL_SPRAY:
+		this._apply_spray(in_rel_loc, false);
 		break;
 	}
 }
@@ -332,7 +374,20 @@ Paint.prototype._handle_touch_begin = function(in_page_loc, in_rel_loc)
 		break;
 	
 	case Paint.TOOL_ERASER:
-		this._apply_eraser(in_rel_loc);
+		this._apply_eraser(in_rel_loc, true);
+		break;
+	case Paint.TOOL_PENCIL:
+		this._apply_pencil(in_rel_loc, true);
+		break;
+	case Paint.TOOL_BRUSH:
+		this._apply_brush(in_rel_loc, true);
+		break;
+	case Paint.TOOL_SPRAY:
+		this._apply_spray(in_rel_loc, true);
+		break;
+		
+	case Paint.TOOL_BUCKET:
+		this._apply_bucket(in_rel_loc);
 		break;
 	}
 }
