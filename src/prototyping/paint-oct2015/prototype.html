@@ -72,6 +72,16 @@
 	cursor: url('gfx/CursorRound.png') 5 5, crosshair;
 }
 
+.CursSpray
+{
+	cursor: url('gfx/CursorRound.png') 0 0, crosshair;
+}
+
+.CursEyedropper
+{
+	cursor: url('gfx/CursorEyedropper.png') 0 15, crosshair;
+}
+
 
 </style>
 <script>
@@ -157,6 +167,7 @@ function Paint(in_container, in_size)
 	this._pt_end = [0,0];
 	this._pt_prev = [0,0];
 	this._brush_shape = null;
+	this._prev_tool = Paint.TOOL_BROWSE;
 	
 	this.ontoolchange = null;
 	
@@ -354,6 +365,13 @@ Paint.prototype._apply_eraser = function(in_loc, in_initial) // need to iterate 
 }
 
 
+Paint.prototype._get_color = function(in_loc)
+{
+	var data = this._ctx.getImageData(in_loc[0], in_loc[1], 1, 1).data;
+	return [data[0], data[1], data[2]]; 
+}
+
+
 Paint.prototype._apply_pencil = function(in_loc, in_initial) // need to iterate over the line and determine the mode: color / clear
 {
 	this._pencil_erase = false;
@@ -491,9 +509,12 @@ Paint.prototype._handle_touch_begin = function(in_page_loc, in_rel_loc)
 	case Paint.TOOL_SPRAY:
 		this._apply_spray(in_rel_loc, true);
 		break;
-		
 	case Paint.TOOL_BUCKET:
 		this._apply_bucket(in_rel_loc);
+		break;
+	case Paint.TOOL_EYEDROPPER:
+		this.choose_color(this._get_color(in_rel_loc));
+		this.choose_tool(this._prev_tool);
 		break;
 	}
 }
@@ -670,11 +691,17 @@ Paint.prototype.choose_tool = function(in_tool)
 		return;
 	}
 	
+	if (this._tool != Paint.TOOL_EYEDROPPER)
+		this._prev_tool = this._tool;
+	
 	this._tool = in_tool;
 	if (in_tool == Paint.TOOL_BROWSE && this._in_paint)
 		this._exit_paint();
 	else if (in_tool != Paint.TOOL_BROWSE && (!this._in_paint))
+	{
 		this._enter_paint();
+		this._prev_tool = this._tool;
+	}
 		
 	//if (in_tool == Paint.TOOL_BROWSE) /* eventually may be able to use other tools within the selection - if it's canvas based */
 		this._drop_selection();
@@ -683,6 +710,8 @@ Paint.prototype.choose_tool = function(in_tool)
 	this._main.classList.remove('CursEraser');
 	this._main.classList.remove('CursPencil');
 	this._main.classList.remove('CursPaint');
+	this._main.classList.remove('CursSpray');
+	this._main.classList.remove('CursEyedropper');
 	switch (in_tool)
 	{
 	case Paint.TOOL_SELECT:
@@ -696,6 +725,12 @@ Paint.prototype.choose_tool = function(in_tool)
 		break;
 	case Paint.TOOL_BRUSH:
 		this._main.classList.add('CursPaint');
+		break;
+	case Paint.TOOL_SPRAY:
+		this._main.classList.add('CursSpray');
+		break;
+	case Paint.TOOL_EYEDROPPER:
+		this._main.classList.add('CursEyedropper');
 		break;
 	}
 	
