@@ -615,24 +615,62 @@ Paint.prototype._draw_free_shape = function(in_loc, in_initial)
 }
 
 
+Paint.prototype._reg_shape_rect = function()
+{
+	return [this._poly_points[0][0], this._poly_points[0][1],
+		this._poly_end[0]-this._poly_points[0][0],
+		this._poly_end[1]-this._poly_points[0][1]];
+}
 
-Paint.prototype._finish_rectangle = function(in_loc)
+
+/*
+	Generates a path for an elipse.
+	Based on code by Steve Tranby on StackOverflow:
+	http://stackoverflow.com/questions/2172798/how-to-draw-an-oval-in-html5-canvas
+*/
+Paint.prototype._elipse = function(ctx, x, y, w, h)
+{
+	var kappa = .5522848,
+	ox = (w / 2) * kappa, // control point offset horizontal
+	oy = (h / 2) * kappa, // control point offset vertical
+	xe = x + w,           // x-end
+	ye = y + h,           // y-end
+	xm = x + w / 2,       // x-middle
+	ym = y + h / 2;       // y-middle
+
+	ctx.moveTo(x, ym);
+	ctx.bezierCurveTo(x, ym - oy, xm - ox, y, xm, y);
+	ctx.bezierCurveTo(xm + ox, y, xe, ym - oy, xe, ym);
+	ctx.bezierCurveTo(xe, ym + oy, xm + ox, ye, xm, ye);
+	ctx.bezierCurveTo(xm - ox, ye, x, ym + oy, x, ym);
+}
+
+
+Paint.prototype._finish_reg_shape = function(in_loc)
 {
 	this._end_reg_shape();
 	
 	this._ctx.beginPath();
 	this._ctx.strokeStyle = 'rgb('+this._color.join(',')+')';
-	this._ctx.rect(this._poly_points[0][0], this._poly_points[0][1], 
-		this._poly_end[0]-this._poly_points[0][0], this._poly_end[1]-this._poly_points[0][1]);
+	var rect = this._reg_shape_rect();
+	switch (this._tool)
+	{
+	case Paint.TOOL_RECTANGLE:
+		this._ctx.rect(rect[0], rect[1], rect[2], rect[3]);
+		break;
+	case Paint.TOOL_OVAL:
+		this._elipse(this._ctx, rect[0], rect[1], rect[2], rect[3]);
+		break;
+	}
 	this._ctx.stroke();
 }
 
 
-Paint.prototype._draw_rectangle = function(in_loc, in_initial)
+Paint.prototype._draw_reg_shape = function(in_loc, in_initial, in_shape)
 {
 	if (in_initial)
 	{
-		this._begin_reg_shape(in_loc, this._finish_rectangle.bind(this));
+		this._begin_reg_shape(in_loc, this._finish_reg_shape.bind(this));
 		return;
 	}
 	
@@ -641,8 +679,16 @@ Paint.prototype._draw_rectangle = function(in_loc, in_initial)
 	this._poly_ctx.clearRect(0, 0, this._size[0], this._size[1]);
 	this._poly_ctx.beginPath();
 	this._poly_ctx.strokeStyle = 'rgb('+this._color.join(',')+')';
-	this._poly_ctx.rect(this._poly_points[0][0], this._poly_points[0][1], 
-		this._poly_end[0]-this._poly_points[0][0], this._poly_end[1]-this._poly_points[0][1]);
+	var rect = this._reg_shape_rect();
+	switch (this._tool)
+	{
+	case Paint.TOOL_RECTANGLE:
+		this._poly_ctx.rect(rect[0], rect[1], rect[2], rect[3]);
+		break;
+	case Paint.TOOL_OVAL:
+		this._elipse(this._poly_ctx, rect[0], rect[1], rect[2], rect[3]);
+		break;
+	}
 	this._poly_ctx.stroke();
 }
 
@@ -784,7 +830,8 @@ Paint.prototype._handle_touch_continue = function(in_page_loc, in_rel_loc)
 		this._draw_free_shape(in_rel_loc, false);
 		break;
 	case Paint.TOOL_RECTANGLE:
-		this._draw_rectangle(in_rel_loc, false);
+	case Paint.TOOL_OVAL:
+		this._draw_reg_shape(in_rel_loc, false);
 		break;
 	}
 }
@@ -849,7 +896,8 @@ Paint.prototype._handle_touch_begin = function(in_page_loc, in_rel_loc)
 		break;
 		
 	case Paint.TOOL_RECTANGLE:
-		this._draw_rectangle(in_rel_loc, true);
+	case Paint.TOOL_OVAL:
+		this._draw_reg_shape(in_rel_loc, true);
 		break;
 	}
 }
