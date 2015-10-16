@@ -81,6 +81,7 @@ Drag._init_snap_guides = function()
 
 Drag._hide_snap_guides = function()
 {
+	if (!Drag._snap_guide_x) return;
 	Drag._snap_guide_x.style.visibility = 'hidden';
 	Drag._snap_guide_y.style.visibility = 'hidden';
 }
@@ -103,10 +104,13 @@ Drag._show_snap_guides = function(in_snapped, in_new_loc)
 
 
 
-Drag.begin_move = function(in_coords, in_objects, in_snap_handler)
+Drag.begin_move = function(in_coords, in_objects, in_snap_handler, in_completion)
 {
+	Drag._completion = in_completion;
+
 	Drag._snap_handler = in_snap_handler;
-	Drag._init_snap_guides();
+	if (in_snap_handler)
+		Drag._init_snap_guides();
 	Drag._inertia = true;
 
 	Drag._objects.length = in_objects.length;
@@ -126,10 +130,13 @@ Drag.begin_move = function(in_coords, in_objects, in_snap_handler)
 }
 
 
-Drag.begin_resize = function(in_coords, in_objects, in_snap_handler)
+Drag.begin_resize = function(in_coords, in_objects, in_snap_handler, in_completion)
 {
+	Drag._completion = in_completion;
+	
 	Drag._snap_handler = in_snap_handler;
-	Drag._init_snap_guides();
+	if (in_snap_handler)
+		Drag._init_snap_guides();
 	Drag._inertia = true;
 	
 	Drag._objects.length = in_objects.length;
@@ -237,6 +244,8 @@ Drag._end_move = function(in_event)
 	
 	Drag._objects.length = 0;
 	
+	if (Drag._completion) Drag._completion();
+	
 	in_event.preventDefault();
 	in_event.stopPropagation();
 }
@@ -253,6 +262,8 @@ Drag._end_resize = function(in_event)
 	document.removeEventListener('touchend', Drag._end_resize);
 	
 	Drag._objects.length = 0;
+	
+	if (Drag._completion) Drag._completion();
 	
 	in_event.preventDefault();
 	in_event.stopPropagation();

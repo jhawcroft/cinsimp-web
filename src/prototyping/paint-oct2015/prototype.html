@@ -39,6 +39,7 @@
 	cursor: move;
 	margin: 0;
 	padding: 0;
+	overflow: hidden;
 }
 
 .CursCrosshair
@@ -62,17 +63,49 @@ function _PaintSelection(in_element)
 }
 
 
-_PaintSelection.prototype.getLoc = function()
+_PaintSelection.prototype.get_loc = function()
 {
 	return [this._element.offsetLeft, this._element.offsetTop];
 }
 
 
-_PaintSelection.prototype.setLoc = function(in_loc)
+_PaintSelection.prototype.set_loc = function(in_loc)
 {
 	this._element.style.left = in_loc[0] + 'px';
 	this._element.style.top = in_loc[1] + 'px';
 }
+
+
+_PaintSelection.prototype.get_size = function()
+{
+	return [this._element.clientWidth, this._element.clientHeight];
+}
+
+
+_PaintSelection.prototype.set_size = function(in_size)
+{
+	this._element.style.width = in_size[0] + 'px';
+	this._element.style.height = in_size[1] + 'px';
+}
+
+
+_PaintSelection.prototype.is_zero = function()
+{
+	return (this._element.clientWidth == 0 && this._element.clientHeight == 0);
+}
+
+
+_PaintSelection.prototype.hide = function()
+{
+	this._element.style.visibility = 'hidden';
+}
+
+
+_PaintSelection.prototype.show = function()
+{
+	this._element.style.visibility = 'visible';
+}
+
 
 
 
@@ -107,6 +140,28 @@ Paint.TOOL_FREE_POLY = 18;
 Paint.TOOL_EYEDROPPER = 19;
 
 
+Paint.prototype._rel_loc = function(in_event)
+{
+	var loc = [0,0];
+	
+	if (in_event.pageX)
+	{
+		loc[0] = in_event.pageX;
+		loc[1] = in_event.pageY;
+	}
+	else
+	{
+		// do touch point extraction here
+	}
+	
+	var cr = this._container.getBoundingClientRect();
+	loc[0] -= cr.left;
+	loc[1] -= cr.top;
+	
+	return loc;
+}
+
+
 Paint.prototype._init = function()
 {
 	var me = this;
@@ -119,7 +174,7 @@ Paint.prototype._init = function()
 	this._main.height = this._size[1];
 	
 	this._main.addEventListener('mousedown', function(in_event) { 
-		me._handle_touch_begin([in_event.pageX, in_event.pageY]); 
+		me._handle_touch_begin([in_event.pageX, in_event.pageY], me._rel_loc(in_event)); 
 		in_event.preventDefault(); in_event.stopPropagation(); });
 	
 	this._ctx = this._main.getContext('2d');
@@ -144,10 +199,27 @@ Paint.prototype._init = function()
 }
 
 
-Paint.prototype._handle_touch_begin = function(in_loc)
+Paint.prototype._selection_finish = function()
+{
+	if (this._selection.is_zero())
+		this._selection.hide();
+}
+
+
+Paint.prototype._handle_touch_begin = function(in_page_loc, in_rel_loc)
 {
 	this._drop_selection();
 	
+	switch (this._tool)
+	{
+	case Paint.TOOL_SELECT:
+		this._selected.innerHTML = '';
+		this._selection.set_loc(in_rel_loc);
+		this._selection.set_size([0,0]);
+		this._selected.style.visibility = 'visible';
+		Drag.begin_resize(in_page_loc, [this._selection], null, this._selection_finish.bind(this));
+		break;
+	}
 }
 
 
@@ -155,7 +227,8 @@ Paint.prototype._drop_selection = function()
 {
 	if (this._selected.style.visibility == 'hidden') return;
 	
-	this._ctx.drawImage(this._selected.children[0], this._selected.offsetLeft + 2, this._selected.offsetTop + 2);
+	if (this._selected.children.length == 1)
+		this._ctx.drawImage(this._selected.children[0], this._selected.offsetLeft + 2, this._selected.offsetTop + 2);
 	
 	this._selected.style.visibility = 'hidden';
 }
@@ -164,7 +237,7 @@ Paint.prototype._drop_selection = function()
 Paint.prototype._selection_grab = function(in_event)
 {
 	//alert('Grab selection');
-	Drag.beginObjectMove(in_event, this._selection);
+	Drag.begin_move([in_event.pageX, in_event.pageY], [this._selection], null);
 	in_event.preventDefault();
 	in_event.stopPropagation();
 }
@@ -217,6 +290,10 @@ Paint.prototype._paste_create_image = function(in_source)
 	
 	var me = this;
 	var img = document.createElement('img');
+	img.style.display = 'block';
+	img.style.position = 'absolute';
+	img.style.left = '0px';
+	img.style.top = '0px';
 	img.onload = function()
 	{
 		me.choose_tool(Paint.TOOL_SELECT);
@@ -226,6 +303,8 @@ Paint.prototype._paste_create_image = function(in_source)
 	
 		me._selected.style.left = (me._container.clientWidth - this.clientWidth) / 2 + 'px';
 		me._selected.style.top = (me._container.clientHeight - this.clientHeight) / 2 + 'px';
+		me._selected.style.width = this.clientWidth + 'px';
+		me._selected.style.height = this.clientHeight + 'px';
 		me._selected.style.visibility = 'visible';
 	}
 	img.src = in_source;
