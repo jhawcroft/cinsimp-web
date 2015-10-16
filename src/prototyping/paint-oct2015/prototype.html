@@ -202,6 +202,8 @@ function Paint(in_container, in_size)
 	
 	this._spray_head = new Image();
 	this._spray_head.src = 'gfx/spray-head.png';
+	
+	this._blank_url = this.get_data_png();
 }
 
 
@@ -1242,6 +1244,7 @@ Paint.prototype.set_line_size = function(in_size)
 Paint.prototype.get_data_png = function()
 {
 	var source = this._main.toDataURL();
+	if (this._blank_url && this._blank_url == source) return '';
 	return source;
 }
 
@@ -1250,7 +1253,7 @@ Paint.prototype.set_data_png = function(in_data)
 {
 	if (in_data == '')
 	{
-		this._ctx.clearRect(0, 0, me._size[0], me._size[1]);
+		this._ctx.clearRect(0, 0, this._size[0], this._size[1]);
 		return;
 	}
 	var temp = new Image();
