@@ -165,6 +165,9 @@ function Paint(in_container, in_size)
 	var brush = new Image();
 	brush.src = 'gfx/brush_mask_1.png';
 	this.set_brush(brush);
+	
+	this._spray_head = new Image();
+	this._spray_head.src = 'gfx/spray-head.png';
 }
 
 
@@ -402,7 +405,20 @@ Paint.prototype._apply_brush = function(in_loc, in_initial)// need to iterate ov
 
 Paint.prototype._apply_spray = function(in_loc, in_initial) // no line iteration!
 {
-	// draw the picture of the spray head without any further processing
+	if (in_initial)
+	{
+		// setup the brush
+		this._brush = document.createElement('canvas');
+		this._brush.width = this._spray_head.width;
+		this._brush.height = this._spray_head.height;
+		var brush_ctx = this._brush.getContext('2d');
+		brush_ctx.drawImage(this._spray_head, 0, 0);
+		brush_ctx.fillStyle = 'rgb('+this._color.join(',')+')';
+		brush_ctx.globalCompositeOperation = 'source-in';
+		brush_ctx.fillRect(0, 0, this._brush.width, this._brush.height);
+	}
+	
+	this._ctx.drawImage(this._brush, in_loc[0], in_loc[1]);
 }
 
 
