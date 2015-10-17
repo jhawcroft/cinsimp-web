@@ -1084,9 +1084,9 @@ Paint.prototype.choose_tool = function(in_tool)
 		this._prev_tool = this._tool;
 	
 	this._tool = in_tool;
-	if (in_tool == View.TOOL_BROWSE && this._in_paint)
+	if ((in_tool == View.TOOL_BROWSE || in_tool == View.TOOL_BUTTON || in_tool == View.TOOL_FIELD) && this._in_paint)
 		this._exit_paint();
-	else if (in_tool != View.TOOL_BROWSE && (!this._in_paint))
+	else if (in_tool != View.TOOL_BROWSE && in_tool != View.TOOL_BUTTON && in_tool != View.TOOL_FIELD && (!this._in_paint))
 	{
 		this._enter_paint();
 		this._prev_tool = this._tool;
