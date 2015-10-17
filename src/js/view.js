@@ -858,6 +858,10 @@ View.prototype._rebuild_card = function() // will have to do separate load objec
 	
 	this._renumber_objects();
 	
+	/* pull out the art work (if any) */
+	alert('card art: '+this._card.card_art);
+	alert('bkgnd art: '+this._card.bkgnd_art);
+	
 	/* cause fields to be editable where appropriate */
 	this._mode_changed();
 }

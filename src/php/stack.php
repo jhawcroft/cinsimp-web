@@ -156,7 +156,8 @@ Creating and Opening Stacks
 			'object_data TEXT NOT NULL,'.
 			'cant_delete INTEGER NOT NULL DEFAULT 0,'.
 			'dont_search INTEGER NOT NULL DEFAULT 0,'.
-			'bkgnd_data TEXT NOT NULL)'
+			'bkgnd_data TEXT NOT NULL,'.
+			'bkgnd_art TEXT)'
   		), $file_db, 'Creating table: Background');
   		
   		Stack::sl_ok($file_db->exec(
@@ -175,7 +176,8 @@ Creating and Opening Stacks
 			'cant_delete INTEGER NOT NULL DEFAULT 0,'.
 			'dont_search INTEGER NOT NULL DEFAULT 0,'.
 			'marked INTEGER NOT NULL DEFAULT 0,'.
-			'card_data TEXT NOT NULL)'
+			'card_data TEXT NOT NULL,'.
+			'card_art TEXT)'
   		), $file_db, 'Creating table: Card');
   		
   		Stack::sl_ok($file_db->exec(
@@ -444,7 +446,7 @@ Accessors and Mutators
 		$stmt = $this->file_db->prepare(
 			'SELECT card.bkgnd_id, bkgnd.bkgnd_name, bkgnd.cant_delete, bkgnd.dont_search, '.
 			'bkgnd.bkgnd_data, card.card_data, card_name, card_seq, card.object_data, '.
-			'bkgnd.object_data, card.cant_delete, card.dont_search, card.marked '.
+			'bkgnd.object_data, card.cant_delete, card.dont_search, card.marked, card.card_art, bkgnd.bkgnd_art '.
 			'FROM card JOIN bkgnd ON card.bkgnd_id=bkgnd.bkgnd_id WHERE card_id=?'
 		);
 		Stack::sl_ok($stmt, $this->file_db, 'Loading Card (1)');
@@ -462,7 +464,12 @@ Accessors and Mutators
 		$data = json_decode($row[5], true);
 		$card['card_script'] = Stack::nvl($data['card_script'], Array('content'=>'','selection'=>0));
 		$card['card_has_art'] = Stack::nvl($data['card_has_art'], false);
+		
+		$card['data'] = '';
 		if (isset($data['data'])) $card['data'] = $data['data'];
+		
+		$card['card_art'] = null;
+		if (isset($row[13])) $card['card_art'] = $row[13];
 		
 		//if (isset($data['content']))
 		//	$card['content'] = $data['content'];
@@ -477,6 +484,9 @@ Accessors and Mutators
 		$data = json_decode($row[4], true);
 		$card['bkgnd_script'] = Stack::nvl($data['bkgnd_script'], Array('content'=>'','selection'=>0));
 		$card['bkgnd_has_art'] = Stack::nvl($data['bkgnd_has_art'], false);
+		
+		$card['bkgnd_art'] = null;
+		if (isset($row[14])) $card['bkgnd_art'] = $row[14];
 		
 		$card['bkgnd_object_data'] = $row[9];
 		
@@ -497,22 +507,26 @@ Accessors and Mutators
 		$data = array();
 		$data['card_script'] = $card['card_script'];
 		$data['card_has_art'] = $card['card_has_art'];
-		//$data['content'] = $card['content'];
 		$data['data'] = $card['data'];
 	
-		$stmt = $this->file_db->prepare(
-			'UPDATE card SET object_data=?,card_name=?,cant_delete=?,dont_search=?,marked=?,card_data=? WHERE card_id=?'
-		);
+		$sql = 'UPDATE card SET object_data=?,card_name=?,cant_delete=?,dont_search=?,marked=?,card_data=?';
+		if (isset($card['card_art'])) $sql .= ',card_art=?';
+		$sql .= ' WHERE card_id=?';
+
+		$stmt = $this->file_db->prepare($sql);
 		Stack::sl_ok($stmt, $this->file_db, 'Saving Card (1)');
-		$rows = $stmt->execute(array(
+		$params = array(
 			$card['card_object_data'],
 			$card['card_name'],
 			Stack::encode_bool($card['card_cant_delete']),
 			Stack::encode_bool($card['card_dont_search']),
 			Stack::encode_bool($card['card_marked']),
-			json_encode($data),
-			intval($card['card_id'])
-		));
+			json_encode($data)
+		);
+		if (isset($card['card_art'])) $params[] = $card['card_art'];
+		$params[] = intval($card['card_id']);
+		
+		$rows = $stmt->execute($params);
 		if ($rows == 0) Stack::sl_ok(false, $this->file_db, 'Saving Card (2)');
 		Stack::sl_ok($rows, $this->file_db, 'Saving Card (3)');
 		
@@ -520,19 +534,23 @@ Accessors and Mutators
 		$data['bkgnd_script'] = $card['bkgnd_script'];
 		$data['bkgnd_has_art'] = $card['bkgnd_has_art'];
 		
-		$stmt = $this->file_db->prepare(
-			'UPDATE bkgnd SET object_data=?,bkgnd_name=?,cant_delete=?,dont_search=?,bkgnd_data=? '.
-			'WHERE bkgnd_id=(SELECT bkgnd_id FROM card WHERE card_id=?)'
-		);
+		$sql = 'UPDATE bkgnd SET object_data=?,bkgnd_name=?,cant_delete=?,dont_search=?,bkgnd_data=?';
+		if (isset($card['bkgnd_art'])) $sql .= ',bkgnd_art=?';
+		$sql .= ' WHERE bkgnd_id=(SELECT bkgnd_id FROM card WHERE card_id=?)';
+		$stmt = $this->file_db->prepare($sql);
+		
 		Stack::sl_ok($stmt, $this->file_db, 'Saving Bkgnd (1)');
-		$rows = $stmt->execute(array(
+		$params = array(
 			$card['bkgnd_object_data'],
 			$card['bkgnd_name'],
 			Stack::encode_bool($card['bkgnd_cant_delete']),
 			Stack::encode_bool($card['bkgnd_dont_search']),
-			json_encode($data),
-			intval($card['card_id'])
-		));
+			json_encode($data)
+		);
+		if (isset($card['bkgnd_art'])) $params[] = $card['bkgnd_art'];
+		$params[] = intval($card['card_id']);
+		
+		$rows = $stmt->execute($params);
 		if ($rows == 0) Stack::sl_ok(false, $this->file_db, 'Saving Bkgnd (2)');
 		Stack::sl_ok($rows, $this->file_db, 'Saving Bkgnd (3)');
 		
