@@ -119,6 +119,8 @@ function Paint(in_container, in_size)
 	this.ontoolchange = null;
 	this.onchoosebrush = null;
 	this.onchooseline = null;
+	this.onenterpaint = null;
+	this.onexitpaint = null;
 	
 	this._init();
 	
@@ -899,6 +901,7 @@ Paint.prototype._selection_grab = function(in_event)
 
 Paint.prototype._enter_paint = function()
 {
+	if (this._in_paint) return;
 	this._in_paint = true;
 	
 	this._listeners = [
@@ -909,11 +912,17 @@ Paint.prototype._enter_paint = function()
 	document.addEventListener('keydown', this._listeners[0]);
 	document.addEventListener('keyup', this._listeners[1]);
 	document.addEventListener('paste', this._listeners[2]);
+	
+	if (this.onenterpaint) this.onenterpaint();
 }
 
 
 Paint.prototype._exit_paint = function()
-{
+{	
+	if (!this._in_paint) return;
+	
+	if (this.onexitpaint) this.onexitpaint();
+	
 	this._in_paint = false;
 	
 	document.removeEventListener('keydown', this._listeners[0]);
@@ -1175,6 +1184,9 @@ Paint.prototype.set_data_png = function(in_data)
 }
 
 
-
+Paint.prototype.is_active = function()
+{
+	return this._in_paint;
+}
 
 

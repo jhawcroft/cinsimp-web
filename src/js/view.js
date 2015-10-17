@@ -132,6 +132,7 @@ View.prototype._init_view = function()
 	this._layer_paint.style.zIndex = 6;
 	this._layer_paint.style.width = this._size[0] + 'px';
 	this._layer_paint.style.height = this._size[1] + 'px';
+	this._layer_paint.style.visibility = 'hidden';
 	
 	this._layer_obj_card = document.createElement('div');
 	this._layer_obj_card.id = 'LayerObjCard';
@@ -467,7 +468,12 @@ View.prototype.choose_tool = function(in_tool)
 	and configure the paint environment */
 	if (in_tool != View.TOOL_BROWSE && in_tool != View.TOOL_BUTTON && in_tool != View.TOOL_FIELD)
 	{
-		if (!this._paint) this._paint = new Paint(this._layer_paint, this._size);
+		if (!this._paint) 
+		{
+			this._paint = new Paint(this._layer_paint, this._size);
+			this._paint.onenterpaint = this.paint_revert.bind(this);
+			this._paint.onexitpaint = this.paint_keep.bind(this);
+		}
 		if (this._paint) 
 		{
 			this._paint.choose_tool(in_tool);
@@ -499,14 +505,13 @@ View.prototype.choose_tool = function(in_tool)
 View.prototype.edit_bkgnd = function(in_edit_bkgnd)
 {
 	this.select_none();
+	this.paint_keep();
 
 	this._edit_bkgnd = in_edit_bkgnd;
 	this._bkgnd_indicator.style.visibility = (this._edit_bkgnd ? 'visible' : 'hidden');
 	
 	this._configure_obj_display();
-	//this._layer_obj_card.style.visibility = (this._edit_bkgnd ? 'hidden' : 'visible');
-	//for (var o = 0; o < this._objects_card.length; o++)
-	//	this._objects_card[o]._layer_visibility(!in_edit_bkgnd);
+	this.paint_revert();
 }
 
 
@@ -723,6 +728,7 @@ View.prototype._save_card = function(in_handler)
 	if (document.activeElement)
 		document.activeElement.blur();
 	this.select_none();
+	this.paint_keep();
 
 	this._save_defs_n_content();
 	
@@ -859,11 +865,13 @@ View.prototype._rebuild_card = function() // will have to do separate load objec
 	this._renumber_objects();
 	
 	/* pull out the art work (if any) */
-	alert('card art: '+this._card.card_art);
-	alert('bkgnd art: '+this._card.bkgnd_art);
+	//alert('card art: '+this._card.card_art);
+	//alert('bkgnd art: '+this._card.bkgnd_art);
 	
 	/* cause fields to be editable where appropriate */
 	this._mode_changed();
+	
+	this.paint_revert();
 }
 
 
@@ -1427,3 +1435,31 @@ View.prototype.do_edit_script = function(in_subject, in_prior)
 	if (in_prior) in_prior();
 	Dialog.ScriptEditor.show();
 }
+
+
+
+View.prototype.paint_keep = function()
+{
+	if (!this._paint) return;
+	if (!this._paint.is_active()) return;
+	
+	if (!this._edit_bkgnd)
+		this._card.card_art = this._paint.get_data_png();
+	else
+		this._card.bkgnd_art = this._paint.get_data_png();
+}
+
+
+View.prototype.paint_revert = function()
+{
+	if (!this._paint) return;
+	if (!this._paint.is_active()) return;
+	
+	if (!this._edit_bkgnd)
+		this._paint.set_data_png(this._card.card_art);
+	else
+		this._paint.set_data_png(this._card.bkgnd_art);
+}
+
+
+
