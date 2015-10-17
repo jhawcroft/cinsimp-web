@@ -1161,14 +1161,14 @@ Paint.prototype.set_line_size = function(in_size)
 Paint.prototype.get_data_png = function()
 {
 	var source = this._main.toDataURL();
-	if (this._blank_url && this._blank_url == source) return '';
+	if (this._blank_url && this._blank_url == source) return null;
 	return source;
 }
 
 
 Paint.prototype.set_data_png = function(in_data)
 {
-	if (in_data == '')
+	if (in_data === null || in_data === '')
 	{
 		this._ctx.clearRect(0, 0, this._size[0], this._size[1]);
 		return;

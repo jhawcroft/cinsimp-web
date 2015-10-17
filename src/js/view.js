@@ -127,6 +127,18 @@ View.prototype._init_view = function()
 	this._layer_obj_bkgnd.style.width = this._size[0] + 'px';
 	this._layer_obj_bkgnd.style.height = this._size[1] + 'px';*/
 	
+	this._layer_bkgnd_art = document.createElement('div');
+	this._layer_bkgnd_art.className = 'LayerArt';
+	this._layer_bkgnd_art.style.zIndex = 3;
+	this._layer_bkgnd_art.style.width = this._size[0] + 'px';
+	this._layer_bkgnd_art.style.height = this._size[1] + 'px';
+	
+	this._layer_card_art = document.createElement('div');
+	this._layer_card_art.className = 'LayerArt';
+	this._layer_card_art.style.zIndex = 4;
+	this._layer_card_art.style.width = this._size[0] + 'px';
+	this._layer_card_art.style.height = this._size[1] + 'px';
+	
 	this._layer_paint = document.createElement('div');
 	this._layer_paint.className = 'PaintCanvas';
 	this._layer_paint.style.zIndex = 6;
@@ -144,6 +156,8 @@ View.prototype._init_view = function()
 	//this._layer_obj_card = document.createElement('div');
 	//this._layer_obj_card = document.createElement('div');
 	//this._container.appendChild(this._layer_obj_bkgnd);
+	this._container.appendChild(this._layer_bkgnd_art);
+	this._container.appendChild(this._layer_card_art);
 	this._container.appendChild(this._layer_paint);
 	this._container.appendChild(this._layer_obj_card);
 	
@@ -471,21 +485,18 @@ View.prototype.choose_tool = function(in_tool)
 		if (!this._paint) 
 		{
 			this._paint = new Paint(this._layer_paint, this._size);
-			this._paint.onenterpaint = this.paint_revert.bind(this);
-			this._paint.onexitpaint = this.paint_keep.bind(this);
+			var me = this;
+			this._paint.onenterpaint = function() { me.paint_revert(); };
+			this._paint.onexitpaint = function() { me.paint_keep(); me._rebuild_art(); };
 		}
 		if (this._paint) 
-		{
 			this._paint.choose_tool(in_tool);
 			// probably need to reinit with a different card size here; only if different?
-			this._layer_paint.style.visibility = 'visible';
-		}
 	}
 	else
 	{
 		if (this._paint)
 			this._paint.choose_tool(in_tool);
-		this._layer_paint.style.visibility = 'hidden';
 	}
 	
 	/* determine the mode */
@@ -494,6 +505,8 @@ View.prototype.choose_tool = function(in_tool)
 		this._tool == View.TOOL_FIELD) this._mode = View.MODE_AUTHORING;
 	else this._mode = View.MODE_PAINTING;
 	this._mode_changed();
+	
+	this._config_art_visibility();
 	
 	this._indicate_tool(in_tool);
 	
@@ -506,11 +519,13 @@ View.prototype.edit_bkgnd = function(in_edit_bkgnd)
 {
 	this.select_none();
 	this.paint_keep();
+	this._rebuild_art();
 
 	this._edit_bkgnd = in_edit_bkgnd;
 	this._bkgnd_indicator.style.visibility = (this._edit_bkgnd ? 'visible' : 'hidden');
 	
 	this._configure_obj_display();
+	this._config_art_visibility();
 	this.paint_revert();
 }
 
@@ -787,6 +802,45 @@ View.prototype._rebuild_layers = function()
 }
 
 
+View.prototype._config_art_visibility = function()
+{
+	if ( this._mode == View.MODE_PAINTING || (this._paint && this._paint.is_active()) )
+	{
+		this._layer_card_art.style.visibility = 'hidden';
+		this._layer_bkgnd_art.style.visibility = (!this._edit_bkgnd ? 'visible' : 'hidden');
+		this._layer_paint.style.visibility = 'visible';
+	}
+	else
+	{
+		this._layer_paint.style.visibility = 'hidden';
+		this._layer_card_art.style.visibility = (this._edit_bkgnd ? 'hidden' : 'visible');
+		this._layer_bkgnd_art.style.visibility = 'visible';
+	}
+}
+
+
+View.prototype._rebuild_art = function()
+{
+	this._layer_bkgnd_art.innerHTML = '';
+	this._layer_card_art.innerHTML = '';
+	
+	if (this._card.card_art)
+	{
+		var img = new Image();
+		img.src = this._card.card_art;
+		this._layer_card_art.appendChild(img);
+	}
+	if (this._card.bkgnd_art)
+	{
+		var img = new Image();
+		img.src = this._card.bkgnd_art;
+		this._layer_bkgnd_art.appendChild(img);
+	}
+	
+	this._config_art_visibility();
+}
+
+
 View.prototype._rebuild_card = function() // will have to do separate load object data & separate reload from object lists
 {
 	/* dump the current card */
@@ -868,10 +922,11 @@ View.prototype._rebuild_card = function() // will have to do separate load objec
 	//alert('card art: '+this._card.card_art);
 	//alert('bkgnd art: '+this._card.bkgnd_art);
 	
+	this._rebuild_art();
+	this.paint_revert();
+	
 	/* cause fields to be editable where appropriate */
 	this._mode_changed();
-	
-	this.paint_revert();
 }
 
 
