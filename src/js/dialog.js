@@ -184,6 +184,8 @@ Dialog.prototype.getVisible = function()
 
 Dialog.prototype.show = function()
 {	
+	if (this.getVisible()) return;
+	
 	Dialog._installCover();
 	Dialog._cover.style.width = window.innerWidth + 'px';
 	Dialog._cover.style.height = window.innerHeight + 'px';
@@ -203,6 +205,8 @@ Dialog.prototype.show = function()
 
 Dialog.prototype.hide = function()
 {
+	if (!this.getVisible()) return;
+	
 	this._root.style.visibility = 'hidden';
 	this._div.style.visibility = 'hidden';
 	
