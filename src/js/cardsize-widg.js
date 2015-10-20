@@ -140,3 +140,6 @@ var csd = document.getElementById('CardSizeDragger');
 	
 	<div style="display: block; position: absolute; left: 0; top: 0; width: 100px; height: 80px; background-color: white; border: 1px solid black; min-width: 18px; min-height: 18px; overflow: hidden;" id="CardSizeDragger"><div style="display: block; position: absolute; right: 1px; bottom: 1px; width: 16px; height: 16px; background-color: black;" id="CardSizeHandle"></div></div>
 	*/
+	
+CinsImp._script_loaded('cardsize-widg');
+

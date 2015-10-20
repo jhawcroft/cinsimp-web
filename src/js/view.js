@@ -105,7 +105,7 @@ View.prototype._init_view = function()
 	this._edit_bkgnd = false;
 	this._mode = View.MODE_BROWSE;
 	this._tool = View.TOOL_BROWSE;
-	this._container = document.getElementById('stackWindow');
+	this._container = Application._stack_window;
 	
 	this._next_id = 1;
 	
@@ -1516,5 +1516,7 @@ View.prototype.paint_revert = function()
 		this._paint.set_data_png(this._card.bkgnd_art);
 }
 
+
+CinsImp._script_loaded('view');
 
 

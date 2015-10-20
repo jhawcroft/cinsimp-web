@@ -104,4 +104,5 @@ Progress.operation_finished = function()
 }
 
 
+CinsImp._script_loaded('progress');
 

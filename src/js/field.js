@@ -171,5 +171,6 @@ Field.prototype._attribute_changed = function(in_attr, in_value)
 }
 
 
+CinsImp._script_loaded('field');
 
 

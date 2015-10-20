@@ -103,5 +103,6 @@ Alert.do_button = function(in_button)
 }
 
 
+CinsImp._script_loaded('alert');
 
 

@@ -152,3 +152,4 @@ Colours.DEFAULT_SET = [
 ];
 
 
+CinsImp._script_loaded('colours');

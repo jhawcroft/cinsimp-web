@@ -36,6 +36,25 @@ require($config->base.'php/stack.php');
 require($config->base.'php/util.php');
 
 
+if (isset($_REQUEST['browser-warning']))
+{
+	$page = '';
+	$page .= file_get_contents($config->base.'html/browser.html');
+	print $page;
+	exit;
+}
+
+
+if (isset($_REQUEST['ui']))
+{
+	$page = '';
+	$page .= file_get_contents($config->base.'html/dialogs.html');
+	$page .= file_get_contents($config->base.'html/palettes.html');
+	$page .= '<script type="text/javascript">CinsImp._init2();</script>';
+	print $page;
+	exit;
+}
+
 if (isset($_REQUEST['hcimport']))
 {
 	require($config->base.'php/hcimport.php');

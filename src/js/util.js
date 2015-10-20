@@ -122,3 +122,8 @@ Util.insert_at_cursor = function(in_textarea, in_value)
 }
 
 
+
+CinsImp._script_loaded('util');
+
+
+

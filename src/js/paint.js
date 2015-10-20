@@ -1190,3 +1190,6 @@ Paint.prototype.is_active = function()
 }
 
 
+CinsImp._script_loaded('paint');
+
+

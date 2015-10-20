@@ -341,5 +341,6 @@ ViewObject.prototype._layer_visibility = function(in_visible)
 
 
 
+CinsImp._script_loaded('object');
 
 

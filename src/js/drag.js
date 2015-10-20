@@ -389,4 +389,7 @@ Drag.init();
 
 
 
+CinsImp._script_loaded('drag');
+
+
 

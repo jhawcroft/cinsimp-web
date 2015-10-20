@@ -157,4 +157,5 @@ HCImport.run = function()
 }
 
 
+CinsImp._script_loaded('hcimport');
 

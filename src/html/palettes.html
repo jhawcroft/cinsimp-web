@@ -1,0 +1,109 @@
+
+
+<div id="PaletteNavigator" class="PaletteTemplate" style="left: 100px; top: 550px; height: 55px;">
+
+<div class="ButtonsRow">
+	<div title="Home"><img src="gfx/home.png" width="32" onclick="test()"><div>Home</div></div>
+	<div title="Help"><img src="gfx/help.png" width="32"><div>Help</div></div>
+	<div title="Recent"><img src="gfx/recent.png" width="32"><div>Recent</div></div>
+	<div title="Back"><img src="gfx/back.png" width="32"><div>Back</div></div>
+	<div class="Spacer"></div>
+	<div title="First" onclick="Application.go_first();"><img src="gfx/first.png" width="32"><div>First</div></div>
+	<div title="Previous" onclick="Application.go_prev();"><img src="gfx/prev.png" width="32"><div>Previous</div></div>
+	<div title="Next" onclick="Application.go_next();"><img src="gfx/next.png" width="32"><div>Next</div></div>
+	<div title="Last" onclick="Application.go_last();"><img src="gfx/last.png" width="32"><div>Last</div></div>
+	<div class="Spacer"></div>
+	<div title="Find" onclick="Application.do_find()"><img src="gfx/find.png" width="32"><div>Find</div></div>
+	<div title="Message" onclick="Palette.MessageBox.toggle()"><img src="gfx/message.png" width="32"><div>Message</div></div>
+	<div class="Spacer"></div>
+	<div title="New" onclick="Application.do_new();"><img src="gfx/new.png" width="32"><div>New</div></div>
+	<div title="Delete" onclick="Application.do_delete();"><img src="gfx/delete.png" width="32"><div>Delete</div></div>
+	<!--<div class="Spacer"></div>
+	<div title="Share"><img src="gfx/share.png" width="32"><div>Share</div></div>-->
+</div>
+
+</div>
+
+
+<div id="PaletteAuthoring" class="PaletteTemplate" style="left: 180px; top: 450px; height: 55px;">
+
+<div class="ButtonsRow">
+	<div title="Object Info" title="Object Info" onclick="Application.do_info()"><img src="gfx/info.png" width="32"><div>Object Info</div></div>
+	<div title="Edit Bkgnd" onclick="Application.edit_bkgnd()"><img src="gfx/bkgnd.png" width="32"><div id="EditBkgndLabel">Edit Bkgnd</div></div>
+	<div class="Spacer"></div>
+	<div title="Front" onclick="Application.send_to_front();"><img src="gfx/tofront.png" width="32"><div>Front</div></div>
+	<div title="Closer" onclick="Application.send_forward();"><img src="gfx/forward.png" width="32"><div>Closer</div></div>
+	<div title="Farther" onclick="Application.send_backward();"><img src="gfx/backward.png" width="32"><div>Farther</div></div>
+	<div title="Back" onclick="Application.send_to_back();"><img src="gfx/toback.png" width="32"><div>Back</div></div>
+	<div class="Spacer"></div>
+	<div title="Options"><img src="gfx/options.png" width="32"><div>Options</div></div>
+	<div class="Spacer"></div>
+	<div title="Stack Info" title="Stack Info" onclick="Application.showStackInfo()"><img src="gfx/stackinfo.png" width="32"><div>Stack Info</div></div>
+	<div title="Security" onclick="Application.show_protect_stack();"><img src="gfx/locked.png" width="32"><div>Security</div></div>
+	<!--<div title="Resources"><img src="gfx/resources.png" width="32"><div>Resources</div></div>
+	<div title="Export"><img src="gfx/export.png" width="32"><div>Export</div></div>-->
+</div>
+
+</div>
+
+
+
+<div id="PaletteTools" class="PaletteTemplate" style="left: 830px; top: 200px;">
+
+<div id="ToolButtonGrid">
+	<div onclick="Application.choose_tool(View.TOOL_BROWSE);"><img src="gfx/browse-hilite.png" title="Browse" id="Tool1"></div>
+	<div onclick="Application.choose_tool(View.TOOL_BUTTON);"><img src="gfx/button-normal.png" title="Button" id="Tool2"></div>
+	<div onclick="Application.choose_tool(View.TOOL_FIELD);"><img src="gfx/field-normal.png" title="Field" id="Tool3"></div>
+	
+	<div onclick="Application.choose_tool(View.TOOL_SELECT);"><img src="gfx/select-normal.png" title="Select" id="Tool4"></div>
+	<!--<div onclick="Application.choose_tool(View.TOOL_LASSO);"><img src="gfx/lasso-normal.png" title="Lasso" id="Tool5"></div>-->
+	<div onclick="Application.choose_tool(View.TOOL_PENCIL);"><img src="gfx/pencil-normal.png" title="Pencil" id="Tool6"></div>
+	<div onclick="Application.choose_tool(View.TOOL_ERASER);"><img src="gfx/eraser-normal.png" title="Eraser" id="Tool8"></div>
+	
+	<div onclick="Application.choose_tool(View.TOOL_BRUSH);"><img src="gfx/brush-normal.png" title="Paint Brush" id="Tool7"></div>
+	<div onclick="Application.choose_tool(View.TOOL_SPRAY);"><img src="gfx/spray-normal.png" title="Spray" id="Tool10"></div>
+	<div onclick="Application.choose_tool(View.TOOL_BUCKET);"><img src="gfx/bucket-normal.png" title="Paint Bucket" id="Tool13"></div>
+	
+	<div onclick="Application.choose_tool(View.TOOL_LINE);"><img src="gfx/line-normal.png" title="Line" id="Tool9"></div>
+	<div onclick="Application.choose_tool(View.TOOL_RECTANGLE);"><img src="gfx/rectangle-normal.png" title="Rectangle" id="Tool11"></div>
+	<div onclick="Application.choose_tool(View.TOOL_ROUND_RECT);"><img src="gfx/roundrect-normal.png" title="Round Rectangle" id="Tool12"></div>
+	
+	<div onclick="Application.choose_tool(View.TOOL_OVAL);"><img src="gfx/oval-normal.png" title="Oval" id="Tool14"></div>
+	<div onclick="Application.choose_tool(View.TOOL_FREE_SHAPE);"><img src="gfx/freeshape-normal.png" title="Free Shape" id="Tool15"></div>
+	<div onclick="Application.choose_tool(View.TOOL_FREE_POLY);"><img src="gfx/freepoly-normal.png" title="Free Polygon" id="Tool18"></div>
+	
+	
+	
+	
+	<!--<div onclick="Application.choose_tool(View.TOOL_TEXT);"><img src="gfx/text-normal.png" title="Text" id="Tool16"></div>-->
+	<!--<div onclick="Application.choose_tool(View.TOOL_REG_POLY);"><img src="gfx/regpoly-normal.png" title="Regular Polygon" id="Tool17"></div>-->
+	
+	
+	<div onclick="Application.choose_tool(View.TOOL_EYEDROPPER);"><img src="gfx/eyedrop-normal.png" title="Eyedropper" id="Tool19"></div>
+	
+</div>
+
+</div>
+
+
+
+
+<div id="PaletteColours" class="PaletteTemplate" style="left: 50px; top: 100px;">
+</div>
+
+
+<div id="PaletteLinkTo" class="PaletteTemplate" style="left: 50px; top: 100px;">
+	<div style="margin: 10px; margin-bottom: 15px;">
+		<div class="Label">Go to destination, then aim link at:</div>
+		<input type="button" value="This Card" class="VertGap" onclick=""> <input type="button" value="This Stack" class="" onclick=""> <input type="button" value="Cancel" class="" onclick="">
+	</div>
+</div>
+
+
+<div id="PaletteMessageBox" class="PaletteTemplate" style="left: 50px; top: 100px;">
+	<div style="margin: 3px; margin-bottom: 6px;">
+		<input type="text" id="MessageBoxText" style="width: 650px; border-bottom: 1px dotted gray;">
+	</div>
+</div>
+
+

@@ -153,4 +153,5 @@ PopupMenu.prototype.open = function(in_loc, in_side)
 }
 
 
+CinsImp._script_loaded('popup-menu');
 

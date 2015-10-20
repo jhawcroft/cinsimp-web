@@ -176,6 +176,7 @@ JCodeEdit.prototype._jce_installEventHandlers = function()
 }
 
 
+CinsImp._script_loaded('codeedit');
 
 
 

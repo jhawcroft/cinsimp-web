@@ -242,3 +242,5 @@ Dialog.dismiss = function()
 }
 
 
+CinsImp._script_loaded('dialog');
+

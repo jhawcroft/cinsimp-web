@@ -44,49 +44,6 @@ Application._view = null;
 
 
 
-Application.init = function()
-{
-	Application.init_card_size_dragger();
-	Application._setup_colours();
-
-	Application._view = new View(Application._stack, Application._card);
-	Application._view.refresh();
-	
-	
-	Application._msgtxt = document.getElementById('MessageBoxText');
-	Application._msgtxt.addEventListener('keydown', function(e) { if (e.keyCode == 13) Application.do_message(); });
-}
-
-
-
-Application._setup_colours = function()
-{
-	var dom_table = document.createElement('div');
-	dom_table.className = 'ColourSwatchTable';
-	for (var c = 0; c < Colours.DEFAULT_SET.length; c++)
-	{
-		var colour = Colours.DEFAULT_SET[c];
-		
-		var dom_swatch = document.createElement('div');
-		dom_swatch.style.backgroundColor = 'rgba('+colour[0]+','+colour[1]+','+colour[2]+',1)';
-		dom_table.appendChild(dom_swatch);
-		
-		dom_swatch.addEventListener('mousedown', Application._handle_choose_colour);
-	}
-	
-	Palette.Colours._root.appendChild(dom_table);
-	
-	var cell_size = dom_table.children[0].clientWidth;
-	var per_row = Math.floor(dom_table.clientWidth / dom_table.children[0].clientWidth);
-	var rows = Math.ceil(Colours.DEFAULT_SET.length / per_row);
-	
-	Palette.Colours.setSize([per_row * cell_size, rows * cell_size]);
-	Palette.Colours._div.style.opacity = 1.0; /* not appropriate to have translucent colour swatches */
-	
-	
-}
-
-
 Application._handle_choose_colour = function(in_event)
 {
 	var e = in_event || window.event;
@@ -247,14 +204,7 @@ Application.show_protect_stack = function()
 }
 
 
-Application.setDefaultPositions = function(in_card_width, in_card_height)
-{
-	Palette.Navigator.setLoc([20, in_card_height + 40]);
-	Palette.Authoring.setLoc([20, in_card_height + 40 + Palette.Navigator._div.clientHeight + 2]);
-	Palette.Tools.setLoc([in_card_width + 40, 50]);
-	Palette.Colours.setLoc([in_card_width + 45, 50 + Palette.Tools._div.clientHeight + 14]);
-	Palette.MessageBox.setLoc([40, in_card_height - 70]);
-}
+
 
 
 Application.save_stack_info = function()
@@ -348,13 +298,7 @@ Application._card_size_changed = function(in_new_size)
 }
 
 
-Application.init_card_size_dragger = function()
-{
-	Application._csw = new CardSizeWidget(document.getElementById('CardSizeWidg'),
-		Application._card_size_changed);
-	var picklist = document.getElementById('CardSizeList');
-	picklist.addEventListener('change', Application._card_size_picked.bind(Application));
-}
+
 
 
 
@@ -387,6 +331,233 @@ Application.do_edit_script = function(in_subject, in_prior)
 {
 	if (Application._view) Application._view.do_edit_script(in_subject, in_prior);
 }
+
+
+Application.open_app_menu = function(el) //don't take an argument - do lookup
+{
+	PopupMenu.ApplicationMenu.item(0).checkmark = Palette.Navigator.getVisible();
+	PopupMenu.ApplicationMenu.item(1).checkmark = Palette.MessageBox.getVisible();
+	PopupMenu.ApplicationMenu.item(2).checkmark = Palette.Tools.getVisible();
+	PopupMenu.ApplicationMenu.item(3).checkmark = Palette.Authoring.getVisible();
+	PopupMenu.ApplicationMenu.item(4).checkmark = Palette.Colours.getVisible();
+	
+	var r = Application._btn_config.getBoundingClientRect();
+	PopupMenu.ApplicationMenu.open([r.left - 4,20], 'right');
+}
+
+
+
+
+
+Application._init_message_box = function()
+{
+	Palette.MessageBox = new Palette(document.getElementById('PaletteMessageBox'), 0);
+	Application._msgtxt = document.getElementById('MessageBoxText');
+	Application._msgtxt.addEventListener('keydown', function(e) { if (e.keyCode == 13) Application.do_message(); });
+}
+
+
+Application._init_colours = function()
+{
+	Palette.Colours = new Palette(document.getElementById('PaletteColours'), 0);
+	
+	var dom_table = document.createElement('div');
+	dom_table.className = 'ColourSwatchTable';
+	for (var c = 0; c < Colours.DEFAULT_SET.length; c++)
+	{
+		var colour = Colours.DEFAULT_SET[c];
+		
+		var dom_swatch = document.createElement('div');
+		dom_swatch.style.backgroundColor = 'rgba('+colour[0]+','+colour[1]+','+colour[2]+',1)';
+		dom_table.appendChild(dom_swatch);
+		
+		dom_swatch.addEventListener('mousedown', Application._handle_choose_colour);
+	}
+	
+	Palette.Colours._root.appendChild(dom_table);
+	
+	var cell_size = dom_table.children[0].clientWidth;
+	var per_row = Math.floor(dom_table.clientWidth / dom_table.children[0].clientWidth);
+	var rows = Math.ceil(Colours.DEFAULT_SET.length / per_row);
+	
+	Palette.Colours.setSize([per_row * cell_size, rows * cell_size]);
+	Palette.Colours._div.style.opacity = 1.0; /* not appropriate to have translucent colour swatches */
+}
+
+
+Application._set_default_positions = function(in_card_width, in_card_height)
+{
+	Palette.Navigator.setLoc([20, in_card_height + 40]);
+	Palette.Authoring.setLoc([20, in_card_height + 40 + Palette.Navigator._div.clientHeight + 2]);
+	Palette.Tools.setLoc([in_card_width + 40, 50]);
+	Palette.Colours.setLoc([in_card_width + 45, 50 + Palette.Tools._div.clientHeight + 14]);
+	Palette.MessageBox.setLoc([40, in_card_height - 70]);
+}
+
+
+Application._init_palettes = function()
+{
+	Application._init_message_box();
+	Application._init_colours();
+	
+	Palette.LinkTo = new Palette(document.getElementById('PaletteLinkTo'), 0);
+	Palette.Navigator = new Palette(document.getElementById('PaletteNavigator'), Palette.TITLE_VERTICAL);
+	Palette.Tools = new Palette(document.getElementById('PaletteTools'), 0);
+	Palette.Authoring = new Palette(document.getElementById('PaletteAuthoring'), Palette.TITLE_VERTICAL);
+}
+
+
+Application._init_card_size_widget = function()
+{
+	Application._csw = new CardSizeWidget(document.getElementById('CardSizeWidg'),
+		Application._card_size_changed);
+	var picklist = document.getElementById('CardSizeList');
+	picklist.addEventListener('change', Application._card_size_picked.bind(Application));
+}
+
+
+Application._init_dialogs = function()
+{
+	Dialog.About = new Dialog('About CinsImp', document.getElementById('DialogAbout'));
+	Dialog.Alert = new Dialog('', document.getElementById('DialogAlert'), Dialog.FLAG_NOCLOSE);
+	Dialog.Log = new Dialog('Log', document.getElementById('DialogLog'), 0);
+	Dialog.Progress = new Dialog('Please Wait', document.getElementById('DialogProgress'), Dialog.FLAG_NOCLOSE);
+
+	Dialog.HCImport = new Dialog('HyperCard Import', document.getElementById('DialogHCImport'), 0);
+	Dialog.Recent = new Dialog('Recent Cards', document.getElementById('DialogRecent'));
+
+	Dialog.AskPassword = new Dialog('', document.getElementById('DialogAskPassword'));
+	Dialog.StackInfo = new Dialog('Stack Info', document.getElementById('DialogStackInfo'));
+	Application._init_card_size_widget();
+	Dialog.CardSize = new Dialog('Card Size', document.getElementById('DialogCardSize'));
+	Dialog.ProtectStack = new Dialog('Protect Stack', document.getElementById('DialogProtectStack'));
+	Dialog.SetPassword = new Dialog('Set Stack Password', document.getElementById('DialogSetPassword'));
+	Dialog.BkgndInfo = new Dialog('Bkgnd Info', document.getElementById('DialogBkgndInfo'));
+	Dialog.CardInfo = new Dialog('Card Info', document.getElementById('DialogCardInfo'));
+	Dialog.FieldInfo = new Dialog('Field Info', document.getElementById('DialogFieldInfo'), 0,
+		function() { 
+		Application._objects = null; 
+		document.getElementById('FieldInfoBkgndOnly').style.visibility = 'hidden'; });
+	Dialog.TextStyle = new Dialog('Text Properties', document.getElementById('DialogTextStyle'));
+	Dialog.ButtonInfo = new Dialog('Button Info', document.getElementById('DialogButtonInfo'), 0,
+		function() { 
+		Application._objects = null; 
+		document.getElementById('ButtonInfoBkgndOnly').style.visibility = 'hidden'; });
+	Dialog.SetIcon = new Dialog('Set Icon', document.getElementById('DialogSetIcon'));
+
+	Dialog.ScriptEditor = new Dialog('', document.getElementById('DialogScriptEditor'));
+	// temporarily disabled due to causing mammoth slowdown on mobile devices - suspect the ruler with line numbers is too large:
+	//Dialog.ScriptEditor._codeeditor = new JCodeEdit(document.getElementById('ScriptEditorContainer'));
+}
+
+
+
+Application._create_stack_window = function()
+{
+	Application._stack_window = document.createElement('div');
+	Application._stack_window.classList.add('CursBrowse');
+	Application._stack_window.id = 'stackWindow';
+	
+	document.body.appendChild(Application._stack_window);
+}
+
+
+
+Application._init_app_menu = function()
+{
+	PopupMenu.ApplicationMenu = new PopupMenu();
+	var m = PopupMenu.ApplicationMenu;
+
+	m.appendItem('Navigator', Palette.Navigator.toggle.bind(Palette.Navigator));
+	m.appendItem('Message', Palette.MessageBox.toggle.bind(Palette.MessageBox));
+	m.appendItem('Tools', Palette.Tools.toggle.bind(Palette.Tools));
+	m.appendItem('Authoring', Palette.Authoring.toggle.bind(Palette.Authoring));
+	m.appendItem('Colours', Palette.Colours.toggle.bind(Palette.Colours));
+	//m.appendItem('Line Sizes', Palette.LineSizes.toggle.bind(Palette.LineSizes));
+	m.appendItem('-', null);
+	/*m.appendItem('New Stack', null);
+	m.appendItem('Save a Copy', null);
+	m.appendItem('Delete Stack', null);
+	m.appendItem('-', null);*/
+	m.appendItem('HyperCard Import', Dialog.HCImport.show.bind(Dialog.HCImport));
+	m.appendItem('-', null);
+	m.appendItem('About CinsImp', function() { Dialog.About.centre(); Dialog.About.show(); });
+}
+
+
+Application._init_app_bar = function()
+{
+	Application._init_app_menu();
+
+	var app_bar = document.createElement('div');
+	app_bar.id = 'applicationBar';
+	
+	var btn_config = document.createElement('img');
+	btn_config.src = 'gfx/cog.png';
+	btn_config.classList.add('Clickable');
+	btn_config.style.width = '16px';
+	btn_config.alt = 'Configure';
+	btn_config.title = 'Configure';
+	btn_config.addEventListener('click', Application.open_app_menu);
+	app_bar.appendChild(btn_config);
+	this._btn_config = btn_config;
+	
+	document.body.appendChild(app_bar);
+}
+
+
+
+Application._show_default_palettes = function()
+{
+	Palette.Navigator.show();
+	//Palette.Authoring.show();
+	//Palette.Tools.show();
+}
+
+
+Application._configure_initial_stack = function()
+{
+	Application._stack = _g_init_stack;
+	Application._card = _g_init_card;
+	
+	var stack_window = document.getElementById('stackWindow');
+	stack_window.style.width = Application._stack.card_width + 'px';
+	stack_window.style.height = Application._stack.card_height + 'px';
+	
+	Application._set_default_positions(stack_window.clientWidth, stack_window.clientHeight);
+}
+
+
+Application._load_initial_stack = function()
+{
+	Application._view = new View(Application._stack, Application._card);
+	Application._view.refresh();
+}
+
+
+Application.init = function()
+{
+	//Progress.status('Initalizing CinsImp application...');
+	Application._create_stack_window();
+	
+	Application._init_palettes();
+	Application._init_dialogs();
+	Application._init_app_bar();
+	
+	Progress.operation_begun('Loading stack...', true);
+	Application._configure_initial_stack();
+	Application._load_initial_stack();
+	
+	Progress.status('Configuring environment...');
+	Application._show_default_palettes();
+	
+	Progress.operation_finished();
+}
+
+
+CinsImp._script_loaded('application');
+
+
 
 
 

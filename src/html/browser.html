@@ -4,46 +4,30 @@
 <meta charset="UTF-8">
 <meta name="robots" content="noindex">
 <title>CinsImp: Browser Warning</title>
-<link rel="apple-touch-icon" sizes="57x57" href="icon/apple-icon-57x57.png">
-<link rel="apple-touch-icon" sizes="60x60" href="icon/apple-icon-60x60.png">
-<link rel="apple-touch-icon" sizes="72x72" href="icon/apple-icon-72x72.png">
-<link rel="apple-touch-icon" sizes="76x76" href="icon/apple-icon-76x76.png">
-<link rel="apple-touch-icon" sizes="114x114" href="icon/apple-icon-114x114.png">
-<link rel="apple-touch-icon" sizes="120x120" href="icon/apple-icon-120x120.png">
-<link rel="apple-touch-icon" sizes="144x144" href="icon/apple-icon-144x144.png">
-<link rel="apple-touch-icon" sizes="152x152" href="icon/apple-icon-152x152.png">
-<link rel="apple-touch-icon" sizes="180x180" href="icon/apple-icon-180x180.png">
-<link rel="icon" type="image/png" sizes="192x192"  href="icon/android-icon-192x192.png">
-<link rel="icon" type="image/png" sizes="32x32" href="icon/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="96x96" href="icon/favicon-96x96.png">
-<link rel="icon" type="image/png" sizes="16x16" href="icon/favicon-16x16.png">
-<link rel="manifest" href="icon/manifest.json">
-<meta name="msapplication-TileColor" content="#ffffff">
-<meta name="msapplication-TileImage" content="icon/ms-icon-144x144.png">
-<meta name="theme-color" content="#ffffff">
 <style>
 
 body
 {
 	font-family: Helvetica Neue, sans-serif;
-	background-color: #CCCCCC;
+	overflow: hidden;
+	margin: 0;
 }
 
-#plaq
+div
 {
-	background-color: #FFFFFF; 
-	display: block; 
-	position: absolute; 
-	margin: 20px; 
-	padding: 20px;
-	padding-bottom: 30px;
-	box-shadow: 2px 10px 5px #999999;
-	max-width: 40em;
+	background-color: #CCCCCC;
+	padding: 10px;
 }
 
 h1
 {
 	margin: 0;
+	font-size: 12pt;
+}
+
+p
+{
+	font-size: 10pt;
 }
 
 p:last-child
@@ -55,45 +39,16 @@ p:last-child
 </head>
 <body>
 
-<script>
 
-</script>
+<div>
 
+<h1>Degraded User Experience</h1>
 
-<!--
-it might turn out to be more doable to have a small warning that gets hidden 
-at the top of the page rendering 
+<p><img src="gfx/stack.png" width="48" style="vertical-align: middle; margin-right: 20px;" alt="Stack Icon"> This document is the automatically generated content of a <a href="http://joshhawcroft.org/cinsimp/">CinsImp Stack</a>.</p>
 
-because strictly speaking I always want something for the search engines to look at,
-and I don't have the ability to put in an intermediary page.
+<p>For the intended user experience, you must be using a modern, standards-compliant web browser with Javascript support.</p>
 
-scripts would be loaded only if scripting enabled AND browser checks out ok.
-scripts will rewrite the static, search-friendly version of the card to be fully dynamic.
--->
-
-
-<div id="plaq">
-
-<h1>Browser Warning</h1>
-
-<p>The resource you are trying to access is a <a href="http://joshhawcroft.org/cinsimp/">CinsImp Stack</a>.</p>
-
-<p style="text-align: center"><img src="../gfx/stack.png" width="128" style="margin: 0 auto;" alt="Stack Icon"></p>
-
-<p>For the best user experience, you must be using a <strong>modern web browser</strong> with <strong>Javascript support</strong>, such as:</p>
-
-<ul>
-	<li>Firefox 40</li>
-	<li>Safari 8</li>
-	<li>Chrome 44</li>
-	<li>Internet Explorer 10</li>
-</ul>
-
-<p>You are seeing this page because your browser does not meet the minimum requirements to browse the stack.</p>
-
-<p>If you believe your browser meets these requirements, <em>be sure you have Javascript enabled</em>.</p>
-
-<p>If you would like to continue and browse the stack as a set of non-interactive slides, <a href="#">you may still do so</a>. (Only primitive navigation functionality will operate).</p> 
+<p>Supported web browsers include: Firefox, Safari and Chrome.</p>
 
 </div>
 

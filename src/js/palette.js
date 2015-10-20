@@ -171,5 +171,6 @@ Palette.prototype.getVisible = function()
 
 
 
+CinsImp._script_loaded('palette');
 
 

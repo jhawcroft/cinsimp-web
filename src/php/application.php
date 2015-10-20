@@ -53,27 +53,31 @@ class Application
 		$page = file_get_contents($config->base.'html/template.html');
 		
 		$one = 1;
-		$page = str_replace('var gBase = \'../\';', 'var gBase = \'\';', $page, $one);
-		$page = str_replace('href="../css/', 'href="css/', $page);
-		$page = str_replace('src="../js/', 'src="js/', $page);
-		$page = str_replace('src="../gfx/', 'src="gfx/', $page);
+		//$page = str_replace('var gBase = \'../\';', 'var gBase = \'\';', $page, $one);
+		//$page = str_replace('href="../css/', 'href="css/', $page);
+		//$page = str_replace('src="../js/', 'src="js/', $page);
+		//$page = str_replace('src="../gfx/', 'src="gfx/', $page);
+		
+		$page = str_replace('<!-- INSERT META -->', '', $page);
+		$page = str_replace('<!-- INSERT STATIC CARD -->', '', $page);
+		
 		
 		if ($stack_handle)
 		{
 			$one = 1;
-			$page = str_replace('width: 800px; height: 600px;', 
-				'width: '.$stack['card_width'].'px; height: '.$stack['card_height'].'px;', $page, $one);
+			//$page = str_replace('width: 800px; height: 600px;', 
+			//	'width: '.$stack['card_width'].'px; height: '.$stack['card_height'].'px;', $page, $one);
 				
 			$one = 1;
-			$page = str_replace('var successScript = \'\';',
-				'Application._stack = '.json_encode($stack).";\n".
-				'Application._card = '.json_encode($card).';', 
+			$page = str_replace('/* INSERT PRE-LOAD SCRIPT */',
+				'var _g_init_stack = '.json_encode($stack).";\n".
+				'var _g_init_card = '.json_encode($card).';', 
 				$page, $one);
 		}
 		else
 		{
 			$one = 1;
-			$page = str_replace('var successScript = \'\';',
+			$page = str_replace('/* INSERT PRE-LOAD SCRIPT */',
 				'alert("No such stack or stack corrupt.");', 
 				$page, $one);
 		}
