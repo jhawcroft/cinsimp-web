@@ -56,8 +56,7 @@ class Application
 		try
 		{
 			Util::check_request_vars(array(
-				'stack'=>Util::REQUIRED,
-				'card'=>Util::OPTIONAL
+				'stack'=>Util::REQUIRED
 			));
 		}
 		catch (Exception $err)
@@ -69,8 +68,14 @@ class Application
 		/* sanitise input */
 		try
 		{
-			$in_stack = Util::safe_stack_id($_REQUEST['stack']);
-			$in_card = Util::safe_card_ref($_REQUEST['card']);
+			$parts = explode(';', $_REQUEST['stack']);
+			if (count($parts) >= 1)
+				$in_stack = Util::safe_stack_id($parts[0]);
+			if (count($parts) >= 2)
+				$in_card = Util::safe_card_ref($parts[1]);
+			else
+				$in_card = null;
+			
 		}
 		catch (Exception $err)
 		{
@@ -79,7 +84,7 @@ class Application
 		}
 		
 		/* check if the input is a directory */
-		if ($in_card == '' && is_dir($in_stack))
+		if ($in_card == null && is_dir($in_stack))
 		{
 			Application::do_dir_list($in_stack);
 			exit;

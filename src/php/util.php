@@ -63,6 +63,7 @@ class Util
 	public static function safe_card_ref($card_ref)
 	{
 		if ($card_ref === null) return null;
+		if ($card_ref === '') return null;
 		
 		 /* we use parameterised queries, so no need to do further verification */
 		if (is_numeric($card_ref))
@@ -146,6 +147,7 @@ class Util
 			$page = str_replace('<!--EXTRA-->', '<hr> <p>'.nl2br($extra).'</p>', $page);
 		else
 			$page = str_replace('<!--EXTRA-->', '', $page);
+		$page = str_replace('gfx/', $config->url . 'gfx/', $page);
 		print $page;
 		exit;
 	}
