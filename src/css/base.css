@@ -115,8 +115,10 @@ Application Bar
 
 #applicationBar
 {
-	position: relative;
+	position: absolute;
 	display: inline-block;
+	right: 10px;
+	top: 10px;
 	vertical-align: top;
 	margin-left: 4px;
 	width: 16px;
