@@ -63,9 +63,11 @@ if (isset($_REQUEST['browser-warning']))
 */
 if (isset($_REQUEST['ui']))
 {
+	global $config;
 	Util::response_is_ajax_only();
 	$page = '';
 	$page .= file_get_contents($config->base.'html/ui.html');
+	$page = str_replace('gfx/', $config->url . 'gfx/', $page);
 	print $page;
 	exit;
 }

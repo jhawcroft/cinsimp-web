@@ -47,6 +47,7 @@ class Util
 	public static function safe_stack_id($stack_id)
 	{
 		global $config;
+		if ($stack_id == '') return $config->stacks;
 		$path = realpath($config->stacks . $stack_id);
 		if ($path == '')
 			throw new Exception('Stack Not Found', 404);

@@ -34,8 +34,6 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-var gBase = '';
-
 
 var CinsImp = {
 
@@ -103,7 +101,7 @@ var CinsImp = {
 		var script = document.createElement('script');
 		script.type = 'text/javascript';
 		//script.addEventListener('load', CinsImp._script_loaded);
-		script.src = 'js/'+in_name;
+		script.src = gBase+'js/'+in_name;
 		document.getElementsByTagName('head')[0].appendChild(script);
 		CinsImp._count_scripts++;
 	},
@@ -118,7 +116,7 @@ var CinsImp = {
 		link.rel = 'stylesheet';
 		link.type = 'text/css';
 		link.addEventListener('load', CinsImp._stylesheet_loaded);
-		link.href = 'css/'+in_name;
+		link.href = gBase+'css/'+in_name;
 		document.getElementsByTagName('head')[0].appendChild(link);
 		CinsImp._count_stylesheets++;
 	},
@@ -134,7 +132,7 @@ var CinsImp = {
 		document.body.appendChild(ui_templates);
 	
 		var xhr = new XMLHttpRequest();
-		xhr.open('GET', '?ui=1', true);
+		xhr.open('GET', gBase+'?ui=1', true);
 		xhr.onreadystatechange= function() 
 		{
 			if (this.readyState !== 4) return;

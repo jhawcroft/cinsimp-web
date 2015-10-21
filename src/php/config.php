@@ -40,6 +40,7 @@ $config = new stdClass();
 
 /* set the base path to the CinsImp installation */
 $config->base = realpath(dirname(__FILE__).'/../').'/';
+$config->url = substr($config->base, strlen($_SERVER['DOCUMENT_ROOT']));
 
 /* set the default stacks directory */
 $config->stacks = $config->base.'stacks/';

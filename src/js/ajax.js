@@ -124,7 +124,7 @@ Ajax._handleTimeout = function()
 }
 
 
-Ajax.init('?io=1', 5);
+Ajax.init(gBase+'?io=1', 5);
 
 
 CinsImp._script_loaded('ajax');

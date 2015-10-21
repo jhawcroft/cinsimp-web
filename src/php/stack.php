@@ -269,7 +269,7 @@ Accessors and Mutators
 		$stack['private_access'] = Stack::decode_bool($row['private_access']);
 		$stack['first_card_id'] = $this->stack_get_first_card_id();
 		
-		$stack['stack_id'] = $this->stack_id;
+		$stack['stack_id'] = substr($this->stack_id, strlen($config->stacks));
 		$stack['stack_path'] = substr($this->stack_id, strlen($config->stacks));
 		
 		$stack['count_cards'] = $this->stack_get_count_cards();

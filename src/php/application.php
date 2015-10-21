@@ -121,9 +121,11 @@ class Application
 		Util::response_is_html();
 		
 		/* load the basic page template */
-		$page = file_get_contents($config->base.'html/template.html');
+		$page = file_get_contents($config->base.'html/stack.html');
 		
 		/* populate the template with the static card and appropriate meta information */
+		$page = str_replace('js/', $config->url . 'js/', $page);
+		$page = str_replace('?browser-warning=1', $config->url . '?browser-warning=1', $page);
 		$page = str_replace('<!-- INSERT STATIC CARD -->', '', $page);
 		$page = str_replace('<!-- INSERT META -->', '', $page);  //  ******** TODO *******
 		
@@ -131,6 +133,7 @@ class Application
 		web application environment on the client */
 		$one = 1;
 		$page = str_replace('/* INSERT PRE-LOAD SCRIPT */',
+			'var gBase = \''.$config->url."';\n".
 			'var _g_init_stack = '.json_encode($stack).";\n".
 			'var _g_init_card = '.json_encode($card).';', 
 			$page, $one);
@@ -145,7 +148,58 @@ class Application
 */
 	public static function do_dir_list($in_path)
 	{
-		print 'DIR LIST NOT IMPLEMENTED';
+		global $config;
+		
+		$title = substr($in_path, strlen($_SERVER['DOCUMENT_ROOT']));
+		
+		$page = file_get_contents($config->base.'html/index.html');
+		$page = str_replace('<!--TITLE-->', $title, $page);
+		$page = str_replace('<!--PATH-->', $title, $page);
+		
+		$d = dir($in_path);
+		$contents = array();
+		
+		while (($name = $d->read()) !== false)
+		{
+			$sub_path = realpath(str_replace('//', '/', $in_path.'/'.$name));
+			$url_path = substr($sub_path, strlen($_SERVER['DOCUMENT_ROOT']));
+			
+			if (substr($name, 0, 1) == '.') continue;
+			$contents[] = array($name, $url_path);
+		}
+		
+		usort($contents, 'Application::_dir_list_sort');
+		
+		$parent = realpath($in_path.'/../').'/';
+		if (substr($parent, 0, strlen($config->stacks)) == $config->stacks)
+		{
+			$parent = substr($parent, strlen($_SERVER['DOCUMENT_ROOT']));
+			$contents = array_merge(array(array('Parent Directory', $parent)), $contents);
+		}
+		
+		$list = '';
+		foreach ($contents as $item)
+		{
+			$list .= '<li>';
+			$list .= '<a href="'.$item[1].'">';
+			$list .= $item[0];
+			$list .= '</a></li>';
+		}
+		
+		$page = str_replace('<!--LIST-->', $list, $page);
+		
+		print $page;
+	}
+	
+
+/*
+	Compares two directory index entries.
+*/
+	private static function _dir_list_sort($a, $b)
+	{
+		if ($a[0] == $b[0]) return 0;
+		if ($a[0] < $b[0]) return -1;
+		return 1;
 	}
 	
 }

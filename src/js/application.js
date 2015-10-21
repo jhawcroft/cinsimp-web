@@ -493,7 +493,7 @@ Application._init_app_bar = function()
 	app_bar.id = 'applicationBar';
 	
 	var btn_config = document.createElement('img');
-	btn_config.src = 'gfx/cog.png';
+	btn_config.src = gBase+'gfx/cog.png';
 	btn_config.classList.add('Clickable');
 	btn_config.style.width = '16px';
 	btn_config.alt = 'Configure';
