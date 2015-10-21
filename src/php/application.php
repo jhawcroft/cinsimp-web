@@ -259,10 +259,53 @@ class Application
 	{
 		$content = '';
 		
-		$content .= '<!-- card size: '.$stack['card_width'].'x'.$stack['card_height'].' -->';
+		$content .= '<!-- card size: '.$stack['card_width'].'x'.$stack['card_height'].' -->'."\n";
 	
+		$card_content = array();
+		$card_data = json_decode($card['data'], true);
+		foreach ($card_data as $def)
+			$card_content[$def[0]] = $def[1];
+		unset($card_data);
+		
+		$objects = json_decode($card['bkgnd_object_data'], true);
+		$no_content = array();
+		foreach ($objects as $def)
+			$content .= Application::static_object($def, $no_content) . "\n";
+		
+		$objects = json_decode($card['card_object_data'], true);
+		foreach ($objects as $def)
+			$content .= Application::static_object($def, $card_content) . "\n";
 	
 		return $content;
+	}
+	
+	
+/*
+	Returns HTML content appropriate for static output of a specific layer object.
+*/
+	private static function static_object($def, &$card_content)
+	{
+		if (!$def[-9]) return ''; /* don't output non-searchable fields,
+								so they're not indexed by web crawlers */
+		if (!$def[-10]) return ''; /* don't output an invisible object */
+								
+		if ($def[-1] == 0) /* button */
+		{
+			return '';
+			if (!$def[5]) return ''; /* no output for buttons with Show Name = false */
+			// need handling for checkboxes and icon buttons, when implemented, and shared hilite (as below)
+			return '<a href="">'.$def[-7].'</a>';
+			
+			// also, only output buttons where the functionality can be easily determined,
+			// for example, simple links with visual effects
+			// or history moving (browser history)
+		}
+		else /* field */
+		{
+			if (isset($card_content[$def[-2]]))
+				$def[-99] = $card_content[$def[-2]];
+			return '<div>'.$def[-99].'</div>';
+		}
 	}
 	
 	
