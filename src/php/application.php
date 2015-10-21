@@ -76,13 +76,13 @@ class Application
 			else
 				$in_card = null;
 			
+			$in_layer_art = '';
 			if (count($parts) >= 3)
 			{
-				if ($parts[2] == 'card.png') Application::layer_art($in_stack, $in_card, false);
-				else if ($parts[2] == 'bkgnd.png') Application::layer_art($in_stack, $in_card, true);
+				if ($parts[2] == 'card.png') $in_layer_art = 'card';
+				else if ($parts[2] == 'bkgnd.png') $in_layer_art = 'bkgnd';
 				else
-					throw new Exception('Art Not Found', 404);
-				exit;
+					Util::respond_with_http_error(400, 'Bad Request');
 			}
 		}
 		catch (Exception $err)
@@ -127,6 +127,14 @@ class Application
 				$extra = 'Error: ' . $err->getMessage() . "\nTrace: " . $err->getTraceAsString();
 			}
 			Util::respond_with_http_error($code, $msg, $extra);
+			exit;
+		}
+		
+		/* if a resource has been requested, provide it instead of the card */
+		if ($in_layer_art != '')
+		{
+			if ($in_layer_art == 'card') Application::layer_art($card, false);
+			else Application::layer_art($card, true);
 			exit;
 		}
 		
@@ -227,10 +235,20 @@ class Application
 	Opens the specified stack card and returns the content of the specified layer art
 	in PNG format.
 */
-	public static function layer_art($stack_id, $card_id, $is_bkgnd)
+	public static function layer_art($card, $is_bkgnd)
 	{
+		if (!$is_bkgnd) $data = $card['card_art'];
+		else $data = $card['bkgnd_art'];
+		if ($data === null)
+			Util::respond_with_http_error(404, 'Art Not Found');
+		
+		$data = substr($data, strlen('data:image/png;base64,'));
+		$data = base64_decode($data);
+		
+		// ideally, references to bkgnd art will use a bkgnd ID, maybe negative?
+		
 		header('Content-type: image/png');
-		print 'LAYER ART REQUEST';
+		print $data;
 	}
 	
 }
