@@ -76,6 +76,14 @@ class Application
 			else
 				$in_card = null;
 			
+			if (count($parts) >= 3)
+			{
+				if ($parts[2] == 'card.png') Application::layer_art($in_stack, $in_card, false);
+				else if ($parts[2] == 'bkgnd.png') Application::layer_art($in_stack, $in_card, true);
+				else
+					throw new Exception('Art Not Found', 404);
+				exit;
+			}
 		}
 		catch (Exception $err)
 		{
@@ -212,6 +220,17 @@ class Application
 		if ($a[0] == $b[0]) return 0;
 		if ($a[0] < $b[0]) return -1;
 		return 1;
+	}
+	
+	
+/*
+	Opens the specified stack card and returns the content of the specified layer art
+	in PNG format.
+*/
+	public static function layer_art($stack_id, $card_id, $is_bkgnd)
+	{
+		header('Content-type: image/png');
+		print 'LAYER ART REQUEST';
 	}
 	
 }
