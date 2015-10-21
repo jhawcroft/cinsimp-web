@@ -37,10 +37,22 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class Application
 {
-	public static function open_stack($in_stack)
+
+/*
+	Responsible for finding and loading the specified stack and card.
+	
+	The response is a static HTML page containing a simplified static, 
+	search-engine-friendly extract of the specified card (or the first card if not 
+	otherwise specified).
+	
+	The response will also contain the necessary information to load the web application
+	in browsers where suitable capabilities exist (Javascript and HTML 5).
+*/
+	public static function open_stack($in_stack, $in_card)
 	{
 		global $config;
 		
+		/* try to open the specified stack and load the specified card */
 		$stack_handle = null;
 		$stack = null;
 		$card = null;
@@ -48,47 +60,49 @@ class Application
 		{
 			$stack_handle = new Stack($in_stack);
 			$stack = $stack_handle->stack_load();
-			$card = $stack_handle->stack_load_card($stack_handle->stack_get_first_card_id());
+			if ($in_card === null) $in_card = $stack_handle->stack_get_first_card_id();
+			$card = $stack_handle->stack_load_card($in_card);
+			if ($card === null)
+				throw new Exception('Card Not Found', 404);
+			if (!$stack_handle)
+				throw new Exception('Stack Not Found', 404);
 		}
 		catch (Exception $err)
 		{
-			$stack_handle = null;
+			/* there was a problem opening the stack or card;
+			return an appropriate HTTP response */
+			$code = $err->getCode();
+			$msg = $err->getMessage();
+			$extra = '';
+			if ($code == 0) 
+			{
+				$code = 500;
+				$msg = 'Internal Application Error';
+				$extra = 'Error: ' . $err->getMessage() . "\nTrace: " . $err->getTraceAsString();
+			}
+			Util::respond_with_http_error($code, $msg, $extra);
+			exit;
 		}
 		
+		/* prepare the response for the loaded stack and card */
+		Util::response_is_html();
+		
+		/* load the basic page template */
 		$page = file_get_contents($config->base.'html/template.html');
 		
-		$one = 1;
-		//$page = str_replace('var gBase = \'../\';', 'var gBase = \'\';', $page, $one);
-		//$page = str_replace('href="../css/', 'href="css/', $page);
-		//$page = str_replace('src="../js/', 'src="js/', $page);
-		//$page = str_replace('src="../gfx/', 'src="gfx/', $page);
-		
-		$page = str_replace('<!-- INSERT META -->', '', $page);
+		/* populate the template with the static card and appropriate meta information */
 		$page = str_replace('<!-- INSERT STATIC CARD -->', '', $page);
+		$page = str_replace('<!-- INSERT META -->', '', $page);  //  ******** TODO *******
 		
+		/* populate the template with stack and card data sufficient to start the
+		web application environment on the client */
+		$one = 1;
+		$page = str_replace('/* INSERT PRE-LOAD SCRIPT */',
+			'var _g_init_stack = '.json_encode($stack).";\n".
+			'var _g_init_card = '.json_encode($card).';', 
+			$page, $one);
 		
-		if ($stack_handle)
-		{
-			$one = 1;
-			//$page = str_replace('width: 800px; height: 600px;', 
-			//	'width: '.$stack['card_width'].'px; height: '.$stack['card_height'].'px;', $page, $one);
-				
-			$one = 1;
-			$page = str_replace('/* INSERT PRE-LOAD SCRIPT */',
-				'var _g_init_stack = '.json_encode($stack).";\n".
-				'var _g_init_card = '.json_encode($card).';', 
-				$page, $one);
-		}
-		else
-		{
-			$one = 1;
-			$page = str_replace('/* INSERT PRE-LOAD SCRIPT */',
-				'alert("No such stack or stack corrupt.");', 
-				$page, $one);
-		}
-		
-		
-		//$page = 'hello';
+		/* send the static response page */
 		print $page;
 	}
 

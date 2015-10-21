@@ -98,6 +98,15 @@ Utilities
 	}
 	
 	
+	private static function sl_err($in_result, $in_db, $in_message, $in_code)
+	{
+		if (($in_result === false) || ($in_result === null))
+		{
+			throw new Exception($in_message, $in_code);
+		}
+	}
+	
+	
 /*****************************************************************************************
 Creating and Opening Stacks
 */
@@ -106,21 +115,27 @@ Creating and Opening Stacks
 	a MySQL database or supported database connector. */
 	public function __construct($in_ident)
 	{
+		/* configure the instance */
 		$this->stack_id = $in_ident;
 		$this->name = basename($in_ident);
 		
+		/* check if the supplied stack file exists */
+		if (!file_exists($in_ident))
+			throw new Exception('Stack Not Found', 404);
 		
-		if (!file_exists($in_ident)) //die('NOT EXISTS');
-			throw new Exception('No such stack');
-		
-		$this->file_db = new PDO('sqlite:'.$in_ident);
-		if ($this->file_db === false)
-			die('failed to open');
+		/* open the file as a SQLite database */
+		try
+		{	
+			$this->file_db = new PDO('sqlite:'.$in_ident);
+			if ($this->file_db === false)
+				throw new Exception("Couldn't open stack database");
+		}
+		catch (Exception $err)
+		{
+			throw new Exception('Invalid Stack or Stack Corrupt', 520);
+		}
 		
 		$this->file_db->exec('PRAGMA encoding = "UTF-8"');
-		
-		//print 'Opened!';
-		//print $in_ident;
 	}
 	
 	
@@ -129,9 +144,16 @@ Creating and Opening Stacks
 */
 	public static function create_file($in_path)
 	{
-		$file_db = new PDO('sqlite:'.$in_path);
-		if ($file_db === false)
-			die('failed to open');
+		try
+		{
+			$file_db = new PDO('sqlite:'.$in_path);
+			if ($file_db === false)
+				throw new Exception("Couldn't create stack database");
+		}
+		catch (Exception $err)
+		{
+			throw new Exception('Cannot Create Stack File', 520);
+		}
 			
 		$file_db->exec('PRAGMA encoding = "UTF-8"');
 		
@@ -191,13 +213,14 @@ Creating and Opening Stacks
   			'(1, 1, 10, \'\', \'\')'
   		), $file_db, 'Populating table: Card');
 		
-		$file_db->commit();
+		if (!$file_db->commit())
+			throw new Exception('Cannot Create Stack File', 520);
 	}
 	
 
 	public static function stack_delete($in_ident)
 	{
-		throw new Exception('stack_delete: Unimplemented');
+		throw new Exception('Not Implemented', 501);
 	} 
 	
 	
@@ -232,7 +255,7 @@ Accessors and Mutators
 		$stmt = $this->file_db->prepare(
 			'SELECT stack_data,cant_delete,cant_modify,private_access FROM stack'
 		);
-		Stack::sl_ok($stmt, $this->file_db, 'Loading Stack (1)');
+		Stack::sl_err($stmt, $this->file_db, 'Invalid Stack or Stack Corrupt', 520);
 		Stack::sl_ok($stmt->execute(), $this->file_db, 'Loading Stack (2)');
 		$row = $stmt->fetch(PDO::FETCH_ASSOC);
 		Stack::sl_ok($row, $this->file_db, 'Loading Stack (3)');

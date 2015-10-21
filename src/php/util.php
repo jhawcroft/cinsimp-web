@@ -46,6 +46,17 @@ class Util
 		return $stack_id;  // ** TODO
 	}
 	
+
+/*
+	Sanitize the supplied card reference (ID or name).
+*/
+	public static function safe_card_ref($card_ref)
+	{
+		if ($card_ref === null) return null;
+		
+		return $card_ref; // ** TODO
+	}
+	
 	
 /*
 	Outputs HTTP response headers appropriate to an AJAX response to help minimise
@@ -75,7 +86,7 @@ class Util
 /*
 	Returns an appropriately formatted and templated HTTP error response.
 */
-	public static function respond_with_http_error($code, $description)
+	public static function respond_with_http_error($code, $description, $extra = '')
 	{
 		global $config;
 		Util::response_is_html();
@@ -84,6 +95,10 @@ class Util
 		$page = file_get_contents($config->base.'html/error.html');
 		$page = str_replace('<!--TITLE-->', $status, $page);
 		$page = str_replace('<!--DESCRIPTION-->', $status, $page);
+		if ($config->debug)
+			$page = str_replace('<!--EXTRA-->', '<hr> <p>'.nl2br($extra).'</p>', $page);
+		else
+			$page = str_replace('<!--EXTRA-->', '', $page);
 		print $page;
 		exit;
 	}
