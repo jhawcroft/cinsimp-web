@@ -1,114 +1,26 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>CinsImp Prototype</title>
-<link rel="apple-touch-icon" sizes="57x57" href="icon/apple-icon-57x57.png">
-<link rel="apple-touch-icon" sizes="60x60" href="icon/apple-icon-60x60.png">
-<link rel="apple-touch-icon" sizes="72x72" href="icon/apple-icon-72x72.png">
-<link rel="apple-touch-icon" sizes="76x76" href="icon/apple-icon-76x76.png">
-<link rel="apple-touch-icon" sizes="114x114" href="icon/apple-icon-114x114.png">
-<link rel="apple-touch-icon" sizes="120x120" href="icon/apple-icon-120x120.png">
-<link rel="apple-touch-icon" sizes="144x144" href="icon/apple-icon-144x144.png">
-<link rel="apple-touch-icon" sizes="152x152" href="icon/apple-icon-152x152.png">
-<link rel="apple-touch-icon" sizes="180x180" href="icon/apple-icon-180x180.png">
-<link rel="icon" type="image/png" sizes="192x192"  href="icon/android-icon-192x192.png">
-<link rel="icon" type="image/png" sizes="32x32" href="icon/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="96x96" href="icon/favicon-96x96.png">
-<link rel="icon" type="image/png" sizes="16x16" href="icon/favicon-16x16.png">
-<link rel="manifest" href="icon/manifest.json">
-<meta name="msapplication-TileColor" content="#ffffff">
-<meta name="msapplication-TileImage" content="icon/ms-icon-144x144.png">
-<meta name="theme-color" content="#ffffff">
 
-<link rel="stylesheet" type="text/css" href="../css/base.css">
-<link rel="stylesheet" type="text/css" href="../css/widgets.css">
-<link rel="stylesheet" type="text/css" href="../css/override.css">
-<link rel="stylesheet" type="text/css" href="../css/objects.css">
-<link rel="stylesheet" type="text/css" href="../css/codeedit.css">
-<link rel="stylesheet" type="text/css" href="../css/paint.css">
-
-<script>
-// allows the basic template to work outside of the application;
-// is patched automatically by the application at runtime
-var gBase = '../';
-</script>
-
-<script language="javascript" type="text/javascript" src="../js/util.js"></script>
-<script language="javascript" type="text/javascript" src="../js/text.js"></script>
-<script language="javascript" type="text/javascript" src="../js/ajax.js"></script>
-<script language="javascript" type="text/javascript" src="../js/drag.js"></script>
-<script language="javascript" type="text/javascript" src="../js/palette.js"></script>
-<script language="javascript" type="text/javascript" src="../js/popup-menu.js"></script>
-<script language="javascript" type="text/javascript" src="../js/dialog.js"></script>
-<script language="javascript" type="text/javascript" src="../js/alert.js"></script>
-<script language="javascript" type="text/javascript" src="../js/colours.js"></script>
-<script language="javascript" type="text/javascript" src="../js/object.js"></script>
-<script language="javascript" type="text/javascript" src="../js/field.js"></script>
-<script language="javascript" type="text/javascript" src="../js/button.js"></script>
-<script language="javascript" type="text/javascript" src="../js/view.js"></script>
-<script language="javascript" type="text/javascript" src="../js/paint.js"></script>
-<script language="javascript" type="text/javascript" src="../js/application.js"></script>
-<script language="javascript" type="text/javascript" src="../js/progress.js"></script>
-<script language="javascript" type="text/javascript" src="../js/hcimport.js"></script>
-<script language="javascript" type="text/javascript" src="../js/codeedit.js"></script>
-<script language="javascript" type="text/javascript" src="../js/cardsize-widg.js"></script>
-
-<script>
-
-
-
-function openApplicationMenu(el)
-{
-	var r = el.getBoundingClientRect();
-	
-	PopupMenu.ApplicationMenu.item(0).checkmark = Palette.Navigator.getVisible();
-	PopupMenu.ApplicationMenu.item(1).checkmark = Palette.MessageBox.getVisible();
-	PopupMenu.ApplicationMenu.item(2).checkmark = Palette.Tools.getVisible();
-	PopupMenu.ApplicationMenu.item(3).checkmark = Palette.Authoring.getVisible();
-	PopupMenu.ApplicationMenu.item(4).checkmark = Palette.Colours.getVisible();
-	
-	PopupMenu.ApplicationMenu.open([r.left - 4,20], 'right');
-}
-
-</script>
-
-</head>
-<body class="noselect">
-<form>
-
-
-<div id="stackWindow" class="CursBrowse" style="width: 800px; height: 600px;">
-
-<!-- search engines can get a single card prepared and put in staticly here
-by the server-side php code;
-
-application view will replace the content of the stack window with the relevant
-layers depending on the mode of the application -->
-
-</div>
 
 
 <div id="PaletteNavigator" class="PaletteTemplate" style="left: 100px; top: 550px; height: 55px;">
 
 <div class="ButtonsRow">
-	<div title="Home"><img src="../gfx/home.png" width="32" onclick="test()"><div>Home</div></div>
-	<div title="Help"><img src="../gfx/help.png" width="32"><div>Help</div></div>
-	<div title="Recent"><img src="../gfx/recent.png" width="32"><div>Recent</div></div>
-	<div title="Back"><img src="../gfx/back.png" width="32"><div>Back</div></div>
+	<div title="Home"><img src="gfx/home.png" width="32" onclick="test()"><div>Home</div></div>
+	<div title="Help"><img src="gfx/help.png" width="32"><div>Help</div></div>
+	<div title="Recent"><img src="gfx/recent.png" width="32"><div>Recent</div></div>
+	<div title="Back"><img src="gfx/back.png" width="32"><div>Back</div></div>
 	<div class="Spacer"></div>
-	<div title="First" onclick="Application.go_first();"><img src="../gfx/first.png" width="32"><div>First</div></div>
-	<div title="Previous" onclick="Application.go_prev();"><img src="../gfx/prev.png" width="32"><div>Previous</div></div>
-	<div title="Next" onclick="Application.go_next();"><img src="../gfx/next.png" width="32"><div>Next</div></div>
-	<div title="Last" onclick="Application.go_last();"><img src="../gfx/last.png" width="32"><div>Last</div></div>
+	<div title="First" onclick="Application.go_first();"><img src="gfx/first.png" width="32"><div>First</div></div>
+	<div title="Previous" onclick="Application.go_prev();"><img src="gfx/prev.png" width="32"><div>Previous</div></div>
+	<div title="Next" onclick="Application.go_next();"><img src="gfx/next.png" width="32"><div>Next</div></div>
+	<div title="Last" onclick="Application.go_last();"><img src="gfx/last.png" width="32"><div>Last</div></div>
 	<div class="Spacer"></div>
-	<div title="Find" onclick="Application.do_find()"><img src="../gfx/find.png" width="32"><div>Find</div></div>
-	<div title="Message" onclick="Palette.MessageBox.toggle()"><img src="../gfx/message.png" width="32"><div>Message</div></div>
+	<div title="Find" onclick="Application.do_find()"><img src="gfx/find.png" width="32"><div>Find</div></div>
+	<div title="Message" onclick="Palette.MessageBox.toggle()"><img src="gfx/message.png" width="32"><div>Message</div></div>
 	<div class="Spacer"></div>
-	<div title="New" onclick="Application.do_new();"><img src="../gfx/new.png" width="32"><div>New</div></div>
-	<div title="Delete" onclick="Application.do_delete();"><img src="../gfx/delete.png" width="32"><div>Delete</div></div>
+	<div title="New" onclick="Application.do_new();"><img src="gfx/new.png" width="32"><div>New</div></div>
+	<div title="Delete" onclick="Application.do_delete();"><img src="gfx/delete.png" width="32"><div>Delete</div></div>
 	<!--<div class="Spacer"></div>
-	<div title="Share"><img src="../gfx/share.png" width="32"><div>Share</div></div>-->
+	<div title="Share"><img src="gfx/share.png" width="32"><div>Share</div></div>-->
 </div>
 
 </div>
@@ -117,20 +29,20 @@ layers depending on the mode of the application -->
 <div id="PaletteAuthoring" class="PaletteTemplate" style="left: 180px; top: 450px; height: 55px;">
 
 <div class="ButtonsRow">
-	<div title="Object Info" title="Object Info" onclick="Application.do_info()"><img src="../gfx/info.png" width="32"><div>Object Info</div></div>
-	<div title="Edit Bkgnd" onclick="Application.edit_bkgnd()"><img src="../gfx/bkgnd.png" width="32"><div id="EditBkgndLabel">Edit Bkgnd</div></div>
+	<div title="Object Info" title="Object Info" onclick="Application.do_info()"><img src="gfx/info.png" width="32"><div>Object Info</div></div>
+	<div title="Edit Bkgnd" onclick="Application.edit_bkgnd()"><img src="gfx/bkgnd.png" width="32"><div id="EditBkgndLabel">Edit Bkgnd</div></div>
 	<div class="Spacer"></div>
-	<div title="Front" onclick="Application.send_to_front();"><img src="../gfx/tofront.png" width="32"><div>Front</div></div>
-	<div title="Closer" onclick="Application.send_forward();"><img src="../gfx/forward.png" width="32"><div>Closer</div></div>
-	<div title="Farther" onclick="Application.send_backward();"><img src="../gfx/backward.png" width="32"><div>Farther</div></div>
-	<div title="Back" onclick="Application.send_to_back();"><img src="../gfx/toback.png" width="32"><div>Back</div></div>
+	<div title="Front" onclick="Application.send_to_front();"><img src="gfx/tofront.png" width="32"><div>Front</div></div>
+	<div title="Closer" onclick="Application.send_forward();"><img src="gfx/forward.png" width="32"><div>Closer</div></div>
+	<div title="Farther" onclick="Application.send_backward();"><img src="gfx/backward.png" width="32"><div>Farther</div></div>
+	<div title="Back" onclick="Application.send_to_back();"><img src="gfx/toback.png" width="32"><div>Back</div></div>
 	<div class="Spacer"></div>
-	<div title="Options"><img src="../gfx/options.png" width="32"><div>Options</div></div>
+	<div title="Options"><img src="gfx/options.png" width="32"><div>Options</div></div>
 	<div class="Spacer"></div>
-	<div title="Stack Info" title="Stack Info" onclick="Application.showStackInfo()"><img src="../gfx/stackinfo.png" width="32"><div>Stack Info</div></div>
-	<div title="Security" onclick="Application.show_protect_stack();"><img src="../gfx/locked.png" width="32"><div>Security</div></div>
-	<!--<div title="Resources"><img src="../gfx/resources.png" width="32"><div>Resources</div></div>
-	<div title="Export"><img src="../gfx/export.png" width="32"><div>Export</div></div>-->
+	<div title="Stack Info" title="Stack Info" onclick="Application.showStackInfo()"><img src="gfx/stackinfo.png" width="32"><div>Stack Info</div></div>
+	<div title="Security" onclick="Application.show_protect_stack();"><img src="gfx/locked.png" width="32"><div>Security</div></div>
+	<!--<div title="Resources"><img src="gfx/resources.png" width="32"><div>Resources</div></div>
+	<div title="Export"><img src="gfx/export.png" width="32"><div>Export</div></div>-->
 </div>
 
 </div>
@@ -140,35 +52,35 @@ layers depending on the mode of the application -->
 <div id="PaletteTools" class="PaletteTemplate" style="left: 830px; top: 200px;">
 
 <div id="ToolButtonGrid">
-	<div onclick="Application.choose_tool(View.TOOL_BROWSE);"><img src="../gfx/browse-hilite.png" title="Browse" id="Tool1"></div>
-	<div onclick="Application.choose_tool(View.TOOL_BUTTON);"><img src="../gfx/button-normal.png" title="Button" id="Tool2"></div>
-	<div onclick="Application.choose_tool(View.TOOL_FIELD);"><img src="../gfx/field-normal.png" title="Field" id="Tool3"></div>
+	<div onclick="Application.choose_tool(View.TOOL_BROWSE);"><img src="gfx/browse-hilite.png" title="Browse" id="Tool1"></div>
+	<div onclick="Application.choose_tool(View.TOOL_BUTTON);"><img src="gfx/button-normal.png" title="Button" id="Tool2"></div>
+	<div onclick="Application.choose_tool(View.TOOL_FIELD);"><img src="gfx/field-normal.png" title="Field" id="Tool3"></div>
 	
-	<div onclick="Application.choose_tool(View.TOOL_SELECT);"><img src="../gfx/select-normal.png" title="Select" id="Tool4"></div>
-	<!--<div onclick="Application.choose_tool(View.TOOL_LASSO);"><img src="../gfx/lasso-normal.png" title="Lasso" id="Tool5"></div>-->
-	<div onclick="Application.choose_tool(View.TOOL_PENCIL);"><img src="../gfx/pencil-normal.png" title="Pencil" id="Tool6"></div>
-	<div onclick="Application.choose_tool(View.TOOL_ERASER);"><img src="../gfx/eraser-normal.png" title="Eraser" id="Tool8"></div>
+	<div onclick="Application.choose_tool(View.TOOL_SELECT);"><img src="gfx/select-normal.png" title="Select" id="Tool4"></div>
+	<!--<div onclick="Application.choose_tool(View.TOOL_LASSO);"><img src="gfx/lasso-normal.png" title="Lasso" id="Tool5"></div>-->
+	<div onclick="Application.choose_tool(View.TOOL_PENCIL);"><img src="gfx/pencil-normal.png" title="Pencil" id="Tool6"></div>
+	<div onclick="Application.choose_tool(View.TOOL_ERASER);"><img src="gfx/eraser-normal.png" title="Eraser" id="Tool8"></div>
 	
-	<div onclick="Application.choose_tool(View.TOOL_BRUSH);"><img src="../gfx/brush-normal.png" title="Paint Brush" id="Tool7"></div>
-	<div onclick="Application.choose_tool(View.TOOL_SPRAY);"><img src="../gfx/spray-normal.png" title="Spray" id="Tool10"></div>
-	<div onclick="Application.choose_tool(View.TOOL_BUCKET);"><img src="../gfx/bucket-normal.png" title="Paint Bucket" id="Tool13"></div>
+	<div onclick="Application.choose_tool(View.TOOL_BRUSH);"><img src="gfx/brush-normal.png" title="Paint Brush" id="Tool7"></div>
+	<div onclick="Application.choose_tool(View.TOOL_SPRAY);"><img src="gfx/spray-normal.png" title="Spray" id="Tool10"></div>
+	<div onclick="Application.choose_tool(View.TOOL_BUCKET);"><img src="gfx/bucket-normal.png" title="Paint Bucket" id="Tool13"></div>
 	
-	<div onclick="Application.choose_tool(View.TOOL_LINE);"><img src="../gfx/line-normal.png" title="Line" id="Tool9"></div>
-	<div onclick="Application.choose_tool(View.TOOL_RECTANGLE);"><img src="../gfx/rectangle-normal.png" title="Rectangle" id="Tool11"></div>
-	<div onclick="Application.choose_tool(View.TOOL_ROUND_RECT);"><img src="../gfx/roundrect-normal.png" title="Round Rectangle" id="Tool12"></div>
+	<div onclick="Application.choose_tool(View.TOOL_LINE);"><img src="gfx/line-normal.png" title="Line" id="Tool9"></div>
+	<div onclick="Application.choose_tool(View.TOOL_RECTANGLE);"><img src="gfx/rectangle-normal.png" title="Rectangle" id="Tool11"></div>
+	<div onclick="Application.choose_tool(View.TOOL_ROUND_RECT);"><img src="gfx/roundrect-normal.png" title="Round Rectangle" id="Tool12"></div>
 	
-	<div onclick="Application.choose_tool(View.TOOL_OVAL);"><img src="../gfx/oval-normal.png" title="Oval" id="Tool14"></div>
-	<div onclick="Application.choose_tool(View.TOOL_FREE_SHAPE);"><img src="../gfx/freeshape-normal.png" title="Free Shape" id="Tool15"></div>
-	<div onclick="Application.choose_tool(View.TOOL_FREE_POLY);"><img src="../gfx/freepoly-normal.png" title="Free Polygon" id="Tool18"></div>
-	
-	
+	<div onclick="Application.choose_tool(View.TOOL_OVAL);"><img src="gfx/oval-normal.png" title="Oval" id="Tool14"></div>
+	<div onclick="Application.choose_tool(View.TOOL_FREE_SHAPE);"><img src="gfx/freeshape-normal.png" title="Free Shape" id="Tool15"></div>
+	<div onclick="Application.choose_tool(View.TOOL_FREE_POLY);"><img src="gfx/freepoly-normal.png" title="Free Polygon" id="Tool18"></div>
 	
 	
-	<!--<div onclick="Application.choose_tool(View.TOOL_TEXT);"><img src="../gfx/text-normal.png" title="Text" id="Tool16"></div>-->
-	<!--<div onclick="Application.choose_tool(View.TOOL_REG_POLY);"><img src="../gfx/regpoly-normal.png" title="Regular Polygon" id="Tool17"></div>-->
 	
 	
-	<div onclick="Application.choose_tool(View.TOOL_EYEDROPPER);"><img src="../gfx/eyedrop-normal.png" title="Eyedropper" id="Tool19"></div>
+	<!--<div onclick="Application.choose_tool(View.TOOL_TEXT);"><img src="gfx/text-normal.png" title="Text" id="Tool16"></div>-->
+	<!--<div onclick="Application.choose_tool(View.TOOL_REG_POLY);"><img src="gfx/regpoly-normal.png" title="Regular Polygon" id="Tool17"></div>-->
+	
+	
+	<div onclick="Application.choose_tool(View.TOOL_EYEDROPPER);"><img src="gfx/eyedrop-normal.png" title="Eyedropper" id="Tool19"></div>
 	
 </div>
 
@@ -198,14 +110,10 @@ layers depending on the mode of the application -->
 
 
 
-<div id="applicationBar">
-<img src="../gfx/cog.png" width="16" alt="Configure" title="Configure" class="Clickable" onclick="openApplicationMenu(this);">
-</div>
-
 
 <div id="DialogAbout" class="DialogTemplate" style="width: 400px; height: 300px;">
 
-	<img src="../gfx/app-icon.png" style="float: left; padding-right: 20px; padding-left: 10px;">
+	<img src="gfx/app-icon.png" style="float: left; padding-right: 20px; padding-left: 10px; padding-top: 10px;" width="200">
 	<p style="margin-top: 40px;"><strong>CinsImp</strong><br>
 	<small>version 1.0</small></p>
 	
@@ -540,133 +448,3 @@ call stack and debug buttons ? -->
 
 
 
-
-
-
-<script>
-
-
-Dialog.Alert = new Dialog('', document.getElementById('DialogAlert'), Dialog.FLAG_NOCLOSE);
-//Dialog.Alert.show();
-
-
-
-
-Dialog.Log = new Dialog('Log', document.getElementById('DialogLog'), 0);
-
-Dialog.HCImport = new Dialog('HyperCard Import', document.getElementById('DialogHCImport'), 0);
-
-
-Dialog.Progress = new Dialog('Please Wait', document.getElementById('DialogProgress'), Dialog.FLAG_NOCLOSE);
-//Dialog.Progress.show();
-
-Dialog.TextStyle = new Dialog('Text Properties', document.getElementById('DialogTextStyle'));
-//Dialog.TextStyle.show();
-
-Dialog.Recent = new Dialog('Recent Cards', document.getElementById('DialogRecent'));
-//Dialog.Recent.show();
-
-Dialog.ScriptEditor = new Dialog('', document.getElementById('DialogScriptEditor'));
-// temporarily disabled due to causing mammoth slowdown on mobile devices - suspect the ruler with line numbers is too large:
-//Dialog.ScriptEditor._codeeditor = new JCodeEdit(document.getElementById('ScriptEditorContainer'));
-
-//Dialog.ScriptEditor.show();
-
-Dialog.SetIcon = new Dialog('Set Icon', document.getElementById('DialogSetIcon'));
-//Dialog.SetIcon.show();
-
-
-Dialog.AskPassword = new Dialog('', document.getElementById('DialogAskPassword'));
-//Dialog.AskPassword.show();
-
-Dialog.SetPassword = new Dialog('Set Stack Password', document.getElementById('DialogSetPassword'));
-//Dialog.SetPassword.show();
-
-Dialog.CardInfo = new Dialog('Card Info', document.getElementById('DialogCardInfo'));
-//Dialog.CardInfo.show();
-
-Dialog.BkgndInfo = new Dialog('Bkgnd Info', document.getElementById('DialogBkgndInfo'));
-//Dialog.BkgndInfo.show();
-
-Dialog.FieldInfo = new Dialog('Field Info', document.getElementById('DialogFieldInfo'), 0,
-	function() { 
-	Application._objects = null; 
-	document.getElementById('FieldInfoBkgndOnly').style.visibility = 'hidden'; });
-///Dialog.FieldInfo.show();
-
-Dialog.ButtonInfo = new Dialog('Button Info', document.getElementById('DialogButtonInfo'), 0,
-	function() { 
-	Application._objects = null; 
-	document.getElementById('ButtonInfoBkgndOnly').style.visibility = 'hidden'; });
-//Dialog.ButtonInfo.show();
-
-
-Dialog.ProtectStack = new Dialog('Protect Stack', document.getElementById('DialogProtectStack'));
-//Dialog.ProtectStack.show();
-
-Dialog.StackInfo = new Dialog('Stack Info', document.getElementById('DialogStackInfo'));
-//Dialog.StackInfo.show();
-
-Dialog.CardSize = new Dialog('Card Size', document.getElementById('DialogCardSize'));
-//Dialog.CardSize.show();
-
-
-Palette.LinkTo = new Palette(document.getElementById('PaletteLinkTo'), 0);
-//Palette.LinkTo.show();
-
-Palette.MessageBox = new Palette(document.getElementById('PaletteMessageBox'), 0);
-//Palette.MessageBox.show();
-
-Palette.Navigator = new Palette(document.getElementById('PaletteNavigator'), Palette.TITLE_VERTICAL);
-Palette.Tools = new Palette(document.getElementById('PaletteTools'), 0);
-Palette.Authoring = new Palette(document.getElementById('PaletteAuthoring'), Palette.TITLE_VERTICAL);
-Palette.Colours = new Palette(document.getElementById('PaletteColours'), 0);
-
-
-PopupMenu.ApplicationMenu = new PopupMenu();
-var m = PopupMenu.ApplicationMenu;
-
-m.appendItem('Navigator', Palette.Navigator.toggle.bind(Palette.Navigator));
-m.appendItem('Message', Palette.MessageBox.toggle.bind(Palette.MessageBox));
-m.appendItem('Tools', Palette.Tools.toggle.bind(Palette.Tools));
-m.appendItem('Authoring', Palette.Authoring.toggle.bind(Palette.Authoring));
-m.appendItem('Colours', Palette.Colours.toggle.bind(Palette.Colours));
-//m.appendItem('Line Sizes', null);
-m.appendItem('-', null);
-/*m.appendItem('New Stack', null);
-m.appendItem('Save a Copy', null);
-m.appendItem('Delete Stack', null);
-m.appendItem('-', null);*/
-m.appendItem('HyperCard Import', Dialog.HCImport.show.bind(Dialog.HCImport));
-m.appendItem('-', null);
-m.appendItem('About CinsImp', function() { Dialog.About.centre(); Dialog.About.show(); });
-
-
-Dialog.About = new Dialog('About CinsImp', document.getElementById('DialogAbout'));
-
-//Palette.Navigator.show();
-//Palette.Tools.show();
-
-
-
-
-</script>
-
-
-<script language="javascript" type="text/javascript">var successScript = '';</script>
-
-<script>
-var sw = document.getElementById('stackWindow');
-Application.setDefaultPositions(sw.clientWidth, sw.clientHeight);
-Palette.Navigator.show();
-
-Palette.Authoring.show();
-Palette.Tools.show();
-
-Application.init();
-</script>
-
-
-</form>
-</body>
-</html>

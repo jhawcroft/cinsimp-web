@@ -25,12 +25,12 @@ eventually list in resources screen, ensuring the headers for the supplied image
 
 * nice loading screen behaviour and stack transitions within a single session
 
-* Paint tools!
-  * Cut/Copy/Paste + Rectangular Selection
-  * Lasso
+* Paint tools! [Partial]
+  * Cut/Copy/Paste + Rectangular Selection [Done Paste, TODO Cut/Copy]
+  * Lasso [TODO]
   * Paint tools
   * Shape tools
-  * Text tool
+  * Text tool ?
 
 * Integration of xTalk engine
   * Caching compiled handlers and index

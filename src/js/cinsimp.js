@@ -181,7 +181,6 @@ var CinsImp = {
 		
 		/* start the application once everything is loaded */
 		this._when_loaded(function() {
-			CinsImp._hide_warning();
 			Application.init();
 		});
 	},
@@ -238,6 +237,7 @@ var CinsImp = {
 		/* check for browser and environment capabilities */
 		this._javascript_test();
 		this._browser_test();
+		CinsImp._hide_warning();
 		
 		/* load the required components of the CinsImp application */
 		this._load_templates();

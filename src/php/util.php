@@ -36,6 +36,44 @@ class Util
 	{
 		return $stack_id;  // ** TODO
 	}
+	
+	
+/*
+	Outputs HTTP response headers appropriate to an AJAX response to help minimise
+	security issues with the application/service.
+*/
+	public static function response_is_ajax_only()
+	{
+		/* headers to prevent 'Reflected File Download attacks' */
+		header('X-Content-Type-Options: nosniff');
+		header('Content-Disposition: attachment; filename="CinsImp.txt"');
+	}
+	
+
+/*
+	Outputs HTTP response headers appropriate to servicing a normal page request.
+*/
+	public static function response_is_html()
+	{
+		header('Content-Type: text/html');
+	}
+	
+	
+/*
+	Returns an appropriately formatted and templated HTTP error response.
+*/
+	public static function respond_with_http_error($code, $description)
+	{
+		global $config;
+		Util::response_is_html();
+		$status = intval($code).' '.$description;
+		header('HTTP/1.0 ' . $status);
+		$page = file_get_contents($config->base.'html/error.html');
+		$page = str_replace('<!--TITLE-->', $status, $page);
+		$page = str_replace('<!--DESCRIPTION-->', $status, $page);
+		print $page;
+		exit;
+	}
 
 }
 
