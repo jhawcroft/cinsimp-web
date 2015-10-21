@@ -160,6 +160,7 @@ var CinsImp = {
 		this.load_script('codeedit.js');//
 		this.load_script('cardsize-widg.js');//
 		this.load_script('colours.js');//
+		this.load_script('text.js');//
 		
 		/* the stack view and authoring: */
 		this.load_stylesheet('objects.css');

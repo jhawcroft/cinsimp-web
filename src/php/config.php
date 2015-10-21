@@ -51,6 +51,10 @@ $config->debug = false;
 /* load the administrator configuration */
 require($config->base.'config.php');
 
+/* fix urls and paths */
+$config->base = realpath($config->base).'/';
+$config->stacks = realpath($config->stacks).'/';
+
 /* configure PHP error reporting based on the debug mode */
 if ($config->debug)
 {

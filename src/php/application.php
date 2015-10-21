@@ -130,6 +130,7 @@ class Application
 		
 		/* populate the template with the static card and appropriate meta information */
 		$page = str_replace('js/', $config->url . 'js/', $page);
+		$page = str_replace('icon/', $config->url . 'icon/', $page);
 		$page = str_replace('?browser-warning=1', $config->url . '?browser-warning=1', $page);
 		$page = str_replace('<!-- INSERT STATIC CARD -->', '', $page);
 		$page = str_replace('<!-- INSERT META -->', '', $page);  //  ******** TODO *******
@@ -155,7 +156,7 @@ class Application
 	{
 		global $config;
 		
-		$title = substr($in_path, strlen($_SERVER['DOCUMENT_ROOT']));
+		$title = substr(realpath($in_path), strlen($_SERVER['DOCUMENT_ROOT']));
 		
 		$page = file_get_contents($config->base.'html/index.html');
 		$page = str_replace('<!--TITLE-->', $title, $page);
