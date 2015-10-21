@@ -148,8 +148,8 @@ class Application
 		$page = str_replace('js/', $config->url . 'js/', $page);
 		$page = str_replace('icon/', $config->url . 'icon/', $page);
 		$page = str_replace('?browser-warning=1', $config->url . '?browser-warning=1', $page);
-		$page = str_replace('<!-- INSERT STATIC CARD -->', '', $page);
-		$page = str_replace('<!-- INSERT META -->', '', $page);  //  ******** TODO *******
+		$page = str_replace('<!-- INSERT STATIC CARD -->', Application::static_page($stack, $card), $page);
+		$page = str_replace('<!-- INSERT META -->', Application::meta($stack, $card), $page);
 		
 		/* populate the template with stack and card data sufficient to start the
 		web application environment on the client */
@@ -249,6 +249,30 @@ class Application
 		
 		header('Content-type: image/png');
 		print $data;
+	}
+	
+	
+/*
+	Returns static HTML content and layout generated from the content of a specific card.
+*/
+	public static function static_page($stack, $card)
+	{
+		$content = '';
+		
+		$content .= '<!-- card size: '.$stack['card_width'].'x'.$stack['card_height'].' -->';
+	
+	
+		return $content;
+	}
+	
+	
+/*
+	Returns HTML meta tags appropriate for static generation of a specific card.
+*/
+	public static function meta($stack, $card)
+	{
+		return '<meta name="robots" content="index, follow">';
+		//return '<meta name="description" content="">';
 	}
 	
 }

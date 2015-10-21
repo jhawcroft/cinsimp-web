@@ -608,6 +608,9 @@ View.prototype._add_object = function(in_object)
 	}
 	
 	this._renumber_objects();
+	
+	this._layer_obj_card.style.visibility = 'hidden';
+	this._layer_obj_card.style.visibility = 'visible';
 }
 
 

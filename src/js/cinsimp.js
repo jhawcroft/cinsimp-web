@@ -71,6 +71,8 @@ var CinsImp = {
 	{
 		var warning = document.getElementById('BrowserWarning');
 		warning.style.display = 'none';
+		var warning = document.getElementById('staticContent');
+		warning.style.display = 'none';
 	},
 	
 	
