@@ -30,20 +30,19 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/* create the configuration object */
 $config = new stdClass();
-$config->base = dirname(__FILE__).'/../';
-$config->debug = false;
-//$config->database = new stdClass();
-//$config->art = new stdClass();
-//$config->art->path = $config->base.'art/';
-/*$config->database->host = 'localhost';
-$config->database->username = '';
-$config->database->password = '';
-$config->database->name = '';
-$config->database->prefix = '';*/
 
+/* set the base path to the CinsImp installation */
+$config->base = dirname(__FILE__).'/../';
+
+/* set the default state of debugging, ie. OFF */
+$config->debug = false;
+
+/* load the administrator configuration */
 require($config->base.'config.php');
 
+/* configure PHP error reporting based on the debug mode */
 if ($config->debug)
 {
 	error_reporting(E_ALL);

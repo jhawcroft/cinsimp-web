@@ -75,7 +75,6 @@ require($config->base.'php/stack.php');
 */
 if (isset($_REQUEST['io']))
 {
-	Util::response_is_ajax_only();
 	require($config->base.'php/gateway.php');
 	Gateway::handle_request();
 	exit;

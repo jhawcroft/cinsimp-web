@@ -32,6 +32,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class Util
 {
+
+/*
+	Sanitize the supplied stack ID.
+*/
 	public static function safe_stack_id($stack_id)
 	{
 		return $stack_id;  // ** TODO
@@ -44,6 +48,10 @@ class Util
 */
 	public static function response_is_ajax_only()
 	{
+		/* if debugging is enabled; don't output any headers yet */
+		global $config;
+		if ($config->debug) return;
+		
 		/* headers to prevent 'Reflected File Download attacks' */
 		header('X-Content-Type-Options: nosniff');
 		header('Content-Disposition: attachment; filename="CinsImp.txt"');

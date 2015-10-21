@@ -31,12 +31,21 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
+/* errors that occur during gateway processing are logged and explicitly handled */
 $g_error_log = '';
 	
 
 class Gateway
-{	
+{
 
+/*****************************************************************************************
+Generic Processing
+*/
+
+/*
+	During gateway processing, any PHP errors will be accumulated within a log variable 
+	and output at the conclusion of processing.
+*/
 	public static function custom_error_handler($errno, $errstr, $errfile, $errline, $errcontext)
 	{
 		global $g_error_log;
@@ -45,19 +54,36 @@ class Gateway
 	}
 	
 	
+/*
+	A test form is available to make debugging gateway requests easier: ?io=test
+	(This form is only accessible when $config->debug = true.)
+*/	
 	public static function print_test_form($response)
 	{
 header("Content-type: text/html\n");
 ?><!DOCTYPE html>
 <html>
 <head>
-<title>Gateway Test Utility</title>
+<meta charset="UTF-8">
+<title>CinsImp Gateway Test Utility</title>
+<style>
+body
+{
+	font-family: Helvetica Neue, sans-serif;
+	background-color: #CCCCCC;
+}
+h1
+{
+	margin: 0;
+	font-size: 18pt;
+}
+</style>
 </head>
 <body>
 <form method="post" action="?">
 <h1>Gateway Test Utility</h1>
 <p>JSON Request:</p>
-<p><textarea name="request" style="width: 500px; height: 400px;"><?php print (isset($_REQUEST['request']) ? $_REQUEST['request'] : '{"cmd":"test","echo":"Hello"}' ); ?></textarea></p>
+<p><textarea name="request" style="width: 700px; height: 300px;"><?php print (isset($_REQUEST['request']) ? $_REQUEST['request'] : '{"cmd":"test","echo":"Hello"}' ); ?></textarea></p>
 <p><input type="submit" value="Submit JSON Request"></p>
 <input type="hidden" name="io" value="1">
 <input type="hidden" name="debug" value="true">
@@ -70,28 +96,43 @@ header("Content-type: text/html\n");
 	}
 
 
+/*
+	Determines and decodes the inbound Ajax request, and calls the appropriate functions
+	to service the result.
+*/
 	public static function handle_request()
 	{
 		global $g_error_log;
+		global $config;
 		
+		/* handle debug test mode; ?io=test */
 		$debug = false;
 		if (isset($_REQUEST['debug']) && ($_REQUEST['debug'] == true))
 			$debug = true;
-		
+		if (!$config->debug && $debug)
+			Util::respond_with_http_error(403, 'Forbidden');
 		if ($_REQUEST['io'] == 'test')
 		{
 			$debug = true;
+			if (!$config->debug && $debug)
+				Util::respond_with_http_error(403, 'Forbidden');
 			Gateway::print_test_form('');
 			exit;
 		}
 		
+		/* normal processing of AJAX request */
+		Util::response_is_ajax_only();
+		
+		/* log errors with custom handler and process at conclusion of request */
+		set_error_handler(array('Gateway', 'custom_error_handler'));
+		
+		/* in testing, it may be useful to be able to submit a request in this way */
 		if (isset($_REQUEST['request']))
 			$inbound = $_REQUEST['request'];
 		else
 			$inbound = '';
 		
-		set_error_handler(array('Gateway', 'custom_error_handler'));
-		
+		/* invoke the method as specified in the cmd field of the request */
 		$outbound = Array();
 		try {
 			if ($inbound != '')
@@ -113,18 +154,18 @@ header("Content-type: text/html\n");
 			$outbound['msg'] = 'Server: '.$err->getMessage();
 		}
 		
+		/* if error(s) occurred during processing, change the response to an error
+		response and reply with the contents of the logged errors */
 		if ($g_error_log != '')
 		{
 			$outbound['cmd'] = 'error';
 			$outbound['msg'] = $g_error_log;
 		}
 		
+		/* if we're debugging the gateway, output the response on the test form,
+		otherwise send a standard JSON response */
 		if ($debug)
-		{
-			//if ($testing)
 			Gateway::print_test_form(json_encode($outbound, JSON_PRETTY_PRINT));
-			//print '<h3>Server Response:</h3><p><pre>'.json_encode($outbound).'</pre></p>';
-		}
 		else
 		{
 			header('Content-type: application/json');
@@ -132,25 +173,42 @@ header("Content-type: text/html\n");
 		}
 	}
 	
-	
+
+/*****************************************************************************************
+Regular Command Handlers
+*/
+
+/*
+	cmd: test
+	Echos the 'echo' field and returns the server date.
+	Intended for gateway testing only.
+*/
 	public static function test($inbound, $outbound)
 	{
-		//$outbound = $inbound;
 		$outbound['echo'] = $inbound['echo'];
 		$outbound['date'] = date('Y-m-d');
 		return $outbound;
 	}
 	
-	
+
+/*
+	cmd: load_stack
+	Loads the stack as specified in the 'stack_id' field.
+	Returns the stack record in the 'stack' field.
+*/
 	public static function load_stack($inbound, $outbound)
 	{
 		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
 		$outbound['stack'] = $stack->stack_load();
-		//$outbound['card'] = $stack->stack_load_card($outbound['stack']['first_card_id']);
 		return $outbound;
 	}
 	
-	
+
+/*
+	cmd: save_stack
+	Saves the stack as specified in the 'stack_id' field, using the supplied data
+	in the 'stack' field.
+*/	
 	public static function save_stack($inbound, $outbound)
 	{
 		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
@@ -159,13 +217,17 @@ header("Content-type: text/html\n");
 		return Gateway::load_stack($inbound, $outbound);
 	}
 	
-	
+
 	public static function rename_stack($inbound, $outbound)
 	{
 		throw Exception('Unimplemented');
 	}
 	
-	
+
+/*
+	cmd: compact_stack
+	Causes the unused space within the stack database to be eliminated.
+*/
 	public static function compact_stack($inbound, $outbound)
 	{
 		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
@@ -173,7 +235,12 @@ header("Content-type: text/html\n");
 		return Gateway::load_stack($inbound, $outbound);
 	}
 	
-	
+
+/*
+	cmd: load_card
+	Returns the specified 'card' as specified by 'stack_id' and either 'card_id' or 
+	'stack_num' (the number of the card within the stack).
+*/
 	public static function load_card($inbound, $outbound)
 	{
 		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
@@ -183,7 +250,12 @@ header("Content-type: text/html\n");
 		return $outbound;
 	}
 	
-	
+
+/*
+	cmd: nth_card
+	Returns the specified 'card' as specified by 'stack_id' and 'num'
+	(the number of the card within the stack).
+*/
 	public static function nth_card($inbound, $outbound)
 	{
 		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
@@ -191,7 +263,11 @@ header("Content-type: text/html\n");
 		return Gateway::load_card($inbound, $outbound);
 	}
 	
-	
+
+/*
+	cmd: save_card
+	Saves the specified 'card' as specified by 'stack_id'.
+*/
 	public static function save_card($inbound, $outbound)
 	{
 		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
@@ -199,7 +275,12 @@ header("Content-type: text/html\n");
 		return $outbound;
 	}
 	
-	
+
+/*
+	cmd: new_card
+	Creates a new card in the specified 'stack_id', immediately following the specified
+	'card_id'.  Returns the same result as cmd:'load_card'.
+*/
 	public static function new_card($inbound, $outbound)
 	{
 		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
@@ -207,7 +288,12 @@ header("Content-type: text/html\n");
 		return Gateway::load_card($inbound, $outbound);
 	}
 	
-	
+
+/*
+	cmd: new_bkgnd
+	Creates a new background in the specified 'stack_id', immediately following the 
+	specified 'card_id'.  Returns the same result as cmd:'load_card'.
+*/
 	public static function new_bkgnd($inbound, $outbound)
 	{
 		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
@@ -215,7 +301,12 @@ header("Content-type: text/html\n");
 		return Gateway::load_card($inbound, $outbound);
 	}
 	
-	
+
+/*
+	cmd: delete_card
+	Deletes the specified 'card_id' from 'stack_id' and returns the following card.
+	Returns the same result as cmd:'load_card' and cmd:'load_stack'.
+*/
 	public static function delete_card($inbound, $outbound)
 	{
 		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
@@ -226,6 +317,11 @@ header("Content-type: text/html\n");
 	}
 	
 
+/*
+	cmd: new_stack
+	Creates a stack database file with the specified pathname 'stack_id'.
+	If successful, returns the path, otherwise returns an error 'Couldn't create stack.'
+*/
 	public static function new_stack($inbound, $outbound)
 	{
 		Stack::create_file(Util::safe_stack_id($inbound['stack_id']));
@@ -236,8 +332,16 @@ header("Content-type: text/html\n");
 		return $outbound;
 	}
 	
-	
-	
+
+/*****************************************************************************************
+HyperCard Import Command Handlers
+*/
+
+/*
+	cmd: hcimport_data
+	Accepts and saves a file upload of a HyperCard stack.
+	Returns a JSON summary of the stack.
+*/
 	public static function hcimport_data($inbound, $outbound)
 	{
 		global $config;
@@ -246,6 +350,12 @@ header("Content-type: text/html\n");
 		return $outbound;
 	}
 	
+
+/*
+	cmd: hcimport_create
+	Creates a temporary CinsImp stack suitable for importing the previously uploaded
+	HyperCard stack.
+*/
 	public static function hcimport_create($inbound, $outbound)
 	{
 		global $config;
@@ -254,7 +364,12 @@ header("Content-type: text/html\n");
 		return $outbound;
 	}
 	
-	
+
+/*
+	cmd: hcimport_list
+	Returns a list of cards and backgrounds within the previously uploaded
+	HyperCard stack.
+*/
 	public static function hcimport_list($inbound, $outbound)
 	{
 		global $config;
@@ -263,7 +378,12 @@ header("Content-type: text/html\n");
 		return $outbound;
 	}
 	
-	
+
+/*
+	cmd: hcimport_bkgnd
+	Causes the specified HyperCard stack background ID to be imported into the current
+	temporary CinsImp stack.
+*/
 	public static function hcimport_bkgnd($inbound, $outbound)
 	{
 		global $config;
@@ -272,7 +392,13 @@ header("Content-type: text/html\n");
 		return $outbound;
 	}
 	
-	
+
+/*
+	cmd: hcimport_card
+	Causes the specified HyperCard stack card ID to be imported into the current
+	temporary CinsImp stack.
+*/
+
 	public static function hcimport_card($inbound, $outbound)
 	{
 		global $config;
@@ -281,48 +407,6 @@ header("Content-type: text/html\n");
 		return $outbound;
 	}
 	
-	/*
-	public static function hcimport_scan($inbound, $outbound)
-	{
-		global $config;
-		require($config->base.'php/hcimport.php');
-		try { $outbound['result'] = HCImport::scan_stack(); }
-		catch (Exception $e) { $outbound['error'] = $e->getMessage(); }
-		return $outbound;
-	}*/
-	
-/*
-	public static function list_stacks($inbound, $outbound)
-	{
-		$outbound->list = CIStack::getList();
-	}
-	
-	
-	
-	public static function open_stack($inbound, $outbound)
-	{
-		$stack = new CIStack;
-		$outbound->id = $stack->openExisting($inbound->id);
-		// should check for password here!
-		
-		$outbound->data = $stack->getOpenData();
-	}
-	
-	public static function save_card($inbound, $outbound)
-	{
-		$stack = new CIStack;
-		$stack->openExisting($inbound->stack_id);
-		
-
-		
-		$card = new CICard($stack);
-		$card->load($inbound->card->id);
-		$card->setData($inbound->card);
-		$card->save();
-		
-		
-	}
-	*/
 }
 
 
