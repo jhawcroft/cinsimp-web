@@ -171,7 +171,12 @@ class Application
 			$url_path = substr($sub_path, strlen($_SERVER['DOCUMENT_ROOT']));
 			
 			if (substr($name, 0, 1) == '.') continue;
-			$contents[] = array($name, $url_path);
+			
+			$is_dir = is_dir($sub_path);
+			if ($is_dir && substr($url_path, strlen($url_path)-1, 1) != '/')
+				$url_path .= '/';
+			
+			$contents[] = array($name, $url_path, $is_dir);
 		}
 		
 		usort($contents, 'Application::_dir_list_sort');
@@ -187,6 +192,7 @@ class Application
 		foreach ($contents as $item)
 		{
 			$list .= '<li>';
+			
 			$list .= '<a href="'.$item[1].'">';
 			$list .= $item[0];
 			$list .= '</a></li>';
