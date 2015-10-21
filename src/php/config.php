@@ -39,7 +39,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 $config = new stdClass();
 
 /* set the base path to the CinsImp installation */
-$config->base = dirname(__FILE__).'/../';
+$config->base = realpath(dirname(__FILE__).'/../').'/';
+
+/* set the default stacks directory */
+$config->stacks = $config->base.'stacks/';
 
 /* set the default state of debugging, ie. OFF */
 $config->debug = false;

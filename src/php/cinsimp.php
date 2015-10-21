@@ -108,14 +108,7 @@ if (isset($_REQUEST['hcimport']))
 if (isset($_REQUEST['stack']))
 {
 	require($config->base.'php/application.php');
-	
-	if (isset($_REQUEST['card'])) $card = $_REQUEST['card'];
-	else $card = null;
-	
-	Application::open_stack(
-		Util::safe_stack_id($_REQUEST['stack']), 
-		Util::safe_card_ref($card)
-	);
+	Application::open_stack();
 	exit;
 }
 

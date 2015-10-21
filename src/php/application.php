@@ -48,9 +48,42 @@ class Application
 	The response will also contain the necessary information to load the web application
 	in browsers where suitable capabilities exist (Javascript and HTML 5).
 */
-	public static function open_stack($in_stack, $in_card)
+	public static function open_stack()
 	{
 		global $config;
+		
+		/* check request variables */
+		try
+		{
+			Util::check_request_vars(array(
+				'stack'=>Util::REQUIRED,
+				'card'=>Util::OPTIONAL
+			));
+		}
+		catch (Exception $err)
+		{
+			Util::respond_with_http_error(400, 'Bad Request', 
+				'Error: ' . $err->getMessage() . "\nTrace: " . $err->getTraceAsString());
+		}
+		
+		/* sanitise input */
+		try
+		{
+			$in_stack = Util::safe_stack_id($_REQUEST['stack']);
+			$in_card = Util::safe_card_ref($_REQUEST['card']);
+		}
+		catch (Exception $err)
+		{
+			Util::respond_with_http_error($err->getCode(), $err->getMessage(), 
+				'Error: ' . $err->getMessage() . "\nTrace: " . $err->getTraceAsString());
+		}
+		
+		/* check if the input is a directory */
+		if ($in_card == '' && is_dir($in_stack))
+		{
+			Application::do_dir_list($in_stack);
+			exit;
+		}
 		
 		/* try to open the specified stack and load the specified card */
 		$stack_handle = null;
@@ -106,6 +139,15 @@ class Application
 		print $page;
 	}
 
+
+/*
+	Provides a HTML directory listing of the files within the specified stack directory.
+*/
+	public static function do_dir_list($in_path)
+	{
+		print 'DIR LIST NOT IMPLEMENTED';
+	}
+	
 }
 
 

@@ -252,6 +252,8 @@ Accessors and Mutators
 */
 	public function stack_load()
 	{
+		global $config;
+		
 		$stmt = $this->file_db->prepare(
 			'SELECT stack_data,cant_delete,cant_modify,private_access FROM stack'
 		);
@@ -268,7 +270,7 @@ Accessors and Mutators
 		$stack['first_card_id'] = $this->stack_get_first_card_id();
 		
 		$stack['stack_id'] = $this->stack_id;
-		$stack['stack_path'] = $this->stack_id;
+		$stack['stack_path'] = substr($this->stack_id, strlen($config->stacks));
 		
 		$stack['count_cards'] = $this->stack_get_count_cards();
 		$stack['count_bkgnds'] = $this->stack_get_count_bkgnds();

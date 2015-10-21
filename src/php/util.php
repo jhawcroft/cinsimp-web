@@ -38,12 +38,21 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class Util
 {
 
+	const REQUIRED = true;
+	const OPTIONAL = false;
+
 /*
 	Sanitize the supplied stack ID.
 */
 	public static function safe_stack_id($stack_id)
 	{
-		return $stack_id;  // ** TODO
+		global $config;
+		$path = realpath($config->stacks . $stack_id);
+		if ($path == '')
+			throw new Exception('Stack Not Found', 404);
+		if (strpos($path, $config->stacks) !== 0)
+			throw new Exception('Forbidden', 503);
+		return $path;
 	}
 	
 
@@ -54,7 +63,44 @@ class Util
 	{
 		if ($card_ref === null) return null;
 		
-		return $card_ref; // ** TODO
+		 /* we use parameterised queries, so no need to do further verification */
+		if (is_numeric($card_ref))
+		{
+			/* it's an id number */
+			return intval($card_ref);
+		}
+		else
+		{
+			/* it's a name */
+			return strval($card_ref);
+		}
+	}
+	
+
+/*
+	Uses the supplied table of request variables and their accompanying optionality
+	to determine if the supplied request variables are within the allowable/required set.
+*/
+	public static function check_request_vars($vars)
+	{
+		foreach ($vars as $name => $optionality)
+		{
+			if ( $optionality && (!isset($_REQUEST[$name])) )
+				throw new Exception('Bad Request; Missing '.$name, 400);
+			else if ( (!$optionality) && (!isset($_REQUEST[$name])) )
+				$_REQUEST[$name] = null;
+		}
+		foreach ($_GET as $name => $value)
+		{
+			if (!isset($vars[$name]))
+				throw new Exception('Bad Request; '.$name.' Not Allowed', 400);
+		}
+		foreach ($_POST as $name => $value)
+		{
+			if (!isset($vars[$name]))
+				throw new Exception('Bad Request; '.$name.' Not Allowed', 400);
+		}
+		return true;
 	}
 	
 	
