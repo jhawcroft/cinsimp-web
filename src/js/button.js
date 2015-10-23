@@ -68,6 +68,8 @@ function Button(in_view, in_def, in_bkgnd)
 		this.set_attr(Button.ATTR_SHOW_NAME, true);
 		this.set_attr(Button.ATTR_HILITE, false);
 		this.set_attr(Button.ATTR_AUTO_HILITE, false);
+		
+		this.set_attr(ViewObject.ATTR_SCRIPT, {'content':'on mouseup\r  \rend mouseup\r','selection':13});
 	}
 	else
 		this.set_def(in_def);

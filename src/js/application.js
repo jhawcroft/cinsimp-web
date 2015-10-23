@@ -333,6 +333,12 @@ Application.do_edit_script = function(in_subject, in_prior)
 }
 
 
+Application.save_script = function()
+{
+	if (Application._view) Application._view.save_script();
+}
+
+
 Application.open_app_menu = function(el) //don't take an argument - do lookup
 {
 	PopupMenu.ApplicationMenu.item(0).checkmark = Palette.Navigator.getVisible();

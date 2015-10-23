@@ -62,7 +62,7 @@ function ViewObject(in_type, in_view, in_bkgnd)
 	this._attrs[ViewObject.ATTR_SHARED] = false;
 	this._attrs[ViewObject.ATTR_SEARCHABLE] = true;
 	this._attrs[ViewObject.ATTR_VISIBLE] = true;
-	this._attrs[ViewObject.ATTR_SCRIPT] = ['',0];
+	this._attrs[ViewObject.ATTR_SCRIPT] = {'content':'','selection':0};
 	this._attrs[ViewObject.ATTR_DISABLED] = false;
 	this._attrs[ViewObject.ATTR_TALIGN] = Text.ALIGN_LEFT;
 	this._attrs[ViewObject.ATTR_TFONT] = 'sans-serif';

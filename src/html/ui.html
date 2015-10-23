@@ -356,15 +356,12 @@ call stack and debug buttons ? -->
 	<div id="ScriptEditorObject" class="Label">Script of ^0</div>
 	<div id="ScriptEditorContainer" style="width: 650px; height: 440px; border: 1px solid black; margin-top: 5px;"></div>
 	<div class="Bottom">
+		<input type="button" value="Reformat" onclick="Dialog.ScriptEditor._codeeditor.reformat()">
 		<!-- used to be find and print; think we can do better, like what was in HC 2,
 		a handler jump list at least and maybe also a find option ? -->
 	</div>
-	
-	<div class="Bottom">
-		<input type="button" value="Reformat" onclick="Dialog.ScriptEditor._codeeditor.reformat()">
-	</div>
 	<div class="Bottom Right">
-		<input type="button" value="Cancel" class="" onclick="Dialog.dismiss()"> <input type="button" value="OK" class="" onclick="">
+		<input type="button" value="Cancel" class="" onclick="Dialog.dismiss()"> <input type="button" value="OK" class="" onclick="Dialog.dismiss(); Application.save_script();">
 	</div>
 </div>
 

@@ -1466,32 +1466,116 @@ View.prototype.send_to_back = function()
 
 View.prototype.do_edit_script = function(in_subject, in_prior)
 {
+	var desc_label = document.getElementById('ScriptEditorObject');
+	var curr_script = null;
+	
 	if (in_subject == View.CURRENT_OBJECT)
 	{
 		Dialog.ScriptEditor._object = this._selected_objects[0];
-		if (Dialog.ScriptEditor._object.get_type() == Button.TYPE)
+		var obj = Dialog.ScriptEditor._object;
+		var id = obj.get_attr(ViewObject.ATTR_ID);
+		var name = obj.get_attr(ViewObject.ATTR_NAME);
+		var layer = (obj._is_bkgnd ? 'background' : 'card');
+		
+		if (obj.get_type() == Button.TYPE)
+		{
 			Dialog.ScriptEditor._type = View.CURRENT_BUTTON;
+			desc_label.textContent = 'Script of '+layer+' button ID '+id+
+				(name != '' ? ' "'+name+'"' : '');
+		}
 		else
+		{
 			Dialog.ScriptEditor._type = View.CURRENT_FIELD;
+			desc_label.textContent = 'Script of '+layer+' field ID '+id+
+				(name != '' ? ' "'+name+'"' : '');
+		}
+		
+		curr_script = obj.get_attr(ViewObject.ATTR_SCRIPT);
+		Dialog.ScriptEditor._edit_type = 'object';
 	}
 	else if (in_subject == View.CURRENT_STACK)
 	{
 		Dialog.ScriptEditor._object = this._stack;
 		Dialog.ScriptEditor._type = View.CURRENT_STACK;
+		desc_label.textContent = 'Script of stack '+this._stack.stack_name;
+		
+		curr_script = this._stack.stack_script;
+		Dialog.ScriptEditor._edit_type = 'stack';
 	}
 	else if (in_subject == View.CURRENT_BKGND)
 	{
 		Dialog.ScriptEditor._object = this._card;
 		Dialog.ScriptEditor._type = View.CURRENT_BKGND;
+		desc_label.textContent = 'Script of background ID '+this._card.bkgnd_id+
+			(this._card.bkgnd_name != '' ? ' "'+this._card.bkgnd_name+'"' : '');
+			
+		curr_script = this._card.bkgnd_script;
+		Dialog.ScriptEditor._edit_type = 'bkgnd';
 	}
 	else
 	{
 		Dialog.ScriptEditor._object = this._card;
 		Dialog.ScriptEditor._type = View.CURRENT_CARD;
+		desc_label.textContent = 'Script of card ID '+this._card.card_id+
+			(this._card.card_name != '' ? ' "'+this._card.card_name+'"' : '');
+		
+		curr_script = this._card.card_script;
+		Dialog.ScriptEditor._edit_type = 'card';
 	}
+	
+	if (!curr_script) curr_script = {'content':'', 'selection':0};
+	Dialog.ScriptEditor._codeeditor._jce_ta.value = curr_script['content'];
+	Dialog.ScriptEditor._codeeditor._jce_ta.selectionStart = curr_script['selection'];
+	Dialog.ScriptEditor._codeeditor._jce_ta.selectionEnd = curr_script['selection'];
 
 	if (in_prior) in_prior();
 	Dialog.ScriptEditor.show();
+	Dialog.ScriptEditor._codeeditor._jce_ta.focus();
+}
+
+
+View.prototype._save_stack = function()
+{
+	Progress.operation_begun('Saving stack...');
+	var msg = {
+		cmd: 'save_stack',
+		stack_id: this._stack.stack_id,
+		stack: this._stack
+	};
+	Ajax.send(msg, function(msg, status)
+	{
+		Progress.operation_finished();
+		if ((status != 'ok') || (msg.cmd != 'save_stack'))
+			alert('Saving stack changes, error: '+status+"\n"+JSON.stringify(msg));
+		else
+			this._stack = msg.stack;
+	});
+}
+
+
+View.prototype.save_script = function()
+{
+	var script_code = Dialog.ScriptEditor._codeeditor._jce_ta.value;
+	var script_sel = Dialog.ScriptEditor._codeeditor._jce_ta.selectionStart;
+	var new_script = {'content': script_code, 'selection': script_sel};
+	
+	switch (Dialog.ScriptEditor._edit_type)
+	{
+	case 'object':
+		Dialog.ScriptEditor._object.set_attr(ViewObject.ATTR_SCRIPT, new_script);
+		break;
+	case 'stack':
+		this._stack.stack_script = new_script;
+		this._save_stack();
+		break;
+	case 'bkgnd':
+		this._card.bkgnd_script = new_script;
+		break;
+	case 'card':
+		this._card.card_script = new_script;
+		break;
+	}
+	
 }
 
 
