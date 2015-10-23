@@ -115,6 +115,8 @@ Util.insert_at_cursor = function(in_textarea, in_value)
         var pos_end = in_textarea.selectionEnd;
         in_textarea.value = in_textarea.value.substring(0, pos_begin) + in_value + 
         	in_textarea.value.substring(pos_end, in_textarea.value.length);
+        in_textarea.selectionStart = pos_begin + in_value.length;
+        in_textarea.selectionEnd = in_textarea.selectionStart;
     }
     /* otherwise append */
     else

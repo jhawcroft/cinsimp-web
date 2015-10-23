@@ -59,6 +59,10 @@ function JCodeEdit(containerElement)
 	this._jce_content.className = 'codeedit-content';
 	
 	this._jce_ta = document.createElement('textarea');
+	this._jce_ta.autocorrect = 'off';
+	this._jce_ta.autocomplete = 'off';
+	this._jce_ta.autocapitalize = 'off';
+	this._jce_ta.spellcheck = false;
 	this._jce_content.appendChild(this._jce_ta);
 	this._jce_ta.className = 'codeedit-text';
 	
@@ -215,6 +219,12 @@ JCodeEdit.prototype._jce_indent_code = function(in_text, in_indent)
 	in_text = lines.join("\n");
 	
 	return in_text;
+}
+
+
+JCodeEdit.prototype.reformat = function()
+{
+	this._jce_shouldFormatText(true);
 }
 
 

@@ -7,7 +7,7 @@ In Progress/Todo
 * Rejigging button and field attributes [DONE]
 * Card and bkgnd info [DONE]
 * Stack info [DONE]
-* Script editor; need to write the JS code formatter
+* Script editor; need to write the JS code formatter [Better formatter needs porting from 2013 prototype]
 * Card resize [DONE]
 * Picklist/content dialog
 * Alerts [DONE]
@@ -18,7 +18,7 @@ eventually list in resources screen, ensuring the headers for the supplied image
 	opening a URL, playing a sound (stack resources), playing a movie 
 	Alternately, a visual effect window to accompany the Link button.
 * Button link to?
-* Protect stack, incl. Password
+* Protect stack, incl. Password   <== if we get security up, then it'll be easier to share with others the progress
 
 * Options menu?
 * Core navigation vs browser nav?
