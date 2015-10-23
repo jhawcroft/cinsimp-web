@@ -447,7 +447,7 @@ Application._init_dialogs = function()
 
 	Dialog.ScriptEditor = new Dialog('', document.getElementById('DialogScriptEditor'));
 	// temporarily disabled due to causing mammoth slowdown on mobile devices - suspect the ruler with line numbers is too large:
-	//Dialog.ScriptEditor._codeeditor = new JCodeEdit(document.getElementById('ScriptEditorContainer'));
+	Dialog.ScriptEditor._codeeditor = new JCodeEdit(document.getElementById('ScriptEditorContainer'));
 }
 
 
@@ -512,6 +512,8 @@ Application._show_default_palettes = function()
 	Palette.Navigator.show();
 	//Palette.Authoring.show();
 	//Palette.Tools.show();
+	
+	//Dialog.ScriptEditor.show();
 }
 
 

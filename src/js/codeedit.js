@@ -38,6 +38,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 function JCodeEdit(containerElement)
 {
+	
+
 	this._jce_container = containerElement;
 	
 	this._jce_div = document.createElement('div');
@@ -79,19 +81,25 @@ JCodeEdit.prototype._jce_handleContainerResize = function()
 	this._jce_content.style.height = this._jce_container.clientHeight + 'px';
 	this._jce_ta.style.height = (this._jce_container.clientHeight - 4) + 'px';
 	
-	this._jce_content.style.width = (this._jce_container.clientWidth - 44) + 'px';
-	this._jce_ta.style.width = (this._jce_container.clientWidth - 54) + 'px';
+	this._jce_content.style.width = (this._jce_container.clientWidth - 24) + 'px';
+	this._jce_ta.style.width = (this._jce_container.clientWidth - 32) + 'px';
 }
 
 
 JCodeEdit.prototype._jce_buildLineNumbers = function()
 {
-	var lineNums = '';
-	for (var lineNum = 1; lineNum < 15000; lineNum++)
+	var line_count = this._jce_ta.value.split("\n").length;
+	var margin_line_count = this._jce_margin.childNodes.length;
+	
+	if (line_count > margin_line_count)
 	{
-		lineNums = lineNums + '<div class="codeedit-linemark">' + lineNum + '</div><br>';
+		for (var num = margin_line_count + 1; num <= line_count; num++)
+		{
+			var element = document.createElement('div');
+			element.appendChild(document.createTextNode('  '));//num'  '
+			this._jce_margin.appendChild(element);
+		}
 	}
-	this._jce_margin.innerHTML = lineNums;
 }
 
 
@@ -103,42 +111,142 @@ JCodeEdit.prototype._jce_autoScrollMargin = function()
 
 JCodeEdit.prototype._jce_marginClick = function(evt)
 {
-	if (evt.target && (evt.target.className == 'codeedit-linemark'))
+	if (!evt.target) return;
+	if (evt.target == this._jce_margin) return;
+	var lineNum = evt.target.textContent.trim() * 1;
+	if (!evt.target.classList.contains('breakpoint'))
 	{
-		var lineNum = evt.target.textContent.trim() * 1;
-		evt.target.className += ' codeedit-breakpoint';
+		evt.target.classList.add('breakpoint');
+		evt.target.style.backgroundImage = 'url(\''+gBase+'gfx/bp-tick.png\')';
 		if (this._jce_breakpointList.indexOf(lineNum) < 0)
 			this._jce_breakpointList.push(lineNum);
 	}
-	else if (evt.target && (evt.target.className == 'codeedit-linemark codeedit-breakpoint'))
+	else
 	{
-		var lineNum = evt.target.textContent.trim() * 1;
-		evt.target.className = 'codeedit-linemark';
+		evt.target.classList.remove('breakpoint');
+		evt.target.style.backgroundImage = 'none';
 		idx = this._jce_breakpointList.indexOf(lineNum);
 		if (idx >= 0) this._jce_breakpointList.splice(idx, 1);
 	}
 }
 
 
+JCodeEdit.prototype._jce_indent_code = function(in_text, in_indent)
+{
+	// on<space>
+	// end<space>
+	// repeat<space/eol>
+	// if<space>
+	// <space/eol>then<space/eol>
+	// <space/eol>else<space/eol>
+	
+	// also need to strip off comment -- at end of line for word checks
+	
+	// begin a block:
+	// ... then<eol>
+	// else ... then<eol>
+	// else<eol> 
+	
+	// [...] then ...  (no block)
+	// 
+	// problem is that these things work on proximity, so
+	// without the parser, it's very difficult
+	// may still end up porting the parser function from the previous attempt
+	
+	var SPACE = '                                                                      ';
+	var SPACE_FACTOR = 2;
+	
+	var LEVEL_SCRIPT = 0;
+	var LEVEL_HANDLER_COMMAND = 1;
+	var LEVEL_HANDLER_FUNCTION = 2;
+	var LEVEL_LOOP = 3;
+	var LEVEL_IF = 4;
+	
+	var level = 0;
+	var indent_stack = [
+		[ LEVEL_SCRIPT ]
+	];
+	
+	var lines = (in_text + ' ').split("\n");
+	in_text = '';
+	
+	for (var l = 0; l < lines.length; l++)
+	{
+		var line = lines[l].trim();
+		var words = line.split(/[\s]+/);
+		
+		var first = words[0].toLowerCase();
+		if (first == 'on' || first == 'function')
+		{
+			lines[l] = SPACE.substr(0, level * SPACE_FACTOR + in_indent) + line;
+			level ++;
+			indent_stack.push( [ (first == 'on' ? LEVEL_HANDLER_COMMAND : LEVEL_HANDLER_FUNCTION) ] );
+		}
+		else if (first == 'end')
+		{
+			level --;
+			indent_stack.pop();
+			lines[l] = SPACE.substr(0, level * SPACE_FACTOR + in_indent) + line;
+		}
+		else if (first == 'repeat')
+		{
+			lines[l] = SPACE.substr(0, level * SPACE_FACTOR + in_indent) + line;
+			level ++;
+			indent_stack.push( [ LEVEL_LOOP ] );
+		}
+		else if (first == 'if')
+		{
+			lines[l] = SPACE.substr(0, level * SPACE_FACTOR + in_indent) + line;
+			level ++;
+			indent_stack.push( [ LEVEL_IF ] );
+		}
+		else if (first == 'else')
+		{
+			level --;
+			indent_stack.pop
+			lines[l] = SPACE.substr(0, level * SPACE_FACTOR + in_indent) + line;
+			level ++;
+			indent_stack.push( [ LEVEL_LOOP ] );
+		}
+		else
+			lines[l] = SPACE.substr(0, level * SPACE_FACTOR + in_indent) + line;
+	}
+	
+	in_text = lines.join("\n");
+	
+	return in_text;
+}
+
+
 JCodeEdit.prototype._jce_shouldFormatText = function(all)
 {
-	//alert('Should format text');
-	//this._jce_ta.selectionStart++;
-	//this._jce_ta.selectionEnd = this._jce_ta.selectionStart + 1;
+	/* grab the original incorrectly formatted code */
+	var text = this._jce_ta.value;
 	
-	// need to identify line number of selection
-	// save offset
-	// save number of preceeding whitespace characters
+	/* save the selected line (sl) and offset to the selection (lo);
+	also count the current spaces of indent on the selected line */
+	var ss = this._jce_ta.selectionStart;
+	var prior_lines = text.substr(0, ss).split('\n');
+	var sl = prior_lines.length;
+	var lo = prior_lines[sl-1].length;
+	var oi = prior_lines[sl-1].match(/^\s*/)[0].length; // possibly should be counting non-truncated
+	prior_lines = null;
 	
+	/* reformat all the code */
+	var text = this._jce_indent_code(text, 0);
+	this._jce_ta.value = text;
 	
-	// do the reformat using a custom format handler (language dependent)
+	/* reset the selection to where it was prior to formatting */
+	var lines = text.split('\n');
+	var line_offset = 0;
+	for (var l = 1; l < sl; l++)
+		line_offset += lines[l-1].length + 1;
+	var ni = lines[sl-1].match(/^\s*/)[0].length;
 	
+	line_offset += lo - oi + ni;
 	
-	// move the cursor to the correct line
-	// count the now preceeding whitepsace
-	// set the cursor positon based on the difference in whitespace
-	
-	
+	this._jce_ta.selectionStart = line_offset;
+	this._jce_ta.selectionEnd = line_offset;
 	
 }
 
@@ -146,14 +254,20 @@ JCodeEdit.prototype._jce_shouldFormatText = function(all)
 JCodeEdit.prototype._jce_checkForSpecialKeys = function(evt)
 {
 	var keycode = (evt.keyCode ? evt.keyCode :  evt.which);
-	if ( ((keycode == 9) || (keycode == 13)) && (!evt.metaKey) )
+	if (keycode == 9)
 	{
-		this._jce_shouldFormatText((keycode == 9));
-		if (keycode == 9) evt.preventDefault();
+		this._jce_buildLineNumbers();
+		this._jce_shouldFormatText(true);
+		evt.preventDefault();
 	}
-	else if ((keycode == 13) && evt.metaKey)
+	else if (keycode == 13)
 	{
-		Util.insert_at_cursor(this._jce_ta, '\xAC\r');
+		if (evt.metaKey)
+			Util.insert_at_cursor(this._jce_ta, '\xAC\n');
+		else
+			Util.insert_at_cursor(this._jce_ta, '\n');
+		this._jce_buildLineNumbers();
+		this._jce_shouldFormatText(false);
 		evt.preventDefault();
 	}
 }
@@ -174,6 +288,7 @@ JCodeEdit.prototype._jce_installEventHandlers = function()
 	
 	this._jce_margin.onmousedown = function(evt) { ce._jce_marginClick(evt); };
 }
+
 
 
 CinsImp._script_loaded('codeedit');

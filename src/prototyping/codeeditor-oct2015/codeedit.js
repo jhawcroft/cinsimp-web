@@ -81,8 +81,8 @@ JCodeEdit.prototype._jce_handleContainerResize = function()
 	this._jce_content.style.height = this._jce_container.clientHeight + 'px';
 	this._jce_ta.style.height = (this._jce_container.clientHeight - 4) + 'px';
 	
-	this._jce_content.style.width = (this._jce_container.clientWidth - 44) + 'px';
-	this._jce_ta.style.width = (this._jce_container.clientWidth - 54) + 'px';
+	this._jce_content.style.width = (this._jce_container.clientWidth - 24) + 'px';
+	this._jce_ta.style.width = (this._jce_container.clientWidth - 32) + 'px';
 }
 
 
@@ -96,7 +96,7 @@ JCodeEdit.prototype._jce_buildLineNumbers = function()
 		for (var num = margin_line_count + 1; num <= line_count; num++)
 		{
 			var element = document.createElement('div');
-			element.appendChild(document.createTextNode(num));
+			element.appendChild(document.createTextNode('  '));//num'  '
 			this._jce_margin.appendChild(element);
 		}
 	}
@@ -109,6 +109,8 @@ JCodeEdit.prototype._jce_autoScrollMargin = function()
 }
 
 
+var gBase = '';
+
 JCodeEdit.prototype._jce_marginClick = function(evt)
 {
 	if (!evt.target) return;
@@ -117,12 +119,14 @@ JCodeEdit.prototype._jce_marginClick = function(evt)
 	if (!evt.target.classList.contains('breakpoint'))
 	{
 		evt.target.classList.add('breakpoint');
+		evt.target.style.backgroundImage = 'url(\''+gBase+'gfx/bp-tick.png\')';
 		if (this._jce_breakpointList.indexOf(lineNum) < 0)
 			this._jce_breakpointList.push(lineNum);
 	}
 	else
 	{
 		evt.target.classList.remove('breakpoint');
+		evt.target.style.backgroundImage = 'none';
 		idx = this._jce_breakpointList.indexOf(lineNum);
 		if (idx >= 0) this._jce_breakpointList.splice(idx, 1);
 	}
