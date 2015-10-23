@@ -1,4 +1,5 @@
 
+<!--<link rel="stylesheet" type="text/css" href="../css/widgets.css">-->
 
 
 <div id="PaletteNavigator" class="PaletteTemplate" style="left: 100px; top: 550px; height: 55px;">
@@ -95,8 +96,8 @@
 
 <div id="PaletteLinkTo" class="PaletteTemplate" style="left: 50px; top: 100px;">
 	<div style="margin: 10px; margin-bottom: 15px;">
-		<div class="Label">Go to destination, then aim link at:</div>
-		<input type="button" value="This Card" class="VertGap" onclick=""> <input type="button" value="This Stack" class="" onclick=""> <input type="button" value="Cancel" class="" onclick="">
+		<div class="Label">Link button to:</div>
+		<input type="button" value="This Card" class="VertGap" onclick="View.apply_link_to('this card');"> <input type="button" value="This Stack" class="" onclick="View.apply_link_to('this stack');"> <input type="button" value="Cancel" class="" onclick="Palette.LinkTo.hide();">
 	</div>
 </div>
 
@@ -249,8 +250,8 @@ as dictated by the server, thus allowing for search nevigability -->
 	
 	</div>
 	<div class="Bottom">
-		<input type="button" class="SameSizeStacked" value="Tasks..." onclick="" style="margin-top: 15px;" disabled>
-		<input type="button" class="SameSizeStacked" value="Link To..." onclick="" disabled>
+		<input type="button" class="SameSizeStacked" value="Effects..." onclick="Application.save_info(); View.do_effect();" style="margin-top: 15px;">
+		<input type="button" class="SameSizeStacked" value="Link To..." onclick="Application.save_info(); View.do_link_to();">
 	</div>
 	<div class="Right Bottom">
 		<input type="button" style="margin-right: 10px;" value="Script..." onclick="Application.do_edit_script(View.CURRENT_OBJECT, Application.save_info());">
@@ -432,6 +433,31 @@ call stack and debug buttons ? -->
 
 <div id="DialogLog" class="DialogTemplate Inner selectable" style="width: 600px; height: 500px; overflow-y: scroll;">
 	
+</div>
+
+
+<div id="DialogEffect" class="DialogTemplate Inner" style="width: 500px; height: 300px;">
+	<div style="float:left; margin-right: 70px;">
+		<div class="PseudoList" style="width: 250px; height: 240px;">
+			<div>Dissolve</div>
+			<div>Wipe</div>
+			<div>Push</div>
+			<div>Scroll</div>
+			<div>Stretch</div>
+			<div>Shrink</div>
+			<div>Iris</div>
+		</div>
+	</div>
+	<div style="float: left;">
+		<div><input type="radio" id="VisEftSpd1" name="VisEftSpd" value="very fast"> <label for="VisEftSpd1">Very Fast</label></div>
+		<div><input type="radio" id="VisEftSpd2" name="VisEftSpd" value="fast"> <label for="VisEftSpd2">Fast</label></div>
+		<div><input type="radio" id="VisEftSpd3" name="VisEftSpd" value="normal" checked> <label for="VisEftSpd3">Normal</label></div>
+		<div><input type="radio" id="VisEftSpd4" name="VisEftSpd" value="slow"> <label for="VisEftSpd4">Slow</label></div>
+		<div><input type="radio" id="VisEftSpd5" name="VisEftSpd" value="very slow"> <label for="VisEftSpd5">Very Slow</label></div>
+	</div>
+	<div class="Bottom Right" style="clear: left;">
+		<input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="View.apply_effect();"> 
+	</div>
 </div>
 
 

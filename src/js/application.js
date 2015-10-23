@@ -352,6 +352,13 @@ Application.open_app_menu = function(el) //don't take an argument - do lookup
 }
 
 
+Application.view = function()
+{
+	if (Application._view) return Application._view;
+	return null;
+}
+
+
 
 
 
@@ -454,6 +461,9 @@ Application._init_dialogs = function()
 	Dialog.ScriptEditor = new Dialog('', document.getElementById('DialogScriptEditor'));
 	// temporarily disabled due to causing mammoth slowdown on mobile devices - suspect the ruler with line numbers is too large:
 	Dialog.ScriptEditor._codeeditor = new JCodeEdit(document.getElementById('ScriptEditorContainer'));
+	
+	Dialog.Effect = new Dialog('Visual Effect', document.getElementById('DialogEffect'));
+	//Dialog.Effect.show();
 }
 
 

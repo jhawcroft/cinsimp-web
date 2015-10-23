@@ -236,6 +236,42 @@ div.Progress.Indeterminate div
 
 
 
+div.PseudoList
+{
+	display: block;
+	position: relative;
+	border: solid 1px #ccc;
+	border-radius: 2px;
+	padding: 0.4em;
+	overflow-x: hidden;
+	overflow-y: scroll;
+	color: black;
+}
+
+div.PseudoList:after
+{
+	background-color: white;
+	-webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.2); 
+	box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+div.PseudoList div
+{
+	display: block;
+	width: 100%;
+	padding: 3px;
+	padding-left: 9px;
+	padding-right: 9px;
+	background-color: white;
+}
+
+div.PseudoList div.selected
+{
+	background-color: #ccc;
+}
+
+
+
 /* ---------------------------------------------- Alignment and layout ---------------------------------------------- */
 
 .VertGap

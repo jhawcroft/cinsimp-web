@@ -37,12 +37,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 function View(in_stack, in_card) 
 {
+	View.current = this;
+	
 	this._stack = in_stack;
 	this._card = in_card;
 	this._paint = null;
 	
 	this._init_view();
 }
+
+View.current = null;
+
 
 View.MODE_BROWSE = 0;
 View.MODE_AUTHORING = 1;
@@ -1602,6 +1607,33 @@ View.prototype.paint_revert = function()
 	else
 		this._paint.set_data_png(this._card.bkgnd_art);
 }
+
+
+
+View.do_link_to = function()
+{
+	Palette.LinkTo.show();
+}
+
+
+View.do_effect = function()
+{
+	
+	Dialog.Effect.show();
+}
+
+
+View.apply_link_to = function(in_subject)
+{
+	Palette.LinkTo.hide();
+}
+
+
+View.apply_effect = function()
+{
+	Dialog.dismiss();
+}
+
 
 
 CinsImp._script_loaded('view');
