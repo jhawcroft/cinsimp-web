@@ -152,5 +152,5 @@ Text._update_sample = function()
 
 
 
-CinsImp._script_loaded();
+CinsImp._script_loaded('text');
 

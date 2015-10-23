@@ -145,6 +145,21 @@ var CinsImp = {
 		xhr.send();
 	},
 	
+	
+/*
+	The fourth init function.
+*/
+	_init4: function()
+	{
+		this.load_script('field.js');//
+		this.load_script('button.js');//
+		
+		/* start the application once everything is loaded */
+		this._when_loaded(function() {
+			Application.init();
+		});
+	},
+	
 
 /*
 	The third init function - loads the remainder of the CinsImp application.
@@ -168,8 +183,6 @@ var CinsImp = {
 		this.load_stylesheet('objects.css');
 		
 		this.load_script('object.js');//
-		this.load_script('field.js');//
-		this.load_script('button.js');//
 		this.load_script('view.js');//
 		
 		/* the paint sub-system: */
@@ -180,9 +193,9 @@ var CinsImp = {
 		/* the HyperCard importer: */
 		this.load_script('hcimport.js');//
 		
-		/* start the application once everything is loaded */
+		/* final stage */
 		this._when_loaded(function() {
-			Application.init();
+			CinsImp._init4();
 		});
 	},
 	
