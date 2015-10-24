@@ -44,15 +44,21 @@ class Util
 /*
 	Sanitize the supplied stack ID.
 */
-	public static function safe_stack_id($stack_id)
+	public static function safe_stack_id($stack_id, $allow_not_exist = false)
 	{
 		global $config;
 		if ($stack_id == '') return $config->stacks;
-		$path = realpath($config->stacks . $stack_id);
+		
+		if ($allow_not_exist)
+			$path = realpath($config->stacks . dirname($stack_id)) . '/' . basename($stack_id);
+		else
+			$path = realpath($config->stacks . $stack_id);
+			
 		if ($path == '')
 			throw new Exception('Stack Not Found', 404);
 		if (strpos($path, $config->stacks) !== 0)
 			throw new Exception('Forbidden', 503);
+			
 		return $path;
 	}
 	

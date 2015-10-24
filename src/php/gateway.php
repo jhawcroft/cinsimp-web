@@ -329,11 +329,15 @@ Regular Command Handlers
 */
 	public static function new_stack($inbound, $outbound)
 	{
-		Stack::create_file(Util::safe_stack_id($inbound['stack_id']));
-		if (file_exists($inbound['stack_id']))
+		global $config;
+		if (!$config->restrictions->can_new_stack)
+			throw new Exception('Creating new stacks is not allowed.', 403);
+		$stack_id = Util::safe_stack_id($inbound['stack_id'], true);
+		Stack::create_file($stack_id);
+		if (file_exists($stack_id))
 			$outbound['stack_id'] = $inbound['stack_id'];
 		else
-			throw new Exception("Couldn't create stack.");
+			throw new Exception("Couldn't create stack.", 520);
 		return $outbound;
 	}
 	

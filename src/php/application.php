@@ -263,18 +263,27 @@ class Application
 	
 		$card_content = array();
 		$card_data = json_decode($card['data'], true);
-		foreach ($card_data as $def)
-			$card_content[$def[0]] = $def[1];
+		if (is_array($card_data))
+		{
+			foreach ($card_data as $def)
+				$card_content[$def[0]] = $def[1];
+		}
 		unset($card_data);
 		
 		$objects = json_decode($card['bkgnd_object_data'], true);
 		$no_content = array();
-		foreach ($objects as $def)
-			$content .= Application::static_object($def, $no_content) . "\n";
+		if (is_array($objects))
+		{
+			foreach ($objects as $def)
+				$content .= Application::static_object($def, $no_content) . "\n";
+		}
 		
 		$objects = json_decode($card['card_object_data'], true);
-		foreach ($objects as $def)
-			$content .= Application::static_object($def, $card_content) . "\n";
+		if (is_array($objects))
+		{
+			foreach ($objects as $def)
+				$content .= Application::static_object($def, $card_content) . "\n";
+		}
 	
 		return $content;
 	}

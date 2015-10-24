@@ -48,12 +48,25 @@ $config->stacks = $config->base.'stacks/';
 /* set the default state of debugging, ie. OFF */
 $config->debug = false;
 
+/* provide restrictions for public installations 
+and for server sanity/security */
+$config->restrictions = new stdClass();
+$config->restrictions->enabled = true;
+$config->restrictions->can_new_stack = true;
+$config->restrictions->max_stack_size = '50 M';
+
 /* load the administrator configuration */
 require($config->base.'config.php');
 
 /* fix urls and paths */
 $config->base = realpath($config->base).'/';
 $config->stacks = realpath($config->stacks).'/';
+
+/* fix restrictions */
+$config->restrictions->max_stack_size = str_replace(' ', '', $config->restrictions->max_stack_size);
+$config->restrictions->max_stack_size = str_replace('G', '000000000', $config->restrictions->max_stack_size);
+$config->restrictions->max_stack_size = str_replace('M', '000000', $config->restrictions->max_stack_size);
+$config->restrictions->max_stack_size = str_replace('K', '000', $config->restrictions->max_stack_size);
 
 /* configure PHP error reporting based on the debug mode */
 if ($config->debug)

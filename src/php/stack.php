@@ -293,6 +293,12 @@ Accessors and Mutators
 */
 	public function stack_save($stack_data)
 	{
+		$this->stack_will_be_modified();
+		$existing = $this->load_stack();
+		if ( strlen(json_encode($stack_data)) > strlen(json_encode($existing)) )
+			$this->stack_will_be_grown();
+		unset($existing);
+	
 		$stmt = $this->file_db->prepare(
 			'UPDATE stack SET stack_data=?,cant_delete=?,cant_modify=?,private_access=?'
 		);
@@ -319,6 +325,53 @@ Accessors and Mutators
 			json_encode($stack_data), $cant_delete, $cant_modify, $private_access
 		)), $this->file_db, 'Loading Stack (2)');
 	}
+
+
+/*
+	Returns true if the stack can be modified at all.
+*/
+	public function stack_mutability()
+	{
+		// conditions to check for eventually:
+		//   file system access is read-only to this file
+		//   can't modify property is set and a valid authentication token has not been provided
+		return true;
+	}
+	
+
+/*
+	Returns true if the stack can be grown (increased substantially in size).
+*/
+	public function stack_growability()
+	{
+		// conditions to check for eventually:
+		//   restrictions applicable - maximum file size?
+		global $config;
+		if (filesize($this->stack_id) >= $config->restrictions->max_stack_size)
+			return false;
+		return true;
+	}
+	
+	
+/*
+	Raises an exception if the stack cannot be modified.
+*/
+	private function stack_will_be_modified()
+	{
+		if (!$this->stack_mutability())
+			throw new Exception('Stack Can\'t Be Modified', 403);
+	}
+	
+
+/*
+	Raises an exception if the stack cannot be grown.
+*/
+	private function stack_will_be_grown()
+	{
+		$this->stack_will_be_modified();
+		if (!$this->stack_growability())
+			throw new Exception('Stack Too Big', 403);
+	}
 	
 
 /*
@@ -329,6 +382,7 @@ Accessors and Mutators
 */
 	public function stack_compact()
 	{
+		$this->stack_will_be_modified();
 		Stack::sl_ok($this->file_db->exec('VACUUM'), $this->file_db, 'Compacting Stack (1)');
 	}
 	
@@ -499,7 +553,7 @@ Accessors and Mutators
 		if (isset($data['data'])) $card['data'] = $data['data'];
 		
 		$card['card_art'] = null;
-		if (isset($row[13])) $card['card_art'] = $row[13];
+		if (isset($row[13]) && ($row[13] !== '') && ($row[13] !== null)) $card['card_art'] = $row[13];
 		
 		//if (isset($data['content']))
 		//	$card['content'] = $data['content'];
@@ -516,7 +570,7 @@ Accessors and Mutators
 		$card['bkgnd_has_art'] = Stack::nvl($data['bkgnd_has_art'], false);
 		
 		$card['bkgnd_art'] = null;
-		if (isset($row[14])) $card['bkgnd_art'] = $row[14];
+		if (isset($row[14]) && ($row[14] !== '') && ($row[14] !== null)) $card['bkgnd_art'] = $row[14];
 		
 		$card['bkgnd_object_data'] = $row[9];
 		
@@ -532,6 +586,12 @@ Accessors and Mutators
 */
 	public function stack_save_card($card)
 	{
+		$this->stack_will_be_modified();
+		$existing = $this->stack_load_card($card['card_id']);
+		if ( strlen(json_encode($card)) > strlen(json_encode($existing)) )
+			$this->stack_will_be_grown();
+		unset($existing);
+		
 		$this->file_db->beginTransaction();
 		
 		$data = array();
@@ -540,8 +600,12 @@ Accessors and Mutators
 		$data['data'] = $card['data'];
 	
 		$sql = 'UPDATE card SET object_data=?,card_name=?,cant_delete=?,dont_search=?,marked=?,card_data=?';
-		if (isset($card['card_art'])) $sql .= ',card_art=?';
+		if (array_key_exists('card_art', $card)) $sql .= ',card_art=?';
 		$sql .= ' WHERE card_id=?';
+		
+		/* workaround stupid bug with PDO in PHP... */
+		//if (isset($card['card_art']) && is_null($card['card_art'])) $card['card_art'] = '';
+		//if (isset($card['bkgnd_art']) && is_null($card['bkgnd_art'])) $card['bkgnd_art'] = '';
 
 		$stmt = $this->file_db->prepare($sql);
 		Stack::sl_ok($stmt, $this->file_db, 'Saving Card (1)');
@@ -553,10 +617,16 @@ Accessors and Mutators
 			Stack::encode_bool($card['card_marked']),
 			json_encode($data)
 		);
-		if (isset($card['card_art'])) $params[] = $card['card_art'];
+		if (array_key_exists('card_art', $card)) $params[] = $card['card_art'];
 		$params[] = intval($card['card_id']);
 		
+		/*var_dump($params);
+		print '<p>';
+		var_dump($sql);
+		exit;*/
+		
 		$rows = $stmt->execute($params);
+		//throw new Exception('Err: '.$this->file_db->errorInfo()[2]);
 		if ($rows == 0) Stack::sl_ok(false, $this->file_db, 'Saving Card (2)');
 		Stack::sl_ok($rows, $this->file_db, 'Saving Card (3)');
 		
@@ -565,7 +635,7 @@ Accessors and Mutators
 		$data['bkgnd_has_art'] = $card['bkgnd_has_art'];
 		
 		$sql = 'UPDATE bkgnd SET object_data=?,bkgnd_name=?,cant_delete=?,dont_search=?,bkgnd_data=?';
-		if (isset($card['bkgnd_art'])) $sql .= ',bkgnd_art=?';
+		if (array_key_exists('bkgnd_art', $card)) $sql .= ',bkgnd_art=?';
 		$sql .= ' WHERE bkgnd_id=(SELECT bkgnd_id FROM card WHERE card_id=?)';
 		$stmt = $this->file_db->prepare($sql);
 		
@@ -577,7 +647,7 @@ Accessors and Mutators
 			Stack::encode_bool($card['bkgnd_dont_search']),
 			json_encode($data)
 		);
-		if (isset($card['bkgnd_art'])) $params[] = $card['bkgnd_art'];
+		if (array_key_exists('bkgnd_art', $card)) $params[] = $card['bkgnd_art'];
 		$params[] = intval($card['card_id']);
 		
 		$rows = $stmt->execute($params);
@@ -585,6 +655,7 @@ Accessors and Mutators
 		Stack::sl_ok($rows, $this->file_db, 'Saving Bkgnd (3)');
 		
 		$this->file_db->commit();
+		//throw new Exception('SQL : '.$this->file_db->errorInfo()[2]);
 	}
 	
 
@@ -594,6 +665,8 @@ Accessors and Mutators
 */
 	public function stack_inject_bkgnd($card)
 	{
+		$this->stack_will_be_modified();
+	
 		$data = array();
 		$data['bkgnd_script'] = $card['bkgnd_script'];
 		$data['bkgnd_has_art'] = $card['bkgnd_has_art'];
@@ -624,6 +697,8 @@ Accessors and Mutators
 */
 	public function stack_inject_card($card)
 	{
+		$this->stack_will_be_grown();
+	
 		$data = array();
 		$data['card_script'] = $card['card_script'];
 		$data['card_has_art'] = $card['card_has_art'];
@@ -659,6 +734,8 @@ Accessors and Mutators
 */
 	public function zap_all_cards()
 	{
+		$this->stack_will_be_modified();
+		
 		$stmt = $this->file_db->prepare(
 			'DELETE FROM card'
 		);
@@ -681,6 +758,8 @@ Accessors and Mutators
 */
 	public function stack_new_card($after_card_id, $new_bkgnd_too)
 	{
+		$this->stack_will_be_grown();
+	
 		$card_id = null;
 		$this->file_db->beginTransaction();
 	
@@ -734,6 +813,8 @@ Accessors and Mutators
 */
 	public function stack_delete_card($card_id)
 	{
+		$this->stack_will_be_modified();
+	
 		$next_card_id = null;
 		$this->file_db->beginTransaction();
 		
