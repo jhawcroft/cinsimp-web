@@ -495,8 +495,8 @@ Application._init_app_menu = function()
 	m.appendItem('Save a Copy', null);
 	m.appendItem('Delete Stack', null);
 	m.appendItem('-', null);*/
-	m.appendItem('HyperCard Import', Dialog.HCImport.show.bind(Dialog.HCImport));
-	m.appendItem('-', null);
+	//m.appendItem('HyperCard Import', Dialog.HCImport.show.bind(Dialog.HCImport));
+	//m.appendItem('-', null);
 	m.appendItem('About CinsImp', function() { Dialog.About.centre(); Dialog.About.show(); });
 }
 
