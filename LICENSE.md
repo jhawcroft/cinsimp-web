@@ -1,7 +1,7 @@
 CinsImp License
 ===============
 
-(All sources in the repository are thus licensed unless explicitly noted.)
+(All sources in the repository are thus licensed unless explicitly noted otherwise.)
 
 
 Copyright (c) 2009-2015, Joshua Hawcroft
