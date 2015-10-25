@@ -67,6 +67,14 @@ Private Properties
 	
 	
 /*****************************************************************************************
+Public Constants
+*/
+	 const FLAG_STACK_INFO = 1;
+	 const FLAG_STACK_SCRIPT = 2;
+	 const FLAG_STACK_ICONS = 3;
+	
+	
+/*****************************************************************************************
 Utilities
 */
 
@@ -257,9 +265,13 @@ Accessors and Mutators
 /*
 	Retrieves the stack data for the stack.
 */
-	public function stack_load()
+	public function stack_load($flags = 0)
 	{
 		global $config;
+		
+		if ($flags == 0) $flags = Stack::FLAG_STACK_INFO |
+			Stack::FLAG_STACK_SCRIPT |
+			Stack::FLAG_STACK_ICONS;
 		
 		$stmt = $this->file_db->prepare(
 			'SELECT stack_data,cant_delete,cant_modify,private_access FROM stack'
@@ -288,6 +300,23 @@ Accessors and Mutators
 		// also need to retrieve icons here
 		// unless specifically excluded, for example, subsequent reload of essential information only
 		// ** TODO **
+		if ($flags & Stack::FLAG_STACK_ICONS)
+		{
+			$list = array();
+			
+			$stmt = $this->file_db->prepare(
+				'SELECT icon_id,icon_name,icon_data FROM icon'
+			);
+			Stack::sl_ok($stmt, $this->file_db, 'Loading Stack Icons (1)');
+			Stack::sl_ok($stmt->execute(), $this->file_db, 'Loading Stack Icons (2)');
+			while (($row = $stmt->fetch(PDO::FETCH_NUM)) !== false)
+			{
+				$list[] = $row;
+			}
+			
+			$stack['stack_icons'] = $list;
+		}
+		
 		
 		/*$stack['cant_peek'] = Stack::decode_bool($data['cant_peek']);
 		$stack['cant_abort'] = Stack::decode_bool($data['cant_abort']);
@@ -309,15 +338,17 @@ Accessors and Mutators
 		// ** TODO **
 		
 		$this->stack_will_be_modified();
-		$existing = $this->load_stack();
+		$existing = $this->stack_load(0);
 		if ( strlen(json_encode($stack_data)) > strlen(json_encode($existing)) )
 			$this->stack_will_be_grown();
 		unset($existing);
+		
+		$this->file_db->beginTransaction();
 	
 		$stmt = $this->file_db->prepare(
 			'UPDATE stack SET stack_data=?,cant_delete=?,cant_modify=?,private_access=?'
 		);
-		Stack::sl_ok($stmt, $this->file_db, 'Saving Stack');
+		Stack::sl_ok($stmt, $this->file_db, 'Saving Stack (1)');
 		
 		$cant_delete = Stack::encode_bool($stack_data['cant_delete']);
 		$cant_modify = Stack::encode_bool($stack_data['cant_modify']);
@@ -340,10 +371,47 @@ Accessors and Mutators
 		// ** TODO **
 		// icons should be provided as a sequential list of tasks,
 		// including deletions, edits and additions
+		if (isset($stack_data['stack_icons_tasks']) &&
+			is_array($stack_data['stack_icons_tasks']))
+		{
+			// list [ ]
+			// contains either:
+			// 1.  new icon [ 1, ID, name, PNG data ]
+			// 2.  delete icon [ 2, ID ]
+			// 3.  reident icon [ 3, ID, ID, name ]
+			
+			//print 'Got tasks';
+			
+			$tasks = $stack_data['stack_icons_tasks'];
+			foreach ($tasks as $task)
+			{
+				switch ($task[0])
+				{
+				case 1: // new icon - adds it to the stack database
+				//print 'Adding icon';
+					$stmt2 = $this->file_db->prepare('INSERT INTO icon (icon_id,icon_name,icon_data) VALUES (?,?,?)');
+					Stack::sl_ok($stmt2->execute(array(intval($task[1]), $task[2], $task[3])), $this->file_db, 'Saving Stack New Icon');
+					break;
+				case 2: // delete icon - removes it from the stack database
+					$stmt2 = $this->file_db->prepare('DELETE FROM icon WHERE icon_id=?');
+					Stack::sl_ok($stmt2->execute(array(intval($task[1]))), $this->file_db, 'Saving Stack Delete Icon');
+					break;
+				case 3: // renames an icon - changes ID and name
+					$stmt2 = $this->file_db->prepare('UPDATE ICON set icon_id=?, icon_name=? WHERE icon_id=?');
+					Stack::sl_ok($stmt2->execute(array(intval($task[2]), $task[3], $task[1])), $this->file_db, 'Saving Stack Rename Icon');
+					break;
+				}
+			}
+		}
+		
+		unset($stack_data['stack_icons']);
+		unset($stack_data['stack_icons_tasks']);
 	
 		Stack::sl_ok($stmt->execute(array(
 			json_encode($stack_data), $cant_delete, $cant_modify, $private_access
-		)), $this->file_db, 'Loading Stack (2)');
+		)), $this->file_db, 'Saving Stack (2)');
+		
+		$this->file_db->commit();
 	}
 
 
