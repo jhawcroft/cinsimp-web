@@ -423,6 +423,109 @@ Regular Command Handlers
 		return $outbound;
 	}
 	
+	
+/*
+	cmd: list_fonts
+	Returns an array list of font collections, each containing an array list of fonts.
+*/
+	public static function list_fonts($inbound, $outbound)
+	{
+		global $config;
+		
+		$clist = array();
+		
+		$font_dir = $config->base . 'fonts/';
+		if ($chandle = opendir($font_dir))
+		{
+			while (false !== ($entry = readdir($chandle)))
+			{
+				if (substr($entry, 0, 1) != '.' && 
+						is_dir($font_dir . $entry))
+				{
+					$collection_name = str_replace('_', ' ', $entry);
+					$collection = array(
+						'collection'=>$collection_name,
+						'generic'=>null,		/* CSS generic term for this collection */
+						'default'=>null			/* default font name within this collection */
+					);
+					
+					$path = $font_dir . $entry . '/manifest.json';
+					if (file_exists($path))
+					{
+						$manifest = file_get_contents($path);
+						$manifest = json_decode($manifest, true);
+						if (is_array($manifest))
+						{
+							if (array_key_exists('generic', $manifest))
+								$collection['generic'] = $manifest['generic'];
+							if (array_key_exists('default', $manifest))
+								$collection['default'] = str_replace('_', ' ', $manifest['default']);
+						}
+					}
+					
+					$flist = array();
+					$path = $font_dir. $entry . '/';
+					$url = $config->url . substr($path, strlen($config->base));
+					if ($fhandle = opendir($path))
+					{
+						while (false !== ($fentry = readdir($fhandle)))
+						{
+							if (substr($fentry, 0, 1) != '.' &&
+									is_dir($path . $fentry))
+							{
+								$font_name = str_replace('_', ' ', $fentry);
+								$font_url = $url . $fentry . '/';
+								$font_path = $path . $fentry . '/';
+								$font = array(
+									'font'=>$font_name
+								);
+								
+								$variants = array();
+								if ($vhandle = opendir($font_path))
+								{
+									while (false !== ($ventry = readdir($vhandle)))
+									{
+										if (substr($ventry, 0, 1) != '.' &&
+												is_file($font_path . $ventry) &&
+												strtolower(pathinfo($ventry, PATHINFO_EXTENSION)) == 'ttf')
+										{
+											$variants[] = $font_url . $ventry;
+										}
+									}
+								}
+								
+								$font['variants'] = $variants;
+								$flist[] = $font;
+							}
+						}
+					}
+					$collection['fonts'] = $flist;
+					
+					$clist[] = $collection;
+				}
+			}
+		}
+		
+		//$list[] = 'CinsImp'; // the built-in icons
+		
+		/* enumerate any plug-in packs */
+		/*if ($handle = opendir($config->base . 'plugins/icons/')) 
+		{
+			while (false !== ($entry = readdir($handle))) 
+			{
+				if ($entry != "." && $entry != ".." && 
+						is_dir($config->base . 'plugins/icons/' . $entry)) 
+					$list[] = str_replace('_', ' ', $entry);
+			}
+			closedir($handle);
+		}*/
+		
+		$outbound['list'] = $clist;
+		
+		return $outbound;
+	}
+
+	
 
 /*****************************************************************************************
 HyperCard Import Command Handlers

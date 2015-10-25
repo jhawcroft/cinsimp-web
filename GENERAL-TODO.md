@@ -35,6 +35,9 @@ In Progress/Todo
 
 * HC-style reporting functionality
 
+* Add the font license reference information to the About Box
+* Write a font face manager that can manage which faces are used in a given stack and ensure all are downloaded, but only the ones that should be (low priority?)
+
 * New Web accessible handlers and functions exporting via whatever standards are common today RPC, SOAP, etc.
 * New Web forms - exportable card(s) with working handlers
 * New Web accessible reports with PDF, HTML, CSV outputs and charts/graphics
