@@ -33,6 +33,13 @@ In Progress/Todo
 
 * nice loading screen behaviour and stack transitions within a single session
 
+* HC-style reporting functionality
+
+* New Web accessible handlers and functions exporting via whatever standards are common today RPC, SOAP, etc.
+* New Web forms - exportable card(s) with working handlers
+* New Web accessible reports with PDF, HTML, CSV outputs and charts/graphics
+* New Web accessible HTML content for embedding within other statically/dynamically generated pages
+
 * need to avoid saving everytime navigation occurs (very stupid) - only save when things have changed
 * need a visible dirty flag and auto-save feature (backgrounding)
 * need a save button to ensure all information is manually returned to the server if not changing cards
