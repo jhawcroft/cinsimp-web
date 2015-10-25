@@ -341,6 +341,88 @@ Regular Command Handlers
 		return $outbound;
 	}
 	
+	
+/*
+	cmd: list_icon_packs
+	Returns an array list of installed, named icon packs.
+*/
+	public static function list_icon_packs($inbound, $outbound)
+	{
+		global $config;
+		
+		$list = array();
+		$list[] = 'CinsImp'; // the built-in icons
+		
+		/* enumerate any plug-in packs */
+		if ($handle = opendir($config->base . 'plugins/icons/')) 
+		{
+			while (false !== ($entry = readdir($handle))) 
+			{
+				if ($entry != "." && $entry != ".." && 
+						is_dir($config->base . 'plugins/icons/' . $entry)) 
+					$list[] = str_replace('_', ' ', $entry);
+			}
+			closedir($handle);
+		}
+		
+		$outbound['list'] = $list;
+		
+		return $outbound;
+	}
+	
+
+/*
+	cmd: list_icons
+	Returns an array list of icons within the specified named icon pack. 
+	(format is [ID, name, url])
+*/
+	public static function list_icons($inbound, $outbound)
+	{
+		global $config;
+		
+		/* determine the path to the pack */
+		$pack_path = '';
+		if ($inbound['pack'] != 'CinsImp')
+		{
+			$pack_path = str_replace('/', '', urldecode($inbound['pack']));
+			$pack_path = $config->base . 'plugins/icons/' . str_replace(' ', '_', $pack_path);
+			$pack_path = realpath($pack_path);
+			if ($pack_path === false) $pack_path = '';
+			else if (substr($pack_path, 0, strlen($config->base)) != $config->base)
+				$pack_path = '';
+			if ($pack_path != '') $pack_path .= '/';
+		}
+		if ($pack_path == '') $pack_path = $config->base . 'icons/';
+		
+		/* enumerate the icons in the directory */
+		$list = array();
+		if ($handle = opendir($pack_path)) 
+		{
+			while (false !== ($entry = readdir($handle))) 
+			{
+				if ($entry != "." && $entry != ".." && 
+						is_file($pack_path . $entry) &&
+						strtolower(pathinfo($entry, PATHINFO_EXTENSION)) == 'png')
+				{
+					$parts = explode('.', $entry, 2);
+					$icon_id = $parts[0];
+					$icon_name = pathinfo($parts[1], PATHINFO_FILENAME);
+					$icon_name = urldecode(str_replace('_', ' ', $icon_name));
+					
+					$icon_path = $pack_path . $entry;
+					$icon_url = $config->url . substr($icon_path, strlen($config->base));
+					
+					
+					$list[] = [$icon_id, $icon_name, $icon_url];
+				}
+			}
+			closedir($handle);
+		}
+		$outbound['list'] = $list;
+		
+		return $outbound;
+	}
+	
 
 /*****************************************************************************************
 HyperCard Import Command Handlers

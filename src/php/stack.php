@@ -212,6 +212,13 @@ Creating and Opening Stacks
   			'(card_id, bkgnd_id, card_seq, object_data, card_data) VALUES '.
   			'(1, 1, 10, \'\', \'\')'
   		), $file_db, 'Populating table: Card');
+  		
+  		Stack::sl_ok($file_db->exec(
+  			'CREATE TABLE icon ('.
+  			'icon_id INTEGER PRIMARY KEY,'.
+  			'icon_name TEXT NOT NULL DEFAULT \'\','.
+  			'icon_data TEXT NOT NULL DEFAULT \'\')'
+  		), $file_db, 'Creating table: Icon');
 		
 		if (!$file_db->commit())
 			throw new Exception('Cannot Create Stack File', 520);
@@ -278,6 +285,10 @@ Accessors and Mutators
 		$stack['stack_size'] = filesize($this->stack_id);
 		$stack['stack_free'] = $this->stack_get_free();
 		
+		// also need to retrieve icons here
+		// unless specifically excluded, for example, subsequent reload of essential information only
+		// ** TODO **
+		
 		/*$stack['cant_peek'] = Stack::decode_bool($data['cant_peek']);
 		$stack['cant_abort'] = Stack::decode_bool($data['cant_abort']);
 		$stack['user_level'] = $data['user_level'];
@@ -293,6 +304,10 @@ Accessors and Mutators
 */
 	public function stack_save($stack_data)
 	{
+		// really this function should only save what has been supplied,
+		// thus minimising bandwidth usage
+		// ** TODO **
+		
 		$this->stack_will_be_modified();
 		$existing = $this->load_stack();
 		if ( strlen(json_encode($stack_data)) > strlen(json_encode($existing)) )
@@ -320,6 +335,11 @@ Accessors and Mutators
 		unset($stack_data['stack_free']);
 		unset($stack_data['count_cards']);
 		unset($stack_data['count_bkgnds']);
+		
+		// need to save icons here
+		// ** TODO **
+		// icons should be provided as a sequential list of tasks,
+		// including deletions, edits and additions
 	
 		Stack::sl_ok($stmt->execute(array(
 			json_encode($stack_data), $cant_delete, $cant_modify, $private_access
