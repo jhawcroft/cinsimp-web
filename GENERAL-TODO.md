@@ -26,6 +26,9 @@ In Progress/Todo
 * Protect stack, incl. Password   <== if we get security up, then it'll be easier to share with others the progress
 	(could do user lists? or could simply allow certain exported/guest web priviliges, and use an alternative,
 	external login mechanism to apply more complicated security w/ plug-ins later)
+	
+* optimisations: 
+  * button and field attribute setup often causes multiple rebuilds of each object at load
 
 * Options menu?
 * Core navigation vs browser nav?
