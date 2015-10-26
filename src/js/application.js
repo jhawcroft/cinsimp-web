@@ -63,7 +63,7 @@ Application.choose_color = function(in_color)
 
 
 
-Application.do_message = function()
+Application.invoke_message = function()
 {
 	alert('Do message: '+Application._msgtxt.value);
 }
@@ -195,6 +195,20 @@ Application.do_find = function()
 	document.getElementById('MessageBoxText').selectionStart = 6;
 	document.getElementById('MessageBoxText').selectionEnd = 6;
 	document.getElementById('MessageBoxText').focus();
+}
+
+
+Application.do_message = function()
+{
+	if (Palette.MessageBox.getVisible())
+		Palette.MessageBox.hide();
+	else
+	{
+		Palette.MessageBox.show();
+		document.getElementById('MessageBoxText').selectionStart = 0;
+		document.getElementById('MessageBoxText').selectionEnd = document.getElementById('MessageBoxText').value.length;
+		document.getElementById('MessageBoxText').focus();
+	}
 }
 
 
@@ -366,7 +380,7 @@ Application._init_message_box = function()
 {
 	Palette.MessageBox = new Palette(document.getElementById('PaletteMessageBox'), 0);
 	Application._msgtxt = document.getElementById('MessageBoxText');
-	Application._msgtxt.addEventListener('keydown', function(e) { if (e.keyCode == 13) Application.do_message(); });
+	Application._msgtxt.addEventListener('keydown', function(e) { if (e.keyCode == 13) Application.invoke_message(); });
 }
 
 

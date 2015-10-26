@@ -44,7 +44,7 @@ In Progress/Todo
 
 * need to avoid saving everytime navigation occurs (very stupid) - only save when things have changed
 * need a visible dirty flag and auto-save feature (backgrounding)
-* need a save button to ensure all information is manually returned to the server if not changing cards
+* need a save button to ensure all information is manually returned to the server if not changing cards [DONE]
 * it'd be good to avoid downloading the bkgnd image if the bkgnd is the same ID (server-side code can check in concert with client request, and send a special designation which the client will use to utilise the last bkgnd image, which will be separately cached prior to loading the next card's details)
 
 * Paint tools! [Partial]
