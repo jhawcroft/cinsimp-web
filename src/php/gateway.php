@@ -277,6 +277,7 @@ Regular Command Handlers
 	{
 		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
 		$stack->stack_save_card($inbound['card']);
+		//throw new ('Temporary error');
 		return $outbound;
 	}
 	

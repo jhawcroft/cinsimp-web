@@ -766,12 +766,13 @@ View.prototype._save_card = function(in_handler)
 	};
 	//alert(JSON.stringify(msg));
 	
-	Progress.operation_begun();
+	Progress.operation_begun('Saving card...');
 	Ajax.send(msg, function(msg, status) {
 		var handler = in_handler;
 		Progress.operation_finished();
 		if ((status != 'ok') || (msg.cmd != 'save_card'))
-			alert('Save card error: '+status+"\n"+JSON.stringify(msg));
+			Alert.network_error("Couldn't save card.\n(" + status + JSON.stringify(msg) + ")");
+			//alert('Save card error: '+status+"\n"+JSON.stringify(msg));
 		else if (handler) handler();
 	});
 }
@@ -962,12 +963,12 @@ View.prototype._load_card = function(in_card_id)
 		card_id: in_card_id
 	};
 	
-	Progress.operation_begun();
+	Progress.operation_begun('Loading card...');
 	var me = this;
 	Ajax.send(msg, function(msg, status) {
 		Progress.operation_finished();
 		if ((status != 'ok') || (msg.cmd != 'load_card'))
-			alert('Save card error: '+status+"\n"+JSON.stringify(msg));
+			alert('Load card error: '+status+"\n"+JSON.stringify(msg));
 		else
 		{
 			me._card = msg.card;

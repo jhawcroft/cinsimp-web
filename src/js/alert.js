@@ -67,7 +67,7 @@ Alert.prototype.show = function()
 	if (this.icon == Alert.ICON_WARNING)
 	{
 		var d_icon = document.createElement('img');
-		d_icon.src = '../gfx/caution-icon.png';
+		d_icon.src = gBase+'gfx/caution-icon.png';
 		d_icon.style.width = '64px';
 		d_icon.style.verticalAlign = 'top';
 		d_icon.style.float = 'left';
@@ -106,6 +106,7 @@ Alert.do_button = function(in_button)
 Alert.network_error = function(in_message)
 {
 	var alert = new Alert();
+	alert.icon = Alert.ICON_WARNING;
 	alert.title = 'Network Error';
 	alert.prompt = in_message;
 	alert.button1_label = 'Cancel';
