@@ -103,6 +103,16 @@ Alert.do_button = function(in_button)
 }
 
 
+Alert.network_error = function(in_message)
+{
+	var alert = new Alert();
+	alert.title = 'Network Error';
+	alert.prompt = in_message;
+	alert.button1_label = 'Cancel';
+	alert.show();
+}
+
+
 CinsImp._script_loaded('alert');
 
 

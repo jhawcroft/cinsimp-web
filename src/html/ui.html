@@ -1,5 +1,5 @@
 
-<!--<link rel="stylesheet" type="text/css" href="../css/widgets.css">-->
+<!--link rel="stylesheet" type="text/css" href="../css/widgets.css"-->
 
 
 <div id="PaletteNavigator" class="PaletteTemplate" style="left: 100px; top: 550px; height: 55px;">
@@ -340,18 +340,19 @@ as dictated by the server, thus allowing for search nevigability -->
 </div>
 
 
-<div id="DialogSetIcon" class="DialogTemplate Inner" style="width: 480px; height: 430px;">
-	<div id="SetIconInfo" class="Label">Icon ID: ^0  ^1</div>
-	<div id="SetIconGrid" style="width: 448px; height: 320px; border: 1px solid black; margin-top: 5px;"></div>
+<div id="DialogSetIcon" class="DialogTemplate Inner" style="width: 500px; height: 460px;">
+	<div class="Label">Collection: <div class="styled"><select id="SetIconCollection" onchange="AppDialogs.show_icon_collection()"></select></div></div>
+	<div id="SetIconInfo" class="Label x2VertGap">Icon ID: ^0  ^1</div>
+	<div id="SetIconGrid" style="width: 468px; height: 300px; border: 1px solid black; margin-top: 5px;"></div>
 	
 	<div class="Bottom Right">
-		<input type="button" value="None" class="" onclick=""> <input type="button" value="Cancel" class="" onclick="Dialog.dismiss()"> <input type="button" value="OK" class="" onclick="">
+		<input type="button" value="None" onclick="AppDialogs.clear_icon();"> <input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="AppDialogs.set_icon();">
 	</div>
 </div>
 
 
-<div id="DialogManageIcon" class="DialogTemplate Inner" style="width: 480px; height: 430px;">
-	<div id="SetIconInfo" class="Label">Icon ID: ^0  ^1</div>
+<div id="DialogManageIcons" class="DialogTemplate Inner" style="width: 480px; height: 430px;">
+	<div id="ManageIconInfo" class="Label">Icon ID: ^0  ^1</div>
 	<div id="IconPicker" style="width: 448px; height: 320px; border: 1px solid black; margin-top: 5px; overflow-y: scroll; overflow-x: hidden;"></div>
 	
 	<div class="Bottom Right">

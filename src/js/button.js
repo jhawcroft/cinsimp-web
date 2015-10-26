@@ -45,6 +45,10 @@ function Button(in_view, in_def, in_bkgnd)
 	this._struct.className = 'St';
 	this._div.appendChild(this._struct);
 	
+	this._icon = document.createElement('div');
+	this._icon.style.display = 'none';
+	this._struct.appendChild(this._icon);
+	
 	this._caption = document.createElement('div');
 	this._caption.className = 'Cp';
 	this._struct.appendChild(this._caption);
@@ -113,15 +117,28 @@ Button.prototype._resized = function()
 }
 
 
-Button.prototype._display_name = function()
+Button.prototype._display_name_and_icon = function()
 {
-	if (this.get_attr(Button.ATTR_SHOW_NAME))
+	this._icon.style.display = 'none';
+	var icon_id = this.get_attr(Button.ATTR_ICON);
+	if (icon_id !== 0 && icon_id !== null)
 	{
-		this._caption.innerHTML = '';
-		this._caption.appendChild(document.createTextNode(this.get_attr(ViewObject.ATTR_NAME)));
+		var icon_data = Application._stack.stack_icons[0]; // need an icon quick lookup table - could it be this?
+		if (icon_data)
+		{
+			var icon_img = document.createElement('img');
+			icon_img.src = icon_data[2];
+			this._icon.innerHTML = '';
+			this._icon.appendChild(icon_img);
+			
+			//this._icon.src = icon_data[2];
+			this._icon.style.display = 'block';
+		}
 	}
-	else
-		this._caption.innerHTML = '';
+	
+	this._caption.innerHTML = '';
+	if (this.get_attr(Button.ATTR_SHOW_NAME))
+		this._caption.appendChild(document.createTextNode(this.get_attr(ViewObject.ATTR_NAME)));	
 }
 
 
@@ -161,9 +178,10 @@ Button.prototype._attribute_changed = function(in_attr, in_value)
 		}
 		break;
 	
+	case Button.ATTR_ICON:
 	case ViewObject.ATTR_NAME:
 	case Button.ATTR_SHOW_NAME:
-		this._display_name();
+		this._display_name_and_icon();
 		break;
 	}
 }

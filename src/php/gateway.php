@@ -342,34 +342,27 @@ Regular Command Handlers
 	}
 	
 	
+	
 /*
-	cmd: list_icon_packs
-	Returns an array list of installed, named icon packs.
+	cmd: import_icon
+	Imports an icon's data into the stack, and returns the ID it was actually allocated
+	(in case of a preexisting icon with the requested ID).
 */
-	public static function list_icon_packs($inbound, $outbound)
+	public static function import_icon($inbound, $outbound)
 	{
-		global $config;
-		
-		$list = array();
-		$list[] = 'CinsImp'; // the built-in icons
-		
-		/* enumerate any plug-in packs */
-		if ($handle = opendir($config->base . 'plugins/icons/')) 
-		{
-			while (false !== ($entry = readdir($handle))) 
-			{
-				if ($entry != "." && $entry != ".." && 
-						is_dir($config->base . 'plugins/icons/' . $entry)) 
-					$list[] = str_replace('_', ' ', $entry);
-			}
-			closedir($handle);
-		}
-		
-		$outbound['list'] = $list;
-		
+		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
+		$outbound['id'] = $stack->stack_import_icon($inbound['id'], $inbound['name'], $inbound['data']);
 		return $outbound;
 	}
 	
+
+// LIST ICONS ought to be moved to application
+// and have only a wrapper in this file   ******************
+
+	public static function _icon_sort($a, $b)
+	{
+		return strcasecmp($a[1], $b[1]);
+	}
 
 /*
 	cmd: list_icons
@@ -409,7 +402,7 @@ Regular Command Handlers
 					$icon_name = pathinfo($parts[1], PATHINFO_FILENAME);
 					$icon_name = urldecode(str_replace('_', ' ', $icon_name));
 					
-					$icon_path = $pack_path . $entry;
+					$icon_path = $pack_path . urlencode($entry);
 					$icon_url = $config->url . substr($icon_path, strlen($config->base));
 					
 					
@@ -418,6 +411,9 @@ Regular Command Handlers
 			}
 			closedir($handle);
 		}
+		
+		usort($list, 'Gateway::_icon_sort');
+		
 		$outbound['list'] = $list;
 		
 		return $outbound;

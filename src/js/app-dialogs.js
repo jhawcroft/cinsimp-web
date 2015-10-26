@@ -42,6 +42,31 @@ AppDialogs.init = function()
 {
 	Dialog.SetIcon = new Dialog('Set Icon', document.getElementById('DialogSetIcon'));
 	Dialog.SetIcon._grid = new IconGrid(document.getElementById('SetIconGrid'));
+	Dialog.SetIcon._grid.onchange = AppDialogs._icon_selected;
+	
+	AppDialogs._icon_selected(0, '');
+	
+	var collection_selector = document.getElementById('SetIconCollection');
+	for (var i = 0; i < _g_icon_collections.length; i++)
+	{
+		var collection_option = document.createElement('option');
+		collection_option.value = _g_icon_collections[i];
+		collection_option.appendChild(document.createTextNode(_g_icon_collections[i]));
+		collection_selector.appendChild(collection_option);
+	}
+	collection_selector.value = 'CinsImp';
+	
+	Dialog.SetIcon.show();
+}
+
+
+AppDialogs._icon_selected = function(in_id, in_name)
+{
+	if (in_id == 0)
+		var desc = 'None';
+	else
+		var desc = 'Icon ID ' + in_id + (in_name != '' ? ' "'+in_name+'"' : '');
+	document.getElementById('SetIconInfo').textContent = desc;
 }
 
 
@@ -50,9 +75,91 @@ AppDialogs.choose_button_icon = function()
 	AppDialogs._object = Application._objects[0];
 	Application.save_info();
 	
-	Dialog.SetIcon._grid.load_grid(Application._stack.stack_icons);
+	document.getElementById('SetIconCollection').value = 'Stack';
+	AppDialogs.show_icon_collection();
 	Dialog.SetIcon._grid.set_icon_id( AppDialogs._object.get_attr(Button.ATTR_ICON) );
+	
 	Dialog.SetIcon.show();
+}
+
+
+AppDialogs.show_icon_collection = function()
+{
+	var collection_name = document.getElementById('SetIconCollection').value;
+	if (collection_name == 'Stack')
+	{
+		Dialog.SetIcon._grid.load_grid(Application._stack.stack_icons);
+		return;
+	}
+	
+	// ** TODO ** ought to display some kind of mini animated progress widget here,
+	// possibly in the grid itself, to show it's being refreshed
+	
+	Dialog.SetIcon._grid.load_grid([]);
+	var msg = {
+		cmd: 'list_icons',
+		pack: collection_name
+	};
+	Ajax.send(msg, function(in_msg, in_status) 
+	{
+		if (in_status == 'ok' && in_msg.cmd == 'list_icons')
+		{
+			Dialog.SetIcon._grid.load_grid(in_msg.list);
+		}
+		else
+			Alert.network_error('Couldn\'t fetch icon list.');
+	});
+}
+
+
+AppDialogs.clear_icon = function()
+{
+	AppDialogs._object.set_attr(Button.ATTR_ICON, 0);
+	Dialog.dismiss();
+}
+
+
+AppDialogs.set_icon = function()
+{
+	/* if the icon isn't in the stack collection, we need to first import it,
+	and potentially change it's ID locally */
+	var collection_name = document.getElementById('SetIconCollection').value;
+	if (collection_name != 'Stack')
+	{
+		Progress.operation_begun('Importing icon into stack...');
+		AppDialogs._importing_icon_data = Dialog.SetIcon._grid.get_icon_data();
+		var msg = {
+			cmd: 'import_icon',
+			stack_id: Application._stack.stack_id,
+			id: Dialog.SetIcon._grid.get_icon_id(),
+			name: Dialog.SetIcon._grid.get_icon_name(),
+			data: AppDialogs._importing_icon_data
+		};
+		Ajax.send(msg, function(in_msg, in_status)
+		{
+			Progress.operation_finished();
+			if (in_status == 'ok' && in_msg.cmd == 'import_icon')
+			{
+				/* need to complete the import by manually adding the icon data
+				to the loaded stack registry of icons */
+				Application._stack.stack_icons.push( [
+					in_msg.id, 
+					Dialog.SetIcon._grid.get_icon_name(),
+					AppDialogs._importing_icon_data
+				] );
+				
+				AppDialogs._object.set_attr(Button.ATTR_ICON, in_msg.id);
+				Dialog.dismiss();
+			}
+			else
+				Alert.network_error('Couldn\'t import icon.');
+		});
+		return;
+	}
+
+	/* finally, set the object icon ID */
+	AppDialogs._object.set_attr(Button.ATTR_ICON, Dialog.SetIcon._grid.get_icon_id());
+	Dialog.dismiss();
 }
 
 

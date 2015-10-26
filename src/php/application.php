@@ -157,11 +157,39 @@ class Application
 		$page = str_replace('/* INSERT PRE-LOAD SCRIPT */',
 			'var gBase = \''.$config->url."';\n".
 			'var _g_init_stack = '.json_encode($stack).";\n".
-			'var _g_init_card = '.json_encode($card).';', 
+			'var _g_init_card = '.json_encode($card).";\n".
+			'var _g_icon_collections = '.json_encode(Application::list_icon_collections()).";", 
 			$page, $one);
 		
 		/* send the static response page */
 		print $page;
+	}
+	
+	
+/*
+	Returns an array of install icon collections, including the built-in.
+*/
+	public static function list_icon_collections()
+	{
+		global $config;
+		
+		$list = array();
+		$list[] = 'CinsImp'; // the built-in icons
+		$list[] = 'Stack'; // the stack's icons
+		
+		/* enumerate any plug-in packs */
+		if ($handle = opendir($config->base . 'plugins/icons/')) 
+		{
+			while (false !== ($entry = readdir($handle))) 
+			{
+				if ($entry != "." && $entry != ".." && 
+						is_dir($config->base . 'plugins/icons/' . $entry)) 
+					$list[] = str_replace('_', ' ', $entry);
+			}
+			closedir($handle);
+		}
+		
+		return $list;
 	}
 
 

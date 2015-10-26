@@ -58,11 +58,14 @@ function IconGrid(in_container)
 
 IconGrid.prototype.load_grid = function(in_icons)
 {
+	this._select_none();
+
 	this._data = in_icons;
 
 	this._container.innerHTML = '';
 	
 	var frag = document.createDocumentFragment();
+	var in_col = 0;
 	for (var i = 0; i < in_icons.length; i++)
 	{
 		var icon_def = in_icons[i];
@@ -77,6 +80,13 @@ IconGrid.prototype.load_grid = function(in_icons)
 		
 		icon_box.appendChild(icon_img);
 		frag.appendChild(icon_box);
+		
+		in_col++;
+		if (in_col >= this._cols) 
+		{
+			frag.appendChild(document.createElement('br'));
+			in_col = 0;
+		}
 	}
 	
 	this._container.appendChild(frag);
@@ -117,6 +127,22 @@ IconGrid.prototype.get_icon_id = function()
 IconGrid.prototype.get_icon_name = function()
 {
 	return this._icon_name;
+}
+
+
+IconGrid.prototype.get_icon_data = function()
+{
+	if (!this._selected_cell) return null;
+	
+	var img = this._selected_cell.children[0];
+	
+	var canvas = document.createElement('canvas');
+	canvas.width = img.width;
+	canvas.height = img.height;
+	var ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    
+    return canvas.toDataURL('image/png');
 }
 
 

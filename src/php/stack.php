@@ -413,6 +413,16 @@ Accessors and Mutators
 		
 		$this->file_db->commit();
 	}
+	
+	
+/*
+	Returns the allocated icon ID if successful,
+	or raises an exception otherwise and returns 0.
+*/
+	public function stack_import_icon($in_preferred_id, $in_name, $in_data)
+	{
+		return $in_preferred_id;
+	}
 
 
 /*
