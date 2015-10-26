@@ -23,9 +23,10 @@ In Progress/Todo
 	Alternately, a visual effect window to accompany the Link button.
 * Button link to?
 
-* Protect stack, incl. Password   <== if we get security up, then it'll be easier to share with others the progress
-	(could do user lists? or could simply allow certain exported/guest web priviliges, and use an alternative,
-	external login mechanism to apply more complicated security w/ plug-ins later)
+* Protect stack [DONE]
+  * will need to use challenge-response cookies and timeouts for additional security
+  * need to actually implement Password?
+  * probably include an Authenticate... menu item in the config menu to allow the owner to get full privileges without changing protection
 	
 * optimisations: 
   * button and field attribute setup often causes multiple rebuilds of each object at load
