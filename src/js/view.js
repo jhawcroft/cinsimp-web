@@ -1676,6 +1676,11 @@ View.do_print_card = function()
 }
 
 
+View.do_save = function()
+{
+	View.current._save_card(null);
+}
+
 
 CinsImp._script_loaded('view');
 
