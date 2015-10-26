@@ -488,3 +488,111 @@ call stack and debug buttons ? -->
 
 
 
+
+<div id="DialogPrintField" class="DialogTemplate Inner" style="width: 480px; height: 430px;">
+	<div class="Label">
+		<input type="radio" name="PrintFieldLayer" id="PrintFieldCard" checked><label for="PrintFieldCard">Card fields</label> <input type="radio" name="PrintFieldLayer" id="PrintFieldBkgnd"><label for="PrintFieldBkgnd">Background fields</label>
+	</div>
+	<div id="PrintFieldList" style="width: 448px; height: 300px; border: 1px solid black; margin-top: 10px;"></div>
+	
+	<div class="Bottom Right">
+		<input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="">
+	</div>
+</div>
+
+
+<div id="DialogPrintStack" class="DialogTemplate Inner" style="width: 700px; height: 650px;">
+	<div style="float: left; margin-right: 30px;">
+		<div id="PrintStackPageLayout" style="border: 1px solid black; width: 400px; height: 544px; background-color: #666;"></div>
+	</div>
+	<div style="float: right;">
+		<input type="button" class="SameSizeStacked" value="Preview..." onclick=""> <input type="button" class="SameSizeStacked" value="Cancel" onclick="Dialog.dismiss()">
+	</div>
+	<div style="float: left;">
+		<div class="Label"><input type="radio" name="PrintStackSelect" id="PrintStackAll" checked><label for="PrintStackAll">All cards</label></div>
+		<div class="Label"><input type="radio" name="PrintStackSelect" id="PrintStackMarked"><label for="PrintStackMarked">Marked cards</label></div>
+		<div class="Label" style="margin-top: 20px; height: 30px;">Direction: </div>
+		<div class="Label VertGap">Card size: <div class="styled" style="width: 100px;"><select id="PrintStackSize">
+			<option value="2.0">200%</option>
+			<option value="1.5">150%</option>
+			<option value="1.0" selected>100%</option>
+			<option value="0.5">50%</option>
+			<option value="0.333">33%</option>
+			<option value="0.25">25%</option>
+		</select></div></div>
+	</div>
+	<div class="Bottom">
+		<div class="Label">Header: <br>
+		<div id="PrintStackHeader" style="width: 660px; height: 24px; border: 1px solid black; margin-top: 5px; overflow: hidden;"></div></div>
+	</div>
+</div>
+
+
+<div id="DialogPrintReport" class="DialogTemplate Inner" style="width: 700px; height: 650px;">
+	<div style="float: left; margin-right: 30px;">
+		<div class="Label">Report: <div class="styled" style="width: 300px;"><select id="PrintReportTempl">
+			<option value="!New">New Report</option>
+			<option value=""></option>
+		
+			<option value=""></option>
+			<option value="!Rename">Rename This Report...</option>
+			<option value="!Delete">Delete This Report...</option>
+		</select></div></div>
+		<div id="PrintReportPageLayout" style="border: 1px solid black; width: 400px; height: 500px; background-color: #666; margin-top: 5px;"></div>
+	</div>
+	<div style="float: right;">
+		<input type="button" class="SameSizeStacked" value="Preview..." onclick=""> <input type="button" class="SameSizeStacked" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" class="SameSizeStacked" value="Save" onclick="">
+	</div>
+	<div style="float: left;">
+		<div class="Label"><input type="radio" name="PrintReportSelect" id="PrintReportAll" checked><label for="PrintReportAll">All cards</label></div>
+		<div class="Label"><input type="radio" name="PrintReportSelect" id="PrintReportMarked"><label for="PrintReportMarked">Marked cards</label></div>
+		<div class="Label" style="margin-top: 20px; height: 30px;">Direction: </div>
+		<div class="Label VertGap">Record size: <div class="styled" style="width: 100px;"><select id="PrintReportSize">
+			<option value="fixed">Fixed</option>
+			<option value="dynamic">Size to Fit Content</option>
+		</select></div></div>
+	</div>
+	<div class="Bottom Right" style="margin-bottom: 70px;">
+		<input type="button" class="SameSizeStacked" value="Define Report Items..." onclick="">
+	</div>
+	<div class="Bottom">
+		<div class="Label">Header: <br>
+		<div id="PrintReportHeader" style="width: 660px; height: 24px; border: 1px solid black; margin-top: 5px; overflow: hidden;"></div></div>
+	</div>
+</div>
+
+
+<div id="DialogReportItems" class="DialogTemplate Inner" style="width: 880px; height: 590px;">
+	<div style="border: 1px solid black; width: 700px; height: 500px; overflow-y: scroll; overflow-x: scroll; float: left;"></div>
+	<div style="float: right;">
+		<input type="button" class="SameSizeStacked" value="Add Item" onclick="">
+		<input type="button" class="SameSizeStacked" value="Edit Item..." onclick="">
+		<input type="button" class="SameSizeStacked" value="Delete Item" onclick="">
+	</div>
+	<div class="Bottom Right">
+		<input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="">
+	</div>
+</div>
+
+
+<div id="DialogReportItemInfo" class="DialogTemplate Inner" style="width: 630px; height: 390px;">
+	<div style="float: left;">
+		<div class="Label">Contents of item:<br>
+		<input type="text" id="ReportItemInfoExpr" style="width: 480px;"></div>
+	</div>
+	<div style="float: right;">
+		<input type="button" class="SameSizeStacked" value="OK" onclick="">
+		<input type="button" class="SameSizeStacked" value="Cancel" onclick="Dialog.dismiss();">
+	</div>
+	<div style="clear: both; float: left; margin-right: 40px;">
+		<div class="Label">Background fields: <div class="WidgList" style="width: 240px; height: 250px; border: 1px solid black; margin-top: 5px;"></div></div>
+	</div>
+	<div style="float: left; margin-top: 30px;">
+		<div class="Label">Columns: <input type="text" id="ReportItemCols" style="width: 100px"></div>
+		<div class="Label x2VertGap">Background Color: </div>
+		<div class="Label x2VertGap">Borders: </div>
+	</div>
+	<div class="Bottom Right">
+		<input type="button" value="Text Style..." onclick="">
+	</div>
+</div>

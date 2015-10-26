@@ -55,6 +55,23 @@ AppDialogs.init = function()
 		collection_selector.appendChild(collection_option);
 	}
 	collection_selector.value = 'CinsImp';
+	
+	
+	Dialog.PrintField = new Dialog('Print Field', document.getElementById('DialogPrintField'));
+	//Dialog.PrintField.show();
+	
+	Dialog.PrintStack = new Dialog('Print Stack', document.getElementById('DialogPrintStack'));
+	document.getElementById('PrintStackHeader').contentEditable = true;
+	
+	Dialog.PrintReport = new Dialog('Print Report', document.getElementById('DialogPrintReport'));
+	document.getElementById('PrintReportHeader').contentEditable = true;
+	//Dialog.PrintReport.show();
+	
+	Dialog.ReportItems = new Dialog('Define Report Items', document.getElementById('DialogReportItems'));
+	//Dialog.ReportItems.show();
+	
+	Dialog.ReportItemInfo = new Dialog('Report Item Info', document.getElementById('DialogReportItemInfo'));
+	//Dialog.ReportItemInfo.show();
 }
 
 
