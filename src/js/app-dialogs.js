@@ -72,6 +72,9 @@ AppDialogs.init = function()
 	
 	Dialog.ReportItemInfo = new Dialog('Report Item Info', document.getElementById('DialogReportItemInfo'));
 	//Dialog.ReportItemInfo.show();
+	
+	
+	Dialog.ProtectStack = new Dialog('Protect Stack', document.getElementById('DialogProtectStack'));
 }
 
 

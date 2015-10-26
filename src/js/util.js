@@ -124,6 +124,13 @@ Util.insert_at_cursor = function(in_textarea, in_value)
 }
 
 
+Util.auto_focus = function(in_container)
+{
+	var elements = in_container.getElementsByTagName('input');
+	if (elements.length > 0)
+		elements[0].focus();
+}
+
 
 
 

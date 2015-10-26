@@ -200,6 +200,8 @@ Dialog.prototype.show = function()
 	
 	Dialog._cover.style.zIndex = Dialog.active()._div.style.zIndex - 1;
 	Dialog._visibleCount++;
+	
+	Util.auto_focus(this._div);
 }
 
 

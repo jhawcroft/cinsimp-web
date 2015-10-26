@@ -1555,7 +1555,7 @@ View.prototype._save_stack = function()
 	{
 		Progress.operation_finished();
 		if ((status != 'ok') || (msg.cmd != 'save_stack'))
-			alert('Saving stack changes, error: '+status+"\n"+JSON.stringify(msg));
+			Alert.network_error("Couldn't save stack. \n" + status + "; " + JSON.stringify(msg));
 		else
 			this._stack = msg.stack;
 	});
@@ -1680,6 +1680,52 @@ View.do_print_card = function()
 View.do_save = function()
 {
 	View.current._save_card(null);
+}
+
+
+
+View.do_protect_stack = function()
+{
+	
+	document.getElementById('ProtectStackCantModify').checked = View.current._stack.stack_cant_modify;
+	document.getElementById('ProtectStackCantDelete').checked = View.current._stack.stack_cant_delete;
+	document.getElementById('ProtectStackCantAbort').checked = View.current._stack.stack_cant_abort;
+	document.getElementById('ProtectStackCantPeek').checked = View.current._stack.stack_cant_peek;
+	document.getElementById('ProtectStackPrivateAccess').checked = View.current._stack.stack_private_access;
+	
+	var ul = View.current._stack.stack_user_level * 1;
+	if ((!Number.isInteger(ul)) || ul < 1 || ul > 5) ul = 5;
+	document.getElementById('ProtectStackUserLevel' + ul).checked = true;
+
+	Dialog.ProtectStack.show();
+}
+
+
+View.save_protect_stack = function()
+{
+	Dialog.dismiss();
+	
+	View.current._stack.stack_cant_modify = document.getElementById('ProtectStackCantModify').checked;
+	View.current._stack.stack_cant_delete = document.getElementById('ProtectStackCantDelete').checked;
+	View.current._stack.stack_cant_abort = document.getElementById('ProtectStackCantAbort').checked;
+	View.current._stack.stack_cant_peek = document.getElementById('ProtectStackCantPeek').checked;
+	View.current._stack.stack_private_access = document.getElementById('ProtectStackPrivateAccess').checked;
+	
+	var ul = 5;
+	if (document.getElementById('ProtectStackUserLevel1').checked) ul = 1;
+	else if (document.getElementById('ProtectStackUserLevel2').checked) ul = 2;
+	else if (document.getElementById('ProtectStackUserLevel3').checked) ul = 3;
+	else if (document.getElementById('ProtectStackUserLevel4').checked) ul = 4;
+	View.current._stack.stack_user_level = ul;
+	
+	View.current._save_stack();
+}
+
+
+View.do_set_password = function()
+{
+	Dialog.SetPassword.show();
+	//document.getElementById(
 }
 
 

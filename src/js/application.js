@@ -212,11 +212,6 @@ Application.do_message = function()
 }
 
 
-Application.show_protect_stack = function()
-{
-	Dialog.ProtectStack.show();
-}
-
 
 
 
@@ -457,7 +452,7 @@ Application._init_dialogs = function()
 	Dialog.StackInfo = new Dialog('Stack Info', document.getElementById('DialogStackInfo'));
 	Application._init_card_size_widget();
 	Dialog.CardSize = new Dialog('Card Size', document.getElementById('DialogCardSize'));
-	Dialog.ProtectStack = new Dialog('Protect Stack', document.getElementById('DialogProtectStack'));
+	
 	Dialog.SetPassword = new Dialog('Set Stack Password', document.getElementById('DialogSetPassword'));
 	Dialog.BkgndInfo = new Dialog('Bkgnd Info', document.getElementById('DialogBkgndInfo'));
 	Dialog.CardInfo = new Dialog('Card Info', document.getElementById('DialogCardInfo'));
