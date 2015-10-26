@@ -11,11 +11,10 @@ In Progress/Todo
 * Card resize [DONE]
 * Picklist/content dialog
 * Alerts [DONE]
-* Icons for buttons; import via server from server list, preload somewhere? all icons in stack? track use in stack and preload all < certain #  
-	eventually list in resources screen, ensuring the headers for the supplied images are designed to enable caching
-	probably keep a client-side stack cache of icons and add to it whenever a card downloads with buttons having icons
-	scripts will probably have to change this cache, otherwise it should be relatively straight-forward
-	the server-side code ought to inspect what buttons have icons and supply the appropriate information
+* Icons for buttons [DONE]
+* Checkboxes, radio buttons
+* Button menus
+* Field picklists
 
 (can do these prior to scripting enabled:)
 * Button tasks; link, ? hide for now until can think of things for it to do.;
@@ -35,8 +34,8 @@ In Progress/Todo
 
 * HC-style reporting functionality
 
-* Add the font license reference information to the About Box
-* Write a font face manager that can manage which faces are used in a given stack and ensure all are downloaded, but only the ones that should be (low priority?)
+* Add the font license reference information to the About Box 
+* Write a font face manager that can manage which faces are used in a given stack and ensure all are downloaded, but only the ones that should be (low priority?) ; consider loading all fonts at application load (could easily be absurd)
 
 * New Web accessible handlers and functions exporting via whatever standards are common today RPC, SOAP, etc.
 * New Web forms - exportable card(s) with working handlers
