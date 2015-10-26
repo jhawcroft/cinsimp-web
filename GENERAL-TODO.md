@@ -16,6 +16,9 @@ In Progress/Todo
 * Button menus
 * Field picklists
 
+* auto-hilite
+* hilite saving
+
 (can do these prior to scripting enabled:)
 * Button tasks; link, ? hide for now until can think of things for it to do.;
 	visual transition effects, text to speech (via 'mespeak' javascript library or similar)
@@ -30,6 +33,15 @@ In Progress/Todo
 	
 * optimisations: 
   * button and field attribute setup often causes multiple rebuilds of each object at load
+  
+* text palette/menu
+* line sizes palette
+* textures palette?  more useful than patterns, these would describe positive+negative undulations in the color
+* possibly an extra color (fill + stroke) could be provided when draw filled is enabled,
+	in concert with an upgraded color palette with separate indication as to the selection
+	(this would keep things relatively simple from a UI and usability perspective)
+	
+* color picker widget for various dialogs & properties
 
 * Options menu?
 * Core navigation vs browser nav?
