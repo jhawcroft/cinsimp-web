@@ -94,6 +94,8 @@ PopupMenu.prototype._reconstruct = function()
 	this._div.style.visibility = 'hidden';
 	if (!this._div.parentElement)
 		document.body.appendChild(this._div);
+		
+	this._size = [this._div.clientWidth, this._div.clientHeight];
 }
 
 
@@ -131,10 +133,26 @@ PopupMenu._installCover = function()
 }
 
 
-PopupMenu.prototype.open = function(in_loc, in_side)
+PopupMenu.prototype._show_menu = function()
 {
 	PopupMenu._active = this;
 	
+	PopupMenu._installCover();
+	
+	PopupMenu._cover.style.width = window.innerWidth + 'px';
+	PopupMenu._cover.style.height = window.innerHeight + 'px';
+	PopupMenu._cover.style.visibility = 'visible';
+	
+	this._div.style.visibility = 'visible';
+}
+
+
+/*
+	Deprecated.
+	Use show() instead.
+*/
+PopupMenu.prototype.open = function(in_loc, in_side)
+{
 	this._reconstruct();
 	
 	if (in_side == 'right')
@@ -143,13 +161,33 @@ PopupMenu.prototype.open = function(in_loc, in_side)
 		this._div.style.left = in_loc[0]+'px';
 	this._div.style.top = in_loc[1]+'px';
 	
-	PopupMenu._installCover();
-	PopupMenu._cover.style.width = window.innerWidth + 'px';
-	PopupMenu._cover.style.height = window.innerHeight + 'px';
-	PopupMenu._cover.style.visibility = 'visible';
+	this._show_menu();
+}
+
+
+/*
+	Takes a rect around which the menu should be shown.  Attempts to display the menu
+	in the most aesthetically pleasing away, whilst ensuring it remains completely
+	within the visible screen/page area.
+	Input rect is [left, top, right, bottom].
+*/
+PopupMenu.prototype.show = function(in_rect)
+{
+	/* reconstruct the menu content */
+	this._reconstruct();
 	
-	this._size = [this._div.clientWidth, this._div.clientHeight];
-	this._div.style.visibility = 'visible';
+	/* position the menu so it's completely within the screen */
+	var screen_size = [window.innerWidth, window.innerHeight];
+	this._div.style.left = in_rect[0] + 'px';
+	if (this._div.offsetLeft + this._size[0] >= screen_size[0])
+		this._div.style.left = in_rect[2] - this._size[0] + 'px';
+	this._div.style.top = in_rect[3] + 'px';
+	if (this._div.offsetTop + this._size[1] >= screen_size[1])
+		this._div.style.top = in_rect[1] - this._size[1] + 'px';
+		
+	/* show the menu */
+	this._show_menu();
+	
 }
 
 

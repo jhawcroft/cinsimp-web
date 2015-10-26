@@ -502,6 +502,19 @@ Application._init_app_menu = function()
 }
 
 
+Application._init_share_menu = function()
+{
+	PopupMenu.ShareMenu = new PopupMenu();
+	var m = PopupMenu.ShareMenu;
+	
+	m.appendItem('Test 1', null);
+	m.appendItem('Test 2', null);
+	m.appendItem('Test 3', null);
+	m.appendItem('Test 4', null);
+	m.appendItem('Test 5', null);
+}
+
+
 Application._init_app_bar = function()
 {
 	Application._init_app_menu();
@@ -562,6 +575,8 @@ Application.init = function()
 	Application._init_palettes();
 	Application._init_dialogs();
 	Application._init_app_bar();
+	
+	Application._init_share_menu();
 	
 	Progress.operation_begun('Loading stack...', true);
 	Application._configure_initial_stack();

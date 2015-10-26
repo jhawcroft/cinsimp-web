@@ -1665,7 +1665,8 @@ View.prototype._index_icons = function()
 
 View.do_share = function()
 {
-	
+	var rt = document.getElementById('ShareButton').getBoundingClientRect();
+	PopupMenu.ShareMenu.show([rt.left, rt.top, rt.right, rt.bottom]);
 }
 
 
