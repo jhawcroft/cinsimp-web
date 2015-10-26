@@ -1670,6 +1670,12 @@ View.do_share = function()
 }
 
 
+View.do_print_card = function()
+{
+	alert('Print card not yet implemented.');
+}
+
+
 
 CinsImp._script_loaded('view');
 

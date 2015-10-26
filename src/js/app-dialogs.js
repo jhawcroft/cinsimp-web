@@ -75,6 +75,25 @@ AppDialogs.init = function()
 }
 
 
+
+AppDialogs.do_print_field = function()
+{
+	Dialog.PrintField.show();
+}
+
+
+AppDialogs.do_print_stack = function()
+{
+	Dialog.PrintStack.show();
+}
+
+
+AppDialogs.do_print_report = function()
+{
+	Dialog.PrintReport.show();
+}
+
+
 AppDialogs._icon_selected = function(in_id, in_name)
 {
 	if (in_id == 0)
