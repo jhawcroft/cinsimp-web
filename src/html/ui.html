@@ -204,7 +204,7 @@ as dictated by the server, thus allowing for search nevigability -->
 	<div><input type="text" id="SetPasswordSecond" style="width: 270px;"></div>
 	
 	<div class="Bottom Right">
-		<input type="button" value="None" onclick=""> <input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK"> 
+		<input type="button" value="None" onclick="Dialog.dismiss(); View.clear_password();"> <input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="View._do_set_password();"> 
 	</div>
 </div>
 

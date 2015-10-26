@@ -1701,6 +1701,11 @@ View.do_protect_stack = function()
 }
 
 
+// probably need to make sure these changes only go through if a cookie is first
+// obtained from the server, which has a built-in timeout
+// thus, we can ensure the client application actually knows the password, ie.
+// has solicited it from the user
+
 View.save_protect_stack = function()
 {
 	Dialog.dismiss();
@@ -1724,9 +1729,47 @@ View.save_protect_stack = function()
 
 View.do_set_password = function()
 {
+	document.getElementById('SetPasswordFirst').value = '';
+	document.getElementById('SetPasswordSecond').value = '';
 	Dialog.SetPassword.show();
-	//document.getElementById(
 }
+
+
+View._do_set_password = function()
+{
+	var pw1 = document.getElementById('SetPasswordFirst').value;
+	var pw2 = document.getElementById('SetPasswordSecond').value;
+	if (pw1 != pw2)
+	{
+		var alert = new Alert();
+		alert.icon = Alert.ICON_WARNING;
+		alert.prompt = "Sorry, passwords don't match.";
+		alert.button1_label = 'OK';
+		alert.button1_handler = function()
+		{
+			document.getElementById('SetPasswordFirst').selectionStart = 0;
+			document.getElementById('SetPasswordFirst').selectionEnd = pw1.length;
+			document.getElementById('SetPasswordFirst').focus();
+		};
+		alert.show();
+	}
+	else
+	{
+		Dialog.dismiss();
+		View.current._stack.stack_password = pw1;
+		View.current._save_stack();
+	}
+}
+
+
+View.clear_password = function()
+{
+	View.current._stack.stack_password = null;
+	View.current._save_stack();
+}
+
+
+
 
 
 CinsImp._script_loaded('view');
