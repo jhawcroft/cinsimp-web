@@ -44,6 +44,16 @@ In Progress/Todo
 * New Web forms - exportable card(s) with working handlers
 * New Web accessible reports with PDF, HTML, CSV outputs and charts/graphics
 * New Web accessible HTML content for embedding within other statically/dynamically generated pages
+	
+	SOAP, WSDL and UDDI ?
+	
+	PHP can handle remote procedure/function calls, by including a copy of the VM without UI hooks.
+		(bear in mind that "Do" and "send" may require compiler access, which at present is only in JS -
+		may end up writing the compiler atop a modified VM, so that it can be executed easily by both
+		PHP and JS ?)
+	The reporting engine will probably only be server-side anyway.
+	
+
 
 * need to avoid saving everytime navigation occurs (very stupid) - only save when things have changed
 * need a visible dirty flag and auto-save feature (backgrounding)
