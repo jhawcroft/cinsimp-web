@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title></title>
+<script type="text/javascript" src="icon-grid.js"></script>
+<style>
+
+div.WidgIconGrid
+{
+	overflow-x: hidden;
+	overflow-y: scroll;
+	font-size: 0;
+	background-color: white;
+}
+
+div.WidgIconGrid div
+{
+	display: table-cell;
+	vertical-align: middle;
+	text-align: center;
+	border: 0;
+	padding: 0;
+	margin: 0;
+}
+
+div.WidgIconGrid div img
+{
+	border: 0;
+}
+
+div.WidgIconGrid div:hover
+{
+	background-color: #EEE;
+}
+
+div.WidgIconGrid div.Selected
+{
+	background-color: #DDD;
+}
+
+div.WidgIconGrid div.Selected img
+{
+	filter: brightness(85%);
+	-webkit-filter: brightness(85%);
+}
+
+
+</style>
+</head>
+<body>
+
+
+<div id="picker" class="WidgIconGrid" style="width: 400px; height: 300px; border: 1px solid black;">
+<div>
+
+
+<script>
+
+var grid = new IconGrid(document.getElementById('picker'));
+grid.load_grid([
+
+	[1, 'CinsImp', '../../icons/1.CinsImp.png'],
+	[2, 'Stack', '../../icons/2.Stack.png']
+
+]);
+
+grid.onchange = function(icon_id, icon_name)
+{
+	alert('Selected icon '+icon_id + ': '+icon_name);
+}
+
+//grid.set_icon_id(0);
+
+</script>
+
+
+</body>
+</html>

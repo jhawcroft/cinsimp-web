@@ -456,7 +456,6 @@ Application._init_dialogs = function()
 		function() { 
 		Application._objects = null; 
 		document.getElementById('ButtonInfoBkgndOnly').style.visibility = 'hidden'; });
-	Dialog.SetIcon = new Dialog('Set Icon', document.getElementById('DialogSetIcon'));
 
 	Dialog.ScriptEditor = new Dialog('', document.getElementById('DialogScriptEditor'));
 	// temporarily disabled due to causing mammoth slowdown on mobile devices - suspect the ruler with line numbers is too large:
@@ -464,6 +463,8 @@ Application._init_dialogs = function()
 	
 	Dialog.Effect = new Dialog('Visual Effect', document.getElementById('DialogEffect'));
 	//Dialog.Effect.show();
+	
+	AppDialogs.init();
 }
 
 
@@ -571,6 +572,7 @@ Application.init = function()
 	
 	Progress.operation_finished();
 }
+
 
 
 CinsImp._script_loaded('application');

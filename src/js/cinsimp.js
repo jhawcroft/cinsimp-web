@@ -154,6 +154,9 @@ var CinsImp = {
 		this.load_script('field.js');//
 		this.load_script('button.js');//
 		
+		
+		this.load_script('app-dialogs.js');
+		
 		/* start the application once everything is loaded */
 		this._when_loaded(function() {
 			Application.init();
@@ -175,7 +178,7 @@ var CinsImp = {
 		this.load_script('popup-menu.js');//
 		this.load_script('ajax.js');//
 		this.load_script('codeedit.js');//
-		this.load_script('cardsize-widg.js');//
+		
 		this.load_script('colours.js');//
 		this.load_script('text.js');//
 		
@@ -215,6 +218,9 @@ var CinsImp = {
 		this.load_script('dialog.js');
 		this.load_script('progress.js');
 		this.load_script('alert.js');
+		
+		this.load_script('cardsize-widg.js');//
+		this.load_script('icon-grid-widg.js');//
 		
 		/* bring up a progress box for the remainder of the loading process: */
 		this._when_loaded(function() {

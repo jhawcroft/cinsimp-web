@@ -243,7 +243,7 @@ as dictated by the server, thus allowing for search nevigability -->
 	
 	</div>
 	<div style="float: right;">
-		<input type="button" class="SameSizeStacked" value="Icon..." onclick="" style="" disabled>
+		<input type="button" class="SameSizeStacked" value="Icon..." onclick="AppDialogs.choose_button_icon();">
 		<input type="button" class="SameSizeStacked" value="Text Style..." onclick="Text.edit_style(Application._objects, Application.save_info()); " style="margin-top: 25px;">
 		
 		<input type="button" class="SameSizeStacked" value="Menu..." onclick="" style="margin-top: 90px;" disabled>
@@ -341,6 +341,16 @@ as dictated by the server, thus allowing for search nevigability -->
 
 
 <div id="DialogSetIcon" class="DialogTemplate Inner" style="width: 480px; height: 430px;">
+	<div id="SetIconInfo" class="Label">Icon ID: ^0  ^1</div>
+	<div id="SetIconGrid" style="width: 448px; height: 320px; border: 1px solid black; margin-top: 5px;"></div>
+	
+	<div class="Bottom Right">
+		<input type="button" value="None" class="" onclick=""> <input type="button" value="Cancel" class="" onclick="Dialog.dismiss()"> <input type="button" value="OK" class="" onclick="">
+	</div>
+</div>
+
+
+<div id="DialogManageIcon" class="DialogTemplate Inner" style="width: 480px; height: 430px;">
 	<div id="SetIconInfo" class="Label">Icon ID: ^0  ^1</div>
 	<div id="IconPicker" style="width: 448px; height: 320px; border: 1px solid black; margin-top: 5px; overflow-y: scroll; overflow-x: hidden;"></div>
 	

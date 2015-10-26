@@ -88,7 +88,9 @@ Stack Window
 
 #stackWindow
 {
-	position: relative;
+	position: absolute;
+	left: 20px;
+	top: 20px;
 	display: inline-block;
 	background-color: white;
 	box-shadow: 0px 10px 10px 1px #666;
