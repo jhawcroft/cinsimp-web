@@ -421,6 +421,18 @@ Accessors and Mutators
 */
 	public function stack_import_icon($in_preferred_id, $in_name, $in_data)
 	{
+		/* try to import with supplied ID */
+		$this->file_db->beginTransaction();
+		$stmt = $this->file_db->prepare('INSERT INTO icon (icon_id,icon_name,icon_data) VALUES (?,?,?)');
+		if ($stmt->execute(array(intval($in_preferred_id), $in_name, $in_data)) === false)
+		{
+			/* resort to an automatically allocated ID */
+			$stmt = $this->file_db->prepare('INSERT INTO icon (icon_id,icon_name,icon_data) VALUES (NULL,?,?)');
+			Stack::sl_ok($stmt->execute(array($in_name, $in_data)), $this->file_db, 'Importing Icon (2)');
+			$in_preferred_id = $this->file_db->lastInsertId();
+		}
+		if (!$this->file_db->commit())
+			throw new Exception('Couldn\'t import icon');
 		return $in_preferred_id;
 	}
 

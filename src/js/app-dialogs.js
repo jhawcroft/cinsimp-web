@@ -55,8 +55,6 @@ AppDialogs.init = function()
 		collection_selector.appendChild(collection_option);
 	}
 	collection_selector.value = 'CinsImp';
-	
-	Dialog.SetIcon.show();
 }
 
 
@@ -88,7 +86,7 @@ AppDialogs.show_icon_collection = function()
 	var collection_name = document.getElementById('SetIconCollection').value;
 	if (collection_name == 'Stack')
 	{
-		Dialog.SetIcon._grid.load_grid(Application._stack.stack_icons);
+		Dialog.SetIcon._grid.load_grid(View.get_stack_icons());
 		return;
 	}
 	
@@ -142,11 +140,7 @@ AppDialogs.set_icon = function()
 			{
 				/* need to complete the import by manually adding the icon data
 				to the loaded stack registry of icons */
-				Application._stack.stack_icons.push( [
-					in_msg.id, 
-					Dialog.SetIcon._grid.get_icon_name(),
-					AppDialogs._importing_icon_data
-				] );
+				View.register_icon(in_msg.id, Dialog.SetIcon._grid.get_icon_name(), AppDialogs._importing_icon_data);
 				
 				AppDialogs._object.set_attr(Button.ATTR_ICON, in_msg.id);
 				Dialog.dismiss();

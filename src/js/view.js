@@ -42,6 +42,9 @@ function View(in_stack, in_card)
 	this._stack = in_stack;
 	this._card = in_card;
 	this._paint = null;
+	this._icon_index = {};
+	
+	this._index_icons();
 	
 	this._init_view();
 }
@@ -1633,6 +1636,32 @@ View.apply_effect = function()
 {
 	Dialog.dismiss();
 }
+
+
+
+View.get_stack_icons = function()
+{
+	return View.current._stack.stack_icons;
+}
+
+
+View.register_icon = function(in_id, in_name, in_data)
+{
+	var icon_def = [in_id, in_name, in_data];
+	View.current._stack.stack_icons.push(icon_def);
+	View.current._icon_index[in_id] = icon_def;
+}
+
+
+View.prototype._index_icons = function()
+{
+	this._icon_index = {};
+	for (var i = 0; i < this._stack.stack_icons.length; i++)
+	{
+		this._icon_index[this._stack.stack_icons[i][0]] = this._stack.stack_icons[i];
+	}
+}
+
 
 
 

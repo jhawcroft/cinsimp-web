@@ -123,15 +123,13 @@ Button.prototype._display_name_and_icon = function()
 	var icon_id = this.get_attr(Button.ATTR_ICON);
 	if (icon_id !== 0 && icon_id !== null)
 	{
-		var icon_data = Application._stack.stack_icons[0]; // need an icon quick lookup table - could it be this?
+		var icon_data = this._view._icon_index[icon_id];
 		if (icon_data)
 		{
 			var icon_img = document.createElement('img');
 			icon_img.src = icon_data[2];
 			this._icon.innerHTML = '';
 			this._icon.appendChild(icon_img);
-			
-			//this._icon.src = icon_data[2];
 			this._icon.style.display = 'block';
 		}
 	}
