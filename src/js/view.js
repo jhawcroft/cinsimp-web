@@ -1663,6 +1663,11 @@ View.prototype._index_icons = function()
 }
 
 
+View.do_share = function()
+{
+	
+}
+
 
 
 CinsImp._script_loaded('view');
