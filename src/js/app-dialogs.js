@@ -75,6 +75,9 @@ AppDialogs.init = function()
 	
 	
 	Dialog.ProtectStack = new Dialog('Protect Stack', document.getElementById('DialogProtectStack'));
+	
+	
+	Dialog.TextInspect = new Dialog('', document.getElementById('DialogTextInspect'));
 }
 
 
@@ -194,6 +197,28 @@ AppDialogs.set_icon = function()
 	AppDialogs._object.set_attr(Button.ATTR_ICON, Dialog.SetIcon._grid.get_icon_id());
 	Dialog.dismiss();
 }
+
+
+AppDialogs.edit_text_attr = function(in_attr_id, in_prior, in_title)
+{
+	this._text_attr_id = in_attr_id;
+	AppDialogs._object = Application._objects[0];
+	if (in_prior) in_prior();
+	
+	document.getElementById('TextInspect').value = AppDialogs._object.get_attr(in_attr_id);
+	
+	Dialog.TextInspect.set_title(in_title);
+	Dialog.TextInspect.show();
+}
+
+
+AppDialogs.save_text_attr = function()
+{
+	Dialog.dismiss();
+	
+	AppDialogs._object.set_attr(this._text_attr_id, document.getElementById('TextInspect').value);
+}
+
 
 
 CinsImp._script_loaded('app-dialogs');

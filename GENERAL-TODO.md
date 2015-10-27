@@ -15,10 +15,13 @@ In Progress/Todo
 * auto-hilite [DONE]
 * hilite saving incl. appropriate shared hilite behaviour [DONE]
 
+ground work for other kinds of field paraphernalia:
+* hide non-shared field content when in the background layer
+* lock shared field content when in the card layer
 
 * Button menus
 * Field picklists
-  * Picklist/content dialog
+  * Picklist/content dialog [DONE]
 
 
 (can do these prior to scripting enabled:)

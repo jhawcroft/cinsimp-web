@@ -346,10 +346,13 @@ ViewObject.prototype.set_attr = function(in_attr, in_value)
 
 ViewObject.prototype.get_attr = function(in_attr)
 {
+	var result;
 	if (in_attr == ViewObject.ATTR_CONTENT)
-		return this._get_raw_content();
+		result = this._get_raw_content();
 	else
-		return this._attrs[in_attr];
+		result = this._attrs[in_attr];
+	if (result === undefined) result = null;
+	return result;
 }
 
 

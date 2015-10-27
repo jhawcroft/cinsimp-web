@@ -473,6 +473,9 @@ Application._init_dialogs = function()
 	Dialog.Effect = new Dialog('Visual Effect', document.getElementById('DialogEffect'));
 	//Dialog.Effect.show();
 	
+	
+	//Dialog.TextInspect.show();
+	
 	AppDialogs.init();
 }
 

@@ -97,6 +97,8 @@ function Field(in_view, in_def, in_bkgnd)
 		this.set_attr(Field.ATTR_AUTO_SELECT, false);
 		this.set_attr(Field.ATTR_FIRST_SELECTED, -1);
 		this.set_attr(Field.ATTR_LAST_SELECTED, -1);
+		
+		this.set_attr(Field.ATTR_PICKLIST, '');
 	}
 	else
 		this.set_def(in_def);
@@ -126,6 +128,7 @@ Field.ATTR_SHOW_LINES = 8;
 Field.ATTR_AUTO_SELECT = 9;
 Field.ATTR_FIRST_SELECTED = 10;
 Field.ATTR_LAST_SELECTED = 11;
+Field.ATTR_PICKLIST = 12;
 
 
 

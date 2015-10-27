@@ -244,5 +244,13 @@ Dialog.dismiss = function()
 }
 
 
+Dialog.prototype.set_title = function(in_title)
+{
+	Util.set_text_content(this._titlebar, in_title);
+	//this._titlebar.textContent = in_title;
+	//this._titlebar.appendChild(document.createTextNode(in_title));
+}
+
+
 CinsImp._script_loaded('dialog');
 

@@ -132,7 +132,19 @@ Util.auto_focus = function(in_container)
 }
 
 
-
+Util.set_text_content = function(in_element, in_text)
+{
+	for (var i = 0; i < in_element.childNodes.length; i++) 
+	{
+    	var node = in_element.childNodes[i];
+    	if (node.nodeName === "#text") 
+    	{
+        	node.nodeValue = in_text;
+        	return;
+        }
+    }
+    in_element.appendChild(document.createTextNode(in_text));
+}
 
 
 

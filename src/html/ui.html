@@ -248,7 +248,7 @@ as dictated by the server, thus allowing for search nevigability -->
 		<input type="button" class="SameSizeStacked" value="Icon..." onclick="AppDialogs.choose_button_icon();">
 		<input type="button" class="SameSizeStacked" value="Text Style..." onclick="Text.edit_style(Application._objects, Application.save_info()); " style="margin-top: 25px;">
 		
-		<input type="button" class="SameSizeStacked" value="Menu..." onclick="" style="margin-top: 90px;" disabled>
+		<input type="button" class="SameSizeStacked" value="Menu..." onclick="AppDialogs.edit_text_attr(Button.ATTR_MENU, Application.save_info, 'Button Menu Items');" style="margin-top: 90px;">
 	
 	</div>
 	<div class="Bottom">
@@ -297,7 +297,7 @@ as dictated by the server, thus allowing for search nevigability -->
 			<input type="button" value="Columns..." style="display:inline-block; margin-left: 10px;" disabled></div>
 		<div style="padding-left: 20px;"><input type="checkbox" id="FieldInfoHasHeader"> <label for="FieldInfoHasHeader">Has header</label></div>
 		
-		<input type="button" value="Picklist..." onclick="" style="margin-top: 20px;" disabled>
+		<input type="button" value="Picklist..." onclick="AppDialogs.edit_text_attr(Field.ATTR_PICKLIST, Application.save_info, 'Field Picklist Items');" style="margin-top: 20px;">
 	</div>
 	
 	<div class="Bottom" style="display: block; position: absolute;">
@@ -598,3 +598,12 @@ call stack and debug buttons ? -->
 		<input type="button" value="Text Style..." onclick="">
 	</div>
 </div>
+
+
+<div id="DialogTextInspect" class="DialogTemplate Inner selectable" style="width: 496px; height: 400px; overflow-y: scroll;">
+	<div class="Label"><textarea id="TextInspect" style="width: 450px; height: 320px;"></textarea></div>
+	<div class="Bottom Right">
+		<input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="AppDialogs.save_text_attr();">
+	</div>
+</div>
+
