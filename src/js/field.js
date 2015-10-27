@@ -72,7 +72,13 @@ function Field(in_view, in_def, in_bkgnd)
 {
 	/* create the object */
 	ViewObject.call(this, ViewObject.TYPE_FIELD, in_view, in_bkgnd);
-	this._div.classList.add('Field');
+	this._div.classList.remove('Object');//hack - eventually to be removed at the ViewObject level
+	this._div.classList.add('fld');
+	
+	this._inner = document.createElement('div');
+	this._div.appendChild(this._inner);
+	this._inner.style.boxSizing = 'border-box';
+	//this._inner.style.border = '1px dotted red';
 	
 	this._num_tag = document.createElement('div');
 	this._num_tag.className = 'NumTag';
@@ -134,23 +140,45 @@ Field.ATTR_PICKLIST = 12;
 
 Field.prototype._get_raw_content = function()
 {
-	return this._div.innerHTML;
+	return this._inner.innerHTML;
 }
 
 
 Field.prototype._set_raw_content = function(in_content)
 {
-	this._div.innerHTML = in_content;
+	this._inner.innerHTML = in_content;
 }
 
 
 Field.prototype._display_changed = function(in_author, in_edit)
 {
 	var editable = (in_edit && (!this._attrs[Field.ATTR_LOCKED]));
-	this._div.contentEditable = editable;
-	this._div.classList.toggle('Editable', editable);
-	//if (this._num_tag)
-	//	this._num_tag.style.visibility = (this._visible && this._view._tool == View.TOOL_FIELD ? 'visible' : 'hidden');
+	if (this._is_bkgnd)
+	{
+		if (this.get_attr(ViewObject.ATTR_SHARED))
+		{
+			if (!this._view._edit_bkgnd) editable = false;
+			this._inner.style.visibility = this._div.style.visibility;
+		}
+		else
+			this._inner.style.visibility = (this._view._edit_bkgnd ? 'hidden' : this._div.style.visibility);
+	}
+	else
+		this._inner.style.visibility = this._div.style.visibility;
+	
+	this._inner.contentEditable = editable;
+	
+	//this._inner.classList.toggle('o-edit', editable); // doesn't seem to be reliably effect
+	
+	this._inner.style.cursor = (editable ? 'text' : '');
+	
+	var state = (editable ? 'text' : 'none');
+	this._inner.style.userSelect = state;
+	this._inner.style.MozUserSelect = state;
+	this._inner.style.webkitUserSelect = state;
+	this._inner.style.webkitTouchCallout = state;
+	this._inner.style.khtmlUserSelect = state;
+	this._inner.style.msUserSelect = state;
 }
 
 
@@ -168,17 +196,17 @@ Field.prototype._attribute_changed = function(in_attr, in_value)
 		this._div.style.boxShadow = (in_value ? '2px 2px 2px 2px rgba(0,0,0,0.75)' : '');
 		break;
 	case Field.ATTR_SCROLL:
-		this._div.style.overflowY = (in_value ? 'scroll' : 'hidden');
+		this._inner.style.overflowY = (in_value ? 'scroll' : 'hidden');
 		break;
 	case Field.ATTR_WIDE_MARGINS:
-		this._div.style.padding = (in_value ? '10px' : '0px');
+		this._inner.style.padding = (in_value ? '10px' : '0px');
 		break;
 	case Field.ATTR_DONT_WRAP:
-		this._div.style.whiteSpace = (in_value ? 'nowrap' : 'normal');
+		this._inner.style.whiteSpace = (in_value ? 'nowrap' : 'normal');
 		break;
 	}
 	
-	this.apply_text_attrs(this._div, in_attr, in_value);
+	this.apply_text_attrs(this._inner, in_attr, in_value);
 }
 
 

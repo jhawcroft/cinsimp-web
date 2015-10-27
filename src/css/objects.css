@@ -50,6 +50,17 @@ div.Object
 }
 
 
+div.Field
+{
+	/*outline: none;*/
+	overflow-x: hidden;
+}
+
+
+/*****************************************************************************************
+Authoring Assistants
+*/
+
 div.ResizeHandle
 {
 	display: block;
@@ -88,41 +99,6 @@ div.NumTag
 {
 	visibility: visible;
 }
-
-
-
-div.Field
-{
-	/*outline: none;*/
-	overflow-x: hidden;
-}
-
-
-div.Field.Editable
-{
-	cursor: text;
-	-webkit-touch-callout: text;
-    -webkit-user-select: text;
-    -khtml-user-select: text;
-    -moz-user-select: text;
-    -ms-user-select: text;
-    user-select: text;
-}
-
-
-div.FieldOutlines div.Field
-{
-	outline: 1px solid #999;
-	
-	/*-webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;*/
-}
-
-
 
 
 
@@ -183,84 +159,15 @@ div.ButtonOutlines div.btn
 }
 
 
-/*****************************************************************************************
-Check Box
-*/
-
-/* the box itself */
-div.o-chk div.zi
-{
-	display: inline-block;
-	border: 1px solid black;
-	width: 16px;
-	height: 16px;
-	vertical-align: middle;
-	margin-right: 10px;
-	box-shadow: -1px -1px 1px 0px #AAA inset;
-	background-repeat: no-repeat;
-	background-position:0px 2px;
-}
-
-/* the box is checked */
-div.o-chk.zk div.zi
-{
-	background-image: url(chk-tick.png);
-}
-
 
 /*****************************************************************************************
-Radio Button
+Generic Field
 */
 
-/* the button outline itself */
-div.o-rbn div.zi
+div.FieldOutlines div.fld
 {
-	display: inline-block;
-	border: 1px solid black;
-	width: 16px;
-	height: 16px;
-	vertical-align: middle;
-	margin-right: 10px;
-	box-shadow: -1px -1px 1px 0px #AAA inset;
-	background-repeat: no-repeat;
-	background-position:0px 2px;
-	border-radius: 10px;
+	outline: 1px solid #999;
 }
-
-/* the button is checked */
-div.o-rbn.zk div.zi
-{
-	background-image: url(rbn-dot.png);
-}
-
-
-/*****************************************************************************************
-Push Button
-*/
-
-/* push button color/opacity is set per-element as any color can be used;
-or transparent if not opaque */
-
-/* hilite is performed manually by the button, by changing the background color
-and applying the zh class */
-
-
-/* hilite */
-div.o-psh.zh
-{
-	background-color: black;
-}
-
-/* hilite inverse text color */
-div.o-psh.zh div.zy div.zc
-{
-	color: white;
-}
-
-
-
-
-
-
 ﻿
+
 

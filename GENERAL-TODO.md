@@ -16,8 +16,8 @@ In Progress/Todo
 * hilite saving incl. appropriate shared hilite behaviour [DONE]
 
 ground work for other kinds of field paraphernalia:
-* hide non-shared field content when in the background layer
-* lock shared field content when in the card layer
+* hide non-shared field content when in the background layer [DONE]
+* lock shared field content when in the card layer [DONE]
 
 * Button menus
 * Field picklists

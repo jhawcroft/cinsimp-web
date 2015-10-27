@@ -50,7 +50,7 @@ function Button(in_view, in_def, in_bkgnd)
 	this._icon = document.createElement('div');
 	this._inner.appendChild(this._icon);
 	this._icon.style.display = 'none';
-	this._icon.classList.add('zi');
+	//this._icon.classList.add('zi');
 	this._icon.style.marginBottom = '4px';
 	
 	this._caption = document.createElement('div');

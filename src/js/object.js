@@ -235,8 +235,8 @@ ViewObject.prototype.set_size = function(in_size)
 	this._div.style.height = in_size[1] + 'px';
 	if (this._inner)
 	{
-		this._inner.style.width = in_size[0] + 'px';
-		this._inner.style.height = in_size[1] + 'px';
+		this._inner.style.width = in_size[0]-2 + 'px';
+		this._inner.style.height = in_size[1]-2 + 'px';
 	}
 	
 	/* cache the right-bottom coordinates */
@@ -360,6 +360,8 @@ ViewObject.prototype._layer_visibility = function(in_visible)
 {
 	var visible =  (in_visible && this.get_attr(ViewObject.ATTR_VISIBLE));
 	this._div.style.visibility = (visible ? 'visible' : 'hidden');
+	if (this._inner)
+		this._inner.style.visibility = (visible ? 'visible' : 'hidden');
 	if (this._num_tag)
 		this._num_tag.style.visibility = (visible && this._view._tool == View.TOOL_FIELD ? 'visible' : 'hidden');
 }
