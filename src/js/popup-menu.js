@@ -53,7 +53,8 @@ PopupMenu.prototype.appendItem = function(in_title, in_handler)
 	var item = {
 		title: in_title,
 		handler: in_handler,
-		checkmark: false
+		checkmark: false,
+		index: 0
 	};
 	this._items.push(item);
 	return item;
@@ -76,6 +77,9 @@ PopupMenu.prototype._reconstruct = function()
 	for (var i = 0; i < this._items.length; i++)
 	{
 		var item = this._items[i];
+		
+		item.index = i;
+		
 		var dom_item = document.createElement('li');
 		if (item.title.substr(0, 1) == '-')
 			dom_item.className = 'Separator';
@@ -102,7 +106,7 @@ PopupMenu.prototype._reconstruct = function()
 PopupMenu.prototype._select = function(in_item)
 {
 	this._close();
-	if (in_item.handler) in_item.handler();
+	if (in_item.handler) in_item.handler(in_item.title, in_item.index);
 }
 
 

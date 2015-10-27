@@ -57,6 +57,8 @@ function Button(in_view, in_def, in_bkgnd)
 	this._inner.appendChild(this._caption);
 	this._caption.classList.add('zc');
 	
+	this._drop_arrow = null;
+	
 	/* add event handlers */
 	this._div.addEventListener('mousedown', this._handle_mousedown.bind(this));
 	this._div.addEventListener('mouseup', this._handle_mouseup.bind(this));
@@ -112,8 +114,25 @@ Button.ATTR_HILITE = 6;
 Button.ATTR_AUTO_HILITE = 7;
 
 
+Button.prototype._handle_menu_choice = function(in_title, in_index)
+{
+	alert('Chose: '+in_title + ' (Index='+in_index+')');	
+}
+
+
 Button.prototype._handle_mousedown = function(in_event)
 {
+	if (this._drop_arrow)
+	{
+		var items = this.get_attr(Button.ATTR_MENU).split("\n");
+		var mnu = new PopupMenu();
+		for (var i = 0; i < items.length; i++)
+			mnu.appendItem(items[i], this._handle_menu_choice.bind(this));
+		var rt = this._div.getBoundingClientRect();
+		mnu.show([rt.left, rt.top, rt.right, rt.bottom]);
+		return;
+	}
+
 	this._auto_hilite(true);
 	//this._view._browse_point_start(this, [in_event.pageX, in_event.pageY]); 
 }
@@ -165,9 +184,26 @@ Button.prototype._display_name_and_icon = function()
 		this._icon.style.backgroundPosition = '0px 2px';
 		this._icon.style.display = 'inline-block';
 		this._icon.innerHTML = '';
+		
+		this._inner.classList.remove('zx');
+		this._inner.style.paddingLeft = '';
+		this._inner.style.paddingRight = '';
 	}
 	else
 	{
+		if (this._drop_arrow != null)
+		{
+			this._inner.classList.remove('zx');
+			this._inner.style.paddingLeft = '10px';
+			this._inner.style.paddingRight = '10px';
+		}
+		else
+		{
+			this._inner.classList.add('zx');
+			this._inner.style.paddingLeft = '';
+			this._inner.style.paddingRight = '';
+		}
+	
 		this._icon.style.border = '';
 		this._icon.style.borderRadius = '';
 		this._icon.style.width = '';
@@ -256,29 +292,24 @@ Button.prototype._attribute_changed = function(in_attr, in_value)
 		case Button.STYLE_BORDERLESS:
 			this._div.style.border = '0';
 			this._div.style.borderRadius = '0';
-			this._inner.classList.add('zx');
 			break;
 		case Button.STYLE_RECTANGLE:
 			this._div.style.border = '1px solid black';
 			this._div.style.borderRadius = '0';
-			this._inner.classList.add('zx');
 			break;
 		case Button.STYLE_ROUNDED:
 			this._div.style.border = '1px solid black';
 			this._div.style.borderRadius = '6px';
-			this._inner.classList.add('zx');
 			break;
 			
 		case Button.STYLE_CHECK_BOX:
 			this._div.style.border = '0';
 			this._div.style.borderRadius = '0';
-			this._inner.classList.remove('zx');
 			this._icon.style.borderRadius = '0';
 			break;
 		case Button.STYLE_RADIO:
 			this._div.style.border = '0';
 			this._div.style.borderRadius = '0';
-			this._inner.classList.remove('zx');
 			this._icon.style.borderRadius = '8px';
 			break;
 		}
@@ -286,6 +317,7 @@ Button.prototype._attribute_changed = function(in_attr, in_value)
 		this._display_name_and_icon();
 		this.set_attr(ViewObject.ATTR_SHADOW, this.get_attr(ViewObject.ATTR_SHADOW));
 		this.set_attr(ViewObject.ATTR_COLOR, this.get_attr(ViewObject.ATTR_COLOR));
+		this.set_attr(Button.ATTR_MENU, this.get_attr(Button.ATTR_MENU));
 		break;
 	
 	case Button.ATTR_ICON:
@@ -306,6 +338,30 @@ Button.prototype._attribute_changed = function(in_attr, in_value)
 			this.set_attr(ViewObject.ATTR_COLOR, this.get_attr(ViewObject.ATTR_COLOR));
 			break;
 		}
+		
+	case Button.ATTR_MENU:
+		var style = this.get_attr(Button.ATTR_STYLE);
+		if (in_value !== null && in_value !== '' && this._drop_arrow === null &&
+			(style != Button.STYLE_CHECK_BOX) && (style != Button.STYLE_RADIO))
+		{
+			this._drop_arrow = document.createElement('img');
+			this._drop_arrow.style.verticalAlign = 'middle';
+			this._drop_arrow.style.float = 'right';
+			this._drop_arrow.style.marginLeft = '10px';
+			this._drop_arrow.src = gBase + 'gfx/drop-arrow-black.png';
+			this._inner.appendChild(this._drop_arrow);
+			this._display_name_and_icon();
+		}
+		else if ((in_value === null || in_value === '' || 
+				style == Button.STYLE_CHECK_BOX || style == Button.STYLE_RADIO) && 
+				this._drop_arrow !== null)
+		{
+			try { this._inner.removeChild(this._drop_arrow); }
+			catch (e) {}
+			this._drop_arrow = null;
+			this._display_name_and_icon();
+		}
+		break;
 	}
 	
 	this.apply_text_attrs(this._caption, in_attr, in_value);
