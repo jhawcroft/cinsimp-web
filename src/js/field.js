@@ -59,6 +59,12 @@ A note about importing fields from HyperCard:
 	because the CSS shadow is applied to the outside, not the inside of the field,
 	ie. increase the width and height by about 2 pixels to compensate during import.
 
+
+
+SHOULD PROBABLY USE AN INNER LIKE BUTTONS, AND MAKE THAT EDITABLE.
+MAKES IT EASER TO HIDE AND SHOW CONTENT WITHOUT HIDING THE FIELD ITSELF TOO.
+AND WILL MAKE IT EASIER TO IMPLEMENT CALENDAR WIDGETS/ POPUP MENU WIDGETS.
+
 */
 
 

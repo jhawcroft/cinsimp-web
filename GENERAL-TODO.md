@@ -13,12 +13,13 @@ In Progress/Todo
 * Icons for buttons [DONE]
 * Checkboxes, radio buttons [DONE]
 * auto-hilite [DONE]
+* hilite saving incl. appropriate shared hilite behaviour [DONE]
+
 
 * Button menus
 * Field picklists
   * Picklist/content dialog
 
-* hilite saving incl. appropriate shared hilite behaviour
 
 (can do these prior to scripting enabled:)
 * Button tasks; link, ? hide for now until can think of things for it to do.;
