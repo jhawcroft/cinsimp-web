@@ -122,7 +122,7 @@ Button.prototype._handle_menu_choice = function(in_title, in_index)
 
 Button.prototype._handle_mousedown = function(in_event)
 {
-	if (this._drop_arrow)
+	if (this._drop_arrow && this._view.is_browsing())
 	{
 		var items = this.get_attr(Button.ATTR_MENU).split("\n");
 		var mnu = new PopupMenu();
