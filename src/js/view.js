@@ -928,7 +928,7 @@ View.prototype._rebuild_card = function() // will have to do separate load objec
 			{
 				obj.set_attr(ViewObject.ATTR_CONTENT, data[1]);
 				if (data.length == 3)
-					obj.set_attr(Button.HILITE, data[2]);
+					obj.set_attr(Button.ATTR_HILITE, data[2]);
 			}
 		}
 	}

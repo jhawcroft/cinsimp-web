@@ -122,7 +122,7 @@ Button.prototype._handle_mousedown = function(in_event)
 Button.prototype._handle_mouseup = function(in_event)
 {
 	this._auto_hilite(false);
-	this._view._browse_point_start(this, [in_event.pageX, in_event.pageY]); 
+	//this._view._browse_point_start(this, [in_event.pageX, in_event.pageY]); 
 }
 
 
