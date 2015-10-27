@@ -48,6 +48,8 @@ function ViewObject(in_type, in_view, in_bkgnd)
 
 	this._div = document.createElement('div');
 	this._div.classList.add('Object');
+	this._div.classList.add('o');
+	this._inner = null;
 	
 	this._attrs = {};
 	this._view = in_view;
@@ -224,20 +226,30 @@ ViewObject.prototype.get_type = function()
 
 ViewObject.prototype.set_size = function(in_size)
 {
+	/* store the new size as an attribute */
 	this._size = [in_size[0], in_size[1]];
 	this._attrs[ViewObject.ATTR_SIZE] = this._size;
+	
+	/* resize the container div(s) */
 	this._div.style.width = in_size[0] + 'px';
 	this._div.style.height = in_size[1] + 'px';
+	if (this._inner)
+	{
+		this._inner.style.width = in_size[0] + 'px';
+		this._inner.style.height = in_size[1] + 'px';
+	}
 	
+	/* cache the right-bottom coordinates */
 	this._rb[0] = this._loc[0] + this._size[0];
 	this._rb[1] = this._loc[1] + this._size[1];
 	
-	if (this._resized)
-		this._resized();
+	/* notify the subclass */
+	if (this._resized) this._resized();
 	
+	/* re-apply the selection styling if this object 
+	is selected within the authoring environment */
 	if (this._selected)
 		this._div.style.border = '3px solid blue';
-	//this._reconfigure();
 }
 
 
@@ -271,6 +283,37 @@ ViewObject.prototype.get_loc = function()
 }
 
 
+ViewObject.prototype.apply_text_attrs = function(in_div, in_attr, in_value)
+{
+	switch (in_attr)
+	{
+	case ViewObject.ATTR_TFONT:
+		in_div.style.fontFamily = in_value;
+		break;
+	case ViewObject.ATTR_TSIZE:
+		in_div.style.fontSize = in_value +'pt';
+		break;
+	case ViewObject.ATTR_TSTYLE:
+		in_div.style.fontWeight = ((in_value & Text.STYLE_BOLD) ? 'bold' : 'normal');
+		in_div.style.fontStyle = ((in_value & Text.STYLE_ITALIC) ? 'italic' : 'normal');
+		in_div.style.textShadow = (in_value & Text.STYLE_SHADOW ? '2px 2px 1px #CCC' : 'none');
+		if (in_value & Text.STYLE_EXTEND) in_div.style.letterSpacing = '1px';
+		else in_div.style.letterSpacing = (in_value & Text.STYLE_CONDENSE ? '-1px' : 'normal');
+		break;
+	case ViewObject.ATTR_TALIGN:
+		if (in_value == Text.ALIGN_LEFT)
+			in_div.style.textAlign = 'left';
+		else if (in_value == Text.ALIGN_CENTRE)
+			in_div.style.textAlign = 'center';
+		else if (in_value == Text.ALIGN_RIGHT)
+			in_div.style.textAlign = 'right';
+		else if (in_value == Text.ALIGN_JUSTIFY)
+			in_div.style.textAlign = 'justify';
+		break;
+	}
+}
+
+
 ViewObject.prototype.set_attr = function(in_attr, in_value)
 {
 	if ((in_attr == ViewObject.ATTR_KLAS_NUM) && (this._num_tag != null))
@@ -291,34 +334,13 @@ ViewObject.prototype.set_attr = function(in_attr, in_value)
 		this._attrs[in_attr] = in_value;
 	}
 	
-	switch (in_attr)
-	{
-	case ViewObject.ATTR_TFONT:
-		this._div.style.fontFamily = in_value;
-		break;
-	case ViewObject.ATTR_TSIZE:
-		this._div.style.fontSize = in_value +'pt';
-		break;
-	case ViewObject.ATTR_TSTYLE:
-		this._div.style.fontWeight = ((in_value & Text.STYLE_BOLD) ? 'bold' : 'normal');
-		this._div.style.fontStyle = ((in_value & Text.STYLE_ITALIC) ? 'italic' : 'normal');
-		this._div.style.textShadow = (in_value & Text.STYLE_SHADOW ? '2px 2px 1px #CCC' : 'none');
-		if (in_value & Text.STYLE_EXTEND) this._div.style.letterSpacing = '1px';
-		else this._div.style.letterSpacing = (in_value & Text.STYLE_CONDENSE ? '-1px' : 'normal');
-		break;
-	case ViewObject.ATTR_TALIGN:
-		if (in_value == Text.ALIGN_LEFT)
-			this._div.style.textAlign = 'left';
-		else if (in_value == Text.ALIGN_CENTRE)
-			this._div.style.textAlign = 'center';
-		else if (in_value == Text.ALIGN_RIGHT)
-			this._div.style.textAlign = 'right';
-		else if (in_value == Text.ALIGN_JUSTIFY)
-			this._div.style.textAlign = 'justify';
-		break;
-	}
+	
+	
 	
 	this._attribute_changed(in_attr, in_value);
+	
+	if (this._selected)
+		this._div.style.border = '3px solid blue';
 }
 
 

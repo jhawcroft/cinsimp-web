@@ -523,6 +523,12 @@ View.prototype.choose_tool = function(in_tool)
 }
 
 
+View.prototype.is_browsing = function()
+{
+	return (View.MODE_BROWSE == this._mode);
+}
+
+
 View.prototype.edit_bkgnd = function(in_edit_bkgnd)
 {
 	this.select_none();
@@ -1151,7 +1157,7 @@ View.prototype._do_button_info = function()
 	case Button.STYLE_ROUNDED:
 		document.getElementById('ButtonInfoType3').checked = true;
 		break;
-	case Button.STYLE_CHECKBOX:
+	case Button.STYLE_CHECK_BOX:
 		document.getElementById('ButtonInfoType4').checked = true;
 		break;
 	case Button.STYLE_RADIO:
@@ -1196,7 +1202,7 @@ View.prototype._save_button_info = function()
 	else if (document.getElementById('ButtonInfoType3').checked)
 		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_ROUNDED);
 	else if (document.getElementById('ButtonInfoType4').checked)
-		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_CHECKBOX);
+		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_CHECK_BOX);
 	else if (document.getElementById('ButtonInfoType5').checked)
 		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_RADIO);
 

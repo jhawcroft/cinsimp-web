@@ -550,8 +550,8 @@ Application._init_app_bar = function()
 Application._show_default_palettes = function()
 {
 	Palette.Navigator.show();
-	//Palette.Authoring.show();
-	//Palette.Tools.show();
+	Palette.Authoring.show();
+	Palette.Tools.show();
 	
 	//Dialog.ScriptEditor.show();
 }

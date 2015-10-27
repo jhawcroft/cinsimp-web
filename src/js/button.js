@@ -39,25 +39,29 @@ function Button(in_view, in_def, in_bkgnd)
 {
 	/* create the object */
 	ViewObject.call(this, ViewObject.TYPE_BUTTON, in_view, in_bkgnd);
-	this._div.classList.add('Button');
+	this._div.classList.remove('Object');//hack - eventually to be removed at the ViewObject level
+	this._div.classList.add('btn');
 	
-	this._struct = document.createElement('div');
-	this._struct.className = 'St';
-	this._div.appendChild(this._struct);
+	this._inner = document.createElement('div');
+	this._div.appendChild(this._inner);
+	this._inner.classList.add('zy');
+	this._inner.classList.add('zx');
 	
 	this._icon = document.createElement('div');
+	this._inner.appendChild(this._icon);
 	this._icon.style.display = 'none';
-	this._struct.appendChild(this._icon);
+	this._icon.classList.add('zi');
+	this._icon.style.marginBottom = '4px';
 	
 	this._caption = document.createElement('div');
-	this._caption.className = 'Cp';
-	this._struct.appendChild(this._caption);
+	this._inner.appendChild(this._caption);
+	this._caption.classList.add('zc');
 	
-	var me = this;
-	this._div.addEventListener('mousedown', 
-		function(in_event) { me._view._browse_point_start(me, [in_event.pageX, in_event.pageY]); });
+	/* add event handlers */
+	this._div.addEventListener('mousedown', this._handle_mousedown.bind(this));
+	this._div.addEventListener('mouseup', this._handle_mouseup.bind(this));
 	
-	/* set defaults */
+	/* set defaults or apply a persistant definition */
 	if (!in_def)
 	{
 		this.set_attr(ViewObject.ATTR_COLOR, [1,1,1]);
@@ -73,7 +77,8 @@ function Button(in_view, in_def, in_bkgnd)
 		this.set_attr(Button.ATTR_HILITE, false);
 		this.set_attr(Button.ATTR_AUTO_HILITE, false);
 		
-		this.set_attr(ViewObject.ATTR_SCRIPT, {'content':'on mouseup\r  \rend mouseup\r','selection':13});
+		this.set_attr(ViewObject.ATTR_SCRIPT, 
+			{'content':'on mouseup\r  \rend mouseup\r','selection':13});
 	}
 	else
 		this.set_def(in_def);
@@ -107,30 +112,81 @@ Button.ATTR_HILITE = 6;
 Button.ATTR_AUTO_HILITE = 7;
 
 
-Button.prototype._resized = function()
+Button.prototype._handle_mousedown = function(in_event)
 {
-	// in case we need to change the configuration
-	this._struct.style.width = this._size[0] + 'px';
-	this._struct.style.height = this._size[1] + 'px';
-	
-	this._reconfigure();
+	this._auto_hilite(true);
+	//this._view._browse_point_start(this, [in_event.pageX, in_event.pageY]); 
 }
+
+
+Button.prototype._handle_mouseup = function(in_event)
+{
+	this._auto_hilite(false);
+	this._view._browse_point_start(this, [in_event.pageX, in_event.pageY]); 
+}
+
+
+Button.prototype._auto_hilite = function(in_down)
+{
+	if (!this._view.is_browsing() || !this.get_attr(Button.ATTR_AUTO_HILITE)) return;
+	
+	var style = this.get_attr(Button.ATTR_STYLE);
+	if (style == Button.STYLE_CHECK_BOX)
+	{
+		/* toggle checkbox */
+		if (!in_down)
+			this.set_attr(Button.ATTR_HILITE, !this.get_attr(Button.ATTR_HILITE));
+	}
+	else if (style == Button.STYLE_RADIO)
+	{
+		/* change radio indication */
+		// needs to take account of family, if specified
+	}
+	else 
+	{
+		/* hilite push button */
+		this.set_attr(Button.ATTR_HILITE, in_down);
+	}
+}
+
 
 
 Button.prototype._display_name_and_icon = function()
 {
-	this._icon.style.display = 'none';
-	var icon_id = this.get_attr(Button.ATTR_ICON);
-	if (icon_id !== 0 && icon_id !== null)
+	var style = this.get_attr(Button.ATTR_STYLE);
+	if (style == Button.STYLE_CHECK_BOX || style == Button.STYLE_RADIO)
 	{
-		var icon_data = this._view._icon_index[icon_id];
-		if (icon_data)
+		this._icon.style.border = '1px solid black';
+		this._icon.style.width = '16px';
+		this._icon.style.height = '16px';
+		this._icon.style.verticalAlign = 'middle';
+		this._icon.style.marginRight = '10px';
+		this._icon.style.backgroundRepeat = 'no-repeat';
+		this._icon.style.backgroundPosition = '0px 2px';
+		this._icon.style.display = 'inline-block';
+		this._icon.innerHTML = '';
+	}
+	else
+	{
+		this._icon.style.border = '';
+		this._icon.style.borderRadius = '';
+		this._icon.style.width = '';
+		this._icon.style.height = '';
+		this._icon.style.marginRight = '';
+		this._icon.style.backgroundImage = '';
+		this._icon.style.display = 'none';
+		var icon_id = this.get_attr(Button.ATTR_ICON);
+		if (icon_id !== 0 && icon_id !== null)
 		{
-			var icon_img = document.createElement('img');
-			icon_img.src = icon_data[2];
-			this._icon.innerHTML = '';
-			this._icon.appendChild(icon_img);
-			this._icon.style.display = 'block';
+			var icon_data = this._view._icon_index[icon_id];
+			if (icon_data)
+			{
+				var icon_img = document.createElement('img');
+				icon_img.src = icon_data[2];
+				this._icon.innerHTML = '';
+				this._icon.appendChild(icon_img);
+				this._icon.style.display = 'block';
+			}
 		}
 	}
 	
@@ -145,10 +201,54 @@ Button.prototype._attribute_changed = function(in_attr, in_value)
 	switch (in_attr)
 	{
 	case ViewObject.ATTR_COLOR:
-		this._div.style.backgroundColor = (in_value ? Util.color_to_css(in_value) : 'transparent');
+		if ((this.get_attr(Button.ATTR_STYLE) != Button.STYLE_CHECK_BOX) &&
+				(this.get_attr(Button.ATTR_STYLE) != Button.STYLE_RADIO))
+		{
+			/* push button color */
+			if (this.get_attr(Button.ATTR_HILITE))  
+			{
+				// ought to find an appropriate hilite & text color *** TODO ****
+				this._div.style.backgroundColor = 'black';
+				this._caption.style.color = 'white';
+			}
+			else
+			{
+				this._div.style.backgroundColor = (in_value ? Util.color_to_css(in_value) : 'transparent');
+				this._caption.style.color = '';
+			}
+			this._icon.style.backgroundColor = 'transparent';
+		}
+		else
+		{
+			/* checkbox/radio button color */
+			this._div.style.backgroundColor = 'transparent';
+			this._icon.style.backgroundColor = (in_value ? Util.color_to_css(in_value) : 'transparent');
+			this._icon.style.color = 'black';
+		}
 		break;
 	case ViewObject.ATTR_SHADOW:
-		this._div.style.boxShadow = (in_value ? '1px 1px 2px 2px rgba(0,0,0,0.75)' : '');
+		if (this.get_attr(Button.ATTR_STYLE) == Button.STYLE_BORDERLESS)
+		{
+			/* borderless shadow */
+			this._div.style.boxShadow = (in_value ? '1px 1px 2px 2px rgba(0,0,0,0.75)' : '');
+			this._icon.style.boxShadow = '';
+		}
+		else if ((this.get_attr(Button.ATTR_STYLE) != Button.STYLE_CHECK_BOX) &&
+				(this.get_attr(Button.ATTR_STYLE) != Button.STYLE_RADIO))
+		{
+			/* bordered push shadow and bevel */
+			this._div.style.boxShadow = (in_value ? '1px 1px 2px 2px rgba(0,0,0,0.75), '+
+				'-1px -1px 2px 0px #CCC inset' : '');
+			this._icon.style.boxShadow = '';
+		}
+		else
+		{
+			/* checkbox/radio button shadow and bevel */
+			this._div.style.boxShadow = '';
+			this._icon.style.boxShadow = (in_value ? '1px 1px 2px 2px rgba(0,0,0,0.75), '+
+				'-1px -1px 1px 0px #AAA inset' : '-1px -1px 1px 0px #AAA inset');
+			this._icon.style.marginLeft = (in_value ? '4px' : '');
+		}
 		break;
 	case Button.ATTR_STYLE:
 		switch (in_value)
@@ -156,24 +256,36 @@ Button.prototype._attribute_changed = function(in_attr, in_value)
 		case Button.STYLE_BORDERLESS:
 			this._div.style.border = '0';
 			this._div.style.borderRadius = '0';
+			this._inner.classList.add('zx');
 			break;
 		case Button.STYLE_RECTANGLE:
 			this._div.style.border = '1px solid black';
 			this._div.style.borderRadius = '0';
+			this._inner.classList.add('zx');
 			break;
 		case Button.STYLE_ROUNDED:
 			this._div.style.border = '1px solid black';
 			this._div.style.borderRadius = '6px';
+			this._inner.classList.add('zx');
 			break;
-		case Button.STYLE_CHECK_BOX:  // ** TODO
+			
+		case Button.STYLE_CHECK_BOX:
 			this._div.style.border = '0';
 			this._div.style.borderRadius = '0';
+			this._inner.classList.remove('zx');
+			this._icon.style.borderRadius = '0';
 			break;
-		case Button.STYLE_RADIO:  // ** TODO
+		case Button.STYLE_RADIO:
 			this._div.style.border = '0';
 			this._div.style.borderRadius = '0';
+			this._inner.classList.remove('zx');
+			this._icon.style.borderRadius = '8px';
 			break;
 		}
+		
+		this._display_name_and_icon();
+		this.set_attr(ViewObject.ATTR_SHADOW, this.get_attr(ViewObject.ATTR_SHADOW));
+		this.set_attr(ViewObject.ATTR_COLOR, this.get_attr(ViewObject.ATTR_COLOR));
 		break;
 	
 	case Button.ATTR_ICON:
@@ -181,7 +293,22 @@ Button.prototype._attribute_changed = function(in_attr, in_value)
 	case Button.ATTR_SHOW_NAME:
 		this._display_name_and_icon();
 		break;
+		
+	case Button.ATTR_HILITE:
+		{
+			var style = this.get_attr(Button.ATTR_STYLE);
+			if (style == Button.STYLE_CHECK_BOX)
+				this._icon.style.backgroundImage = (in_value ? 'url('+gBase + 'gfx/chk-tick.png)' : '');
+			else if (style == Button.STYLE_RADIO)
+				this._icon.style.backgroundImage = (in_value ? 'url('+gBase + 'gfx/rbn-dot.png)' : '');
+			else 
+				this._icon.style.backgroundImage = '';
+			this.set_attr(ViewObject.ATTR_COLOR, this.get_attr(ViewObject.ATTR_COLOR));
+			break;
+		}
 	}
+	
+	this.apply_text_attrs(this._caption, in_attr, in_value);
 }
 
 

@@ -168,6 +168,8 @@ Field.prototype._attribute_changed = function(in_attr, in_value)
 		this._div.style.whiteSpace = (in_value ? 'nowrap' : 'normal');
 		break;
 	}
+	
+	this.apply_text_attrs(this._div, in_attr, in_value);
 }
 
 

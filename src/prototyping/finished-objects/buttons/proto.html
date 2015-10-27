@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Finished Objects</title>
+<style>
+
+body
+{
+margin: 20px;
+background-color: #CCC;
+}
+
+
+/*****************************************************************************************
+Generic Objects
+*/
+
+/* basic object div; can be repositioned and sized exactly */
+div.o
+{
+	display: block;
+	position: absolute;	
+	overflow: hidden;
+	margin: 0;
+	padding: 0;
+	font-size: 0;
+	box-sizing: border-box;
+}
+
+/* inner div; vertically aligns the object content */
+div.o div.zy
+{
+	display: table-cell;
+	vertical-align: middle;
+	border: 0;
+	width: 100%;
+}
+
+/* inner div; horizontally aligns the object content */
+div.o div.zx
+{
+	text-align: center;
+}
+
+/* button caption; allow it to flow to the correct location */
+div.zc
+{
+	display: inline-block;
+	overflow: auto;
+	width: auto;
+	height: auto;
+	vertical-align: middle;
+	background-color: auto;
+	font-size: 12pt;
+	font-family: serif;
+}
+
+
+/*****************************************************************************************
+Check Box
+*/
+
+/* the box itself */
+div.o-chk div.zi
+{
+	display: inline-block;
+	border: 1px solid black;
+	width: 16px;
+	height: 16px;
+	vertical-align: middle;
+	margin-right: 10px;
+	box-shadow: -1px -1px 1px 0px #AAA inset;
+	background-repeat: no-repeat;
+	background-position:0px 2px;
+}
+
+/* the box is checked */
+div.o-chk.zk div.zi
+{
+	background-image: url(chk-tick.png);
+}
+
+
+/*****************************************************************************************
+Radio Button
+*/
+
+/* the button outline itself */
+div.o-rbn div.zi
+{
+	display: inline-block;
+	border: 1px solid black;
+	width: 16px;
+	height: 16px;
+	vertical-align: middle;
+	margin-right: 10px;
+	box-shadow: -1px -1px 1px 0px #AAA inset;
+	background-repeat: no-repeat;
+	background-position:0px 2px;
+	border-radius: 10px;
+}
+
+/* the button is checked */
+div.o-rbn.zk div.zi
+{
+	background-image: url(rbn-dot.png);
+}
+
+
+/*****************************************************************************************
+Push Button
+*/
+
+/* push button color/opacity is set per-element as any color can be used;
+or transparent if not opaque */
+
+/* hilite is performed manually by the button, by changing the background color
+and applying the zh class */
+
+/* with rectangular border */
+div.o-psh.zrt
+{
+	border: 1px solid black;
+}
+
+/* with round-rect border */
+div.o-psh.zrd
+{
+	border: 1px solid black;
+	border-radius: 8px;
+}
+
+/* with shadow */
+div.o-psh.zsd
+{
+	box-shadow: 2px 2px 2px 0px black;
+}
+
+/* with bevel */
+div.o-psh.zbl
+{
+	box-shadow: -1px -1px 2px 0px #AAA inset;
+}
+
+/* with shadow and bevel */
+div.o-psh.zsdzbl
+{
+	box-shadow: 2px 2px 2px 0px black, -1px -1px 2px 0px #AAA inset;
+}
+
+/* gap between icon and label */
+div.o-psh div.zi
+{
+	margin-bottom: 4px;
+}
+
+/* hilite */
+div.o-psh.zh
+{
+	background-color: black;
+}
+
+/* hilite inverse text color */
+div.o-psh.zh div.zy div.zc
+{
+	color: white;
+}
+
+
+
+</style>
+
+</head>
+<body>
+
+
+
+
+	<div class="o o-chk zk" style="width: 200px; height: 50px; position: relative;"><div class="zy" style="width: 200px; height: 50px;"><div class="zi" style="background-color: white;"></div><div class="zc" style="font-family: sans-serif; font-size: 9pt;">A checkbox</div></div></div>
+
+	<div class="o o-chk" style="width: 200px; height: 50px; position: relative;"><div class="zy" style="width: 200px; height: 50px;"><div class="zi" style="background-color: white;"></div><div class="zc" style="font-family: sans-serif; font-size: 9pt;">B checkbox</div></div></div>
+
+
+	<div class="o o-rbn" style="width: 200px; height: 50px; position: relative;"><div class="zy" style="width: 200px; height: 50px;"><div class="zi" style="background-color: white;"></div><div class="zc" style="font-family: sans-serif; font-size: 9pt;">A radio button</div></div></div>
+	
+	<div class="o o-rbn zk" style="width: 200px; height: 50px; position: relative;"><div class="zy" style="width: 200px; height: 50px;"><div class="zi" style="background-color: white;"></div><div class="zc" style="font-family: sans-serif; font-size: 9pt;">B radio button</div></div></div>
+
+
+	<div class="o o-psh zrd zsdzbl zh" style="width: 200px; height: 180px; position: relative; "><div class="zy zx" style="width: 200px; height: 180px;"><div class="zi"><img src="2.Stack.png" width="48"></div><div class="zc" style="font-family: sans-serif; font-size: 9pt;">A push button</div></div></div>
+
+
+
+
+</body>
+</html>

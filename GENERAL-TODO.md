@@ -9,15 +9,16 @@ In Progress/Todo
 * Stack info [DONE]
 * Script editor; need to write the JS code formatter [Better formatter needs porting from 2013 prototype]
 * Card resize [DONE]
-* Picklist/content dialog
 * Alerts [DONE]
 * Icons for buttons [DONE]
-* Checkboxes, radio buttons
+* Checkboxes, radio buttons [DONE]
+* auto-hilite [DONE]
+
 * Button menus
 * Field picklists
+  * Picklist/content dialog
 
-* auto-hilite
-* hilite saving
+* hilite saving incl. appropriate shared hilite behaviour
 
 (can do these prior to scripting enabled:)
 * Button tasks; link, ? hide for now until can think of things for it to do.;
