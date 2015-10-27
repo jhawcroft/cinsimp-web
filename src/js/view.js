@@ -1622,6 +1622,10 @@ View.prototype.paint_revert = function()
 
 View.do_link_to = function()
 {
+	// really need an expression here, because can't save the runtime object ***
+	// will need xTalk integrated to do this properly
+	//this._link_from_object = this._selected_objects[0]; 
+	
 	Palette.LinkTo.show();
 }
 
@@ -1636,6 +1640,7 @@ View.do_effect = function()
 View.apply_link_to = function(in_subject)
 {
 	Palette.LinkTo.hide();
+	
 }
 
 

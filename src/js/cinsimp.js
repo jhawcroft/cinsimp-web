@@ -154,7 +154,7 @@ var CinsImp = {
 		this.load_script('field.js');//
 		this.load_script('button.js');//
 		
-		
+		this.load_script('task-scripter.js');//
 		this.load_script('app-dialogs.js');
 		
 		/* start the application once everything is loaded */

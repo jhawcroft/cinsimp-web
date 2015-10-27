@@ -30,6 +30,8 @@ ground work for other kinds of field paraphernalia:
 	opening a URL, playing a sound (stack resources), playing a movie 
 	Alternately, a visual effect window to accompany the Link button.
 * Button link to?
+	Will need xTalk referencing expressions to do this properly, but have started
+	a class called TaskScripter which does most of the hardwork for script modification.
 
 * Protect stack [DONE]
   * will need to use challenge-response cookies and timeouts for additional security
