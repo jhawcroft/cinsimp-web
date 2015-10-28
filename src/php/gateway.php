@@ -203,6 +203,17 @@ Regular Command Handlers
 */
 	public static function load_stack($inbound, $outbound)
 	{
+		global $config;
+		if (isset($inbound['stack_url']))
+		{
+		
+		// **TODO** if the parameter stack_host is specified,
+		// we must act as a proxy for the remote server
+		// and probably this code should be detected at the beginning of the gateway,
+		// with the messages simply passed along
+		
+			$inbound['stack_id'] = substr($inbound['stack_url'], strlen($config->url . 'stacks/'));
+		}
 		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
 		$outbound['stack'] = $stack->stack_load();
 		return $outbound;

@@ -50,18 +50,20 @@ Ajax.init = function(url, timeout)
 }
 
 
-Ajax.send = function(msg, responseHandler)
+Ajax.send = function(msg, responseHandler, in_timeout)
 {
 	if (Ajax._ajaxRequest)
 	{
 		responseHandler('Internal error (Ajax adapter already in-use)', 'in-use');
 		return;
 	}
+	
+	var timeout = (in_timeout ? in_timeout * 1000 : Ajax._timeout * 1000);
 
-	Ajax._timeoutVar = setTimeout(function() { Ajax._handleTimeout(); }, Ajax._timeout * 1000);
+	Ajax._timeoutVar = setTimeout(function() { Ajax._handleTimeout(); }, timeout);
 	Ajax._responseHandler = responseHandler;
 	
-	msg = JSON.stringify(msg);
+	var msg = JSON.stringify(msg);
 	//alert(msg);
 	
 	Ajax._ajaxRequest = new XMLHttpRequest();
@@ -124,7 +126,7 @@ Ajax._handleTimeout = function()
 }
 
 
-Ajax.init(gBase+'?io=1', 5);
+Ajax.init('?io=1', 10);
 
 
 CinsImp._script_loaded('ajax');

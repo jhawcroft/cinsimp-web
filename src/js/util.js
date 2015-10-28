@@ -38,6 +38,23 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 function Util() {}
 
 
+Util.url_path = function(in_url)
+{
+	var link = document.createElement("a");
+    link.href = in_url;
+    return link.pathname;
+}
+
+
+Util.url_host = function(in_url)
+{
+	var link = document.createElement("a");
+    link.href = in_url;
+    return link.hostname;
+}
+
+
+
 Util.niceSize = function(in_bytes)
 {
 	return Math.round(in_bytes / 1024) + ' KB';

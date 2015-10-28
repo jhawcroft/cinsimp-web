@@ -42,13 +42,78 @@ var Model = CinsImp.Model;
 
 
 /*
-
-*/
-Model.Stack = function(in_url)
-{
+	Client-side representation of a loaded Stack.
+	(May also be loaded from a stack on another server)
 	
-};
+	in_url_or_object may be either the URL to a stack on a server with CinsImp installed,
+	or, a raw stack definition object like that embedded in the static HTML for a stack.
+*/
+Model.Stack = function(in_url_or_def, in_ready_handler)
+{
+	/* initialise the class internals */
+	this._ready = false;
 
+	/* the input is a URL, we need first to fetch the stack definition object via AJAX */
+	if (typeof in_url_or_def == 'string')
+	{
+		this._fetch_def(in_url_or_def, in_ready_handler);
+		return;
+	}
+	
+	/* otherwise, just load the stack from the definition */
+	this._load_def(in_url_or_def);
+	if (this._ready_handler)
+		this._ready_handler(stack, this._ready);
+};
+var Stack = Model.Stack;
+
+
+/*
+	Fetches a Stack definition from a CinsImp gateway server.
+	(The server doesn't have to be our own - our own acts as a proxy)
+*/
+Stack.prototype._fetch_def = function(in_url, in_ready_handler)
+{
+	this._host = Util.url_host(in_url);
+	this._url = Util.url_path(in_url);
+	
+	var msg = {
+		cmd: 'load_stack',
+		stack_host: this._host,
+		stack_url: this._url
+	};
+	
+	var stack = this;
+	Ajax.send(msg, function(in_reply, in_status)
+	{
+		if (in_status == 'ok' && in_reply.cmd == 'load_stack')
+			stack._load_def(in_reply.stack);
+		if (in_ready_handler)
+			in_ready_handler(stack, stack._ready);
+	});
+}
+
+
+/*
+	Loads the Stack definition obtained from a gateway server.
+*/
+Stack.prototype._load_def = function(in_def)
+{
+	this._def = in_def;
+	
+	/* we should check the definition is valid here */ /// ** TODO **
+	
+	this._ready = true;
+}
+
+
+/*
+	Returns true if the model object is ready and valid.
+*/
+Stack.prototype.is_ready = function()
+{
+	return this._ready;
+}
 
 
 
