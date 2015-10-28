@@ -6,7 +6,7 @@ sensitive information */
 $config->debug = true;
 
 /* move the stack's base path? */
-$config->stacks = $config->base . '../../stacks/';
+//$config->stacks = $config->base . '../../stacks/';
 
 /* apply restrictions to this installation
 for sanity or public security defense? */
