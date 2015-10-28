@@ -5,6 +5,8 @@ additional debug utilities are available and error messages contain potentially
 sensitive information */
 $config->debug = true;
 
+$config->timezone = 'Australia/Brisbane';
+
 /* move the stack's base path? */
 //$config->stacks = $config->base . '../../stacks/';
 
