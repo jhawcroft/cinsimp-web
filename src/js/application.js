@@ -65,7 +65,7 @@ Application.choose_color = function(in_color)
 
 Application.invoke_message = function()
 {
-	alert('Do message: '+Application._msgtxt.value);
+	Xtalk.VM.handle_message_box(Application._msgtxt.value);
 }
 
 
@@ -580,6 +580,67 @@ Application._load_initial_stack = function()
 }
 
 
+Application._xtalk_error_alert = function(in_message, in_object, in_line, in_can_script, in_can_debug)
+{
+	Application._xtalk_error_object = in_object;
+	Application._xtalk_error_line = in_line;
+	
+	var alert = new Alert();
+	alert.title = 'CinsTalk Error';
+	alert.prompt = in_message;
+	alert.button1_label = 'Cancel';
+	
+	if (in_can_script)
+	{
+		alert.button2_label = 'Script';
+		alert.button2_handler = null; // **TODO**
+		
+		if (in_can_debug)
+		{
+			alert.button3_label = 'Debug';
+			alert.button3_handler = null; // **TODO**
+		}
+	}
+
+	alert.show();	
+}
+
+
+Application._init_xtalk = function()
+{
+	Xtalk.VM.onError = function(in_error)
+	{
+		/* check for unhandled javascript errors */
+		if (!(in_error instanceof Xtalk.Error))
+		{
+			Application._xtalk_error_alert('Unhandled javascript exception: '+in_error.message+"\n"+
+				in_error.fileName +': '+in_error.lineNumber, null, 0, false, false);
+			return;
+		}
+
+		/* figure out which buttons should be enabled */
+		var canScript = false;
+		var canDebug = false;
+		if (in_error.type == 'runtime') canDebug = true;
+		if (in_error.owner) canScript = true;
+		else canDebug = false;
+	
+		// would do user-level checks here if we actually were running within the authoring environment
+	
+		/* display an appropriate alert */
+		Application._xtalk_error_alert(in_error.message, null, in_error.line, canScript, canDebug);
+	};
+	
+	
+	Xtalk.VM.onMessageWrite = function(in_what)
+	{
+		Application._msgtxt.value = in_what;
+		Palette.MessageBox.show();
+	};
+}
+
+
+
 Application.init = function()
 {
 	//Progress.status('Initalizing CinsImp application...');
@@ -590,6 +651,8 @@ Application.init = function()
 	Application._init_app_bar();
 	
 	Application._init_share_menu();
+	
+	Application._init_xtalk();
 	
 	Progress.operation_begun('Loading stack...', true);
 	Application._configure_initial_stack();

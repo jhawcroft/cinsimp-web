@@ -301,3 +301,6 @@ Registration
 
 Xtalk.Dict.init_builtins();
 
+
+CinsImp._script_loaded('xtalk-dict');
+

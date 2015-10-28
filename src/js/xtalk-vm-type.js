@@ -253,4 +253,4 @@ Xtalk.VM.TBoolean.prototype.toValue = function()
 }
 
 
-
+CinsImp._script_loaded('xtalk-vm-type');

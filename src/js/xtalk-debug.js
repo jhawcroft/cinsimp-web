@@ -113,3 +113,5 @@ Xtalk.Debug = {
 };
 
 
+CinsImp._script_loaded('xtalk-debug');
+

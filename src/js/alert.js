@@ -86,6 +86,7 @@ Alert.prototype.show = function()
 	d_btn3.style.display = (this.button3_label != '' ? 'block' : 'none');
 	
 	Alert._current = this;
+	Dialog.Alert.set_title(this.title);
 	Dialog.Alert.show();
 }
 

@@ -147,6 +147,40 @@ var CinsImp = {
 	
 	
 /*
+	
+*/
+
+	_init6: function()
+	{
+		this.load_script('xtalk-dict.js');
+		this.load_script('xtalk-vm-type.js');
+		
+		this._when_loaded(function() {
+			Application.init();
+		});
+	},
+	
+
+	_init5: function()
+	{
+		this.load_script('xtalk-debug.js');
+		this.load_script('xtalk-builtins.js');
+		this.load_script('xtalk-lex.js');
+		this.load_script('xtalk-script.js');
+		this.load_script('xtalk-parse-bnf.js');
+		this.load_script('xtalk-parse-expr.js');
+		this.load_script('xtalk-parse-hdlr.js');
+		this.load_script('xtalk-parse-msgs.js');
+		this.load_script('xtalk-flat.js');
+		this.load_script('xtalk-vm.js');
+		
+		this._when_loaded(function() {
+			CinsImp._init6();
+		});
+	},
+	
+
+/*
 	The fourth init function.
 */
 	_init4: function()
@@ -157,9 +191,11 @@ var CinsImp = {
 		this.load_script('task-scripter.js');//
 		this.load_script('app-dialogs.js');
 		
+		this.load_script('xtalk.js');
+		
 		/* start the application once everything is loaded */
 		this._when_loaded(function() {
-			Application.init();
+			CinsImp._init5();
 		});
 	},
 	

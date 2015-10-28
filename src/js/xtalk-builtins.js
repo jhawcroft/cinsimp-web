@@ -82,6 +82,6 @@ Xtalk.Builtins = {
 
 
 
-
+CinsImp._script_loaded('xtalk-builtins');
 
 
