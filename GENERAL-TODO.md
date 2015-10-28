@@ -1,95 +1,83 @@
-In Progress/Todo
-================
+TODO: CinsImp -> Toward 1.0
+===========================
 
-* HyperCard import [Partial]
-* Drag guides [DONE]
-* Field info [DONE]
-* Rejigging button and field attributes [DONE]
-* Card and bkgnd info [DONE]
-* Stack info [DONE]
-* Script editor; need to write the JS code formatter [Better formatter needs porting from 2013 prototype]
-* Card resize [DONE]
-* Alerts [DONE]
-* Icons for buttons [DONE]
-* Checkboxes, radio buttons [DONE]
-* auto-hilite [DONE]
-* hilite saving incl. appropriate shared hilite behaviour [DONE]
+* proper client-side model objects for Stack, Bkgnd and Card
+  * card dirty flag including visible pencil icon
+  * only transmit dirty information for:
+    * separate layer info blocks
+    * separate layer object definitions and content
+    * card content for bkgnd objects
+    * separate layer artwork
+  * model object references so objects are unloaded when ref count == 0
+  * methods to provoke persistence (automatically taking the required action(s))
+  * methods to provoke loading
+  * don't download bkgnds repeatedly whilst navigating within bkgnd
 
-ground work for other kinds of field paraphernalia:
-* hide non-shared field content when in the background layer [DONE]
-* lock shared field content when in the card layer [DONE]
+* object reference internals for xTalk, Link To
+  and inter-stack resolution
+  (delayed reference evaluation, application mechanism to 
+  resolve reference path/chain to actual model object)
 
-* Button menus
-* Field picklists
-  * Picklist/content dialog [DONE]
+* general cleanup
 
+* visual effect transition engine using CSS
 
-(can do these prior to scripting enabled:)
-* Button tasks; link, ? hide for now until can think of things for it to do.;
-	visual transition effects, text to speech (via 'mespeak' javascript library or similar)
-	opening a URL, playing a sound (stack resources), playing a movie 
-	Alternately, a visual effect window to accompany the Link button.
-* Button link to?
-	Will need xTalk referencing expressions to do this properly, but have started
-	a class called TaskScripter which does most of the hardwork for script modification.
-
-* Protect stack [DONE]
-  * will need to use challenge-response cookies and timeouts for additional security
-  * need to actually implement Password?
-  * probably include an Authenticate... menu item in the config menu to allow the owner to get full privileges without changing protection
-	
-* optimisations: 
-  * button and field attribute setup often causes multiple rebuilds of each object at load
+* xTalk:
+  * script indexes using the appropriate module
+  * handler compilation
+  * handler execution and message passing hierarchy
+  * "answer" command
+  * chunk expressions
+  * variables
+  * remaining built-ins hook up and implementations
+  * proper code auto-formatter (migrate the 2013 prototype)
+  * completing button tasks
   
-* text palette/menu
-* line sizes palette
-* textures palette?  more useful than patterns, these would describe positive+negative undulations in the color
-* possibly an extra color (fill + stroke) could be provided when draw filled is enabled,
-	in concert with an upgraded color palette with separate indication as to the selection
-	(this would keep things relatively simple from a UI and usability perspective)
-	
-* color picker widget for various dialogs & properties
+* button and field menus/picklists
+* multi-column fields
 
-* Options menu?
-* Core navigation vs browser nav?
+* security:
+  * server-side password restrictions, set & clear
+  * server-side private access and denial of search engine access to raw content
+  * user-levels
+  * authenticate feature; temporarily authenticate for duration of session
+    to get user-level 5 equivalent access to an otherwise protected stack
 
-* nice loading screen behaviour and stack transitions within a single session
+* palettes:
+  * line sizes
+  * text?
+  * disabled buttons on main palettes
 
-* HC-style reporting functionality
+* printing:
+  * print field
+  * print card
+  * print stack
+  * report template design
+  * report printing
 
-* Add the font license reference information to the About Box 
-* Write a font face manager that can manage which faces are used in a given stack and ensure all are downloaded, but only the ones that should be (low priority?) ; consider loading all fonts at application load (could easily be absurd)
+* server-side VM and script execution
 
-* New Web accessible handlers and functions exporting via whatever standards are common today RPC, SOAP, etc.
-* New Web forms - exportable card(s) with working handlers
-* New Web accessible reports with PDF, HTML, CSV outputs and charts/graphics
-* New Web accessible HTML content for embedding within other statically/dynamically generated pages
-	
-	SOAP, WSDL and UDDI ?
-	
-	PHP can handle remote procedure/function calls, by including a copy of the VM without UI hooks.
-		(bear in mind that "Do" and "send" may require compiler access, which at present is only in JS -
-		may end up writing the compiler atop a modified VM, so that it can be executed easily by both
-		PHP and JS ?)
-	The reporting engine will probably only be server-side anyway.
-	
+* web 'one-click' access:
+  * export of handlers/functions for SOAP/RPC
+  * export of reports
+  * export of card(s) as HTML 5 forms
 
+* paint:
+  * lasso tool
+  * textures (single color +/-)
+  * effects via options menu
+  * copy/cut
+  
+* type manager
+  * use bundled fonts within stacks
 
-* need to avoid saving everytime navigation occurs (very stupid) - only save when things have changed
-* need a visible dirty flag and auto-save feature (backgrounding)
-* need a save button to ensure all information is manually returned to the server if not changing cards [DONE]
-* it'd be good to avoid downloading the bkgnd image if the bkgnd is the same ID (server-side code can check in concert with client request, and send a special designation which the client will use to utilise the last bkgnd image, which will be separately cached prior to loading the next card's details)
+* HyperCard import completion
 
-* Paint tools! [Partial]
-  * Cut/Copy/Paste + Rectangular Selection [Done Paste, TODO Cut/Copy]
-  * Lasso [TODO]
-  * Paint tools
-  * Shape tools
-  * Text tool ?
+* about box expansion to include more room for other credits
+  * add font licenses to credits
+  
+* xTalk debugger
 
-* Integration of xTalk engine
-  * Caching compiled handlers and index
-  * Core commands and functions
-  * Chunks implementation
+* optimisations
+  * button/field load often causes rebuild of DOM object multiple times as configuration occurs
 
-* Debugging
