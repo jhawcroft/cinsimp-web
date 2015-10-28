@@ -31,6 +31,10 @@ div.Label
 	white-space: nowrap;
 }
 
+div.Label.Expands
+{
+	white-space: normal;
+}
 
 
 
