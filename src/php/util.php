@@ -157,6 +157,23 @@ class Util
 		print $page;
 		exit;
 	}
+	
+	
+	
+	public static function keys_required(&$in_array, $in_keys)
+	{
+		if (!is_array($in_array)) CinsImpError::malformed('Input is not an array');
+		foreach ($in_keys as $key)
+			if (!array_key_exists($key, $in_array)) 
+				CinsImpError::malformed('"' . $key . '" missing from request'); 
+	}
+	
+	
+	public static function optional(&$in_array, $in_key, $in_default = null)
+	{
+		if (array_key_exists($in_array)) return $in_array[$in_key];
+		else return $in_default;
+	}
 
 }
 
