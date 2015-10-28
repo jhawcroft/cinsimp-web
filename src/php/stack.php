@@ -52,6 +52,48 @@ Notes
 Stack content is generally accessed a card at a time, with the card data including
 all relevant background data.
 
+
+
+
+// re scripts and locking and caching:
+// should probably take stack script and anything that is presently loaded as-is
+// with caches and indexes on the client-side at runtime, for the duration of the event
+// handling, with a reload of changable data (such as stack script) automatically
+// when card/bkgnd information is retrieved and the script has been modified.
+
+
+// bear in mind, need to be able to temporarily lock a script from writing
+// for a specific user, which might feed into this...
+
+// what needs to be lockable?
+
+// icons are imported/deleted, not particularly bothered about locking..
+// if an icon is deleted and another user is using it, it wont disappear until
+// they close and re-open the stack anyway.
+
+// stats are calculated
+
+// scripts need locking during editing
+
+// card size is fairly major and needs to be reported almost immediately,
+// or only changable when no one else is in the file?
+
+
+// Go the simple locking model:
+
+// a simpler locking model allows only one person at a time to author the stack
+// and many people to modify data on different cards, with only locks on stack and card
+
+// locking, request the attribute/object via a locking handler
+// which returns the value and whether it's read/only or read/write,
+// and the name of who has locked it.
+// if it's read-only, can force read-write, but then when a save is 
+// commited by another user, it will see the owner is different 
+// and return an error that the lock was broken by that user
+
+// figure out later.
+
+
 */
 
 
@@ -61,17 +103,37 @@ class Stack
 Private Properties
 */
 
-	private $file_db;
-	private $name;
-	private $stack_id;
+	private $file_db;			/* the SQLite database handle */
+	private $name;				/* the title of the stack */
+	private $stack_id;			/* the file pathname */
+	private $stack_path; 		/* public representation of where file is */
 	
+	private $file_read_only;	/* the file or file system is read-only */
+	
+	private $cant_modify;		/* the user has set the stack to be read-only */
+	private $password_hash;		/* users with this password can override any access
+								restrictions for the duration of their session */
+	private $private_access;	/* only users with the password can open the stack */
+	private $cant_delete;		/* is stack allowed to be deleted by the user
+								or a CinsTalk script? */
+	
+	private $record_version;	/* everytime the stack record is modified,
+								this integer gets incremented.
+								a client transmits a copy for each gateway operation,
+								which if different to the stored version implies the
+								client stack block is out-of-date and needs to be
+								pushed to the client (someone else modified it.) */
+	
+	private $authenticated;		/* true if authentication was successful */
+
 	
 /*****************************************************************************************
 Public Constants
 */
 	 const FLAG_STACK_INFO = 1;
 	 const FLAG_STACK_SCRIPT = 2;
-	 const FLAG_STACK_ICONS = 3;
+	 const FLAG_STACK_ICONS = 4;
+	 const FLAG_STACK_OPTS = 8;
 	
 	
 /*****************************************************************************************
@@ -115,147 +177,288 @@ Utilities
 	}
 	
 	
+	private function _has_all_keys(&$in_array, &$in_keys)
+	{
+		if (!is_array($in_array)) return false;
+		foreach ($in_keys as $key)
+		{
+			if (!array_key_exists($key, $in_array)) return false;
+		}
+		return true;
+	}
+	
+	
+	private function _throw_corrupt()
+	{
+		throw new Exception('Invalid Stack or Stack Corrupt', 520);
+	}
+	
+	
+	private function _optional(&$in_array, $in_key, $in_default = null)
+	{
+		if (array_key_exists($in_array)) return $in_array[$in_key];
+		else return $in_default;
+	}
+	
+	
 /*****************************************************************************************
 Creating and Opening Stacks
 */
-	/* takes either a database identifier or a file system path;
-	the later is assumed to be an SQLite database, the former,
-	a MySQL database or supported database connector. */
+
+/*
+	Opens the Stack with the supplied file path name.
+	
+	Throws: 
+		404 Stack Not Found
+		520 Invalid Stack or Stack Corrupt
+		520 Stack Too New
+*/
 	public function __construct($in_ident)
 	{
 		/* configure the instance */
 		$this->stack_id = $in_ident;
 		$this->name = basename($in_ident);
+		$this->stack_path = substr($in_ident, strlen($_SERVER['DOCUMENT_ROOT']));
 		
 		/* check if the supplied stack file exists */
 		if (!file_exists($in_ident))
 			throw new Exception('Stack Not Found', 404);
+			
+		/* check if the file is read-only */
+		$this->file_read_only = (!is_writable($in_ident));
 		
 		/* open the file as a SQLite database */
 		try
 		{	
 			$this->file_db = new PDO('sqlite:'.$in_ident);
 			if ($this->file_db === false)
-				throw new Exception("Couldn't open stack database");
+				throw new Exception('Invalid Stack or Stack Corrupt', 520);
+			$this->file_db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$this->file_db->exec('PRAGMA encoding = "UTF-8"');
 		}
 		catch (Exception $err)
 		{
 			throw new Exception('Invalid Stack or Stack Corrupt', 520);
 		}
 		
-		$this->file_db->exec('PRAGMA encoding = "UTF-8"');
+		/* preload security info and check file version */
+		try
+		{
+			$this->load_check_essentials();
+		}
+		catch (Exception $err)
+		{
+			throw new Exception('Stack Too New; '.$err->getMessage(), 520);
+		}
 	}
 	
 	
 /*
-	Creates a file-based stack with the supplied path name.
+	Preloads vital security information and checks the file format version
+	is supported by this version of CinsImp.
+*/
+	private function load_check_essentials()
+	{
+		$stmt = $this->file_db->prepare(
+			'SELECT format_version,password_hash,private_access,cant_modify,cant_delete,record_version FROM cinsimp_stack'
+		);
+		$stmt->execute();
+		$row = $stmt->fetch(PDO::FETCH_NUM);
+		
+		if ($row[0] > 1)
+			throw new Exception('Stack Too New', 520);
+				
+		$this->password_hash = $row[1];
+		$this->private_access = Stack::decode_bool($row[2]);
+		$this->cant_modify = Stack::decode_bool($row[3]);
+		$this->cant_delete = Stack::decode_bool($row[4]);
+		
+		$this->record_version = $row[5];
+	}
+	
+	
+/*
+	Creates a Stack with the supplied file path name.
 */
 	public static function create_file($in_path)
 	{
+		/* create the SQLite database file */
 		try
 		{
 			$file_db = new PDO('sqlite:'.$in_path);
 			if ($file_db === false)
 				throw new Exception("Couldn't create stack database");
+			$file_db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$file_db->exec('PRAGMA encoding = "UTF-8"');
 		}
 		catch (Exception $err)
 		{
 			throw new Exception('Cannot Create Stack File', 520);
 		}
+		
+		/* create and populate the schema */
+		try
+		{
+			$file_db->beginTransaction();
+		
+			$create_table_sql = "
+		
+CREATE TABLE cinsimp_stack (
+	format_version INTEGER NOT NULL,
+	
+	record_version INTEGER NOT NULL DEFAULT 0,
+	
+	password_hash TEXT NOT NULL DEFAULT '',
+	private_access INTEGER NOT NULL DEFAULT 0,
+	cant_modify INTEGER NOT NULL DEFAULT 0,
+	cant_delete INTEGER NOT NULL DEFAULT 0,
+	cant_abort INTEGER NOT NULL DEFAULT 0,
+	cant_peek INTEGER NOT NULL DEFAULT 0,
+	user_level INTEGER NOT NULL DEFAULT 5,
+	
+	card_width INTEGER NOT NULL DEFAULT 800,
+	card_height INTEGER NOT NULL DEFAULT 600,
+	
+	script TEXT NOT NULL DEFAULT ''
+);
+
+CREATE TABLE bkgnd (
+	id INTEGER PRIMARY KEY,
+	name TEXT NOT NULL DEFAULT '',
+	cant_delete INTEGER NOT NULL DEFAULT 0,
+	dont_search INTEGER NOT NULL DEFAULT 0,
+	script TEXT NOT NULL DEFAULT '',
+	art TEXT NOT NULL DEFAULT '',
+	art_hidden INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE card (
+	id INTEGER PRIMARY KEY,
+	bkgnd_id INTEGER NOT NULL,
+	card_seq INTEGER NOT NULL,
+	name TEXT NOT NULL DEFAULT '',
+	cant_delete INTEGER NOT NULL DEFAULT 0,
+	dont_search INTEGER NOT NULL DEFAULT 0,
+	marked INTEGER NOT NULL DEFAULT 0,
+	script TEXT NOT NULL DEFAULT '',
+	art TEXT NOT NULL DEFAULT '',
+	art_hidden INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE card_data (
+	card_id INTEGER NOT NULL,
+	bkgnd_object_id INTEGER NOT NULL,
+	content TEXT NOT NULL DEFAULT ''
+);
+
+CREATE TABLE icon (
+	id INTEGER PRIMARY KEY,
+	name TEXT NOT NULL DEFAULT '',
+	png_data TEXT NOT NULL DEFAULT ''
+);
+
+CREATE TABLE button (
+	id INTEGER NOT NULL,
+	layer_id INTEGER NOT NULL,
+	part_num INTEGER NOT NULL,
+	location TEXT NOT NULL,
+	size TEXT NOT NULL,
+	name TEXT NOT NULL,
+	shared INTEGER NOT NULL,
+	searchable INTEGER NOT NULL,
+	visible INTEGER NOT NULL,
+	script TEXT NOT NULL,
+	disabled INTEGER NOT NULL,
+	txt_align TEXT NOT NULL,
+	txt_font TEXT NOT NULL,
+	txt_size INTEGER NOT NULL,
+	txt_style TEXT NOT NULL,
+	color_rgb TEXT NOT NULL,
+	shadow INTEGER NOT NULL,
+	content TEXT NOT NULL,
+	
+	style TEXT NOT NULL,
+	family INTEGER NOT NULL,
+	menu TEXT NOT NULL,
+	icon INTEGER NOT NULL,
+	show_name INTEGER NOT NULL,
+	hilite INTEGER NOT NULL,
+	auto_hilite INTEGER NOT NULL,
+	
+	PRIMARY KEY (id, layer_id)
+);
+
+CREATE TABLE field (
+	id INTEGER NOT NULL,
+	layer_id INTEGER NOT NULL,
+	part_num INTEGER NOT NULL,
+	location TEXT NOT NULL,
+	size TEXT NOT NULL,
+	name TEXT NOT NULL,
+	shared INTEGER NOT NULL,
+	searchable INTEGER NOT NULL,
+	visible INTEGER NOT NULL,
+	script TEXT NOT NULL,
+	disabled INTEGER NOT NULL,
+	txt_align TEXT NOT NULL,
+	txt_font TEXT NOT NULL,
+	txt_size INTEGER NOT NULL,
+	txt_style TEXT NOT NULL,
+	color_rgb TEXT NOT NULL,
+	shadow INTEGER NOT NULL,
+	content TEXT NOT NULL,
+	
+	border INTEGER NOT NULL,
+	scroll INTEGER NOT NULL,
+	locked INTEGER NOT NULL,
+	dont_wrap INTEGER NOT NULL,
+	auto_tab INTEGER NOT NULL,
+	wide_margins INTEGER NOT NULL,
+	auto_select INTEGER NOT NULL,
+	selection TEXT NOT NULL,
+	picklist TEXT NOT NULL,
+	
+	PRIMARY KEY (id, layer_id)
+);
+
+INSERT INTO cinsimp_stack (format_version) VALUES (1);
+INSERT INTO bkgnd (id) VALUES (1);
+INSERT INTO card (id, bkgnd_id, card_seq) VALUES (1, 1, 1);
+
+";
+
+			$stmts = explode(';', $create_table_sql);
+			$s_num = 1;
+			foreach ($stmts as $stmt)
+			{
+				$stmt = trim($stmt);
+				if ($stmt != '')
+				{
+					try { $file_db->exec($stmt); }
+					catch (Exception $err) 
+					{ throw new Exception('Statement '.$s_num.': '.$err->getMessage()); }
+					$s_num++;
+				}
+			}
 			
-		$file_db->exec('PRAGMA encoding = "UTF-8"');
-		
-		$file_db->beginTransaction();
-		
-		Stack::sl_ok($file_db->exec(
-			'CREATE TABLE stack ('.
-  			'password_hash TEXT DEFAULT NULL,'.
-  			'private_access INTEGER NOT NULL DEFAULT 0,'.
-  			'stack_data TEXT NOT NULL,'.
-  			'cant_delete INTEGER NOT NULL DEFAULT 0,'.
-  			'cant_modify INTEGER NOT NULL DEFAULT 0)'
-  		), $file_db, 'Creating table: Stack');
-  		
-  		$stack_data = json_encode(Array('user_level'=>5, 'card_width'=>800, 'card_height'=>600, 'cant_peek'=>false, 'cant_abort'=>false,
-  			'script'=>array('content'=>'', 'selection'=>0)));
-  		Stack::sl_ok($file_db->exec(
-  			'INSERT INTO stack '.
-  			'(stack_data) VALUES '.
-  			'('.$file_db->quote($stack_data).')'
-  		), $file_db, 'Populating table: Stack');  		
-  		
-  		Stack::sl_ok($file_db->exec(
-			'CREATE TABLE bkgnd ('.
-			'bkgnd_id INTEGER PRIMARY KEY,'.
-			'bkgnd_name TEXT NOT NULL DEFAULT \'\','.
-			'object_data TEXT NOT NULL,'.
-			'cant_delete INTEGER NOT NULL DEFAULT 0,'.
-			'dont_search INTEGER NOT NULL DEFAULT 0,'.
-			'bkgnd_data TEXT NOT NULL,'.
-			'bkgnd_art TEXT)'
-  		), $file_db, 'Creating table: Background');
-  		
-  		Stack::sl_ok($file_db->exec(
-  			'INSERT INTO bkgnd '.
-  			'(bkgnd_id, object_data, bkgnd_data) VALUES '.
-  			'(1, \'\', \'\')'
-  		), $file_db, 'Populating table: Background');
-  		
-  		Stack::sl_ok($file_db->exec(
-			'CREATE TABLE card ('.
-			'card_id INTEGER PRIMARY KEY,'.
-			'bkgnd_id INTEGER NOT NULL,'.
-			'card_name TEXT NOT NULL DEFAULT \'\','.
-			'card_seq INTEGER NOT NULL,'.
-			'object_data TEXT NOT NULL,'.
-			'cant_delete INTEGER NOT NULL DEFAULT 0,'.
-			'dont_search INTEGER NOT NULL DEFAULT 0,'.
-			'marked INTEGER NOT NULL DEFAULT 0,'.
-			'card_data TEXT NOT NULL,'.
-			'card_art TEXT)'
-  		), $file_db, 'Creating table: Card');
-  		
-  		Stack::sl_ok($file_db->exec(
-  			'INSERT INTO card '.
-  			'(card_id, bkgnd_id, card_seq, object_data, card_data) VALUES '.
-  			'(1, 1, 10, \'\', \'\')'
-  		), $file_db, 'Populating table: Card');
-  		
-  		Stack::sl_ok($file_db->exec(
-  			'CREATE TABLE icon ('.
-  			'icon_id INTEGER PRIMARY KEY,'.
-  			'icon_name TEXT NOT NULL DEFAULT \'\','.
-  			'icon_data TEXT NOT NULL DEFAULT \'\')'
-  		), $file_db, 'Creating table: Icon');
-		
-		if (!$file_db->commit())
-			throw new Exception('Cannot Create Stack File', 520);
+			$file_db->commit();
+			
+		}
+		catch (Exception $err)
+		{
+			throw new Exception('Cannot Create Stack File: Internal Error: '.$err->getMessage(), 520);
+		}
 	}
 	
 
+/*
+
+*/
 	public static function stack_delete($in_ident)
 	{
 		throw new Exception('Not Implemented', 501);
 	} 
-	
-	
-	/*
 
-	// could possibly find stacks in current folder/ passed in folder path?
-	
-	public static function stack_get_list()
-	{
-		global $db,$config;
-		$stmt = $db->prepare('SELECT stack_id,stack_name FROM '.$config->database->prefix.'stack');
-		$stmt->execute();
-		$list = Array();
-		$stmt->bind_result($id, $name);
-		while ($stmt->fetch())
-			$list[] = Array($id, $name);
-		$stmt->close();
-		return $list;
-	}
-*/
 
 
 /*****************************************************************************************
@@ -263,67 +466,144 @@ Accessors and Mutators
 */
 
 /*
-	Retrieves the stack data for the stack.
+	Retrieves statistics about the stack that change as the stack is used and modified.
 */
-	public function stack_load($flags = 0)
+	public function stack_stats()
+	{
+		/* calculate approximately how much free 'wasted' space is used by the file */
+		try 
+		{
+			$stmt = $this->file_db->prepare('PRAGMA freelist_count');
+			$stmt->execute();
+			$row = $stmt->fetch(PDO::FETCH_NUM);
+			$page_count = $row[0];
+			$stmt = $this->file_db->prepare('PRAGMA page_size');
+			$stmt->execute();
+			$row = $stmt->fetch(PDO::FETCH_NUM);
+			$page_size = $row[0];
+			$approx_free_space = $page_count * $page_size;
+		}
+		catch (Exception $err)
+			{ throw new Exception('Cannot Calculate Free Space; '.$err->getMessage(), 520); }
+		
+		/* return the statistics */
+		$stats = array(
+			'size'=>filesize($this->stack_id),
+			'free'=>$approx_free_space,
+			'count_cards'=>$this->stack_get_count_cards(),
+			'count_bkgnds'=>$this->stack_get_count_bkgnds()
+		);
+		
+		return $stats;
+	}
+
+
+/*
+	Checks if the supplied password hash matches the hash stored in the database.
+	If not, throws an exception requesting authentication.
+*/
+	public function stack_authenticate($in_password_hash)
 	{
 		global $config;
-		
-		if ($flags == 0) $flags = Stack::FLAG_STACK_INFO |
-			Stack::FLAG_STACK_SCRIPT |
-			Stack::FLAG_STACK_ICONS;
-		
-		$stmt = $this->file_db->prepare(
-			'SELECT stack_data,cant_delete,cant_modify,private_access FROM stack'
-		);
-		Stack::sl_err($stmt, $this->file_db, 'Invalid Stack or Stack Corrupt', 520);
-		Stack::sl_ok($stmt->execute(), $this->file_db, 'Loading Stack (2)');
-		$row = $stmt->fetch(PDO::FETCH_ASSOC);
-		Stack::sl_ok($row, $this->file_db, 'Loading Stack (3)');
-	
-		$stack = json_decode($row['stack_data'], true);
-		$stack['stack_name'] = $this->name;
-		$stack['cant_delete'] = Stack::decode_bool($row['cant_delete']);
-		$stack['cant_modify'] = Stack::decode_bool($row['cant_modify']);
-		$stack['private_access'] = Stack::decode_bool($row['private_access']);
-		$stack['first_card_id'] = $this->stack_get_first_card_id();
-		
-		$stack['stack_id'] = substr($this->stack_id, strlen($config->stacks));
-		$stack['stack_path'] = substr($this->stack_id, strlen($config->stacks));
-		
-		$stack['count_cards'] = $this->stack_get_count_cards();
-		$stack['count_bkgnds'] = $this->stack_get_count_bkgnds();
-		
-		$stack['stack_size'] = filesize($this->stack_id);
-		$stack['stack_free'] = $this->stack_get_free();
-		
-		// also need to retrieve icons here
-		// unless specifically excluded, for example, subsequent reload of essential information only
-		// ** TODO **
-		if ($flags & Stack::FLAG_STACK_ICONS)
+		if ($in_password_hash === $this->password_hash)
+			$this->authenticated = true;
+		else
 		{
-			$list = array();
-			
-			$stmt = $this->file_db->prepare(
-				'SELECT icon_id,icon_name,icon_data FROM icon'
-			);
-			Stack::sl_ok($stmt, $this->file_db, 'Loading Stack Icons (1)');
-			Stack::sl_ok($stmt->execute(), $this->file_db, 'Loading Stack Icons (2)');
-			while (($row = $stmt->fetch(PDO::FETCH_NUM)) !== false)
-			{
-				$list[] = $row;
-			}
-			
-			$stack['stack_icons'] = $list;
+			$this->authenticated = false;
+			throw new Exception('Authentication Required', 401); 
+			// this must be converted to an appropriate JSON response, not HTTP
 		}
-		
-		
-		/*$stack['cant_peek'] = Stack::decode_bool($data['cant_peek']);
-		$stack['cant_abort'] = Stack::decode_bool($data['cant_abort']);
-		$stack['user_level'] = $data['user_level'];
-		$stack['card_width'] = $data['card_width'];
-		$stack['card_height'] = $data['card_height'];*/
+	}
 	
+
+/*
+	Checks if authentication is required (private access = true) but not provided.
+	If required but not provided, circumvents whatever routine is running and throws an
+	exception that demands authentication.
+*/
+	private function check_private_access()
+	{
+		global $config;
+		if (!$this->private_access) return;
+		if ($this->authenticated) return;
+		throw new Exception('Authentication Required', 401); 
+		// this must be converted to an appropriate JSON response, not HTTP
+	}
+	
+
+/*
+	Checks if authentication is provided, or privileges sufficient for the pending operation.
+*/
+	private function check_allowed_mutate()
+	{
+	  ///???
+	}
+	
+	
+/*
+	Retrieves the most up-to-date stack record information.
+*/
+	private function _record()
+	{
+		$stmt = $this->file_db->prepare('SELECT * FROM cinsimp_stack');
+		$stmt->execute();
+		$row = $stmt->fetch(PDO::FETCH_ASSOC);
+	
+		$record = array(
+			'name'=>$this->name,
+			'path'=>$this->stack_path,
+			'id'=>$this->stack_path, // should probably be a full URL, generated from configuration for security
+			
+			'record_version'=>$this->record_version,
+			
+			'file_locked'=>$this->file_read_only,
+			'cant_modify'=>$this->cant_modify,
+			'cant_delete'=>$this->cant_delete,
+			'private_access'=>$this->private_access,
+			
+			'cant_peek'=>Stack::decode_bool($row['cant_peek']),
+			'cant_abort'=>Stack::decode_bool($row['cant_abort']),
+			'user_level'=>$row['user_level'],
+			
+			'card_width'=>$row['card_width'],
+			'card_height'=>$row['card_height'],
+			
+			'script'=>$row['script']
+		);
+		
+		$record = array_merge($record, $this->stack_stats());
+		
+		return $record;
+	}
+	
+	
+/*
+	Returns a complete table of icons within the stack.
+*/
+	private function _icons()
+	{
+		$table = array();
+		$stmt = $this->file_db->prepare(
+			'SELECT id,name,png_data FROM icon'
+		);
+		$stmt->execute();
+		while (($row = $stmt->fetch(PDO::FETCH_NUM)) !== false)
+		{
+			$table[] = $row;
+		}
+		return $table;
+	}
+	
+							
+/*
+	Retrieves the stack data for the stack, such as would generally be required to 
+	open the stack.
+*/
+	public function stack_load()
+	{
+		$this->check_private_access();
+		$stack = $this->_record();
+		$stack['icons'] = $this->_icons();
 		return $stack;
 	}
 
@@ -496,28 +776,7 @@ Accessors and Mutators
 		Stack::sl_ok($this->file_db->exec('VACUUM'), $this->file_db, 'Compacting Stack (1)');
 	}
 	
-	
-/*
-	Returns the approximate amount of free space in the stack (prior to compacting).
-*/
-	public function stack_get_free()
-	{
-		$stmt = $this->file_db->prepare('PRAGMA freelist_count');
-		Stack::sl_ok($stmt, $this->file_db, 'Getting Free Space (1)');
-		Stack::sl_ok($stmt->execute(), $this->file_db, 'Getting Free Space (2)');
-		$row = $stmt->fetch(PDO::FETCH_NUM);
-		Stack::sl_ok($row, $this->file_db, 'Getting Free Space (3)');
-		$page_count = $row[0];
-		
-		$stmt = $this->file_db->prepare('PRAGMA page_size');
-		Stack::sl_ok($stmt, $this->file_db, 'Getting Free Space (4)');
-		Stack::sl_ok($stmt->execute(), $this->file_db, 'Getting Free Space (5)');
-		$row = $stmt->fetch(PDO::FETCH_NUM);
-		Stack::sl_ok($row, $this->file_db, 'Getting Free Space (6)');
-		$page_size = $row[0];
-		
-		return $page_count * $page_size;
-	}
+
 
 
 /*
@@ -525,17 +784,14 @@ Accessors and Mutators
 */
 	public function stack_get_count_cards($in_bkgnd_id = null)
 	{
-		$sql = 'SELECT COUNT(card_id) FROM card JOIN bkgnd ON card.bkgnd_id=bkgnd.bkgnd_id';
-		if ($in_bkgnd_id !== null)
-			$sql .= ' AND bkgnd.bkgnd_id=?';
-		$stmt = $this->file_db->prepare($sql);
-		Stack::sl_ok($stmt, $this->file_db, 'Getting Number of Cards (1)');
 		if ($in_bkgnd_id === null)
-			Stack::sl_ok($stmt->execute(), $this->file_db, 'Getting Number of Cards (2)');
+			$sql = 'SELECT COUNT(*) FROM card';
 		else
-			Stack::sl_ok($stmt->execute(array(intval($in_bkgnd_id))), $this->file_db, 'Getting Number of Cards (3)');
+			$sql = 'SELECT COUNT(card.id) FROM card JOIN bkgnd ON card.bkgnd_id=bkgnd.id WHERE bkgnd.id=?';
+		$stmt = $this->file_db->prepare($sql);
+		if ($in_bkgnd_id === null) $stmt->execute();
+		else $stmt->execute(array( intval($in_bkgnd_id) ));
 		$row = $stmt->fetch(PDO::FETCH_NUM);
-		Stack::sl_ok($row, $this->file_db, 'Getting Number of Cards (4)');
 		return $row[0];
 	}
 
@@ -545,11 +801,9 @@ Accessors and Mutators
 */
 	public function stack_get_count_bkgnds()
 	{
-		$stmt = $this->file_db->prepare('SELECT COUNT(bkgnd_id) FROM bkgnd');
-		Stack::sl_ok($stmt, $this->file_db, 'Getting Number of Bkgnds (1)');
-		Stack::sl_ok($stmt->execute(), $this->file_db, 'Getting Number of Bkgnds (2)');
+		$stmt = $this->file_db->prepare('SELECT COUNT(*) FROM bkgnd');
+		$stmt->execute();
 		$row = $stmt->fetch(PDO::FETCH_NUM);
-		Stack::sl_ok($row, $this->file_db, 'Getting Number of Bkgnds (3)');
 		return $row[0];
 	}
 
