@@ -74,13 +74,9 @@ Alert.prototype.show = function()
 		d_icon.style.marginRight = '20px';
 		d_prompt.appendChild(d_icon);
 		d_prompt.appendChild(document.createTextNode(this.prompt));
-		d_prompt.style.width = '540px';
 	}
 	else
-	{
 		d_prompt.textContent = this.prompt;
-		d_prompt.style.width = '624px';
-	}
 	//else d_icon.style.display = 'none';
 	
 	d_btn1.value = this.button1_label;
