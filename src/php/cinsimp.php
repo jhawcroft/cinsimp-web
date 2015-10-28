@@ -40,6 +40,7 @@ require(dirname(__FILE__).'/config.php');
 
 
 /* include essential utility code */
+require($config->base.'php/error.php');
 require($config->base.'php/util.php');
 
 
