@@ -218,6 +218,10 @@ var CinsImp = {
 		this.load_script('colours.js');//
 		this.load_script('text.js');//
 		
+		this.load_script('model/stack.js');
+		this.load_script('model/bkgnd.js');
+		this.load_script('model/card.js');
+		
 		/* the stack view and authoring: */
 		this.load_stylesheet('objects.css');
 		

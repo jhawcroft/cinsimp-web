@@ -36,17 +36,21 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 var CinsImp = CinsImp || {};
-var CinsImp.Model = CinsImp.Model || {};
+CinsImp.Model = CinsImp.Model || {};
 
 var Model = CinsImp.Model;
 
 
+/*
+
+*/
 Model.Stack = function(in_url)
 {
-	// ways to create a stack, can load a url; needs a reasonable way to find the CinsImp installation
-	// on a given server in order to have access to it?  OR .htaccess and a ?handler addn that returns this info.
 	
 };
+
+
+
 
 
 
