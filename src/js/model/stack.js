@@ -72,6 +72,9 @@ var Stack = Model.Stack;
 	Fetches a Stack definition from a CinsImp gateway server.
 	(The server doesn't have to be our own - our own acts as a proxy)
 */
+
+// investigate using CORS for this instead of server proxy:
+//https://en.wikipedia.org/wiki/Cross-origin_resource_sharing
 Stack.prototype._fetch_def = function(in_url, in_ready_handler)
 {
 	this._host = Util.url_host(in_url);
