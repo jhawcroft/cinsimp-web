@@ -1,3 +1,3 @@
 Options +FollowSymlinks
 RewriteEngine on
-RewriteRule (.*) /apps/cinsimp/src/?stack=$1 [NC]
+RewriteRule (.*) /apps/cinsimp/src/?stack=$1 [NC,QSA]

@@ -44,6 +44,20 @@ require($config->base.'php/util.php');
 
 
 /*
+	Returns the base URL of the CinsImp installation;
+	used to enable finding the CinsImp installation for remote copies of CinsImp
+	to get read/write access to this server via the Gateway.
+*/
+if (isset($_REQUEST['cinsimp-gateway']))
+{
+	Util::response_is_ajax_only();
+	$gateway_url = $config->url;
+	print json_encode($gateway_url);
+	exit;
+}
+
+
+/*
 	Returns the browser warning page which will be displayed along-side the stack
 	content if the browser has insufficient capabilities to run the application.
 */
