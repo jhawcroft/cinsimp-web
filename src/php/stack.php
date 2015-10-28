@@ -176,29 +176,7 @@ Utilities
 		}
 	}
 	
-	
-	private function _has_all_keys(&$in_array, &$in_keys)
-	{
-		if (!is_array($in_array)) return false;
-		foreach ($in_keys as $key)
-		{
-			if (!array_key_exists($key, $in_array)) return false;
-		}
-		return true;
-	}
-	
-	
-	private function _throw_corrupt()
-	{
-		throw new Exception('Invalid Stack or Stack Corrupt', 520);
-	}
-	
-	
-	private function _optional(&$in_array, $in_key, $in_default = null)
-	{
-		if (array_key_exists($in_array)) return $in_array[$in_key];
-		else return $in_default;
-	}
+
 	
 	
 /*****************************************************************************************
@@ -250,6 +228,11 @@ Creating and Opening Stacks
 		{
 			throw new Exception('Stack Too New; '.$err->getMessage(), 520);
 		}
+		
+		/* if the stack has private access,
+		raise an exception and request private access */
+		if ($this->private_access)
+			CinsImpError::_unauthenticated('Private access flag is enabled');
 	}
 	
 	
@@ -260,13 +243,13 @@ Creating and Opening Stacks
 	private function load_check_essentials()
 	{
 		$stmt = $this->file_db->prepare(
-			'SELECT format_version,password_hash,private_access,cant_modify,cant_delete,record_version FROM cinsimp_stack'
+'SELECT format_version,password_hash,private_access,cant_modify,cant_delete,record_version FROM cinsimp_stack'
 		);
 		$stmt->execute();
 		$row = $stmt->fetch(PDO::FETCH_NUM);
 		
 		if ($row[0] > 1)
-			throw new Exception('Stack Too New', 520);
+			CinsImpError::_general('Stack Too New', 'Stack was created with a newer version of CinsImp');
 				
 		$this->password_hash = $row[1];
 		$this->private_access = Stack::decode_bool($row[2]);
@@ -287,13 +270,13 @@ Creating and Opening Stacks
 		{
 			$file_db = new PDO('sqlite:'.$in_path);
 			if ($file_db === false)
-				throw new Exception("Couldn't create stack database");
+				throw new Exception('Cannot Create Database');
 			$file_db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 			$file_db->exec('PRAGMA encoding = "UTF-8"');
 		}
 		catch (Exception $err)
 		{
-			throw new Exception('Cannot Create Stack File', 520);
+			CinsImpError::_general('Cannot Create Stack', $err->getMessage());
 		}
 		
 		/* create and populate the schema */
@@ -436,7 +419,7 @@ INSERT INTO card (id, bkgnd_id, card_seq) VALUES (1, 1, 1);
 				{
 					try { $file_db->exec($stmt); }
 					catch (Exception $err) 
-					{ throw new Exception('Statement '.$s_num.': '.$err->getMessage()); }
+					{ CinsImpError::_internal('Statement '.$s_num.': '.$err->getMessage()); }
 					$s_num++;
 				}
 			}
@@ -446,19 +429,110 @@ INSERT INTO card (id, bkgnd_id, card_seq) VALUES (1, 1, 1);
 		}
 		catch (Exception $err)
 		{
-			throw new Exception('Cannot Create Stack File: Internal Error: '.$err->getMessage(), 520);
+			CinsImpError::_general('Cannot Create Stack', $err->getMessage());
+		}
+	}
+	
+	
+	public static function stack_delete($in_ident)
+	{
+		CinsImpError::_unimplemented();
+	} 
+	
+
+
+/*****************************************************************************************
+Security and Restrictions Management
+*/
+
+/*
+	Checks if the supplied password hash matches the hash stored in the database.
+	If not, throws an exception requesting authentication.
+*/
+	public function stack_authenticate($in_password_hash)
+	{
+		global $config;
+		if ($in_password_hash === $this->password_hash)
+			$this->authenticated = true;
+		else
+		{
+			$this->authenticated = false;
+			throw new Exception('Authentication Required', 401); 
+			// this must be converted to an appropriate JSON response, not HTTP
 		}
 	}
 	
 
 /*
-
+	Checks if authentication is required (private access = true) but not provided.
+	If required but not provided, circumvents whatever routine is running and throws an
+	exception that demands authentication.
 */
-	public static function stack_delete($in_ident)
+	private function _check_access()
 	{
-		throw new Exception('Not Implemented', 501);
-	} 
+		global $config;
+		if (!$this->private_access) return;
+		if ($this->authenticated) return;
+		throw new Exception('Authentication Required', 401); 
+		// this must be converted to an appropriate JSON response, not HTTP
+	}
+	
 
+/*
+	Checks if not authenticated and authentication required for sensitive changes.
+*/
+	private function _check_authenticated()
+	{
+		if (!$this->authenticated && $this->password_hash != '')
+			throw new Exception('Authentication Required', 401); 
+	}
+	
+	
+/*
+	Raises an exception if the stack cannot be modified.
+*/
+	private function _check_mutability()
+	{
+		$this->_check_access();
+		if (!$this->stack_mutability())
+			throw new Exception('Stack Can\'t Be Modified', 403);
+	}
+	
+
+/*
+	Raises an exception if the stack cannot be grown.
+*/
+	private function _check_growability()
+	{
+		$this->_check_mutability();
+		if (!$this->stack_growability())
+			throw new Exception('Stack Too Big', 403);
+	}
+	
+	
+/*
+	Returns true if the stack can be modified at all.
+*/
+	public function stack_mutability()
+	{
+		if ($this->file_read_only) return false;
+		if (!$this->cant_modify) return true;
+		if ($this->authenticated) return true;
+	}
+	
+
+/*
+	Returns true if the stack can be grown (increased substantially in size).
+*/
+	public function stack_growability()
+	{
+		global $config;
+		if (filesize($this->stack_id) >= $config->restrictions->max_stack_size)
+			return false;
+		return true;
+	}
+	
+	
 
 
 /*****************************************************************************************
@@ -470,6 +544,8 @@ Accessors and Mutators
 */
 	public function stack_stats()
 	{
+		$this->_check_access();
+		
 		/* calculate approximately how much free 'wasted' space is used by the file */
 		try 
 		{
@@ -497,47 +573,6 @@ Accessors and Mutators
 		return $stats;
 	}
 
-
-/*
-	Checks if the supplied password hash matches the hash stored in the database.
-	If not, throws an exception requesting authentication.
-*/
-	public function stack_authenticate($in_password_hash)
-	{
-		global $config;
-		if ($in_password_hash === $this->password_hash)
-			$this->authenticated = true;
-		else
-		{
-			$this->authenticated = false;
-			throw new Exception('Authentication Required', 401); 
-			// this must be converted to an appropriate JSON response, not HTTP
-		}
-	}
-	
-
-/*
-	Checks if authentication is required (private access = true) but not provided.
-	If required but not provided, circumvents whatever routine is running and throws an
-	exception that demands authentication.
-*/
-	private function check_private_access()
-	{
-		global $config;
-		if (!$this->private_access) return;
-		if ($this->authenticated) return;
-		throw new Exception('Authentication Required', 401); 
-		// this must be converted to an appropriate JSON response, not HTTP
-	}
-	
-
-/*
-	Checks if authentication is provided, or privileges sufficient for the pending operation.
-*/
-	private function check_allowed_mutate()
-	{
-	  ///???
-	}
 	
 	
 /*
@@ -601,97 +636,121 @@ Accessors and Mutators
 */
 	public function stack_load()
 	{
-		$this->check_private_access();
+		$this->_check_access();
 		$stack = $this->_record();
 		$stack['icons'] = $this->_icons();
 		return $stack;
 	}
 
 
+// what kinds of updates needed here?
+// name, cant modify, cant_delete, private_access, cant_peek, cant_abort, user_level,
+// card_width, card_height, script
+// ONLY the fields supplied should be updated
+// ONLY record version should be returned if successful (and incremented)
+// don't allow authoring changes if the stack's user level is restricted
+// and don't allow security changes if a password is set and not yet authenticated
+// changing name is highly questionable, since it makes other user's access broken
+
+
 /*
-	Saves the supplied stack data to the stack.
+	Prepares a simple SQL UPDATE statement, given the supplied key-value pairs
+	and the list of fields which may be included in the statement.
 */
-	public function stack_save($stack_data)
+	private static function _sql_optional_update($table, &$data, $optional_fields)
 	{
-		// really this function should only save what has been supplied,
-		// thus minimising bandwidth usage
-		// ** TODO **
+		$sql_fields = array();
+		$sql_values = array();
 		
-		$this->stack_will_be_modified();
-		$existing = $this->stack_load(0);
-		if ( strlen(json_encode($stack_data)) > strlen(json_encode($existing)) )
-			$this->stack_will_be_grown();
-		unset($existing);
-		
-		$this->file_db->beginTransaction();
-	
-		$stmt = $this->file_db->prepare(
-			'UPDATE stack SET stack_data=?,cant_delete=?,cant_modify=?,private_access=?'
-		);
-		Stack::sl_ok($stmt, $this->file_db, 'Saving Stack (1)');
-		
-		$cant_delete = Stack::encode_bool($stack_data['cant_delete']);
-		$cant_modify = Stack::encode_bool($stack_data['cant_modify']);
-		$private_access = Stack::encode_bool($stack_data['private_access']);
-		
-		unset($stack_data['cant_delete']);
-		unset($stack_data['cant_modify']);
-		unset($stack_data['private_access']);
-		unset($stack_data['first_card_id']);
-		
-		unset($stack_data['stack_id']);
-		unset($stack_data['stack_name']);
-		unset($stack_data['stack_path']);
-		unset($stack_data['stack_size']);
-		unset($stack_data['stack_free']);
-		unset($stack_data['count_cards']);
-		unset($stack_data['count_bkgnds']);
-		
-		// need to save icons here
-		// ** TODO **
-		// icons should be provided as a sequential list of tasks,
-		// including deletions, edits and additions
-		if (isset($stack_data['stack_icons_tasks']) &&
-			is_array($stack_data['stack_icons_tasks']))
+		foreach ($optional_fields as $field_def)
 		{
-			// list [ ]
-			// contains either:
-			// 1.  new icon [ 1, ID, name, PNG data ]
-			// 2.  delete icon [ 2, ID ]
-			// 3.  reident icon [ 3, ID, ID, name ]
+			$parts = explode(':', $field_def);
+			$field_name = $parts[0];
+			$field_type = $parts[1];
 			
-			//print 'Got tasks';
-			
-			$tasks = $stack_data['stack_icons_tasks'];
-			foreach ($tasks as $task)
+			if (array_key_exists($field_name, $data))
 			{
-				switch ($task[0])
+				$sql_fields[] = $field_name . '=?';
+				
+				$field_value = $data[$field_name];
+				
+				switch ($field_type)
 				{
-				case 1: // new icon - adds it to the stack database
-				//print 'Adding icon';
-					$stmt2 = $this->file_db->prepare('INSERT INTO icon (icon_id,icon_name,icon_data) VALUES (?,?,?)');
-					Stack::sl_ok($stmt2->execute(array(intval($task[1]), $task[2], $task[3])), $this->file_db, 'Saving Stack New Icon');
+				case 'bool':
+					$field_value = Stack::encode_bool($field_value);
 					break;
-				case 2: // delete icon - removes it from the stack database
-					$stmt2 = $this->file_db->prepare('DELETE FROM icon WHERE icon_id=?');
-					Stack::sl_ok($stmt2->execute(array(intval($task[1]))), $this->file_db, 'Saving Stack Delete Icon');
+				case 'uint16':
+					$field_value = intval($field_value);
+					if ($field_value < 0 || $field_value > 32000)
+						CinsImpError::malformed('_sql_optional_update: field "'.$field_name.'": out of range');
 					break;
-				case 3: // renames an icon - changes ID and name
-					$stmt2 = $this->file_db->prepare('UPDATE ICON set icon_id=?, icon_name=? WHERE icon_id=?');
-					Stack::sl_ok($stmt2->execute(array(intval($task[2]), $task[3], $task[1])), $this->file_db, 'Saving Stack Rename Icon');
+				case 'text16':
+					$field_value = strval($field_value);
+					if (strlen($field_value) > 32000)
+						CinsImpError::malformed('_sql_optional_update: field "'.$field_name.'": exceeds 32 KB');
 					break;
+				default:
+					CinsImpError::internal('_sql_optional_update: field "'.$field_name.'": type unspecified');
 				}
+					
+				$sql_values[] = $field_value;
 			}
 		}
 		
-		unset($stack_data['stack_icons']);
-		unset($stack_data['stack_icons_tasks']);
-	
-		Stack::sl_ok($stmt->execute(array(
-			json_encode($stack_data), $cant_delete, $cant_modify, $private_access
-		)), $this->file_db, 'Saving Stack (2)');
+		if (count($sql_fields) == 0) return null;
 		
+		return array(
+			'sql'=>'UPDATE '.$table.' SET '.implode(', ', $sql_fields),
+			'params'=>$sql_values
+		);
+	}
+
+
+/*
+	Saves the supplied stack data to the stack.
+*/
+	public function stack_save($data)
+	{
+		$this->_check_mutability();
+	
+		/* do the rename before any other changes */
+		if (array_key_exists('name', $data))
+			Stack::_unimplemented();
+		
+		$this->file_db->beginTransaction();
+		
+		/* update the stack; security fields */
+		$did_update_something = false;
+		$sql = Stack::_sql_optional_update('cinsimp_stack', $data, 
+			array('cant_modify:bool', 'cant_delete:bool', 'cant_peek:bool', 
+				'cant_abort:bool', 'user_level:bool', 'private_access:bool'));
+		if ($sql !== null)
+		{
+			$this->_check_authenticated();
+			$stmt = $this->file_db->prepare($sql['sql']);
+			$stmt->execute($sql['params']);
+			$did_update_something = true;
+		}
+		
+		/* update the stack; general fields */
+		$sql = Stack::_sql_optional_update('cinsimp_stack', $data,
+			array('card_width:uint16', 'card_height:uint16', 'script:text16'));
+		if ($sql !== null)
+		{
+			$stmt = $this->file_db->prepare($sql['sql']);
+			$stmt->execute($sql['params']);
+			$did_update_something = true;
+		}
+		
+		/* increment the record version */
+		if ($did_update_something)
+			$this->file_db->exec('UPDATE cinsimp_stack SET record_version=record_version + 1');
 		$this->file_db->commit();
+		
+		/* reload essentials */
+		$this->load_check_essentials();
+		
+		return $this->record_version;
 	}
 	
 	
@@ -717,51 +776,20 @@ Accessors and Mutators
 	}
 
 
-/*
-	Returns true if the stack can be modified at all.
-*/
-	public function stack_mutability()
-	{
-		// conditions to check for eventually:
-		//   file system access is read-only to this file
-		//   can't modify property is set and a valid authentication token has not been provided
-		return true;
-	}
-	
 
 /*
-	Returns true if the stack can be grown (increased substantially in size).
-*/
-	public function stack_growability()
-	{
-		// conditions to check for eventually:
-		//   restrictions applicable - maximum file size?
-		global $config;
-		if (filesize($this->stack_id) >= $config->restrictions->max_stack_size)
-			return false;
-		return true;
-	}
-	
-	
-/*
-	Raises an exception if the stack cannot be modified.
-*/
-	private function stack_will_be_modified()
-	{
-		if (!$this->stack_mutability())
-			throw new Exception('Stack Can\'t Be Modified', 403);
-	}
-	
+Eventually methods for icon deletion/rename:
 
-/*
-	Raises an exception if the stack cannot be grown.
+				case 2: // delete icon - removes it from the stack database
+					$stmt2 = $this->file_db->prepare('DELETE FROM icon WHERE icon_id=?');
+					Stack::sl_ok($stmt2->execute(array(intval($task[1]))), $this->file_db, 'Saving Stack Delete Icon');
+					break;
+				case 3: // renames an icon - changes ID and name
+					$stmt2 = $this->file_db->prepare('UPDATE ICON set icon_id=?, icon_name=? WHERE icon_id=?');
+					Stack::sl_ok($stmt2->execute(array(intval($task[2]), $task[3], $task[1])), $this->file_db, 'Saving Stack Rename Icon');
+					break;
+				}
 */
-	private function stack_will_be_grown()
-	{
-		$this->stack_will_be_modified();
-		if (!$this->stack_growability())
-			throw new Exception('Stack Too Big', 403);
-	}
 	
 
 /*
@@ -889,6 +917,14 @@ Accessors and Mutators
 /*
 	Retrieves the card data for the supplied card ID.
 */
+
+// also, getting cards should support server-side ordinals
+// because the total number is never accurately known if the stack is accessed by 
+// multiple users - thus the server should provide it
+
+
+
+
 	public function stack_load_card($card_id)
 	{
 		$stmt = $this->file_db->prepare(

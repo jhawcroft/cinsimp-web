@@ -37,7 +37,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 /* errors that occur during gateway processing are logged and explicitly handled */
-$g_error_log = '';
+$g_error_log = array();
 	
 
 class Gateway
@@ -54,7 +54,7 @@ Generic Processing
 	public static function custom_error_handler($errno, $errstr, $errfile, $errline, $errcontext)
 	{
 		global $g_error_log;
-		$g_error_log .= json_encode(Array('cmd'=>'error', 'msg'=>'PHP Error: '.$errfile.':'.$errline.': '.$errno.': '.$errstr));
+		$g_error_log[] = array($errstr, $errno, $errfile.':'.$errline);
 		return true;
 	}
 	
@@ -129,7 +129,7 @@ h1
 		Util::response_is_ajax_only();
 		
 		/* log errors with custom handler and process at conclusion of request */
-		set_error_handler(array('Gateway', 'custom_error_handler'));
+		//set_error_handler(array('Gateway', 'custom_error_handler')); 
 		
 		/* in testing, it may be useful to be able to submit a request in this way */
 		if (isset($_REQUEST['request']))
@@ -152,19 +152,14 @@ h1
 			catch (Exception $err) {
 				throw new Exception("Gateway: Command ".$inbound['cmd']." unrecognised.");
 			}
+			
 			$outbound = $action_method->invoke(null, $inbound, $outbound);
 		}
-		catch (Exception $err) {
-			$outbound['cmd'] = 'error';
-			$outbound['msg'] = 'Server: '.$err->getMessage();
-		}
-		
-		/* if error(s) occurred during processing, change the response to an error
-		response and reply with the contents of the logged errors */
-		if ($g_error_log != '')
+		catch (Exception $err) 
 		{
+			$err = new CinsImpError($err);
 			$outbound['cmd'] = 'error';
-			$outbound['msg'] = $g_error_log;
+			$outbound['msg'] = 'Server: '.$err->getMessage().' '.$err->getDetail();
 		}
 		
 		/* if we're debugging the gateway, output the response on the test form,
@@ -204,7 +199,8 @@ Regular Command Handlers
 	public static function load_stack($inbound, $outbound)
 	{
 		global $config;
-		if (isset($inbound['stack_url']))
+		
+		if (isset($inbound['url']))
 		{
 		
 		// **TODO** if the parameter stack_host is specified,
@@ -212,9 +208,11 @@ Regular Command Handlers
 		// and probably this code should be detected at the beginning of the gateway,
 		// with the messages simply passed along
 		
-			$inbound['stack_id'] = substr($inbound['stack_url'], strlen($config->url . 'stacks/'));
+			$inbound['id'] = substr($inbound['url'], strlen($config->url . 'stacks/'));
 		}
-		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
+		
+		Util::keys_required($inbound, array('id'));
+		$stack = new Stack(Util::safe_stack_id($inbound['id']));
 		$outbound['stack'] = $stack->stack_load();
 		return $outbound;
 	}
@@ -227,10 +225,12 @@ Regular Command Handlers
 */	
 	public static function save_stack($inbound, $outbound)
 	{
-		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
-		$stack->stack_save($inbound['stack']);
-		$outbound['stack_id'] = $inbound['stack_id'];
-		return Gateway::load_stack($inbound, $outbound);
+		Util::keys_required($inbound, array('id','stack'));
+		$stack = new Stack(Util::safe_stack_id($inbound['id']));
+		$outbound['record_version'] = $stack->stack_save($inbound['stack']);
+		//$outbound['id'] = $inbound['id'];
+		//return Gateway::load_stack($inbound, $outbound);
+		return $outbound;
 	}
 	
 
