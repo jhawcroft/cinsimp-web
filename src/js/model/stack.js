@@ -191,6 +191,12 @@ Stack.prototype.save = function(in_onfinished)
 }
 
 
+Stack.prototype.set_password = function(in_password, in_onfinished)
+{
+	alert('Set password ' + in_password); // TODO - apply hash
+	in_onfinished();
+}
+
 
 Stack.prototype.resize = function(in_new_size, in_onfinished)
 {

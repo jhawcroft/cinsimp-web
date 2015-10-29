@@ -1680,16 +1680,16 @@ View._do_set_password = function()
 	else
 	{
 		Dialog.dismiss();
-		View.current._stack.stack_password = pw1;
-		View.current._save_stack();
+		Progress.operation_begun('Setting stack password...');
+		View.current._stack.set_password(pw1, Progress.operation_finished);
 	}
 }
 
 
 View.clear_password = function()
 {
-	View.current._stack.stack_password = null;
-	View.current._save_stack();
+	Progress.operation_begun('Removing stack password...');
+	View.current._stack.set_password(null, Progress.operation_finished);
 }
 
 
