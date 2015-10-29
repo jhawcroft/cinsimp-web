@@ -176,6 +176,12 @@ Utilities
 		}
 	}
 	
+	
+	private static function _evl($value, $ifempty = null)
+	{
+		if ($value === '') return $ifempty;
+		return $value;
+	}
 
 	
 	
@@ -318,7 +324,7 @@ CREATE TABLE bkgnd (
 CREATE TABLE card (
 	id INTEGER PRIMARY KEY,
 	bkgnd_id INTEGER NOT NULL,
-	card_seq INTEGER NOT NULL,
+	seq INTEGER NOT NULL,
 	name TEXT NOT NULL DEFAULT '',
 	cant_delete INTEGER NOT NULL DEFAULT 0,
 	dont_search INTEGER NOT NULL DEFAULT 0,
@@ -406,7 +412,7 @@ CREATE TABLE field (
 
 INSERT INTO cinsimp_stack (format_version) VALUES (1);
 INSERT INTO bkgnd (id) VALUES (1);
-INSERT INTO card (id, bkgnd_id, card_seq) VALUES (1, 1, 1);
+INSERT INTO card (id, bkgnd_id, seq) VALUES (1, 1, 1);
 
 ";
 
@@ -800,11 +806,12 @@ Eventually methods for icon deletion/rename:
 */
 	public function stack_compact()
 	{
-		$this->stack_will_be_modified();
-		Stack::sl_ok($this->file_db->exec('VACUUM'), $this->file_db, 'Compacting Stack (1)');
+		$this->_check_mutability();
+		$this->file_db->exec('VACUUM');
+		
+		return $this->stack_stats();
 	}
 	
-
 
 
 /*
@@ -881,6 +888,7 @@ Eventually methods for icon deletion/rename:
 /*
 	Looks up the first card ID for the stack.
 */
+/*
 	public function stack_get_first_card_id()
 	{
 		$stmt = $this->file_db->prepare('SELECT card_id FROM card WHERE card_seq=10');
@@ -891,6 +899,7 @@ Eventually methods for icon deletion/rename:
 		return $row[0];
 	}
 	
+	*/
 
 /*
 	Looks up the card ID for the Nth card within either the stack or the 
@@ -899,86 +908,147 @@ Eventually methods for icon deletion/rename:
 	public function stack_get_nth_card_id($number, $in_bkgnd = null)
 	{
 		if ($in_bkgnd === null)
-			$sql = 'SELECT card_id FROM card WHERE card_seq=?';
+			$sql = 'SELECT id FROM card WHERE seq=?';
 		else
-			$sql = 'SELECT card_id FROM card WHERE bkgnd_id=? ORDER BY card_seq LIMIT ?,1'; //'.(intval($number)-1).',1
+			$sql = 'SELECT id FROM card WHERE bkgnd_id=? ORDER BY seq LIMIT ?,1';
 		$stmt = $this->file_db->prepare($sql);
-		Stack::sl_ok($stmt, $this->file_db, 'Getting Nth Card (1)');
 		if ($in_bkgnd === null)
-			Stack::sl_ok($stmt->execute(array( intval($number) * 10 )), $this->file_db, 'Getting Nth Card (2)');
+			$stmt->execute(array( intval($number) ));
 		else
-			Stack::sl_ok($stmt->execute(array( intval($in_bkgnd), (intval($number) - 1) )), $this->file_db, 'Getting Nth Card (2)');
+			$stmt->execute(array( intval($in_bkgnd), (intval($number) - 1) ));
 		$row = $stmt->fetch(PDO::FETCH_NUM);
 		if ($row === false) return 0;
 		return $row[0];
 	}
 
 
-/*
-	Retrieves the card data for the supplied card ID.
-*/
+
 
 // also, getting cards should support server-side ordinals
 // because the total number is never accurately known if the stack is accessed by 
 // multiple users - thus the server should provide it
 
+// +ve is bkgnd, -ve is card
+	private function _layer_parts($layer_id)
+	{
+		$objects = array();
+		$stmt = $this->file_db->prepare('SELECT * FROM button WHERE layer_id=? ORDER BY part_num');
+		$stmt->execute(array( intval($layer_id) ));
+		while ($row = $stmt->fetch(PDO::FETCH_ASSOC))
+		{
+			unset($row['layer_id']);
+			$row['type'] = 'button';
+			
+			$row['shared'] = Stack::decode_bool($row['shared']);
+			$row['searchable'] = Stack::decode_bool($row['searchable']);
+			$row['visible'] = Stack::decode_bool($row['visible']);
+			$row['disabled'] = Stack::decode_bool($row['disabled']);
+			$row['shadow'] = Stack::decode_bool($row['shadow']);
+			
+			$row['show_name'] = Stack::decode_bool($row['show_name']);
+			$row['hilite'] = Stack::decode_bool($row['hilite']);
+			$row['auto_hilite'] = Stack::decode_bool($row['auto_hilite']);
+			
+			$objects[] = $row;
+		}
+		
+		$stmt = $this->file_db->prepare('SELECT * FROM field WHERE layer_id=? ORDER BY part_num');
+		$stmt->execute(array( intval($layer_id) ));
+		while ($row = $stmt->fetch(PDO::FETCH_ASSOC))
+		{
+			unset($row['layer_id']);
+			$row['type'] = 'field';
+			
+			$row['shared'] = Stack::decode_bool($row['shared']);
+			$row['searchable'] = Stack::decode_bool($row['searchable']);
+			$row['visible'] = Stack::decode_bool($row['visible']);
+			$row['disabled'] = Stack::decode_bool($row['disabled']);
+			$row['shadow'] = Stack::decode_bool($row['shadow']);
+			
+			$row['border'] = Stack::decode_bool($row['border']);
+			$row['scroll'] = Stack::decode_bool($row['scroll']);
+			$row['locked'] = Stack::decode_bool($row['locked']);
+			$row['dont_wrap'] = Stack::decode_bool($row['dont_wrap']);
+			$row['auto_tab'] = Stack::decode_bool($row['auto_tab']);
+			$row['wide_margins'] = Stack::decode_bool($row['wide_margins']);
+			$row['auto_select'] = Stack::decode_bool($row['auto_select']);
+			
+			$objects[] = $row;
+		}
+		
+		return $objects;
+	}
 
 
-
+/*
+	Retrieves the bkgnd data for the supplied bkgnd ID.
+*/
+	public function stack_load_bkgnd($bkgnd_id)
+	{
+		$stmt = $this->file_db->prepare(
+'SELECT id,name,cant_delete,dont_search,script,art,art_hidden FROM bkgnd WHERE id=?'
+		);
+		$stmt->execute(array( intval($bkgnd_id) ));
+		$row = $stmt->fetch(PDO::FETCH_NUM);
+		if ($row === false || count($row) == 0) CinsImpError::missing('Background');
+		
+		$bkgnd = array(
+			'id'=>$row[0],
+			'name'=>$row[1],
+			'cant_delete'=>Stack::decode_bool($row[2]),
+			'dont_search'=>Stack::decode_bool($row[3]),
+			'script'=>$row[4],
+			'art'=>Stack::_evl($row[5]),
+			'art_hidden'=>Stack::decode_bool($row[6])
+		);
+		
+		$bkgnd['objects'] = Stack::_layer_parts($row[0]);
+		
+		return $bkgnd;
+	}
+	
+	
+/*
+	Retrieves the card data for the supplied card ID.
+*/
 	public function stack_load_card($card_id)
 	{
 		$stmt = $this->file_db->prepare(
-			'SELECT card.bkgnd_id, bkgnd.bkgnd_name, bkgnd.cant_delete, bkgnd.dont_search, '.
-			'bkgnd.bkgnd_data, card.card_data, card_name, card_seq, card.object_data, '.
-			'bkgnd.object_data, card.cant_delete, card.dont_search, card.marked, card.card_art, bkgnd.bkgnd_art '.
-			'FROM card JOIN bkgnd ON card.bkgnd_id=bkgnd.bkgnd_id WHERE card_id=?'
+'SELECT id,bkgnd_id,seq,name,cant_delete,dont_search,marked,script,art,art_hidden FROM card WHERE id=?'
 		);
-		Stack::sl_ok($stmt, $this->file_db, 'Loading Card (1)');
-		Stack::sl_ok($stmt->execute(array(intval($card_id))), $this->file_db, 'Loading Card (2)');
+		$stmt->execute(array( intval($card_id) ));
 		$row = $stmt->fetch(PDO::FETCH_NUM);
-		if ($row === false) return null;
+		if ($row === false || count($row) == 0) CinsImpError::missing('Card');
 		
-		$card['card_id'] = intval($card_id);
-		$card['card_name'] = $row[6];
-		$card['card_seq'] = $row[7] / 10;
-		$card['card_cant_delete'] = Stack::decode_bool($row[10]);
-		$card['card_dont_search'] = Stack::decode_bool($row[11]);
-		$card['card_marked'] = Stack::decode_bool($row[12]);
+		$card = array(
+			'id'=>$row[0],
+			'bkgnd_id'=>$row[1],
+			'seq'=>$row[2],
+			'name'=>$row[3],
+			'cant_delete'=>Stack::decode_bool($row[4]),
+			'dont_search'=>Stack::decode_bool($row[5]),
+			'marked'=>Stack::decode_bool($row[6]),
+			'script'=>$row[7],
+			'art'=>Stack::_evl($row[8]),
+			'art_hidden'=>Stack::decode_bool($row[9])
+		);
 		
-		$data = json_decode($row[5], true);
-		$card['card_script'] = Stack::nvl($data['card_script'], Array('content'=>'','selection'=>0));
-		$card['card_has_art'] = Stack::nvl($data['card_has_art'], false);
+		$content = array();
+		$stmt = $this->file_db->prepare(
+'SELECT bkgnd_object_id,content FROM card_data WHERE card_id=?'
+		);
+		$stmt->execute(array( $row[0] ));
+		while ($row = $stmt->fetch(PDO::FETCH_NUM))
+		{
+			$content[] = $row;
+		}
+		$card['content'] = $content;
 		
-		$card['data'] = '';
-		if (isset($data['data'])) $card['data'] = $data['data'];
+		$card['objects'] = Stack::_layer_parts( - $row[0] );
 		
-		$card['card_art'] = null;
-		if (isset($row[13]) && ($row[13] !== '') && ($row[13] !== null)) $card['card_art'] = $row[13];
-		
-		//if (isset($data['content']))
-		//	$card['content'] = $data['content'];
-		
-		$card['card_object_data'] = $row[8];
-		
-		$card['bkgnd_id'] = $row[0];
-		$card['bkgnd_name'] = $row[1];
-		$card['bkgnd_cant_delete'] = Stack::decode_bool($row[2]);
-		$card['bkgnd_dont_search'] = Stack::decode_bool($row[3]);
-		
-		$data = json_decode($row[4], true);
-		$card['bkgnd_script'] = Stack::nvl($data['bkgnd_script'], Array('content'=>'','selection'=>0));
-		$card['bkgnd_has_art'] = Stack::nvl($data['bkgnd_has_art'], false);
-		
-		$card['bkgnd_art'] = null;
-		if (isset($row[14]) && ($row[14] !== '') && ($row[14] !== null)) $card['bkgnd_art'] = $row[14];
-		
-		$card['bkgnd_object_data'] = $row[9];
-		
-		$card['stack_count'] = Stack::stack_get_count_cards(null);
-		$card['bkgnd_count'] = Stack::stack_get_count_cards($card['bkgnd_id']);
-	
-		return $card;
+		return $card;		
 	}
+
 
 
 /*

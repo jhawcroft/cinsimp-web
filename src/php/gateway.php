@@ -185,6 +185,7 @@ Regular Command Handlers
 */
 	public static function test($inbound, $outbound)
 	{
+		Util::keys_required($inbound, array('echo'));
 		$outbound['echo'] = $inbound['echo'];
 		$outbound['date'] = date('Y-m-d');
 		return $outbound;
@@ -228,15 +229,7 @@ Regular Command Handlers
 		Util::keys_required($inbound, array('id','stack'));
 		$stack = new Stack(Util::safe_stack_id($inbound['id']));
 		$outbound['record_version'] = $stack->stack_save($inbound['stack']);
-		//$outbound['id'] = $inbound['id'];
-		//return Gateway::load_stack($inbound, $outbound);
 		return $outbound;
-	}
-	
-
-	public static function rename_stack($inbound, $outbound)
-	{
-		throw Exception('Unimplemented');
 	}
 	
 
@@ -246,9 +239,10 @@ Regular Command Handlers
 */
 	public static function compact_stack($inbound, $outbound)
 	{
-		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
-		$stack->stack_compact();
-		return Gateway::load_stack($inbound, $outbound);
+		Util::keys_required($inbound, array('id'));
+		$stack = new Stack(Util::safe_stack_id($inbound['id']));
+		$outbound['stats'] = $stack->stack_compact();
+		return $outbound;
 	}
 	
 
@@ -259,10 +253,10 @@ Regular Command Handlers
 */
 	public static function load_card($inbound, $outbound)
 	{
+		Util::keys_required($inbound, array('stack_id','card_id'));
 		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
-		if (isset($inbound['stack_num']))
-			$inbound['card_id'] = $stack->stack_get_nth_card_id($inbound['stack_num']);
 		$outbound['card'] = $stack->stack_load_card($inbound['card_id']);
+		$outbound['bkgnd'] = $stack->stack_load_bkgnd($outbound['card']['bkgnd_id']);
 		return $outbound;
 	}
 	
@@ -274,9 +268,13 @@ Regular Command Handlers
 */
 	public static function nth_card($inbound, $outbound)
 	{
+		Util::keys_required($inbound, array('stack_id','num'));
+		$bkgnd_id = Util::optional($inbound, 'bkgnd_id');
 		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
-		$inbound['card_id'] = $stack->stack_get_nth_card_id($inbound['num'], null);
-		return Gateway::load_card($inbound, $outbound);
+		$inbound['card_id'] = $stack->stack_get_nth_card_id($inbound['num'], $bkgnd_id);
+		$outbound['card'] = $stack->stack_load_card($inbound['card_id']);
+		$outbound['bkgnd'] = $stack->stack_load_bkgnd($outbound['card']['bkgnd_id']);
+		return $outbound;
 	}
 	
 
@@ -344,10 +342,11 @@ Regular Command Handlers
 		global $config;
 		if (!$config->restrictions->can_new_stack)
 			throw new Exception('Creating new stacks is not allowed.', 403);
-		$stack_id = Util::safe_stack_id($inbound['stack_id'], true);
+		Util::keys_required($inbound, array('id'));
+		$stack_id = Util::safe_stack_id($inbound['id'], true);
 		Stack::create_file($stack_id);
 		if (file_exists($stack_id))
-			$outbound['stack_id'] = $inbound['stack_id'];
+			$outbound['id'] = $inbound['id'];
 		else
 			throw new Exception("Couldn't create stack.", 520);
 		return $outbound;
