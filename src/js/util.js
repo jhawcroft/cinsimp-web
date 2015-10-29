@@ -55,9 +55,16 @@ Util.url_host = function(in_url)
 
 
 
-Util.niceSize = function(in_bytes)
+Util.human_size = function(in_bytes)
 {
-	return Math.round(in_bytes / 1024) + ' KB';
+	if (in_bytes >= 1024 * 1024 * 1024)
+		return Math.round(in_bytes / (1024 * 1024 * 1024)) + ' GB';
+	else if (in_bytes >= 1024 * 1024)
+		return Math.round(in_bytes / (1024 * 1024)) + ' MB';
+	else if (in_bytes >= 1024)
+		return Math.round(in_bytes / 1024) + ' KB';
+	else
+		return in_bytes + '';
 }
 
 

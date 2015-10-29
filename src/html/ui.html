@@ -42,7 +42,7 @@
 	<div class="Spacer"></div>
 	<div title="Options"><img src="gfx/options.png" width="32"><div>Options</div></div>
 	<div class="Spacer"></div>
-	<div title="Stack Info" title="Stack Info" onclick="Application.showStackInfo()"><img src="gfx/stackinfo.png" width="32"><div>Stack Info</div></div>
+	<div title="Stack Info" title="Stack Info" onclick="View.do_stack_info()"><img src="gfx/stackinfo.png" width="32"><div>Stack Info</div></div>
 	<div title="Security" onclick="View.do_protect_stack();"><img src="gfx/locked.png" width="32"><div>Security</div></div>
 	<div title="Resources"><img src="gfx/resources.png" width="32"><div>Resources</div></div>
 	<!--<div title="Export"><img src="gfx/export.png" width="32"><div>Export</div></div>-->
@@ -131,7 +131,7 @@
 
 <div id="DialogStackInfo" class="DialogTemplate Inner" style="width: 450px; height: 300px;">
 	
-	<div class="Label">Stack Name: <input type="text" id="StackInfoName" style="width: 320px;"></div>
+	<div class="Label">Stack Name: <input type="text" id="StackInfoName" style="width: 320px;" readonly></div>
 	<div id="StackInfoWhere" class="Label VertGap selectable">Where: ^0</div>
 	<div id="StackInfoCardCount" class="Label VertGap">Stack contains ^0.</div>
 	<div id="StackInfoBkgndCount" class="Label VertGap">Stack contains ^0.</div>
@@ -141,9 +141,9 @@
 	
 	<div id="StackInfoCardSize" class="Label x2VertGap">Card size: ^0</div>
 	
-	<div class="Bottom"><input type="button" value="Resize..." onclick="Dialog.dismiss();Application.do_card_size();"> <input type="button" value="Script..." onclick="Application.do_edit_script(View.CURRENT_STACK, Application.save_stack_info());""></div>
+	<div class="Bottom"><input type="button" value="Resize..." onclick="Dialog.dismiss();Application.do_card_size();"> <input type="button" value="Script..." onclick="Application.do_edit_script(View.CURRENT_STACK, View.save_stack_info());""></div>
 	
-	<div class="Bottom Right"><input type="button" value="Compact" class="SameSizeStacked" onclick="Dialog.dismiss(); Application.compact();"> <input type="button" value="Cancel" class="SameSizeStacked x2VertGap" onclick="Dialog.dismiss()"> <input type="button" value="OK" class="SameSizeStacked VertGap" onclick="Application.save_stack_info()"></div>
+	<div class="Bottom Right"><input type="button" value="Compact" class="SameSizeStacked" onclick="Dialog.dismiss(); View.compact();"> <input type="button" value="Cancel" class="SameSizeStacked x2VertGap" onclick="Dialog.dismiss()"> <input type="button" value="OK" class="SameSizeStacked VertGap" onclick="View.save_stack_info()"></div>
 	
 </div>
 

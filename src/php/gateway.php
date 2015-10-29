@@ -349,10 +349,6 @@ Regular Command Handlers
 		Util::keys_required($inbound, array('id'));
 		$stack_id = Util::safe_stack_id($inbound['id'], true);
 		Stack::create_file($stack_id);
-		if (file_exists($stack_id))
-			$outbound['id'] = $inbound['id'];
-		else
-			throw new Exception("Couldn't create stack.", 520);
 		return $outbound;
 	}
 	

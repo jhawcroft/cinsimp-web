@@ -42,13 +42,113 @@ Ajax._timeoutVar = null;
 Ajax._ajaxRequest = null;
 
 
-
 Ajax.init = function(url, timeout)
 {
 	Ajax._url = url;
 	Ajax._timeout = timeout;
 }
 
+
+Ajax._do_error_msg = function(in_title, in_message, in_handler)
+{
+	var alert = new Alert();
+	alert.icon = Alert.ICON_WARNING;
+	alert.title = in_title;
+	alert.prompt = in_message;
+	alert.button1_label = 'Cancel';
+	alert.button1_handler = function() { 
+		if (!in_handler) return;
+		in_handler({ cmd: 'error', 'msg': in_title + ': ' + in_message }); 
+	};
+	alert.show();
+}
+
+
+Ajax.request = function(in_msg, in_handler, in_timeout)
+{
+	if (Ajax._ajaxRequest)
+		return Ajax._do_error_msg('Internal Error', 'Ajax adapter already in use.', in_handler);
+	
+	Ajax._timeoutVar = window.setTimeout(Ajax._handle_timeout, 
+		(in_timeout ? in_timeout * 1000 : Ajax._timeout * 1000));
+	Ajax._responseHandler = in_handler;
+	Ajax._cmd = in_msg.cmd;
+	
+	var in_msg = JSON.stringify(in_msg);
+	
+	Ajax._ajaxRequest = new XMLHttpRequest();
+	Ajax._ajaxRequest.open('POST', Ajax._url, true);
+	Ajax._ajaxRequest.setRequestHeader('Content-type', 'application/json');
+	Ajax._ajaxRequest.setRequestHeader('Content-length', in_msg.length);
+	Ajax._ajaxRequest.setRequestHeader('Connection', 'close');
+
+	Ajax._ajaxRequest.onreadystatechange = Ajax._handle_reply;
+	Ajax._ajaxRequest.send(in_msg);
+}
+
+
+Ajax._handle_timeout = function()
+{
+	if (Ajax._responseHandler)
+	{
+		Ajax._ajaxRequest = null;
+		Ajax._do_error_msg('Network Error', 'Request timed out.', Ajax._responseHandler);
+	}
+}
+
+
+Ajax._handle_reply = function()
+{
+	if (!Ajax._ajaxRequest) return;
+	
+	var handler = Ajax._responseHandler;
+	
+	if ((Ajax._ajaxRequest.readyState == 4) && (Ajax._ajaxRequest.status == 200)) 
+	{
+		var msg = Ajax._ajaxRequest.responseText;
+		
+		window.clearTimeout(Ajax._timeoutVar);
+		Ajax._ajaxRequest = null;
+		Ajax._responseHandler = null;
+		
+		try { msg = JSON.parse(msg); }
+		catch (err) 
+		{
+			Ajax._do_error_msg('Server Error', 'Malformed server response.', handler);
+			return;
+		}
+		
+		if (msg.cmd == 'error')
+		{
+			Ajax._do_error_msg('Server Error', (msg.msg ? msg.msg : 'Unknown server error.'), handler);
+			return;
+		}
+		
+		if (msg.cmd != Ajax._cmd)
+		{
+			Ajax._do_error_msg('Server Error', 'Unknown server error. ' + (msg.msg ? msg.msg : ''), handler);
+			return;
+		}
+		
+		if (handler) handler(msg);
+	}
+	else if (Ajax._ajaxRequest.readyState == 4)
+	{
+		var status = Ajax._ajaxRequest.status;
+		
+		window.clearTimeout(Ajax._timeoutVar);
+		Ajax._ajaxRequest = null;
+		Ajax._responseHandler = null;
+		
+		Ajax._do_error_msg('Server Error', 'Server returned error '+status, handler);
+	}
+}
+
+
+
+/*****************************************************************************************
+Old Handler - Deprecated - Use .request in future
+*/
 
 Ajax.send = function(msg, responseHandler, in_timeout)
 {

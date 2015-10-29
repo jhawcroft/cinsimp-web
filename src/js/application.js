@@ -37,8 +37,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 function Application() {}
 
-Application._stack = {"stack_name":"test","cant_peek":false,"cant_abort":false,"user_level":5,"card_width":600,"card_height":400,"script":{"content":"","selection":0},"cant_delete":false,"cant_modify":false,"private_access":false,"first_card_id":"1","stack_path":"test","stack_id":"test","count_cards":"2","count_bkgnds":"1","stack_size":4096,"stack_free":0}; 
-Application._card = {"card_id":1,"card_name":"First Card","card_seq":1,"card_cant_delete":false,"card_dont_search":false,"card_marked":false,"card_script":{"content":"","selection":0},"card_has_art":false,"card_object_data":"","bkgnd_id":"1","bkgnd_name":"Initial Bkgnd","bkgnd_cant_delete":false,"bkgnd_dont_search":true,"bkgnd_script":{"content":"","selection":0},"bkgnd_has_art":false,"bkgnd_object_data":"","stack_count":"2","bkgnd_count":"2"};
+Application._stack = null; 
+Application._card = null;
+Application._bkgnd = null;
 Application._view = null;
 
 
@@ -125,66 +126,10 @@ Application.do_info = function()
 
 
 
-Application.compact = function()
-{
-	var msg = {
-		cmd: 'compact_stack',
-		stack_id: this._stack.stack_id
-	};
-	
-	Progress.operation_begun('Compacting this stack...', true);
-	Ajax.send(msg, function(msg, status) 
-	{
-		Progress.operation_finished();
-		
-		if ((status != 'ok') || (msg.cmd != 'compact_stack'))
-			alert('Compact error: '+status+"\n"+JSON.stringify(msg));
-		else
-		{
-			Application._stack = msg.stack;
-			if (Application._view) Application._view._stack = msg.stack;
-		}
-	});
-}
 
 
-Application.save_info = function()
-{
-	if (Application._view) Application._view.save_info();
-}
 
 
-Application.showStackInfo = function()
-{
-	//alert(JSON.stringify(Application._initialStackData));
-	
-	try
-	{
-		document.getElementById('StackInfoName').value = Application._stack.stack_name;
-		document.getElementById('StackInfoWhere').innerHTML = 'Where: '+Application._stack.stack_path;
-		
-		document.getElementById('StackInfoCardCount').innerHTML = 'Stack contains '+
-			(Application._stack.count_cards == 1 ? 
-			Application._stack.count_cards+' card.' :
-			Application._stack.count_cards+' cards.');
-		document.getElementById('StackInfoBkgndCount').innerHTML = 'Stack contains '+
-			(Application._stack.count_bkgnds == 1 ? 
-			Application._stack.count_bkgnds+' background.' :
-			Application._stack.count_bkgnds+' backgrounds.');
-		
-		document.getElementById('StackInfoSize').innerHTML = 'Size of stack: ' + 
-			Util.niceSize(Application._stack.stack_size);
-		document.getElementById('StackInfoFree').innerHTML = 'Free in stack: ' + 
-			Util.niceSize(Application._stack.stack_free);
-		
-		document.getElementById('StackInfoCardSize').innerHTML = 'Card size: ' +
-			Application._stack.card_width + ' x ' +
-			Application._stack.card_height;
-	}
-	catch (e) {}
-	
-	Dialog.StackInfo.show();
-}
 
 
 Application.do_find = function()
@@ -213,39 +158,9 @@ Application.do_message = function()
 
 
 
-
-
-
-Application.save_stack_info = function()
-{
-	var do_rename = false;
-	if (this._stack.stack_name != document.getElementById('StackInfoName').value)
-		do_rename = true;	
-	this._stack.stack_name = document.getElementById('StackInfoName').value;
-	Dialog.dismiss();
-	
-	if (do_rename)
-	{
-		Progress.operation_begun('Renaming Stack...');
-		var msg = {
-			cmd: 'rename_stack',
-			stack_id: this._stack.stack_id
-		};
-		Ajax.send(msg, function(msg, status)
-		{
-			Progress.operation_finished();
-			if ((status != 'ok') || (msg.cmd != 'load_card'))
-				alert('Rename stack error: '+status+"\n"+JSON.stringify(msg));
-			else
-				this._stack = msg.stack;
-		});
-	}
-}
-
-
 Application.do_card_size = function()
 {
-	Application._csw.set_card_size([this._stack.card_width, this._stack.card_height]);
+	Application._csw.set_card_size(this._stack.get_card_size());
 	Dialog.CardSize.show();
 }
 
@@ -536,7 +451,7 @@ Application._init_app_bar = function()
 	app_bar.id = 'applicationBar';
 	
 	var btn_config = document.createElement('img');
-	btn_config.src = gBase+'gfx/cog.png';
+	btn_config.src = CinsImp._base + 'gfx/cog.png';
 	btn_config.classList.add('Clickable');
 	btn_config.style.width = '16px';
 	btn_config.alt = 'Configure';
@@ -562,12 +477,14 @@ Application._show_default_palettes = function()
 
 Application._configure_initial_stack = function()
 {
-	Application._stack = _g_init_stack;
-	Application._card = _g_init_card;
+	Application._stack = new CinsImp.Model.Stack(CinsImp._params.stack);
+
+	//Application._stack = CinsImp._params.stack;
+	Application._card = CinsImp._params.card;
 	
 	var stack_window = document.getElementById('stackWindow');
-	stack_window.style.width = Application._stack.card_width + 'px';
-	stack_window.style.height = Application._stack.card_height + 'px';
+	stack_window.style.width = Application._stack.get_card_size().width + 'px';
+	stack_window.style.height = Application._stack.get_card_size().height + 'px';
 	
 	Application._set_default_positions(stack_window.clientWidth, stack_window.clientHeight);
 }

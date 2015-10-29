@@ -1667,6 +1667,8 @@ View.register_icon = function(in_id, in_name, in_data)
 
 View.prototype._index_icons = function()
 {
+return;
+// **TO REVISE **
 	this._icon_index = {};
 	for (var i = 0; i < this._stack.stack_icons.length; i++)
 	{
@@ -1780,6 +1782,67 @@ View.clear_password = function()
 }
 
 
+
+
+View.do_stack_info = function()
+{
+	var stack = View.current._stack;
+	
+	document.getElementById('StackInfoName').value = stack.get_attr('name');
+	document.getElementById('StackInfoWhere').innerHTML = 'Where: '+stack.get_attr('path');
+	
+	document.getElementById('StackInfoCardCount').innerHTML = 'Stack contains '+
+		Util.plural(stack.get_attr('count_cards'), 'card', 'cards')+'.';
+	document.getElementById('StackInfoBkgndCount').innerHTML = 'Stack contains '+
+		Util.plural(stack.get_attr('count_bkgnds'), 'background', 'backgrounds')+'.';
+	
+	document.getElementById('StackInfoSize').innerHTML = 'Size of stack: ' + 
+		Util.human_size(stack.get_attr('size'));
+	document.getElementById('StackInfoFree').innerHTML = 'Free in stack: ' + 
+		Util.human_size(stack.get_attr('free'));
+	
+	document.getElementById('StackInfoCardSize').innerHTML = 'Card size: ' +
+		stack.get_card_size_text();
+
+	
+	Dialog.StackInfo.show();
+}
+
+
+
+View.save_stack_info = function()
+{
+	var do_rename = false;
+	if (this._stack.stack_name != document.getElementById('StackInfoName').value)
+		do_rename = true;	
+	this._stack.stack_name = document.getElementById('StackInfoName').value;
+	Dialog.dismiss();
+	
+	if (do_rename)
+	{
+		Progress.operation_begun('Renaming Stack...');
+		var msg = {
+			cmd: 'rename_stack',
+			stack_id: this._stack.stack_id
+		};
+		Ajax.send(msg, function(msg, status)
+		{
+			Progress.operation_finished();
+			if ((status != 'ok') || (msg.cmd != 'load_card'))
+				alert('Rename stack error: '+status+"\n"+JSON.stringify(msg));
+			else
+				this._stack = msg.stack;
+		});
+	}
+}
+
+
+
+View.compact = function()
+{
+	Progress.operation_begun('Compacting this stack...', true);
+	View.current._stack.compact( Progress.operation_finished );
+}
 
 
 

@@ -46,6 +46,8 @@ class Util
 */
 	public static function safe_stack_id($stack_id, $allow_not_exist = false)
 	{
+		return $stack_id; // **TODO ** fix
+	/*
 		global $config;
 		if ($stack_id == '') return $config->stacks;
 		
@@ -60,6 +62,7 @@ class Util
 			throw new Exception('Forbidden', 503);
 			
 		return $path;
+		*/
 	}
 	
 

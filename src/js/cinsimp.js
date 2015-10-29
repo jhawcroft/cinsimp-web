@@ -103,7 +103,7 @@ var CinsImp = {
 		var script = document.createElement('script');
 		script.type = 'text/javascript';
 		//script.addEventListener('load', CinsImp._script_loaded);
-		script.src = gBase+'js/'+in_name;
+		script.src = CinsImp._base + 'js/'+in_name;
 		document.getElementsByTagName('head')[0].appendChild(script);
 		CinsImp._count_scripts++;
 	},
@@ -118,7 +118,7 @@ var CinsImp = {
 		link.rel = 'stylesheet';
 		link.type = 'text/css';
 		link.addEventListener('load', CinsImp._stylesheet_loaded);
-		link.href = gBase+'css/'+in_name;
+		link.href = CinsImp._base + 'css/'+in_name;
 		document.getElementsByTagName('head')[0].appendChild(link);
 		CinsImp._count_stylesheets++;
 	},
@@ -134,7 +134,7 @@ var CinsImp = {
 		document.body.appendChild(ui_templates);
 	
 		var xhr = new XMLHttpRequest();
-		xhr.open('GET', gBase+'?ui=1', true);
+		xhr.open('GET', CinsImp._base + '?ui=1', true);
 		xhr.onreadystatechange= function() 
 		{
 			if (this.readyState !== 4) return;
@@ -292,8 +292,13 @@ var CinsImp = {
 /*
 	The first init function - initialize the environment and run some tests.
 */
-	init: function()
+	init: function(in_params)
 	{
+		/* save startup params from the server */
+		CinsImp._params = in_params;
+		this._base = (in_params.base ? in_params.base : '');
+		if (!this._params.icon_collections) this._params.icon_collections = [];
+	
 		/* check for browser and environment capabilities */
 		this._javascript_test();
 		this._browser_test();

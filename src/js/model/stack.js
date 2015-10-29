@@ -119,7 +119,41 @@ Stack.prototype.is_ready = function()
 }
 
 
+/*
+	Returns a textual description of the card size.
+*/
+Stack.prototype.get_card_size_text = function()
+{
+	return this._def.card_width + ' x ' + this._def.card_height;
+}
 
+/*
+	Returns the card size.
+*/
+Stack.prototype.get_card_size = function()
+{
+	return { width: this._def.card_width, height: this._def.card_height };
+}
+
+
+
+Stack.prototype.get_attr = function(in_attr)
+{
+	if (!(in_attr in this._def))
+		throw Error('Stack doesn\'t have an '+in_attr+' attribute.');
+	return this._def[in_attr];
+}
+
+
+Stack.prototype.compact = function(in_onfinished)
+{
+	Ajax.request(
+	{
+		cmd: 'compact_stack',
+		id: this._def.id
+		
+	}, in_onfinished);
+}
 
 
 CinsImp._script_loaded('Model.Stack');

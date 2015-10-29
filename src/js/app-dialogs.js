@@ -47,11 +47,12 @@ AppDialogs.init = function()
 	AppDialogs._icon_selected(0, '');
 	
 	var collection_selector = document.getElementById('SetIconCollection');
-	for (var i = 0; i < _g_icon_collections.length; i++)
+	var collections_data = CinsImp._params.icon_collections;
+	for (var i = 0; i < collections_data.length; i++)
 	{
 		var collection_option = document.createElement('option');
-		collection_option.value = _g_icon_collections[i];
-		collection_option.appendChild(document.createTextNode(_g_icon_collections[i]));
+		collection_option.value = collections_data[i];
+		collection_option.appendChild(document.createTextNode(collections_data[i]));
 		collection_selector.appendChild(collection_option);
 	}
 	collection_selector.value = 'CinsImp';

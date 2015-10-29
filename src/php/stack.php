@@ -202,19 +202,23 @@ Creating and Opening Stacks
 		/* configure the instance */
 		$this->stack_id = $in_ident;
 		$this->name = basename($in_ident);
-		$this->stack_path = substr($in_ident, strlen($_SERVER['DOCUMENT_ROOT']));
+		$this->stack_path = $_SERVER['DOCUMENT_ROOT'].$in_ident;
 		
 		/* check if the supplied stack file exists */
-		if (!file_exists($in_ident))
+		if (!file_exists($this->stack_path))
 			throw new Exception('Stack Not Found', 404);
 			
 		/* check if the file is read-only */
-		$this->file_read_only = (!is_writable($in_ident));
+		$fp = fopen($this->stack_path, 'a'); // for some weird reason is_writable doesn't work properly
+		if (!$fp)
+			$this->file_read_only = true;
+		else fclose($fp);
+		//$this->file_read_only = false;//(!is_writable($in_ident));
 		
 		/* open the file as a SQLite database */
 		try
 		{	
-			$this->file_db = new PDO('sqlite:'.$in_ident);
+			$this->file_db = new PDO('sqlite:'.$this->stack_path);
 			if ($this->file_db === false)
 				throw new Exception('Invalid Stack or Stack Corrupt', 520);
 			$this->file_db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -269,8 +273,10 @@ Creating and Opening Stacks
 /*
 	Creates a Stack with the supplied file path name.
 */
-	public static function create_file($in_path)
+	public static function create_file($in_ident)
 	{
+		$in_path = $_SERVER['DOCUMENT_ROOT'].$in_ident;
+		
 		/* create the SQLite database file */
 		try
 		{
@@ -282,7 +288,7 @@ Creating and Opening Stacks
 		}
 		catch (Exception $err)
 		{
-			CinsImpError::_general('Cannot Create Stack', $err->getMessage());
+			CinsImpError::general('Cannot Create Stack', $err->getMessage());
 		}
 		
 		/* create and populate the schema */
@@ -417,6 +423,7 @@ INSERT INTO card (id, bkgnd_id, seq) VALUES (1, 1, 1);
 
 ";
 
+
 			$stmts = explode(';', $create_table_sql);
 			$s_num = 1;
 			foreach ($stmts as $stmt)
@@ -426,24 +433,26 @@ INSERT INTO card (id, bkgnd_id, seq) VALUES (1, 1, 1);
 				{
 					try { $file_db->exec($stmt); }
 					catch (Exception $err) 
-					{ CinsImpError::_internal('Statement '.$s_num.': '.$err->getMessage()); }
+					{ CinsImpError::internal('Statement '.$s_num.': '.$err->getMessage()); }
 					$s_num++;
 				}
 			}
 			
 			$file_db->commit();
 			
+			//chmod($in_path, 0755);
+			
 		}
 		catch (Exception $err)
 		{
-			CinsImpError::_general('Cannot Create Stack', $err->getMessage());
+			CinsImpError::general('Cannot Create Stack', $err->getMessage());
 		}
 	}
 	
 	
 	public static function stack_delete($in_ident)
 	{
-		CinsImpError::_unimplemented();
+		CinsImpError::unimplemented();
 	} 
 	
 
@@ -571,7 +580,7 @@ Accessors and Mutators
 		
 		/* return the statistics */
 		$stats = array(
-			'size'=>filesize($this->stack_id),
+			'size'=>filesize($this->stack_path),
 			'free'=>$approx_free_space,
 			'count_cards'=>$this->stack_get_count_cards(),
 			'count_bkgnds'=>$this->stack_get_count_bkgnds()
@@ -587,14 +596,19 @@ Accessors and Mutators
 */
 	private function _record()
 	{
+		global $config;
+		
 		$stmt = $this->file_db->prepare('SELECT * FROM cinsimp_stack');
 		$stmt->execute();
 		$row = $stmt->fetch(PDO::FETCH_ASSOC);
 	
+		//$stack_url = $this->stack_path;
+		//print '<p>'.$stack_url.'</p>';
+	
 		$record = array(
 			'name'=>$this->name,
-			'path'=>$this->stack_path,
-			'id'=>$this->stack_path, // should probably be a full URL, generated from configuration for security
+			'path'=>$this->stack_id,
+			'id'=>$this->stack_id,
 			
 			'record_version'=>$this->record_version,
 			
@@ -881,11 +895,11 @@ Accessors and Mutators
 	{
 		/* try to import with supplied ID */
 		$this->file_db->beginTransaction();
-		$stmt = $this->file_db->prepare('INSERT INTO icon (icon_id,icon_name,icon_data) VALUES (?,?,?)');
+		$stmt = $this->file_db->prepare('INSERT INTO icon (id,name,data) VALUES (?,?,?)');
 		if ($stmt->execute(array(intval($in_preferred_id), $in_name, $in_data)) === false)
 		{
 			/* resort to an automatically allocated ID */
-			$stmt = $this->file_db->prepare('INSERT INTO icon (icon_id,icon_name,icon_data) VALUES (NULL,?,?)');
+			$stmt = $this->file_db->prepare('INSERT INTO icon (id,name,data) VALUES (NULL,?,?)');
 			Stack::sl_ok($stmt->execute(array($in_name, $in_data)), $this->file_db, 'Importing Icon (2)');
 			$in_preferred_id = $this->file_db->lastInsertId();
 		}
@@ -1296,107 +1310,15 @@ Eventually methods for icon deletion/rename:
 		return $card_id;
 	}
 	
-
-/*
-	Allows 'direct injection' of a complete background into the stack.
-	(currently used for HC Import)
-*/
-	public function stack_inject_bkgnd($card)
-	{
-		$this->stack_will_be_modified();
 	
-		$data = array();
-		$data['bkgnd_script'] = $card['bkgnd_script'];
-		$data['bkgnd_has_art'] = $card['bkgnd_has_art'];
-		
-		$stmt = $this->file_db->prepare(
-			'INSERT INTO bkgnd (bkgnd_id,object_data,bkgnd_name,cant_delete,dont_search,bkgnd_data) '.
-			'VALUES (?,?,?,?,?,?)'
-		);
-		Stack::sl_ok($stmt, $this->file_db, 'Injecting Bkgnd (1)');
-		$rows = $stmt->execute(array(
-			$card['bkgnd_id'],
-			$card['bkgnd_object_data'],
-			$card['bkgnd_name'],
-			Stack::encode_bool($card['bkgnd_cant_delete']),
-			Stack::encode_bool($card['bkgnd_dont_search']),
-			json_encode($data)
-		));
-		if ($rows == 0) Stack::sl_ok(false, $this->file_db, 'Injecting Bkgnd (2)');
-		Stack::sl_ok($rows, $this->file_db, 'Injecting Bkgnd (3)');
-		
-		return $this->file_db->lastInsertId();
-	}
-	
-
-/*
-	Allows 'direct injection' of a complete card into the stack.
-	(currently used for HC Import)
-*/
-	public function stack_inject_card($card)
-	{
-		$this->stack_will_be_grown();
-	
-		$data = array();
-		$data['card_script'] = $card['card_script'];
-		$data['card_has_art'] = $card['card_has_art'];
-		$data['content'] = $card['content'];
-		$data['data'] = $card['data'];
-	
-		$stmt = $this->file_db->prepare(
-			'INSERT INTO card (card_id,object_data,card_name,cant_delete,dont_search,marked,card_data,bkgnd_id,card_seq) '.
-			'VALUES (?,?,?,?,?,?,?,?,?)'
-		);
-		Stack::sl_ok($stmt, $this->file_db, 'Injecting Card (1)');
-		$rows = $stmt->execute(array(
-			$card['card_id'],
-			$card['card_object_data'],
-			$card['card_name'],
-			Stack::encode_bool($card['card_cant_delete']),
-			Stack::encode_bool($card['card_dont_search']),
-			0, // not marked
-			json_encode($data),
-			$card['card_bkgnd_id'],
-			$card['card_seq']
-		));
-		if ($rows == 0) Stack::sl_ok(false, $this->file_db, 'Injecting Card (2)');
-		Stack::sl_ok($rows, $this->file_db, 'Injecting Card (3)');
-		
-		return $this->file_db->lastInsertId();
-	}
-	
-	
-/*
-	Deletes all cards and backgrounds from the stack.
-	(currently used ONLY for HC Import, which requires a completely empty stack)
-*/
-	public function zap_all_cards()
-	{
-		$this->stack_will_be_modified();
-		
-		$stmt = $this->file_db->prepare(
-			'DELETE FROM card'
-		);
-		Stack::sl_ok($stmt, $this->file_db, 'Deleting All Cards (1)');
-		$rows = $stmt->execute();
-		Stack::sl_ok($rows, $this->file_db, 'Deleting All Cards (2)');
-	
-		$stmt = $this->file_db->prepare(
-			'DELETE FROM bkgnd'
-		);
-		Stack::sl_ok($stmt, $this->file_db, 'Deleting All Cards (3)');
-		$rows = $stmt->execute();
-		Stack::sl_ok($rows, $this->file_db, 'Deleting All Cards (4)');
-	}
-
-
 /*
 	Creates a new card and optionally an accompanying new background.
 	Returns the ID of the new card.
 */
 	public function stack_new_card($after_card_id, $new_bkgnd_too)
 	{
-		$this->stack_will_be_grown();
+		$this->_check_growability();
+		
 	
 		$card_id = null;
 		$this->file_db->beginTransaction();
@@ -1526,6 +1448,107 @@ Eventually methods for icon deletion/rename:
 		$this->file_db->commit();
 		return $next_card_id;
 	}
+	
+
+
+/*****************************************************************************************
+HyperCard Import Support (Revise Later)
+*/
+
+/*
+	Allows 'direct injection' of a complete background into the stack.
+	(currently used for HC Import)
+*/
+	public function stack_inject_bkgnd($card)
+	{
+		$this->stack_will_be_modified();
+	
+		$data = array();
+		$data['bkgnd_script'] = $card['bkgnd_script'];
+		$data['bkgnd_has_art'] = $card['bkgnd_has_art'];
+		
+		$stmt = $this->file_db->prepare(
+			'INSERT INTO bkgnd (bkgnd_id,object_data,bkgnd_name,cant_delete,dont_search,bkgnd_data) '.
+			'VALUES (?,?,?,?,?,?)'
+		);
+		Stack::sl_ok($stmt, $this->file_db, 'Injecting Bkgnd (1)');
+		$rows = $stmt->execute(array(
+			$card['bkgnd_id'],
+			$card['bkgnd_object_data'],
+			$card['bkgnd_name'],
+			Stack::encode_bool($card['bkgnd_cant_delete']),
+			Stack::encode_bool($card['bkgnd_dont_search']),
+			json_encode($data)
+		));
+		if ($rows == 0) Stack::sl_ok(false, $this->file_db, 'Injecting Bkgnd (2)');
+		Stack::sl_ok($rows, $this->file_db, 'Injecting Bkgnd (3)');
+		
+		return $this->file_db->lastInsertId();
+	}
+	
+
+/*
+	Allows 'direct injection' of a complete card into the stack.
+	(currently used for HC Import)
+*/
+	public function stack_inject_card($card)
+	{
+		$this->stack_will_be_grown();
+	
+		$data = array();
+		$data['card_script'] = $card['card_script'];
+		$data['card_has_art'] = $card['card_has_art'];
+		$data['content'] = $card['content'];
+		$data['data'] = $card['data'];
+	
+		$stmt = $this->file_db->prepare(
+			'INSERT INTO card (card_id,object_data,card_name,cant_delete,dont_search,marked,card_data,bkgnd_id,card_seq) '.
+			'VALUES (?,?,?,?,?,?,?,?,?)'
+		);
+		Stack::sl_ok($stmt, $this->file_db, 'Injecting Card (1)');
+		$rows = $stmt->execute(array(
+			$card['card_id'],
+			$card['card_object_data'],
+			$card['card_name'],
+			Stack::encode_bool($card['card_cant_delete']),
+			Stack::encode_bool($card['card_dont_search']),
+			0, // not marked
+			json_encode($data),
+			$card['card_bkgnd_id'],
+			$card['card_seq']
+		));
+		if ($rows == 0) Stack::sl_ok(false, $this->file_db, 'Injecting Card (2)');
+		Stack::sl_ok($rows, $this->file_db, 'Injecting Card (3)');
+		
+		return $this->file_db->lastInsertId();
+	}
+	
+	
+/*
+	Deletes all cards and backgrounds from the stack.
+	(currently used ONLY for HC Import, which requires a completely empty stack)
+*/
+	public function zap_all_cards()
+	{
+		$this->stack_will_be_modified();
+		
+		$stmt = $this->file_db->prepare(
+			'DELETE FROM card'
+		);
+		Stack::sl_ok($stmt, $this->file_db, 'Deleting All Cards (1)');
+		$rows = $stmt->execute();
+		Stack::sl_ok($rows, $this->file_db, 'Deleting All Cards (2)');
+	
+		$stmt = $this->file_db->prepare(
+			'DELETE FROM bkgnd'
+		);
+		Stack::sl_ok($stmt, $this->file_db, 'Deleting All Cards (3)');
+		$rows = $stmt->execute();
+		Stack::sl_ok($rows, $this->file_db, 'Deleting All Cards (4)');
+	}
+
+
+
 
 
 }

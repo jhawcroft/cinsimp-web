@@ -46,7 +46,9 @@ $config->base = realpath(dirname(__FILE__).'/../').'/';
 $config->url = substr($config->base, strlen($_SERVER['DOCUMENT_ROOT']));
 
 /* set the default stacks directory */
+$config->host = '';
 $config->stacks = $config->base.'stacks/';
+$config->stacks_url = substr($config->stacks, strlen($_SERVER['DOCUMENT_ROOT']));
 
 /* set the default state of debugging, ie. OFF */
 $config->debug = false;

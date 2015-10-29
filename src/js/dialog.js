@@ -52,7 +52,7 @@ function Dialog(in_title, in_element, in_flags, in_cleanup)
 	this._div.appendChild(this._titlebar);
 	
 	this._closebtn = document.createElement('img');
-	this._closebtn.src = gBase+'gfx/closex.png';
+	this._closebtn.src = CinsImp._base + 'gfx/closex.png';
 	this._closebtn.style.width = '16px';
 	if (this._flags & Dialog.FLAG_NOCLOSE)
 		this._closebtn.style.visibility = 'hidden';
