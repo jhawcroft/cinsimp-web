@@ -53,6 +53,9 @@ Model.Stack = function(in_url_or_def, in_ready_handler)
 	/* initialise the class internals */
 	this._ready = false;
 	this._changes = {};
+	
+	this._host = null;
+	this._url = null;
 
 	/* the input is a URL, we need first to fetch the stack definition object via AJAX */
 	if (typeof in_url_or_def == 'string')
@@ -64,9 +67,26 @@ Model.Stack = function(in_url_or_def, in_ready_handler)
 	/* otherwise, just load the stack from the definition */
 	this._load_def(in_url_or_def);
 	if (this._ready_handler)
-		this._ready_handler(stack, this._ready);
+		this._ready_handler(this, this._ready);
 };
 var Stack = Model.Stack;
+
+
+/*
+	Stack provided AJAX gateway;
+	thus the stack can inject additional parameters, such as authentication
+	and proxy settings if the stack is on a different server to the gateway.
+*/
+Stack.prototype.gateway = function(in_msg, in_reply_handler)
+{
+	if (this._host || this._url)
+	{
+		in_msg.host = this._host;
+		in_msg.url = this._url;
+	}
+	
+	Ajax.request(in_msg, in_reply_handler);
+}
 
 
 /*

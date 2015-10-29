@@ -177,6 +177,12 @@ class Util
 		if (array_key_exists($in_key, $in_array)) return $in_array[$in_key];
 		else return $in_default;
 	}
+	
+	
+	public static function is_digit($in_digit)
+	{
+		return (strpos('0123456789', $in_digit) !== false);
+	}
 
 }
 

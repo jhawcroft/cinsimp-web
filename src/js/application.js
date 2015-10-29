@@ -37,12 +37,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 function Application() {}
 
-Application._stack = null; 
-Application._card = null;
-Application._bkgnd = null;
-Application._view = null;
-
-
 
 
 Application._handle_choose_colour = function(in_event)
@@ -396,24 +390,28 @@ Application._show_default_palettes = function()
 }
 
 
-Application._configure_initial_stack = function()
-{
-	Application._stack = new CinsImp.Model.Stack(CinsImp._params.stack);
 
-	//Application._stack = CinsImp._params.stack;
-	Application._card = CinsImp._params.card;
-	
-	var stack_window = document.getElementById('stackWindow');
-	stack_window.style.width = CinsImp._params.stack.card_width + 'px';
-	stack_window.style.height = CinsImp._params.stack.card_height + 'px';
-	
-	Application._set_default_positions(stack_window.clientWidth, stack_window.clientHeight);
-}
-
-
+/*
+	Loads the stack from the definitions included in the static HTML
+	from whence this application is initially invoked.
+*/
 Application._load_initial_stack = function()
 {
-	Application._view = new View(Application._stack, Application._card);
+	/* load the model */
+	var stack = new CinsImp.Model.Stack(CinsImp._params.stack);
+	var bkgnd = new CinsImp.Model.Bkgnd(stack, CinsImp._params.bkgnd);
+	var card = new CinsImp.Model.Card(stack, CinsImp._params.card);
+	
+	/* define the single stack window;
+	!  In future there may be support for more than one stack to be open. */
+	var stack_window = document.getElementById('stackWindow');
+	Util.set_dom_size(stack_window, stack.get_attr('card_size'));
+	
+	/* arrange the palettes around the stack window */
+	Application._set_default_positions(stack_window.clientWidth, stack_window.clientHeight);
+	
+	/* init the view of the first card */
+	Application._view = new View(stack, bkgnd, card);
 	Application._view.refresh();
 }
 
@@ -493,7 +491,6 @@ Application.init = function()
 	Application._init_xtalk();
 	
 	Progress.operation_begun('Loading stack...', true);
-	Application._configure_initial_stack();
 	Application._load_initial_stack();
 	
 	Progress.status('Configuring environment...');

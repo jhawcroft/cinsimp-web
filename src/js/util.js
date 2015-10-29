@@ -171,6 +171,45 @@ Util.set_text_content = function(in_element, in_text)
 }
 
 
+/*
+	Convenience method to set the size of a DOM element.
+*/
+Util.set_dom_size = function(in_element, in_size, in_height)
+{
+	var w = 0, h = 0;
+	if (in_height !== undefined)
+	{
+		w = in_size * 1;
+		h = in_height * 1;
+	}
+	else if (in_size.width)
+	{
+		w = in_size.width * 1;
+		h = in_size.height * 1;
+	}
+	else if (typeof in_size == 'object' && in_size.length && in_size.length == 2)
+	{
+		w = in_size[0] * 1;
+		h = in_size[1] * 1;
+	}
+	else if (typeof in_size == 'string')
+	{
+		in_size = in_size.split(',');
+		w = in_size[0] * 1;
+		h = in_size[1] * 1;
+	}
+	
+	if (in_element.tagName == 'CANVAS')
+	{
+		in_element.width = w;
+		in_element.height = h;
+	}
+	else
+	{
+		in_element.style.width = w + 'px';
+		in_element.style.height = h + 'px';
+	}
+}
 
 
 CinsImp._script_loaded('util');

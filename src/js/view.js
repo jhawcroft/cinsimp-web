@@ -35,12 +35,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-function View(in_stack, in_card) 
+function View(in_stack, in_bkgnd, in_card) 
 {
 	View.current = this;
 	
 	this._stack = in_stack;
+	this._bkgnd = in_bkgnd;
 	this._card = in_card;
+	
 	this._paint = null;
 	this._icon_index = {};
 	

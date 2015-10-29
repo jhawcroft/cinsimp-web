@@ -34,6 +34,50 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+var CinsImp = CinsImp || {};
+CinsImp.Model = CinsImp.Model || {};
+
+var Model = CinsImp.Model;
+
+
+/*
+	Client-side representation of a loaded Background.
+	
+	in_stack must be a Model.Stack object.
+	Background always takes a definition object, since it is always obtained by accessing
+	a specific card, and returned within the same request.
+*/
+Model.Bkgnd = function(in_stack, in_def, in_ready_handler)
+{
+	/* initialise the class internals */
+	this._ready = false;
+	this._changes = {};
+	this._stack = in_stack;
+	
+	/* otherwise, just load the background from the definition */
+	this._load_def(in_def);
+	if (this._ready_handler)
+		this._ready_handler(this, this._ready);
+};
+var Bkgnd = Model.Bkgnd;
+
+
+/*
+	Loads the Bkgnd definition obtained from a gateway server.
+*/
+Bkgnd.prototype._load_def = function(in_def)
+{
+	this._def = in_def;
+	
+	/* we should check the definition is valid here */ /// ** TODO **
+	
+	this._ready = true;
+}
+
+
+
+
+
 
 
 CinsImp._script_loaded('Model.Bkgnd');

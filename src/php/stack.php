@@ -1236,10 +1236,64 @@ Eventually methods for icon deletion/rename:
 	
 	
 /*
+	Accepts a card reference and converts to a card ID.
+	A reference can be either:
+	-	an ID integer (no conversion necessary)
+	-	a number, relative to the stack or supplied background ID
+		Must be prefixed with a hash '#'
+	-	a name, relative to the stack or supplied background ID
+		Any non-numeric string
+*/
+	private function _card_ref_to_id($in_ref, $in_bkgnd_id = null)
+	{
+		if ($in_ref === null || strlen($in_ref) > 256)
+			CinsImpError::malformed('Invalid card reference');
+		if ($in_bkgnd_id !== null && strlen($in_bkgnd_id) > 50)
+			CinsImpError::malformed('Invalid bkgnd reference');
+			
+		$in_ref = trim($in_ref);
+		$first_char = substr($in_ref, 0, 1);
+		if ( Util::is_digit($first_char) )
+		{
+			/* ID */
+			return intval($in_ref);
+		}
+		else if ($first_char == '#')
+		{
+			/* number or ordinal */
+			$in_ref = trim(substr($in_ref, 1));
+			switch ($in_ref)
+			{
+			case 'last':
+				CinsImpError::unimplemented('ordinal card access');
+				break;
+			case 'middle':
+				CinsImpError::unimplemented('ordinal card access');
+				break;
+			case 'any':
+				CinsImpError::unimplemented('ordinal card access');
+				break;
+			default:
+				$number = intval($in_ref);
+				return $this->stack_get_nth_card_id($number, $in_bkgnd_id);
+			}
+		}
+		else
+		{
+			/* name */
+			$name = substr($in_ref, 0, 255);
+			CinsImpError::unimplemented('named card access');
+		}
+	}
+	
+	
+/*
 	Retrieves the card data for the supplied card ID.
 */
 	public function stack_load_card($card_id)
 	{
+		$card_id = $this->_card_ref_to_id($card_id);
+		
 		$stmt = $this->file_db->prepare(
 'SELECT id,bkgnd_id,seq,name,cant_delete,dont_search,marked,script,art,art_hidden FROM card WHERE id=?'
 		);
