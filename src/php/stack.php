@@ -197,12 +197,16 @@ Creating and Opening Stacks
 		520 Invalid Stack or Stack Corrupt
 		520 Stack Too New
 */
-	public function __construct($in_ident)
+	public function __construct($in_ident, $in_auth_hash = null)
 	{
 		/* configure the instance */
 		$this->stack_id = $in_ident;
 		$this->name = basename($in_ident);
 		$this->stack_path = $_SERVER['DOCUMENT_ROOT'].$in_ident;
+		
+		// really could use a function here to grab config->stacks and find the server bit
+		// that is missing at the beginning of ident, and add it
+		
 		
 		/* check if the supplied stack file exists */
 		if (!file_exists($this->stack_path))
@@ -237,6 +241,10 @@ Creating and Opening Stacks
 		{
 			throw new Exception('Stack Too New; '.$err->getMessage(), 520);
 		}
+		
+		/* authenticate if hash provided */
+		if ($in_auth_hash !== null)
+			$this->stack_authenticate($in_auth_hash);
 		
 		/* if the stack has private access,
 		raise an exception and request private access */
@@ -472,8 +480,7 @@ Security and Restrictions Management
 		else
 		{
 			$this->authenticated = false;
-			throw new Exception('Authentication Required', 401); 
-			// this must be converted to an appropriate JSON response, not HTTP
+			CinsImpError::unauthorised();
 		}
 	}
 	
@@ -499,7 +506,7 @@ Security and Restrictions Management
 	private function _check_authenticated()
 	{
 		if (!$this->authenticated && $this->password_hash != '')
-			throw new Exception('Authentication Required', 401); 
+			CinsImpError::unauthorised();
 	}
 	
 	
@@ -676,18 +683,27 @@ Accessors and Mutators
 	Verifies the supplied value is or can be cast to the specified logical type.
 	Throws an exception if it cannot.
 */
-	private static function _sql_type_verify(&$field_value, $field_type)
+
+// *** TODO this needs better actual checking of supplied types and enforcement
+	private static function _sql_type_verify(&$field_value, $field_type, $allow_null = true)
 	{
+		/* check for null */
+		if (!$allow_null && $field_value === null)
+			CinsImpError::malformed('_sql_type_verify: field "'.$field_name.'": cannot be null');
+		
+		/* check for literal sets */
 		if (substr($field_type, 0, 1) == '[')
 		{
 			$field_type = substr($field_type, 1, strlen($field_type)-2);
 			$set = explode(',', $field_type);
 			$field_value = strval($field_value);
 			if (!in_array($field_value, $set))
-				CinsImpError::malformed('_sql_optional_update: field "'.$field_name.'": not in allowed set '.
+				CinsImpError::malformed('_sql_type_verify: field "'.$field_name.'": not in allowed set '.
 					implode(', ', $set));
 			return;
 		}
+		
+		/* check for various logical types */
 		switch ($field_type)
 		{
 		case 'bool':
@@ -696,10 +712,10 @@ Accessors and Mutators
 		case 'rgb':
 			$field_value = strval($field_value);
 			if (strlen($field_value) > 16)
-				CinsImpError::malformed('_sql_optional_update: field "'.$field_name.'": exceeds 16 bytes');
+				CinsImpError::malformed('_sql_type_verify: field "'.$field_name.'": exceeds 16 bytes');
 			$components = explode(',', $field_value);
 			if (count($components) != 3)
-				CinsImpError::malformed('_sql_optional_update: field "'.$field_name.'": illegal Color (r,g,b)');
+				CinsImpError::malformed('_sql_type_verify: field "'.$field_name.'": illegal Color (r,g,b)');
 			$components[0] = floatval($components[0]);
 			$components[1] = floatval($components[1]);
 			$components[2] = floatval($components[2]);
@@ -708,12 +724,12 @@ Accessors and Mutators
 		case 'uint8':
 			$field_value = intval($field_value);
 			if ($field_value < 0 || $field_value > 255)
-				CinsImpError::malformed('_sql_optional_update: field "'.$field_name.'": overflow 8-bit unsigned int');
+				CinsImpError::malformed('_sql_type_verify: field "'.$field_name.'": overflow 8-bit unsigned int');
 			break;
 		case 'uint16':
 			$field_value = intval($field_value);
 			if ($field_value < 0 || $field_value > 32767)
-				CinsImpError::malformed('_sql_optional_update: field "'.$field_name.'": overflow 16-bit unsigned int');
+				CinsImpError::malformed('_sql_type_verify: field "'.$field_name.'": overflow 16-bit unsigned int');
 			break;
 		case 'int':
 			$field_value = intval($field_value);
@@ -721,30 +737,30 @@ Accessors and Mutators
 		case 'text16':
 			$field_value = strval($field_value);
 			if (strlen($field_value) > 32000)
-				CinsImpError::malformed('_sql_optional_update: field "'.$field_name.'": exceeds 32 K characters');
+				CinsImpError::malformed('_sql_type_verify: field "'.$field_name.'": exceeds 32 K characters');
 			break;
 		case 'text20':
 			$field_value = strval($field_value);
 			if (strlen($field_value) > 1024 * 1024)
-				CinsImpError::malformed('_sql_optional_update: field "'.$field_name.'": exceeds 1 MB');
+				CinsImpError::malformed('_sql_type_verify: field "'.$field_name.'": exceeds 1 MB');
 			break;
 		case 'str255':
 			$field_value = strval($field_value);
 			if (strlen($field_value) > 255)
-				CinsImpError::malformed('_sql_optional_update: field "'.$field_name.'": exceeds 255 characters');
+				CinsImpError::malformed('_sql_type_verify: field "'.$field_name.'": exceeds 255 characters');
 			break;
 		case 'data16':
 			$field_value = strval($field_value);
 			if (strlen($field_value) > 16)
-				CinsImpError::malformed('_sql_optional_update: field "'.$field_name.'": exceeds 16 bytes');
+				CinsImpError::malformed('_sql_type_verify: field "'.$field_name.'": exceeds 16 bytes');
 			break;
 		case 'point':
 			$field_value = strval($field_value);
 			if (strlen($field_value) > 16)
-				CinsImpError::malformed('_sql_optional_update: field "'.$field_name.'": exceeds 16 bytes');
+				CinsImpError::malformed('_sql_type_verify: field "'.$field_name.'": exceeds 16 bytes');
 			$components = explode(',', $field_value);
 			if (count($components) != 2)
-				CinsImpError::malformed('_sql_optional_update: field "'.$field_name.'": illegal Point');
+				CinsImpError::malformed('_sql_type_verify: field "'.$field_name.'": illegal Point');
 			$components[0] = intval($components[0]);
 			$components[1] = intval($components[1]);
 			$field_value = implode(',', $components);
@@ -753,10 +769,10 @@ Accessors and Mutators
 			if ($field_value === null) $field_value = '';
 			$field_value = strval($field_value);
 			if (strlen($field_value) > 104857600) // 100 MB
-				CinsImpError::malformed('_sql_optional_update: field "'.$field_name.'": exceeds 100 MB');
+				CinsImpError::malformed('_sql_type_verify: field "'.$field_name.'": exceeds 100 MB');
 			break;
 		default:
-			CinsImpError::internal('_sql_optional_update: field "'.$field_name.'": type '.$field_type.' invalid');
+			CinsImpError::internal('_sql_type_verify: field "'.$field_name.'": type '.$field_type.' invalid');
 		}
 	}
 
@@ -834,6 +850,36 @@ Accessors and Mutators
 			'sql'=>'INSERT INTO '.$table.' ('.implode(', ', $sql_fields).') VALUES ('.implode(', ', $sql_params).')',
 			'params'=>$sql_values
 		);
+	}
+	
+	
+/*
+	Applies the specified password to the stack, provided the stack access 
+	is sufficiently authenticated already.
+*/
+	public function stack_set_password($in_password_hash)
+	{
+		$this->_check_mutability();
+		$this->_check_authenticated();
+		
+		/* verify the input */
+		Stack::_sql_type_verify($in_password_hash, 'str255');
+		if (trim($in_password_hash) == '' || $in_password_hash === null) $in_password_hash = '';
+		
+		/* update the stack */
+		$this->file_db->beginTransaction();
+		
+		$sql = 'UPDATE cinsimp_stack SET password_hash=?';
+		$stmt = $this->file_db->prepare($sql);
+		$stmt->execute(array($in_password_hash));
+		
+		$this->file_db->exec('UPDATE cinsimp_stack SET record_version=record_version + 1');
+		$this->file_db->commit();
+		
+		/* reload essentials */
+		$this->load_check_essentials();
+		
+		return $this->record_version;
 	}
 	
 

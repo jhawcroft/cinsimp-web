@@ -158,8 +158,10 @@ h1
 		catch (Exception $err) 
 		{
 			$err = new CinsImpError($err);
+			$outbound = array();
 			$outbound['cmd'] = 'error';
 			$outbound['msg'] = 'Server: '.$err->getMessage().' '.$err->getDetail();
+			$outbound['cde'] = $err->getID();
 		}
 		
 		/* if we're debugging the gateway, output the response on the test form,
@@ -213,7 +215,7 @@ Regular Command Handlers
 		}
 		
 		Util::keys_required($inbound, array('id'));
-		$stack = new Stack(Util::safe_stack_id($inbound['id']));
+		$stack = new Stack(Util::safe_stack_id($inbound['id']), Util::optional($inbound, 'auth_hash'));
 		$outbound['stack'] = $stack->stack_load();
 		return $outbound;
 	}
@@ -228,7 +230,20 @@ Regular Command Handlers
 	{
 		Util::keys_required($inbound, array('id','stack'));
 		$stack = new Stack(Util::safe_stack_id($inbound['id']));
-		$outbound['record_version'] = $stack->stack_save($inbound['stack']);
+		$outbound['record_version'] = $stack->stack_save($inbound['stack'], Util::optional($inbound, 'auth_hash'));
+		return $outbound;
+	}
+	
+	
+/*
+	cmd: set_password
+	Sets/clears the password on the stack.
+*/
+	public static function set_password($inbound, $outbound)
+	{
+		Util::keys_required($inbound, array('id','password'));
+		$stack = new Stack(Util::safe_stack_id($inbound['id']), Util::optional($inbound, 'auth_hash'));
+		$outbound['record_version'] = $stack->stack_set_password($inbound['password']);
 		return $outbound;
 	}
 	
@@ -240,7 +255,7 @@ Regular Command Handlers
 	public static function compact_stack($inbound, $outbound)
 	{
 		Util::keys_required($inbound, array('id'));
-		$stack = new Stack(Util::safe_stack_id($inbound['id']));
+		$stack = new Stack(Util::safe_stack_id($inbound['id']), Util::optional($inbound, 'auth_hash'));
 		$outbound['stats'] = $stack->stack_compact();
 		return $outbound;
 	}
@@ -254,7 +269,7 @@ Regular Command Handlers
 	public static function load_card($inbound, $outbound)
 	{
 		Util::keys_required($inbound, array('stack_id','card_id'));
-		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
+		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']), Util::optional($inbound, 'auth_hash'));
 		$outbound['card'] = $stack->stack_load_card($inbound['card_id']);
 		$outbound['bkgnd'] = $stack->stack_load_bkgnd($outbound['card']['bkgnd_id']);
 		return $outbound;
@@ -270,7 +285,7 @@ Regular Command Handlers
 	{
 		Util::keys_required($inbound, array('stack_id','num'));
 		$bkgnd_id = Util::optional($inbound, 'bkgnd_id');
-		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
+		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']), Util::optional($inbound, 'auth_hash'));
 		$inbound['card_id'] = $stack->stack_get_nth_card_id($inbound['num'], $bkgnd_id);
 		$outbound['card'] = $stack->stack_load_card($inbound['card_id']);
 		$outbound['bkgnd'] = $stack->stack_load_bkgnd($outbound['card']['bkgnd_id']);
@@ -285,7 +300,7 @@ Regular Command Handlers
 	public static function save_card($inbound, $outbound)
 	{
 		Util::keys_required($inbound, array('stack_id','card'));
-		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
+		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']), Util::optional($inbound, 'auth_hash'));
 		$stack->stack_save_card($inbound['card']);
 		if (array_key_exists('bkgnd', $inbound))
 		{
@@ -302,7 +317,7 @@ Regular Command Handlers
 */
 	public static function new_card($inbound, $outbound)
 	{
-		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
+		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']), Util::optional($inbound, 'auth_hash'));
 		$inbound['card_id'] = $stack->stack_new_card($inbound['card_id'], false);
 		return Gateway::load_card($inbound, $outbound);
 	}
@@ -315,7 +330,7 @@ Regular Command Handlers
 */
 	public static function new_bkgnd($inbound, $outbound)
 	{
-		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
+		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']), Util::optional($inbound, 'auth_hash'));
 		$inbound['card_id'] = $stack->stack_new_card($inbound['card_id'], true);
 		return Gateway::load_card($inbound, $outbound);
 	}
@@ -328,7 +343,7 @@ Regular Command Handlers
 */
 	public static function delete_card($inbound, $outbound)
 	{
-		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
+		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']), Util::optional($inbound, 'auth_hash'));
 		$inbound['card_id'] = $stack->stack_delete_card($inbound['card_id']);
 		$outbound = Gateway::load_card($inbound, $outbound);
 		$outbound['stack'] = $stack->stack_load();
@@ -361,7 +376,7 @@ Regular Command Handlers
 */
 	public static function import_icon($inbound, $outbound)
 	{
-		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
+		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']), Util::optional($inbound, 'auth_hash'));
 		$outbound['id'] = $stack->stack_import_icon($inbound['id'], $inbound['name'], $inbound['data']);
 		return $outbound;
 	}

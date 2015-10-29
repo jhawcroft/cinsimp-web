@@ -39,6 +39,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class CinsImpError extends Exception
 {
 	protected $debug_detail;
+	protected $id;
 	
 	public function __construct($in_error, $in_http_code = 500, $in_detail = '', $in_previous = null)
 	{
@@ -48,15 +49,20 @@ class CinsImpError extends Exception
 			if (is_a($in_error, 'CinsImpError'))
 			{
 				$this->debug_detail = $in_error->debug_detail;
+				$this->id = $in_error->id;
 				parent::__construct($in_error->getMessage(), $in_error->getCode(), $in_error->getPrevious());
 			}
 			else
+			{
+				$this->id = -1; /* only CinsImp errors have a valid ID */
 				parent::__construct($in_error->getMessage(), $in_http_code, $in_error);
+			}
 		}
 		else
 		{
 			if ($config->debug) $this->debug_detail = $in_detail;
 			else $this->debug_detail = '';
+			$this->id = $in_http_code;
 			parent::__construct($in_error, $in_http_code, $in_previous);
 		}
 	}
@@ -67,6 +73,12 @@ class CinsImpError extends Exception
 		if (!$config->debug) return '';
 		return $this->debug_detail . '; ' . $this->getFile() . ':' . $this->getLine() . 
 			'; ' . $this->getTraceAsString();
+	}
+	
+	
+	public function getID()
+	{
+		return $this->id;
 	}
 	
 	
