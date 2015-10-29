@@ -290,6 +290,7 @@ Creating and Opening Stacks
 		{
 			$file_db->beginTransaction();
 		
+		// ***TODO *** need some indexes
 			$create_table_sql = "
 		
 CREATE TABLE cinsimp_stack (
@@ -345,67 +346,67 @@ CREATE TABLE icon (
 	name TEXT NOT NULL DEFAULT '',
 	png_data TEXT NOT NULL DEFAULT ''
 );
-
+ 
 CREATE TABLE button (
 	id INTEGER NOT NULL,
 	layer_id INTEGER NOT NULL,
 	part_num INTEGER NOT NULL,
 	location TEXT NOT NULL,
 	size TEXT NOT NULL,
-	name TEXT NOT NULL,
-	shared INTEGER NOT NULL,
-	searchable INTEGER NOT NULL,
-	visible INTEGER NOT NULL,
-	script TEXT NOT NULL,
-	disabled INTEGER NOT NULL,
-	txt_align TEXT NOT NULL,
-	txt_font TEXT NOT NULL,
-	txt_size INTEGER NOT NULL,
-	txt_style TEXT NOT NULL,
-	color_rgb TEXT NOT NULL,
-	shadow INTEGER NOT NULL,
-	content TEXT NOT NULL,
+	name TEXT NOT NULL DEFAULT '',
+	shared INTEGER NOT NULL DEFAULT 0,
+	searchable INTEGER NOT NULL DEFAULT 1,
+	visible INTEGER NOT NULL DEFAULT 1,
+	script TEXT NOT NULL DEFAULT '',
+	disabled INTEGER NOT NULL DEFAULT 0,
+	txt_align TEXT NOT NULL DEFAULT 'left',
+	txt_font TEXT NOT NULL DEFAULT 'sans-serif',
+	txt_size INTEGER NOT NULL DEFAULT 12,
+	txt_style TEXT NOT NULL DEFAULT '',
+	color_rgb TEXT NOT NULL DEFAULT '1.0,1.0,1.0',
+	shadow INTEGER NOT NULL DEFAULT 1,
+	content TEXT NOT NULL DEFAULT '',
 	
-	style TEXT NOT NULL,
-	family INTEGER NOT NULL,
-	menu TEXT NOT NULL,
-	icon INTEGER NOT NULL,
-	show_name INTEGER NOT NULL,
-	hilite INTEGER NOT NULL,
-	auto_hilite INTEGER NOT NULL,
+	style TEXT NOT NULL DEFAULT 'rounded',
+	family INTEGER NOT NULL DEFAULT 0,
+	menu TEXT NOT NULL DEFAULT '',
+	icon INTEGER NOT NULL DEFAULT 0,
+	show_name INTEGER NOT NULL DEFAULT 1,
+	hilite INTEGER NOT NULL DEFAULT 0,
+	auto_hilite INTEGER NOT NULL DEFAULT 0,
 	
 	PRIMARY KEY (id, layer_id)
 );
-
+ 
 CREATE TABLE field (
 	id INTEGER NOT NULL,
 	layer_id INTEGER NOT NULL,
 	part_num INTEGER NOT NULL,
 	location TEXT NOT NULL,
 	size TEXT NOT NULL,
-	name TEXT NOT NULL,
-	shared INTEGER NOT NULL,
-	searchable INTEGER NOT NULL,
-	visible INTEGER NOT NULL,
-	script TEXT NOT NULL,
-	disabled INTEGER NOT NULL,
-	txt_align TEXT NOT NULL,
-	txt_font TEXT NOT NULL,
-	txt_size INTEGER NOT NULL,
-	txt_style TEXT NOT NULL,
-	color_rgb TEXT NOT NULL,
-	shadow INTEGER NOT NULL,
-	content TEXT NOT NULL,
+	name TEXT NOT NULL DEFAULT '',
+	shared INTEGER NOT NULL DEFAULT 0,
+	searchable INTEGER NOT NULL DEFAULT 1,
+	visible INTEGER NOT NULL DEFAULT 1,
+	script TEXT NOT NULL DEFAULT '',
+	disabled INTEGER NOT NULL DEFAULT 0,
+	txt_align TEXT NOT NULL DEFAULT 'left',
+	txt_font TEXT NOT NULL DEFAULT 'sans-serif',
+	txt_size INTEGER NOT NULL DEFAULT 12,
+	txt_style TEXT NOT NULL DEFAULT '',
+	color_rgb TEXT NOT NULL DEFAULT '1.0,1.0,1.0',
+	shadow INTEGER NOT NULL DEFAULT 0,
+	content TEXT NOT NULL DEFAULT '',
 	
-	border INTEGER NOT NULL,
-	scroll INTEGER NOT NULL,
-	locked INTEGER NOT NULL,
-	dont_wrap INTEGER NOT NULL,
-	auto_tab INTEGER NOT NULL,
-	wide_margins INTEGER NOT NULL,
-	auto_select INTEGER NOT NULL,
-	selection TEXT NOT NULL,
-	picklist TEXT NOT NULL,
+	border INTEGER NOT NULL DEFAULT 1,
+	scroll INTEGER NOT NULL DEFAULT 0,
+	locked INTEGER NOT NULL DEFAULT 0,
+	dont_wrap INTEGER NOT NULL DEFAULT 0,
+	auto_tab INTEGER NOT NULL DEFAULT 0,
+	wide_margins INTEGER NOT NULL DEFAULT 0,
+	auto_select INTEGER NOT NULL DEFAULT 0,
+	selection TEXT NOT NULL DEFAULT '',
+	picklist TEXT NOT NULL DEFAULT '',
 	
 	PRIMARY KEY (id, layer_id)
 );
@@ -658,6 +659,94 @@ Accessors and Mutators
 // and don't allow security changes if a password is set and not yet authenticated
 // changing name is highly questionable, since it makes other user's access broken
 
+/* 
+	Verifies the supplied value is or can be cast to the specified logical type.
+	Throws an exception if it cannot.
+*/
+	private static function _sql_type_verify(&$field_value, $field_type)
+	{
+		if (substr($field_type, 0, 1) == '[')
+		{
+			$field_type = substr($field_type, 1, strlen($field_type)-2);
+			$set = explode(',', $field_type);
+			$field_value = strval($field_value);
+			if (!in_array($field_value, $set))
+				CinsImpError::malformed('_sql_optional_update: field "'.$field_name.'": not in allowed set '.
+					implode(', ', $set));
+			return;
+		}
+		switch ($field_type)
+		{
+		case 'bool':
+			$field_value = Stack::encode_bool($field_value);
+			break;
+		case 'rgb':
+			$field_value = strval($field_value);
+			if (strlen($field_value) > 16)
+				CinsImpError::malformed('_sql_optional_update: field "'.$field_name.'": exceeds 16 bytes');
+			$components = explode(',', $field_value);
+			if (count($components) != 3)
+				CinsImpError::malformed('_sql_optional_update: field "'.$field_name.'": illegal Color (r,g,b)');
+			$components[0] = floatval($components[0]);
+			$components[1] = floatval($components[1]);
+			$components[2] = floatval($components[2]);
+			$field_value = implode(',', $components);
+			break;
+		case 'uint8':
+			$field_value = intval($field_value);
+			if ($field_value < 0 || $field_value > 255)
+				CinsImpError::malformed('_sql_optional_update: field "'.$field_name.'": overflow 8-bit unsigned int');
+			break;
+		case 'uint16':
+			$field_value = intval($field_value);
+			if ($field_value < 0 || $field_value > 32767)
+				CinsImpError::malformed('_sql_optional_update: field "'.$field_name.'": overflow 16-bit unsigned int');
+			break;
+		case 'int':
+			$field_value = intval($field_value);
+			break;
+		case 'text16':
+			$field_value = strval($field_value);
+			if (strlen($field_value) > 32000)
+				CinsImpError::malformed('_sql_optional_update: field "'.$field_name.'": exceeds 32 K characters');
+			break;
+		case 'text20':
+			$field_value = strval($field_value);
+			if (strlen($field_value) > 1024 * 1024)
+				CinsImpError::malformed('_sql_optional_update: field "'.$field_name.'": exceeds 1 MB');
+			break;
+		case 'str255':
+			$field_value = strval($field_value);
+			if (strlen($field_value) > 255)
+				CinsImpError::malformed('_sql_optional_update: field "'.$field_name.'": exceeds 255 characters');
+			break;
+		case 'data16':
+			$field_value = strval($field_value);
+			if (strlen($field_value) > 16)
+				CinsImpError::malformed('_sql_optional_update: field "'.$field_name.'": exceeds 16 bytes');
+			break;
+		case 'point':
+			$field_value = strval($field_value);
+			if (strlen($field_value) > 16)
+				CinsImpError::malformed('_sql_optional_update: field "'.$field_name.'": exceeds 16 bytes');
+			$components = explode(',', $field_value);
+			if (count($components) != 2)
+				CinsImpError::malformed('_sql_optional_update: field "'.$field_name.'": illegal Point');
+			$components[0] = intval($components[0]);
+			$components[1] = intval($components[1]);
+			$field_value = implode(',', $components);
+			break;
+		case 'image':
+			if ($field_value === null) $field_value = '';
+			$field_value = strval($field_value);
+			if (strlen($field_value) > 104857600) // 100 MB
+				CinsImpError::malformed('_sql_optional_update: field "'.$field_name.'": exceeds 100 MB');
+			break;
+		default:
+			CinsImpError::internal('_sql_optional_update: field "'.$field_name.'": type '.$field_type.' invalid');
+		}
+	}
+
 
 /*
 	Prepares a simple SQL UPDATE statement, given the supplied key-value pairs
@@ -671,6 +760,8 @@ Accessors and Mutators
 		foreach ($optional_fields as $field_def)
 		{
 			$parts = explode(':', $field_def);
+			if (count($parts) < 2)
+				CinsImpError::internal('_sql_optional_update: field "'.$parts[0].'": type unspecified');
 			$field_name = $parts[0];
 			$field_type = $parts[1];
 			
@@ -679,26 +770,8 @@ Accessors and Mutators
 				$sql_fields[] = $field_name . '=?';
 				
 				$field_value = $data[$field_name];
+				Stack::_sql_type_verify($field_value, $field_type);
 				
-				switch ($field_type)
-				{
-				case 'bool':
-					$field_value = Stack::encode_bool($field_value);
-					break;
-				case 'uint16':
-					$field_value = intval($field_value);
-					if ($field_value < 0 || $field_value > 32000)
-						CinsImpError::malformed('_sql_optional_update: field "'.$field_name.'": out of range');
-					break;
-				case 'text16':
-					$field_value = strval($field_value);
-					if (strlen($field_value) > 32000)
-						CinsImpError::malformed('_sql_optional_update: field "'.$field_name.'": exceeds 32 KB');
-					break;
-				default:
-					CinsImpError::internal('_sql_optional_update: field "'.$field_name.'": type unspecified');
-				}
-					
 				$sql_values[] = $field_value;
 			}
 		}
@@ -710,6 +783,46 @@ Accessors and Mutators
 			'params'=>$sql_values
 		);
 	}
+	
+
+/*
+	Prepares a simple SQL INSERT statement, given the supplied key-value pairs
+	and the list of fields which may be included in the statement.
+*/
+	private static function _sql_optional_insert($table, &$data, $optional_fields)
+	{
+		$sql_fields = array();
+		$sql_values = array();
+		$sql_params = array();
+		
+		foreach ($optional_fields as $field_def)
+		{
+			$parts = explode(':', $field_def);
+			if (count($parts) < 2)
+				CinsImpError::internal('_sql_optional_insert: field "'.$parts[0].'": type unspecified');
+			$field_name = $parts[0];
+			$field_type = $parts[1];
+			
+			if (array_key_exists($field_name, $data))
+			{
+				$sql_fields[] = $field_name;
+				
+				$field_value = $data[$field_name];
+				Stack::_sql_type_verify($field_value, $field_type);
+				
+				$sql_values[] = $field_value;
+				$sql_params[] = '?';
+			}
+		}
+		
+		if (count($sql_fields) == 0) return null;
+		
+		return array(
+			'sql'=>'INSERT INTO '.$table.' ('.implode(', ', $sql_fields).') VALUES ('.implode(', ', $sql_params).')',
+			'params'=>$sql_values
+		);
+	}
+	
 
 
 /*
@@ -929,6 +1042,11 @@ Eventually methods for icon deletion/rename:
 // multiple users - thus the server should provide it
 
 // +ve is bkgnd, -ve is card
+
+/*
+	Returns a list of the buttons and fields within the specified card/background layer.
+	If layer ID is -ve, it's a card ID, if it's +ve, it's a bkgnd ID.
+*/
 	private function _layer_parts($layer_id)
 	{
 		$objects = array();
@@ -977,6 +1095,56 @@ Eventually methods for icon deletion/rename:
 		}
 		
 		return $objects;
+	}
+	
+	
+/*
+	Replaces the buttons and fields within the specified card/background layer.
+	If layer ID is -ve, it's a card ID, if it's +ve, it's a bkgnd ID.
+*/
+	public function _save_layer_parts($layer_id, $objects)
+	{
+		$this->file_db->exec('DELETE FROM field WHERE layer_id='.intval($layer_id));
+		$this->file_db->exec('DELETE FROM button WHERE layer_id='.intval($layer_id));
+		
+		if (!is_array($objects))
+			CinsImpError::malformed('layer objects must be an array');
+		foreach ($objects as $object_def)
+		{
+			Util::keys_required($object_def, array('id', 'type', 'part_num', 'location', 'size'));
+			$general_keys = array(
+				// required general:
+				'id:int', 'layer_id:int', 'part_num:uint16', 'location:point', 'size:point', 
+				
+				// optional general:
+				'name:str255', 'shared:bool', 'searchable:bool', 'visible:bool', 'disabled:bool',
+				'txt_align:[left,center,right,justify]', 'txt_font:str255', 'txt_size:uint8', 'txt_style:str255',
+				'color_rgb:rgb', 'shadow:bool', 'script:text16', 'content:text20'
+			);
+			
+			$object_type = $object_def['type'];
+			if ($object_type == 'button')
+				$specific_keys = array(
+					// optional button:
+					'style:[borderless,rectangle,rounded,check_box,radio]', 'family:uint8', 
+					'menu:text16', 'icon:int', 'show_name:bool', 'hilite:bool', 'auto_hilite:bool'
+				);
+			else if ($object_type = 'field')
+				$specific_keys = array(
+					// optional field:
+					'border:bool', 'scroll:bool', 'locked:bool', 'dont_wrap:bool', 'auto_tab:bool',
+					'wide_margins:bool', 'auto_select:bool', 'selection:str255', 'picklist:text16'
+				);
+			else
+				CinsImpError::malformed('illegal object type: '.$object_type);
+			
+			$object_def['layer_id'] = $layer_id;
+			$sql = Stack::_sql_optional_insert($object_type, $object_def, 
+				array_merge($general_keys, $specific_keys));
+			
+			$stmt = $this->file_db->prepare($sql['sql']);
+			$stmt->execute($sql['params']);
+		}
 	}
 
 
@@ -1044,9 +1212,39 @@ Eventually methods for icon deletion/rename:
 		}
 		$card['content'] = $content;
 		
-		$card['objects'] = Stack::_layer_parts( - $row[0] );
+		$card['objects'] = Stack::_layer_parts( - intval($card['id']) );
 		
 		return $card;		
+	}
+	
+	
+/*
+	Saves the supplied bkgnd data to the stack.
+*/
+	public function stack_save_bkgnd($bkgnd)
+	{
+		$this->_check_growability();
+		
+		Util::keys_required($bkgnd, array('id'));
+		$bkgnd_id = intval($bkgnd['id']);
+		
+		$this->file_db->beginTransaction();
+		
+		$sql = Stack::_sql_optional_update('bkgnd', $bkgnd,
+			array('name:str255', 'cant_delete:bool', 'dont_search:bool',
+				'script:text16', 'art:image', 'art_hidden:bool'));
+		if ($sql !== null)
+		{
+			$stmt = $this->file_db->prepare($sql['sql'] . ' WHERE id=?');
+			$sql['params'][] = $bkgnd_id;
+			$stmt->execute($sql['params']);
+		}
+		
+		if (array_key_exists('objects', $bkgnd))
+			$this->_save_layer_parts($bkgnd_id, $bkgnd['objects']);
+		
+		$this->file_db->commit();
+		return $bkgnd_id;
 	}
 
 
@@ -1056,76 +1254,46 @@ Eventually methods for icon deletion/rename:
 */
 	public function stack_save_card($card)
 	{
-		$this->stack_will_be_modified();
-		$existing = $this->stack_load_card($card['card_id']);
-		if ( strlen(json_encode($card)) > strlen(json_encode($existing)) )
-			$this->stack_will_be_grown();
-		unset($existing);
+		$this->_check_growability();
+		
+		Util::keys_required($card, array('id'));
+		$card_id = intval($card['id']);
 		
 		$this->file_db->beginTransaction();
 		
-		$data = array();
-		$data['card_script'] = $card['card_script'];
-		$data['card_has_art'] = $card['card_has_art'];
-		$data['data'] = $card['data'];
-	
-		$sql = 'UPDATE card SET object_data=?,card_name=?,cant_delete=?,dont_search=?,marked=?,card_data=?';
-		if (array_key_exists('card_art', $card)) $sql .= ',card_art=?';
-		$sql .= ' WHERE card_id=?';
+		$sql = Stack::_sql_optional_update('card', $card,
+			array('name:str255', 'cant_delete:bool', 'dont_search:bool', 'marked:bool',
+				'script:text16', 'art:image', 'art_hidden:bool'));
+		if ($sql !== null)
+		{
+			$stmt = $this->file_db->prepare($sql['sql'] . ' WHERE id=?');
+			$sql['params'][] = $card_id;
+			$stmt->execute($sql['params']);
+		}
 		
-		/* workaround stupid bug with PDO in PHP... */
-		//if (isset($card['card_art']) && is_null($card['card_art'])) $card['card_art'] = '';
-		//if (isset($card['bkgnd_art']) && is_null($card['bkgnd_art'])) $card['bkgnd_art'] = '';
-
-		$stmt = $this->file_db->prepare($sql);
-		Stack::sl_ok($stmt, $this->file_db, 'Saving Card (1)');
-		$params = array(
-			$card['card_object_data'],
-			$card['card_name'],
-			Stack::encode_bool($card['card_cant_delete']),
-			Stack::encode_bool($card['card_dont_search']),
-			Stack::encode_bool($card['card_marked']),
-			json_encode($data)
-		);
-		if (array_key_exists('card_art', $card)) $params[] = $card['card_art'];
-		$params[] = intval($card['card_id']);
+		if (array_key_exists('objects', $card))
+			$this->_save_layer_parts(- $card_id, $card['objects']);
 		
-		/*var_dump($params);
-		print '<p>';
-		var_dump($sql);
-		exit;*/
-		
-		$rows = $stmt->execute($params);
-		//throw new Exception('Err: '.$this->file_db->errorInfo()[2]);
-		if ($rows == 0) Stack::sl_ok(false, $this->file_db, 'Saving Card (2)');
-		Stack::sl_ok($rows, $this->file_db, 'Saving Card (3)');
-		
-		$data = array();
-		$data['bkgnd_script'] = $card['bkgnd_script'];
-		$data['bkgnd_has_art'] = $card['bkgnd_has_art'];
-		
-		$sql = 'UPDATE bkgnd SET object_data=?,bkgnd_name=?,cant_delete=?,dont_search=?,bkgnd_data=?';
-		if (array_key_exists('bkgnd_art', $card)) $sql .= ',bkgnd_art=?';
-		$sql .= ' WHERE bkgnd_id=(SELECT bkgnd_id FROM card WHERE card_id=?)';
-		$stmt = $this->file_db->prepare($sql);
-		
-		Stack::sl_ok($stmt, $this->file_db, 'Saving Bkgnd (1)');
-		$params = array(
-			$card['bkgnd_object_data'],
-			$card['bkgnd_name'],
-			Stack::encode_bool($card['bkgnd_cant_delete']),
-			Stack::encode_bool($card['bkgnd_dont_search']),
-			json_encode($data)
-		);
-		if (array_key_exists('bkgnd_art', $card)) $params[] = $card['bkgnd_art'];
-		$params[] = intval($card['card_id']);
-		
-		$rows = $stmt->execute($params);
-		if ($rows == 0) Stack::sl_ok(false, $this->file_db, 'Saving Bkgnd (2)');
-		Stack::sl_ok($rows, $this->file_db, 'Saving Bkgnd (3)');
+		if (array_key_exists('content', $card))
+		{
+			if (!is_array($card['content']))
+				CinsImpError::malformed('layer content must be an array');
+			$this->file_db->exec('DELETE FROM card_data WHERE card_id='.$card_id);
+			$stmt = $this->file_db->prepare('INSERT INTO card_data (card_id,bkgnd_object_id,content) VALUES (?,?,?)');
+			foreach ($card['content'] as $content_def)
+			{
+				if (count($content_def) != 2)
+					CinsImpError::malformed('card content form is not [id,content]');
+				$content = $content_def[1];
+				$content_def[1] = null;
+				Stack::_sql_type_verify($content, 'text20');
+				$def = array($card_id, intval($content_def[0]), $content);
+				$stmt->execute($def);
+			}
+		}
 		
 		$this->file_db->commit();
-		//throw new Exception('SQL : '.$this->file_db->errorInfo()[2]);
+		return $card_id;
 	}
 	
 

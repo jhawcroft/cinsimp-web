@@ -284,9 +284,13 @@ Regular Command Handlers
 */
 	public static function save_card($inbound, $outbound)
 	{
+		Util::keys_required($inbound, array('stack_id','card'));
 		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']));
 		$stack->stack_save_card($inbound['card']);
-		//throw new ('Temporary error');
+		if (array_key_exists('bkgnd', $inbound))
+		{
+			$stack->stack_save_bkgnd($inbound['bkgnd']);
+		}
 		return $outbound;
 	}
 	
