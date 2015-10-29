@@ -137,15 +137,32 @@ Stack.prototype.get_attr = function(in_attr)
 		if (in_attr == 'card_size') return [this._def.card_width, this._def.card_height];
 		throw Error('Stack doesn\'t have an '+in_attr+' attribute.');
 	}
+	if (in_attr == 'user_level')
+	{
+		var ul = this._def.user_level;
+		if ((!Number.isInteger(ul)) || ul < 1 || ul > 5) ul = 5;
+		return ul;
+	}
 	return this._def[in_attr];
 }
 
 
 Stack.prototype.set_attr = function(in_attr, in_value)
 {
-	if (in_attr == 'script')
+	switch (in_attr)
+	{
+	case 'script':
+	case 'cant_modify':
+	case 'cant_delete':
+	case 'cant_abort':
+	case 'cant_peek':
+	case 'private_access':
+	case 'user_level':
 		this._changes[in_attr] = in_value;
-	
+		break;
+	default:
+		throw new Error('Cannot set '+in_attr+' attribute of stack');
+	}
 }
 
 
@@ -169,7 +186,7 @@ Stack.prototype.save = function(in_onfinished)
 	{
 		if (in_reply.cmd != 'error')
 			stack.apply_changes();
-		if (in_onfinished) in_onfinished();
+		if (in_onfinished) in_onfinished(in_reply.cmd != 'error');
 	});
 }
 

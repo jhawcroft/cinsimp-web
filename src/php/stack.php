@@ -210,9 +210,8 @@ Creating and Opening Stacks
 			
 		/* check if the file is read-only */
 		$fp = fopen($this->stack_path, 'a'); // for some weird reason is_writable doesn't work properly
-		if (!$fp)
-			$this->file_read_only = true;
-		else fclose($fp);
+		$this->file_read_only = (!$fp);
+		if ($fp) fclose($fp);
 		//$this->file_read_only = false;//(!is_writable($in_ident));
 		
 		/* open the file as a SQLite database */
@@ -266,7 +265,7 @@ Creating and Opening Stacks
 		$this->cant_modify = Stack::decode_bool($row[3]);
 		$this->cant_delete = Stack::decode_bool($row[4]);
 		
-		$this->record_version = $row[5];
+		$this->record_version = intval($row[5]);
 	}
 	
 	
@@ -619,10 +618,10 @@ Accessors and Mutators
 			
 			'cant_peek'=>Stack::decode_bool($row['cant_peek']),
 			'cant_abort'=>Stack::decode_bool($row['cant_abort']),
-			'user_level'=>$row['user_level'],
+			'user_level'=>intval($row['user_level']),
 			
-			'card_width'=>$row['card_width'],
-			'card_height'=>$row['card_height'],
+			'card_width'=>intval($row['card_width']),
+			'card_height'=>intval($row['card_height']),
 			
 			'script'=>$row['script']
 		);
@@ -856,7 +855,7 @@ Accessors and Mutators
 		$did_update_something = false;
 		$sql = Stack::_sql_optional_update('cinsimp_stack', $data, 
 			array('cant_modify:bool', 'cant_delete:bool', 'cant_peek:bool', 
-				'cant_abort:bool', 'user_level:bool', 'private_access:bool'));
+				'cant_abort:bool', 'user_level:uint8', 'private_access:bool'));
 		if ($sql !== null)
 		{
 			$this->_check_authenticated();
@@ -954,7 +953,7 @@ Eventually methods for icon deletion/rename:
 		if ($in_bkgnd_id === null) $stmt->execute();
 		else $stmt->execute(array( intval($in_bkgnd_id) ));
 		$row = $stmt->fetch(PDO::FETCH_NUM);
-		return $row[0];
+		return intval($row[0]);
 	}
 
 
@@ -966,7 +965,7 @@ Eventually methods for icon deletion/rename:
 		$stmt = $this->file_db->prepare('SELECT COUNT(*) FROM bkgnd');
 		$stmt->execute();
 		$row = $stmt->fetch(PDO::FETCH_NUM);
-		return $row[0];
+		return intval($row[0]);
 	}
 
 
