@@ -171,7 +171,7 @@ class Util
 	
 	public static function optional(&$in_array, $in_key, $in_default = null)
 	{
-		if (array_key_exists($in_array)) return $in_array[$in_key];
+		if (array_key_exists($in_key, $in_array)) return $in_array[$in_key];
 		else return $in_default;
 	}
 

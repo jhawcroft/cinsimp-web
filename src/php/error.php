@@ -70,7 +70,7 @@ class CinsImpError extends Exception
 	}
 	
 	
-	public static function unimplemented($in_detail)
+	public static function unimplemented($in_detail = '')
 	{
 		throw new CinsImpError('Not Implemented', 501, $in_detail);
 	}
@@ -80,7 +80,7 @@ class CinsImpError extends Exception
 		throw new CinsImpError('Bad Request', 400, $in_detail);
 	}
 	
-	public static function unauthorised($in_detail)
+	public static function unauthorised($in_detail = '')
 	{
 		throw new CinsImpError('Authentication Required', 401, $in_detail);
 	}
@@ -90,12 +90,12 @@ class CinsImpError extends Exception
 		throw new CinsImpError('Internal Application Error', 500, $in_detail);
 	}
 	
-	public static function general($in_message, $in_detail)
+	public static function general($in_message, $in_detail = '')
 	{
 		throw new CinsImpError($in_message, 520, $in_detail);
 	}
 	
-	public static function missing($in_what, $in_detail)
+	public static function missing($in_what, $in_detail = '')
 	{
 		throw new CinsImpError($in_what . ' Not Found', 404, $in_detail);
 	}
