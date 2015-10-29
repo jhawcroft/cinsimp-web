@@ -52,6 +52,7 @@ Model.Stack = function(in_url_or_def, in_ready_handler)
 {
 	/* initialise the class internals */
 	this._ready = false;
+	this._changes = {};
 
 	/* the input is a URL, we need first to fetch the stack definition object via AJAX */
 	if (typeof in_url_or_def == 'string')
@@ -127,24 +128,78 @@ Stack.prototype.get_card_size_text = function()
 	return this._def.card_width + ' x ' + this._def.card_height;
 }
 
-/*
-	Returns the card size.
-*/
-Stack.prototype.get_card_size = function()
-{
-	return { width: this._def.card_width, height: this._def.card_height };
-}
-
 
 
 Stack.prototype.get_attr = function(in_attr)
 {
 	if (!(in_attr in this._def))
+	{
+		if (in_attr == 'card_size') return [this._def.card_width, this._def.card_height];
 		throw Error('Stack doesn\'t have an '+in_attr+' attribute.');
+	}
 	return this._def[in_attr];
 }
 
 
+Stack.prototype.set_attr = function(in_attr, in_value)
+{
+	if (in_attr == 'script')
+		this._changes[in_attr] = in_value;
+	
+}
+
+
+Stack.prototype.apply_changes = function()
+{
+	for (var key in this._changes)
+		this._def[key] = this._changes[key];
+	this._changes = {};
+}
+
+
+Stack.prototype.save = function(in_onfinished)
+{
+	var stack = this;
+	Ajax.request(
+	{
+		cmd: 'save_stack',
+		id: this._def.id,
+		stack: this._changes
+	}, function(in_reply) 
+	{
+		if (in_reply.cmd != 'error')
+			stack.apply_changes();
+		if (in_onfinished) in_onfinished();
+	});
+}
+
+
+
+Stack.prototype.resize = function(in_new_size, in_onfinished)
+{
+	var stack = this;
+	Ajax.request(
+	{
+		cmd: 'save_stack',
+		id: this._def.id,
+		stack: {
+			'card_width': in_new_size[0],
+			'card_height': in_new_size[1]
+		}
+	}, function(in_reply) 
+	{
+		if (in_reply.cmd != 'error')
+		{
+			stack._def.record_version = in_reply.record_version;
+			stack._def.card_width = in_new_size[0];
+			stack._def.card_height = in_new_size[1];
+			if (in_onfinished) in_onfinished(in_new_size);
+		}
+		else if (in_onfinished) in_onfinished(null);
+	});
+}
+
+	
 Stack.prototype.compact = function(in_onfinished)
 {
 	Ajax.request(

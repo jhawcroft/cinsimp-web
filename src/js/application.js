@@ -158,68 +158,7 @@ Application.do_message = function()
 
 
 
-Application.do_card_size = function()
-{
-	Application._csw.set_card_size(this._stack.get_card_size());
-	Dialog.CardSize.show();
-}
 
-
-Application.save_card_size = function()
-{
-	Dialog.dismiss();
-	Progress.operation_begun('Resizing card...');
-	
-	var sz = Application._csw.get_card_size();
-	this._stack.card_width = sz[0];
-	this._stack.card_height = sz[1];
-	this._view._container.style.width = sz[0] + 'px';
-	this._view._container.style.height = sz[1] + 'px';
-	
-	var msg = {
-		cmd: 'save_stack',
-		stack_id: this._stack.stack_id,
-		stack: this._stack
-	};
-	Ajax.send(msg, function(msg, status)
-	{
-		Progress.operation_finished();
-		if ((status != 'ok') || (msg.cmd != 'save_stack'))
-			alert('Saving stack changes, error: '+status+"\n"+JSON.stringify(msg));
-		else
-			this._stack = msg.stack;
-	});
-}
-
-
-Application._card_size_picked = function()
-{
-	var picklist = document.getElementById('CardSizeList');
-	var t_sz = picklist.value;
-	if (t_sz == '?,?') this._card_size_changed(this._csw.get_card_size());
-	else this._csw.set_card_size(t_sz.split(','));
-}
-
-
-Application._card_size_changed = function(in_new_size)
-{
-	if (Application._csc) return;
-	Application._csc = true;
-	document.getElementById('CardSizeSize').textContent = in_new_size[0] + ' x ' + in_new_size[1];
-	var t_sz = in_new_size[0] + ',' + in_new_size[1];
-	var picklist = document.getElementById('CardSizeList');
-	var found = false;
-	for (var i = 0; i < picklist.children.length; i++)
-	{
-		var item = picklist.children[i];
-		if (item.value == t_sz) { found = true; break; }
-	}
-	if (!found)
-		picklist.value = '?,?';
-	else
-		picklist.value = t_sz;
-	Application._csc = false;
-}
 
 
 
@@ -251,16 +190,6 @@ Application.send_to_back = function()
 }
 
 
-Application.do_edit_script = function(in_subject, in_prior)
-{
-	if (Application._view) Application._view.do_edit_script(in_subject, in_prior);
-}
-
-
-Application.save_script = function()
-{
-	if (Application._view) Application._view.save_script();
-}
 
 
 Application.open_app_menu = function(el) //don't take an argument - do lookup
@@ -344,13 +273,7 @@ Application._init_palettes = function()
 }
 
 
-Application._init_card_size_widget = function()
-{
-	Application._csw = new CardSizeWidget(document.getElementById('CardSizeWidg'),
-		Application._card_size_changed);
-	var picklist = document.getElementById('CardSizeList');
-	picklist.addEventListener('change', Application._card_size_picked.bind(Application));
-}
+
 
 
 Application._init_dialogs = function()
@@ -365,8 +288,8 @@ Application._init_dialogs = function()
 
 	Dialog.AskPassword = new Dialog('', document.getElementById('DialogAskPassword'));
 	Dialog.StackInfo = new Dialog('Stack Info', document.getElementById('DialogStackInfo'));
-	Application._init_card_size_widget();
-	Dialog.CardSize = new Dialog('Card Size', document.getElementById('DialogCardSize'));
+	//Application._init_card_size_widget();
+	
 	
 	Dialog.SetPassword = new Dialog('Set Stack Password', document.getElementById('DialogSetPassword'));
 	Dialog.BkgndInfo = new Dialog('Bkgnd Info', document.getElementById('DialogBkgndInfo'));
@@ -381,9 +304,7 @@ Application._init_dialogs = function()
 		Application._objects = null; 
 		document.getElementById('ButtonInfoBkgndOnly').style.visibility = 'hidden'; });
 
-	Dialog.ScriptEditor = new Dialog('', document.getElementById('DialogScriptEditor'));
-	// temporarily disabled due to causing mammoth slowdown on mobile devices - suspect the ruler with line numbers is too large:
-	Dialog.ScriptEditor._codeeditor = new JCodeEdit(document.getElementById('ScriptEditorContainer'));
+	
 	
 	Dialog.Effect = new Dialog('Visual Effect', document.getElementById('DialogEffect'));
 	//Dialog.Effect.show();
@@ -483,8 +404,8 @@ Application._configure_initial_stack = function()
 	Application._card = CinsImp._params.card;
 	
 	var stack_window = document.getElementById('stackWindow');
-	stack_window.style.width = Application._stack.get_card_size().width + 'px';
-	stack_window.style.height = Application._stack.get_card_size().height + 'px';
+	stack_window.style.width = CinsImp._params.stack.card_width + 'px';
+	stack_window.style.height = CinsImp._params.stack.card_height + 'px';
 	
 	Application._set_default_positions(stack_window.clientWidth, stack_window.clientHeight);
 }

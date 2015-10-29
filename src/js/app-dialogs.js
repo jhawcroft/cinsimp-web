@@ -79,6 +79,17 @@ AppDialogs.init = function()
 	
 	
 	Dialog.TextInspect = new Dialog('', document.getElementById('DialogTextInspect'));
+	
+	
+	Dialog.CardSize = new Dialog('Card Size', document.getElementById('DialogCardSize'));
+	AppDialogs._csw = new CardSizeWidget(document.getElementById('CardSizeWidg'),
+		AppDialogs._card_size_changed);
+	var picklist = document.getElementById('CardSizeList');
+	picklist.addEventListener('change', AppDialogs._card_size_picked.bind(AppDialogs));
+
+
+	Dialog.ScriptEditor = new Dialog('', document.getElementById('DialogScriptEditor'));
+	Dialog.ScriptEditor._codeeditor = new JCodeEdit(document.getElementById('ScriptEditorContainer'));
 }
 
 
@@ -219,6 +230,83 @@ AppDialogs.save_text_attr = function()
 	
 	AppDialogs._object.set_attr(this._text_attr_id, document.getElementById('TextInspect').value);
 }
+
+
+
+
+AppDialogs.do_card_size = function()
+{
+	AppDialogs._csw.set_card_size(View.current._stack.get_attr('card_size'));
+	Dialog.CardSize.show();
+}
+
+
+AppDialogs.save_card_size = function()
+{
+	Dialog.dismiss();
+	
+	Progress.operation_begun('Resizing card...');
+	View.current._stack.resize(AppDialogs._csw.get_card_size(), function(in_new_size) 
+	{
+		Progress.operation_finished();
+		if (in_new_size)
+		{
+			View.current._container.style.width = in_new_size[0] + 'px';
+			View.current._container.style.height = in_new_size[1] + 'px';
+		}
+	});
+	/*View.current.
+	this._stack.card_width = sz[0];
+	this._stack.card_height = sz[1];
+	this._view._container.style.width = sz[0] + 'px';
+	this._view._container.style.height = sz[1] + 'px';
+	
+	var msg = {
+		cmd: 'save_stack',
+		stack_id: this._stack.stack_id,
+		stack: this._stack
+	};
+	Ajax.send(msg, function(msg, status)
+	{
+		Progress.operation_finished();
+		if ((status != 'ok') || (msg.cmd != 'save_stack'))
+			alert('Saving stack changes, error: '+status+"\n"+JSON.stringify(msg));
+		else
+			this._stack = msg.stack;
+	});*/
+}
+
+
+AppDialogs._card_size_picked = function()
+{
+	var picklist = document.getElementById('CardSizeList');
+	var t_sz = picklist.value;
+	if (t_sz == '?,?') this._card_size_changed(this._csw.get_card_size());
+	else this._csw.set_card_size(t_sz.split(','));
+}
+
+
+AppDialogs._card_size_changed = function(in_new_size)
+{
+	if (Application._csc) return;
+	Application._csc = true;
+	document.getElementById('CardSizeSize').textContent = in_new_size[0] + ' x ' + in_new_size[1];
+	var t_sz = in_new_size[0] + ',' + in_new_size[1];
+	var picklist = document.getElementById('CardSizeList');
+	var found = false;
+	for (var i = 0; i < picklist.children.length; i++)
+	{
+		var item = picklist.children[i];
+		if (item.value == t_sz) { found = true; break; }
+	}
+	if (!found)
+		picklist.value = '?,?';
+	else
+		picklist.value = t_sz;
+	Application._csc = false;
+}
+
+
 
 
 
