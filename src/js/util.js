@@ -219,7 +219,7 @@ Util.set_dom_size = function(in_element, in_size, in_height)
 Util.set_dom_loc = function(in_element, in_loc, in_top)
 {
 	var l = 0, t = 0;
-	if (in_top !== undefined)
+	if (in_top !== undefined && typeof in_top != 'object')
 	{
 		l = in_loc * 1;
 		t = in_top * 1;
@@ -239,6 +239,12 @@ Util.set_dom_loc = function(in_element, in_loc, in_top)
 		in_size = in_loc.split(',');
 		l = in_loc[0] * 1;
 		t = in_loc[1] * 1;
+	}
+	
+	if (in_top !== undefined && typeof in_top == 'object')
+	{
+		l += in_top[0];
+		t += in_top[1];
 	}
 	
 	in_element.style.left = l + 'px';

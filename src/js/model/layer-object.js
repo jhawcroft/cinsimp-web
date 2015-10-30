@@ -285,7 +285,7 @@ LayerObject.prototype._resized = function()
 	
 	if (this._selection)
 	{
-		Util.set_dom_loc(this._selection, this.get_loc());
+		Util.set_dom_loc(this._selection, this.get_loc(), [-3, -3]);
 		Util.set_dom_size(this._selection, this.get_size());
 	}
 }
