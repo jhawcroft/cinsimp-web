@@ -200,6 +200,9 @@ Stack.prototype.set_attr = function(in_attr, in_value)
 	default:
 		throw new Error('Cannot set '+in_attr+' attribute of stack');
 	}
+	
+	if (in_attr == 'script')
+		this.save();
 }
 
 

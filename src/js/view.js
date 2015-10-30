@@ -39,6 +39,8 @@ function View(in_stack, in_bkgnd, in_card)
 {
 	View.current = this;
 	
+	this._current_object = null;
+	
 	this._stack = in_stack;
 	this._bkgnd = in_bkgnd;
 	this._card = in_card;
@@ -310,6 +312,8 @@ View.prototype.select_object = function(in_object, in_selected)
 
 View.prototype.select_none = function()
 {
+	this._current_object = null;
+	
 	for (var o = this._selected_objects.length - 1; o >= 0; o--)
 	{
 		var obj = this._selected_objects[o];
@@ -964,6 +968,7 @@ View.prototype._lookup_bkgnd_part_by_id = function(in_part_id)
 
 View.prototype._load_card = function(in_card_id)
 {
+
 	/* submit ajax request to load the card */
 	msg = {
 		cmd: 'load_card',
@@ -1347,6 +1352,8 @@ View.prototype._save_bkgnd_info = function()
 
 View.prototype.do_info = function()
 {
+	this.set_current_object(null);
+
 	if (this._selected_objects.length == 1)
 	{
 		if (this._selected_objects[0].get_type() == Button.TYPE)
@@ -1705,6 +1712,7 @@ View.clear_password = function()
 View.do_stack_info = function()
 {
 	var stack = View.current._stack;
+	View.current.set_current_object(stack);
 	
 	document.getElementById('StackInfoName').value = stack.get_attr('name');
 	document.getElementById('StackInfoWhere').innerHTML = 'Where: '+stack.get_attr('path');
@@ -1767,7 +1775,9 @@ View.compact = function()
 
 View.prototype.get_current_object = function(in_multiple_error)
 {
-	if (this._selected_objects.length > 1)
+	if (this._current_object)
+		return this._current_object;
+	else if (this._selected_objects.length > 1)
 	{
 		if (in_multiple_error)
 		{
@@ -1785,6 +1795,23 @@ View.prototype.get_current_object = function(in_multiple_error)
 		return this._card;
 	else
 		return this._bkgnd;
+}
+
+
+/*
+	Temporarily overrides whatever the selection is within the view.
+	Enables editing of objects beyond the view which is usually responsible for
+	the editing process.
+	
+	Specifying null allows the selection (if any) to preside again.
+	When card is reloaded, selection changed or edit background mode is changed,
+	any override is cleared automatically.
+*/
+View.prototype.set_current_object = function(in_another_object)
+{
+	if (in_another_object)
+		this.select_none();
+	this._current_object = in_another_object;
 }
 
 
