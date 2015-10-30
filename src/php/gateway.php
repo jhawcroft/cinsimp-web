@@ -376,8 +376,9 @@ Regular Command Handlers
 */
 	public static function import_icon($inbound, $outbound)
 	{
-		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']), Util::optional($inbound, 'auth_hash'));
-		$outbound['id'] = $stack->stack_import_icon($inbound['id'], $inbound['name'], $inbound['data']);
+		Util::keys_required($inbound, array('id','icon'));
+		$stack = new Stack(Util::safe_stack_id($inbound['id']), Util::optional($inbound, 'auth_hash'));
+		$outbound['icon_id'] = $stack->stack_import_icon($inbound['icon']);
 		return $outbound;
 	}
 	
@@ -398,6 +399,8 @@ Regular Command Handlers
 	public static function list_icons($inbound, $outbound)
 	{
 		global $config;
+		
+		Util::keys_required($inbound, array('pack'));
 		
 		/* determine the path to the pack */
 		$pack_path = '';

@@ -180,7 +180,10 @@ Bkgnd.prototype.get_objects = function()
 }
 
 
-
+Bkgnd.prototype.get_stack = function()
+{
+	return this._stack;
+}
 
 
 CinsImp._script_loaded('Model.Bkgnd');

@@ -936,15 +936,24 @@ Accessors and Mutators
 	Returns the allocated icon ID if successful,
 	or raises an exception otherwise and returns 0.
 */
-	public function stack_import_icon($in_preferred_id, $in_name, $in_data)
+	public function stack_import_icon($in_icon_def)
 	{
+		/* verify supplied definition */
+		Util::keys_required($in_icon_def, array('id','name','data'));
+		$in_preferred_id = $in_icon_def['id'];
+		$this->_sql_type_verify($in_preferred_id, 'int', false);
+		$in_name = $in_icon_def['name'];
+		$this->_sql_type_verify($in_name, 'str255', false);
+		$in_data = $in_icon_def['data'];
+		$this->_sql_type_verify($in_data, 'image', false);
+	
 		/* try to import with supplied ID */
 		$this->file_db->beginTransaction();
-		$stmt = $this->file_db->prepare('INSERT INTO icon (id,name,data) VALUES (?,?,?)');
+		$stmt = $this->file_db->prepare('INSERT INTO icon (id,name,png_data) VALUES (?,?,?)');
 		if ($stmt->execute(array(intval($in_preferred_id), $in_name, $in_data)) === false)
 		{
 			/* resort to an automatically allocated ID */
-			$stmt = $this->file_db->prepare('INSERT INTO icon (id,name,data) VALUES (NULL,?,?)');
+			$stmt = $this->file_db->prepare('INSERT INTO icon (id,name,png_data) VALUES (NULL,?,?)');
 			Stack::sl_ok($stmt->execute(array($in_name, $in_data)), $this->file_db, 'Importing Icon (2)');
 			$in_preferred_id = $this->file_db->lastInsertId();
 		}

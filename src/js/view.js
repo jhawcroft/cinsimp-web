@@ -1766,6 +1766,13 @@ View.compact = function()
 
 
 
+View.prototype.get_stack = function()
+{
+	return this._stack;
+}
+
+
+
 View.prototype.get_current_object = function(in_multiple_error)
 {
 	if (this._current_object)

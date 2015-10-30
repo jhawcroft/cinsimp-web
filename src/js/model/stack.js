@@ -274,6 +274,55 @@ Stack.prototype.compact = function(in_onfinished)
 }
 
 
+Stack.prototype.get_icons_table = function()
+{
+	return this._def.icons;
+}
+
+
+Stack.prototype.get_icon = function(in_id)
+{
+	// **Needs to be optimised using an index
+	for (var i = 0; i < this._def.icons.length; i++)
+	{
+		var icon_def = this._def.icons[i];
+		if (icon_def[0] == in_id) return {id: icon_def[0], name: icon_def[1], data: icon_def[2]};
+	}
+	return null;
+}
+
+
+Stack.prototype.import_icon = function(in_id, in_name, in_data, in_onfinished)
+{
+	Progress.operation_begun('Importing icon into stack...');
+	
+	var stack = this;
+	var icon_def = {
+		id: in_id,
+		name: in_name,
+		data: in_data
+	};
+	
+	View.current.get_stack().gateway(
+	{
+		cmd: 'import_icon',
+		icon: icon_def
+	},
+	function(in_reply)
+	{
+		Progress.operation_finished();
+		
+		if (in_reply.cmd != 'error')
+		{
+			stack._def.icons.push([in_reply.icon_id, icon_def.name, icon_def.data]);
+			if (in_onfinished) in_onfinished(in_reply.icon_id);
+		}
+		else
+			if (in_onfinished) in_onfinished(0)
+	});
+}
+
+
 CinsImp._script_loaded('Model.Stack');
 
 

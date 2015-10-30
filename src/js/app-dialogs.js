@@ -124,12 +124,12 @@ AppDialogs._icon_selected = function(in_id, in_name)
 
 AppDialogs.choose_button_icon = function()
 {
-	AppDialogs._object = Application._objects[0];
-	Application.save_info();
+	AppDialogs._object = View.current.get_current_object(true);
+	Dialog.dismiss(true);
 	
 	document.getElementById('SetIconCollection').value = 'Stack';
 	AppDialogs.show_icon_collection();
-	Dialog.SetIcon._grid.set_icon_id( AppDialogs._object.get_attr(Button.ATTR_ICON) );
+	Dialog.SetIcon._grid.set_icon_id( AppDialogs._object.get_attr('icon') );
 	
 	Dialog.SetIcon.show();
 }
@@ -140,7 +140,7 @@ AppDialogs.show_icon_collection = function()
 	var collection_name = document.getElementById('SetIconCollection').value;
 	if (collection_name == 'Stack')
 	{
-		Dialog.SetIcon._grid.load_grid(View.get_stack_icons());
+		Dialog.SetIcon._grid.load_grid( View.current.get_stack().get_icons_table() );
 		return;
 	}
 	
@@ -148,25 +148,24 @@ AppDialogs.show_icon_collection = function()
 	// possibly in the grid itself, to show it's being refreshed
 	
 	Dialog.SetIcon._grid.load_grid([]);
-	var msg = {
+	View.current.get_stack().gateway(
+	{
 		cmd: 'list_icons',
 		pack: collection_name
-	};
-	Ajax.send(msg, function(in_msg, in_status) 
+	},
+	function (in_reply)
 	{
-		if (in_status == 'ok' && in_msg.cmd == 'list_icons')
+		if (in_reply.cmd != 'error')
 		{
-			Dialog.SetIcon._grid.load_grid(in_msg.list);
+			Dialog.SetIcon._grid.load_grid(in_reply.list);
 		}
-		else
-			Alert.network_error('Couldn\'t fetch icon list.');
 	});
 }
 
 
 AppDialogs.clear_icon = function()
 {
-	AppDialogs._object.set_attr(Button.ATTR_ICON, 0);
+	AppDialogs._object.set_attr('icon', 0);
 	Dialog.dismiss();
 }
 
@@ -178,38 +177,27 @@ AppDialogs.set_icon = function()
 	var collection_name = document.getElementById('SetIconCollection').value;
 	if (collection_name != 'Stack')
 	{
-		Progress.operation_begun('Importing icon into stack...');
-		AppDialogs._importing_icon_data = Dialog.SetIcon._grid.get_icon_data();
-		var msg = {
-			cmd: 'import_icon',
-			stack_id: Application._stack.stack_id,
-			id: Dialog.SetIcon._grid.get_icon_id(),
-			name: Dialog.SetIcon._grid.get_icon_name(),
-			data: AppDialogs._importing_icon_data
-		};
-		Ajax.send(msg, function(in_msg, in_status)
-		{
-			Progress.operation_finished();
-			if (in_status == 'ok' && in_msg.cmd == 'import_icon')
+		View.current.get_stack().import_icon(
+			Dialog.SetIcon._grid.get_icon_id(), 
+			Dialog.SetIcon._grid.get_icon_name(),
+			Dialog.SetIcon._grid.get_icon_data(),
+			function(in_id)
 			{
-				/* need to complete the import by manually adding the icon data
-				to the loaded stack registry of icons */
-				View.register_icon(in_msg.id, Dialog.SetIcon._grid.get_icon_name(), AppDialogs._importing_icon_data);
-				
-				AppDialogs._object.set_attr(Button.ATTR_ICON, in_msg.id);
-				Dialog.dismiss();
+				if (in_id != 0)
+				{
+					AppDialogs._object.set_attr('icon', in_id);
+					Dialog.dismiss();
+				}
 			}
-			else
-				Alert.network_error('Couldn\'t import icon.');
-		});
+		);
 		return;
 	}
 
 	/* finally, set the object icon ID */
-	AppDialogs._object.set_attr(Button.ATTR_ICON, Dialog.SetIcon._grid.get_icon_id());
+	AppDialogs._object.set_attr('icon', Dialog.SetIcon._grid.get_icon_id());
 	Dialog.dismiss();
 }
-
+//AppDialogs._importing_icon_data = Dialog.SetIcon._grid.get_icon_data();
 
 AppDialogs.edit_text_attr = function(in_attr_id, in_prior, in_title)
 {

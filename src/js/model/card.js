@@ -222,6 +222,12 @@ Card.prototype.get_objects = function()
 }
 
 
+Card.prototype.get_stack = function()
+{
+	return this._stack;
+}
+
+
 
 CinsImp._script_loaded('Model.Card');
 
