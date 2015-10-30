@@ -40,6 +40,8 @@ CinsImp.Model = CinsImp.Model || {};
 var Model = CinsImp.Model;
 
 
+// **TODO gradually apply ALL styling within the code, without stylesheets
+
 
 /*****************************************************************************************
 Construction, Defaults and Serialisation

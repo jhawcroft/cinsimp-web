@@ -40,6 +40,9 @@ CinsImp.Model = CinsImp.Model || {};
 var Model = CinsImp.Model;
 
 
+// **TODO gradually apply ALL styling within the code, without stylesheets
+
+
 /*****************************************************************************************
 Construction, Defaults and Serialisation
 */
@@ -60,6 +63,7 @@ Model.Button = function(in_def, in_layer)
 		{
 			'name': 'New Button',
 			'script': 'on mouseup\r  \rend mouseup',
+			'txt_style': 'bold',
 			'style': 'rounded',
 			'shadow': true,
 			'family': 0,
@@ -119,12 +123,10 @@ Button.prototype.create_dom = function(in_view)
 // THIS #$@!* NEEDS TO BE REWRITTEN NOW:  ***TODO***
 Button.prototype._dom_rebuild = function()
 {
-
-
-
-
+	/* cache some properties */
 	var style = this.get_attr('style');
 	
+	/* border */
 	switch (style)
 	{
 	case 'borderless':
@@ -139,7 +141,6 @@ Button.prototype._dom_rebuild = function()
 		this._div.style.border = '1px solid black';
 		this._div.style.borderRadius = '6px';
 		break;
-		
 	case 'check_box':
 		this._div.style.border = '0';
 		this._div.style.borderRadius = '0';
@@ -152,7 +153,8 @@ Button.prototype._dom_rebuild = function()
 		break;
 	}
 	
-	if ((style != 'check_box') && (style != 'radio'))
+	/* background color */
+	if (style != 'check_box' && style != 'radio')
 	{
 		/* push button color */
 		if (this.get_attr('hilite'))  
@@ -163,7 +165,7 @@ Button.prototype._dom_rebuild = function()
 		}
 		else
 		{
-			this._div.style.backgroundColor = (this.get_attr('color') ? Util.color_to_css(this.get_attr('color')) : 'transparent');
+			this._div.style.backgroundColor = Util.color_to_css(this.get_attr('color'));
 			this._caption.style.color = '';
 		}
 		this._icon.style.backgroundColor = 'transparent';
@@ -172,32 +174,44 @@ Button.prototype._dom_rebuild = function()
 	{
 		/* checkbox/radio button color */
 		this._div.style.backgroundColor = 'transparent';
-		this._icon.style.backgroundColor = (this.get_attr('color') ? Util.color_to_css(this.get_attr('color')) : 'transparent');
+		this._icon.style.backgroundColor = Util.color_to_css(this.get_attr('color'));
 		this._icon.style.color = 'black';
 	}
 	
+	/* checked */
+	if (style == 'check_box')
+		this._icon.style.backgroundImage = (this.get_attr('hilite') ? 'url('+CinsImp._base + 'gfx/chk-tick.png)' : '');
+	else if (style == 'radio')
+		this._icon.style.backgroundImage = (this.get_attr('hilite') ? 'url('+CinsImp._base + 'gfx/rbn-dot.png)' : '');
+	else 
+		this._icon.style.backgroundImage = '';
+	
+	/* shadow */
 	if (style == 'borderless')
 	{
 		/* borderless shadow */
-		this._div.style.boxShadow = (this.get_attr('shadow') ? '1px 1px 2px 2px rgba(0,0,0,0.75)' : '');
+		this._div.style.boxShadow = (this.get_attr('shadow') ? 
+		'1px 1px 2px 2px rgba(0,0,0,0.75)' : '');
 		this._icon.style.boxShadow = '';
 	}
 	else if ((style != 'check_box') && (style != 'radio'))
 	{
 		/* bordered push shadow and bevel */
-		this._div.style.boxShadow = (this.get_attr('shadow') ? '1px 1px 2px 2px rgba(0,0,0,0.75), '+
-			'-1px -1px 2px 0px #CCC inset' : '');
+		this._div.style.boxShadow = (this.get_attr('shadow') ? 
+			'1px 1px 2px 2px rgba(0,0,0,0.75), -1px -1px 2px 0px #CCC inset' : '');
 		this._icon.style.boxShadow = '';
 	}
 	else
 	{
 		/* checkbox/radio button shadow and bevel */
 		this._div.style.boxShadow = '';
-		this._icon.style.boxShadow = (this.get_attr('shadow') ? '1px 1px 2px 2px rgba(0,0,0,0.75), '+
-			'-1px -1px 1px 0px #AAA inset' : '-1px -1px 1px 0px #AAA inset');
+		this._icon.style.boxShadow = (this.get_attr('shadow') ? 
+			'1px 1px 2px 2px rgba(0,0,0,0.75), -1px -1px 1px 0px #AAA inset' : 
+			'-1px -1px 1px 0px #AAA inset');
 		this._icon.style.marginLeft = (this.get_attr('shadow') ? '4px' : '');
 	}
 	
+	/* icon / check-box-radio appearance */
 	if (style == 'check_box' || style == 'radio')
 	{
 		this._icon.style.border = '1px solid black';
@@ -216,19 +230,6 @@ Button.prototype._dom_rebuild = function()
 	}
 	else
 	{
-		if (this._drop_arrow != null)
-		{
-			this._inner.classList.remove('zx');
-			this._inner.style.paddingLeft = '10px';
-			this._inner.style.paddingRight = '10px';
-		}
-		else
-		{
-			this._inner.classList.add('zx');
-			this._inner.style.paddingLeft = '';
-			this._inner.style.paddingRight = '';
-		}
-	
 		this._icon.style.border = '';
 		this._icon.style.borderRadius = '';
 		this._icon.style.width = '';
@@ -250,19 +251,14 @@ Button.prototype._dom_rebuild = function()
 			}
 		}
 	}
-	
+
+	/* caption */
+	this._apply_text_attrs(this._caption);
 	this._caption.innerHTML = '';
 	if (this.get_attr('show_name'))
-		this._caption.appendChild(document.createTextNode(this.get_attr('name')));	
+		this._caption.appendChild(document.createTextNode(this.get_attr('name')));
 		
-	if (style == 'check_box')
-		this._icon.style.backgroundImage = (this.get_attr('hilite') ? 'url('+CinsImp._base + 'gfx/chk-tick.png)' : '');
-	else if (style == 'radio')
-		this._icon.style.backgroundImage = (this.get_attr('hilite') ? 'url('+CinsImp._base + 'gfx/rbn-dot.png)' : '');
-	else 
-		this._icon.style.backgroundImage = '';
-	this.set_attr('color', this.get_attr('color'));
-	
+	/* addition/removal of menu arrow */
 	if (this.get_attr('menu') !== null && this.get_attr('menu') !== '' && this._drop_arrow === null &&
 		(style != 'check_box') && (style != 'radio'))
 	{
@@ -280,6 +276,23 @@ Button.prototype._dom_rebuild = function()
 		try { this._inner.removeChild(this._drop_arrow); }
 		catch (e) {}
 		this._drop_arrow = null;
+	}
+	
+	/* menu arrow position */
+	if (style != 'check_box' && style != 'radio')
+	{
+		if (this._drop_arrow != null)
+		{
+			this._inner.classList.remove('zx');
+			this._inner.style.paddingLeft = '10px';
+			this._inner.style.paddingRight = '10px';
+		}
+		else
+		{
+			this._inner.classList.add('zx');
+			this._inner.style.paddingLeft = '';
+			this._inner.style.paddingRight = '';
+		}
 	}
 }
 
