@@ -51,6 +51,33 @@ Text.STYLE_CONDENSE = 0x10;
 Text.STYLE_EXTEND = 0x20;
 
 
+Text.is_attribute = function(in_style, in_attribute)
+{
+	var attrs = in_style.split(',');
+	return (attrs.indexOf(in_attribute) != -1);
+}
+
+
+Text.apply_attributes_to_dom = function(in_element, in_attributes)
+{
+	if ('txt_font' in in_attributes)
+		in_element.style.fontFamily = in_attributes['txt_font'];
+	if ('txt_size' in in_attributes)
+		in_element.style.fontSize = in_attributes['txt_size'] +'pt';
+	if ('txt_style' in in_attributes)
+	{
+		var style = in_attributes['txt_style'];
+		in_element.style.fontWeight = (Text.is_attribute(style, 'bold') ? 'bold' : 'normal');
+		in_element.style.fontStyle = (Text.is_attribute(style, 'italic') ? 'italic' : 'normal');
+		in_element.style.textShadow = (Text.is_attribute(style, 'shadow') ? '2px 2px 1px #AAA' : 'none');
+		if (Text.is_attribute(style, 'extend')) in_element.style.letterSpacing = '1px';
+		else in_element.style.letterSpacing = (Text.is_attribute(style, 'condense') ? '-1px' : 'normal');
+	}
+	if ('txt_align' in in_attributes)
+		in_element.style.textAlign = in_attributes['txt_align'];
+}
+
+
 Text.edit_style = function(in_objects, in_prior)
 {
 	Text._objects = in_objects;

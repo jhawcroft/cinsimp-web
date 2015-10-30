@@ -208,17 +208,7 @@ LayerObject.prototype.kill = function()
 
 LayerObject.prototype._apply_text_attrs = function(in_div)
 {
-	in_div.style.fontFamily = this.get_attr('txt_font');
-	in_div.style.fontSize = this.get_attr('txt_size') +'pt';
-	
-	var style = this.get_attr('txt_style');
-	/*in_div.style.fontWeight = ((style & Text.STYLE_BOLD) ? 'bold' : 'normal');
-	in_div.style.fontStyle = ((style & Text.STYLE_ITALIC) ? 'italic' : 'normal');
-	in_div.style.textShadow = (style & Text.STYLE_SHADOW ? '2px 2px 1px #CCC' : 'none');
-	if (style & Text.STYLE_EXTEND) in_div.style.letterSpacing = '1px';
-	else in_div.style.letterSpacing = (style & Text.STYLE_CONDENSE ? '-1px' : 'normal');*/
-	
-	in_div.style.textAlign = this.get_attr('txt_align');
+	Text.apply_attributes_to_dom(in_div, this._def);
 }
 
 
