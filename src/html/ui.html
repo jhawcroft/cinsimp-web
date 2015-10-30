@@ -131,15 +131,15 @@
 
 <div id="DialogStackInfo" class="DialogTemplate Inner" style="width: 450px; height: 300px;">
 	
-	<div class="Label">Stack Name: <input type="text" id="StackInfoName" style="width: 320px;" readonly></div>
-	<div id="StackInfoWhere" class="Label VertGap selectable">Where: ^0</div>
-	<div id="StackInfoCardCount" class="Label VertGap">Stack contains ^0.</div>
-	<div id="StackInfoBkgndCount" class="Label VertGap">Stack contains ^0.</div>
+	<div class="Label">Stack Name: <input type="text" data-attr="name" id="StackInfoName" style="width: 320px;" readonly></div>
+	<div id="StackInfoWhere" data-attr="id" class="Label VertGap selectable">Where: ^0</div>
+	<div id="StackInfoCardCount" data-attr="count_cards" class="Label VertGap">Stack contains ^0.</div>
+	<div id="StackInfoBkgndCount" data-attr="count_bkgnds" class="Label VertGap">Stack contains ^0.</div>
 	
-	<div id="StackInfoSize" class="Label x2VertGap">Size of stack: ^0</div>
-	<div id="StackInfoFree" class="Label VertGap">Free in stack: ^0</div>
+	<div id="StackInfoSize" data-attr="size" class="Label x2VertGap">Size of stack: ^0</div>
+	<div id="StackInfoFree" data-attr="free" class="Label VertGap">Free in stack: ^0</div>
 	
-	<div id="StackInfoCardSize" class="Label x2VertGap">Card size: ^0</div>
+	<div id="StackInfoCardSize" data-attr="card_size" class="Label x2VertGap">Card size: ^0</div>
 	
 	<div class="Bottom"><input type="button" value="Resize..." onclick="Dialog.dismiss();AppDialogs.do_card_size();"> <input type="button" value="Script..." onclick="View.do_edit_script(View.save_stack_info());""></div>
 	
@@ -222,26 +222,26 @@ as dictated by the server, thus allowing for search nevigability -->
 
 
 <div id="DialogButtonInfo" class="DialogTemplate Inner" style=" width: 480px; height: 420px;">
-	<div class="Label">Button Name: <input type="text" id="ButtonInfoName" style="width: 300px;"></div>
-	<div class="Label x2VertGap" id="ButtonInfoNumber">Card button number: ^0</div>
-		<div class="Label VertGap" id="ButtonInfoID">Card button ID: ^0</div>
+	<div class="Label">Button Name: <input data-attr="name" type="text" id="ButtonInfoName" style="width: 300px;"></div>
+	<div class="Label x2VertGap" data-attr="klas_num" id="ButtonInfoNumber">Card button number: ^0</div>
+		<div class="Label VertGap" data-attr="id" id="ButtonInfoID">Card button ID: ^0</div>
 	
 	<div style="float: left; margin-right: 50px;">
 		<div class="Label x2VertGap">Style:</div>
-		<div class="VertGap"><input type="radio" id="ButtonInfoType1" name="ButtonInfoType" value="1" checked> <label for="ButtonInfoType1">Borderless</label></div>
-		<div class=""><input type="radio" id="ButtonInfoType2" name="ButtonInfoType" value="2"> <label for="ButtonInfoType2">Rectangle</label></div>
-		<div class=""><input type="radio" id="ButtonInfoType3" name="ButtonInfoType" value="3"> <label for="ButtonInfoType3">Rounded</label></div>
-		<div class=""><input type="radio" id="ButtonInfoType4" name="ButtonInfoType" value="4"> <label for="ButtonInfoType4">Checkbox</label></div>
-		<div class=""><input type="radio" id="ButtonInfoType5" name="ButtonInfoType" value="5"> <label for="ButtonInfoType5">Radio</label></div>
+		<div class="VertGap"><input type="radio" data-attr="style" id="ButtonInfoType1" name="ButtonInfoType" value="borderless" checked> <label for="ButtonInfoType1">Borderless</label></div>
+		<div class=""><input type="radio" data-attr="style" id="ButtonInfoType2" name="ButtonInfoType" value="rectangle"> <label for="ButtonInfoType2">Rectangle</label></div>
+		<div class=""><input type="radio" data-attr="style" id="ButtonInfoType3" name="ButtonInfoType" value="rounded"> <label for="ButtonInfoType3">Rounded</label></div>
+		<div class=""><input type="radio" data-attr="style" id="ButtonInfoType4" name="ButtonInfoType" value="check_box"> <label for="ButtonInfoType4">Checkbox</label></div>
+		<div class=""><input type="radio" data-attr="style" id="ButtonInfoType5" name="ButtonInfoType" value="radio"> <label for="ButtonInfoType5">Radio</label></div>
 		
 	</div>
 	<div style="float:left; margin-right: 50px;">
-			<div class="Label"><input type="checkbox" id="ButtonInfoShadow"> <label for="ButtonInfoShadow">Shadow</label></div>
-			<div class="Label"><input type="checkbox" id="ButtonInfoOpaque"> <label for="ButtonInfoOpaque">Opaque</label></div>
-			<div class="Label"><input type="checkbox" id="ButtonInfoShowName" checked> <label for="ButtonInfoShowName">Show name</label></div>
+			<div class="Label"><input type="checkbox" data-attr="shadow" id="ButtonInfoShadow"> <label for="ButtonInfoShadow">Shadow</label></div>
+			<div class="Label"><input type="checkbox" data-attr="opaque" id="ButtonInfoOpaque"> <label for="ButtonInfoOpaque">Opaque</label></div>
+			<div class="Label"><input type="checkbox" data-attr="show_name" id="ButtonInfoShowName" checked> <label for="ButtonInfoShowName">Show name</label></div>
 
-			<div class="Label x2VertGap"><input type="checkbox" id="ButtonInfoAutoHilite"> <label for="ButtonInfoAutoHilite">Auto hilite</label></div>
-			<div class="Label" id="ButtonInfoBkgndOnly"><input type="checkbox" id="ButtonInfoShared"> <label for="ButtonInfoShared">Shared hilite</label></div>
+			<div class="Label x2VertGap"><input type="checkbox" data-attr="auto_hilite" id="ButtonInfoAutoHilite"> <label for="ButtonInfoAutoHilite">Auto hilite</label></div>
+			<div class="Label" id="ButtonInfoBkgndOnly"><input type="checkbox" data-attr="shared" id="ButtonInfoShared"> <label for="ButtonInfoShared">Shared hilite</label></div>
 	
 	</div>
 	<div style="float: right;">
@@ -263,39 +263,39 @@ as dictated by the server, thus allowing for search nevigability -->
 
 
 <div id="DialogFieldInfo" class="DialogTemplate Inner" style=" width: 620px; height: 410px;">
-	<div class="Label">Field Name: <input type="text" id="FieldInfoName" style="width: 350px;"></div>
-	<div class="Label x2VertGap" id="FieldInfoNumber">Card field number: ^0</div>
-	<div class="Label VertGap" id="FieldInfoID">Card field ID: ^0</div>
+	<div class="Label">Field Name: <input type="text" data-attr="name" id="FieldInfoName" style="width: 350px;"></div>
+	<div class="Label x2VertGap" data-attr="klas_num" id="FieldInfoNumber">Card field number: ^0</div>
+	<div class="Label VertGap" data-attr="id" id="FieldInfoID">Card field ID: ^0</div>
 	<div style="float: left; width: 28%;">
 		<div class="Label x2VertGap">Style:</div>
-		<div class=""><input type="checkbox" id="FieldInfoBorder"> <label for="FieldInfoBorder">Border</label></div>
-		<div class=""><input type="checkbox" id="FieldInfoShadow"> <label for="FieldInfoShadow">Shadow</label></div>
-		<div class=""><input type="checkbox" id="FieldInfoOpaque"> <label for="FieldInfoOpaque">Opaque</label></div>
-		<div class=""><input type="checkbox" id="FieldInfoScrolling"> <label for="FieldInfoScrolling">Scrolling</label></div>
+		<div class=""><input type="checkbox" data-attr="border" id="FieldInfoBorder"> <label for="FieldInfoBorder">Border</label></div>
+		<div class=""><input type="checkbox" data-attr="shadow" id="FieldInfoShadow"> <label for="FieldInfoShadow">Shadow</label></div>
+		<div class=""><input type="checkbox" data-attr="opaque" id="FieldInfoOpaque"> <label for="FieldInfoOpaque">Opaque</label></div>
+		<div class=""><input type="checkbox" data-attr="scroll" id="FieldInfoScrolling"> <label for="FieldInfoScrolling">Scrolling</label></div>
 	</div>
 	
 	<div style="float: left; width: 30%;">
 		
-		<div class="VertGap" style="display: none;"><input type="checkbox" id="FieldInfoShowLines"> <label for="FieldInfoShowLines">Show lines</label></div>
-		<div class=""><input type="checkbox" id="FieldInfoWideMargins"> <label for="FieldInfoWideMargins">Wide margins</label></div>
+		<!--<div class="VertGap" style="display: none;"><input type="checkbox" id="FieldInfoShowLines"> <label for="FieldInfoShowLines">Show lines</label></div>-->
+		<div class=""><input type="checkbox" data-attr="wide_margins" id="FieldInfoWideMargins"> <label for="FieldInfoWideMargins">Wide margins</label></div>
 		
-		<div class="VertGap"><input type="checkbox" id="FieldInfoLocked"> <label for="FieldInfoLocked">Lock text</label></div>
-		<div class=""><input type="checkbox" id="FieldInfoDontWrap"> <label for="FieldInfoDontWrap">Don't wrap</label></div>
-		<div class=""><input type="checkbox" id="FieldInfoAutoTab"> <label for="FieldInfoAutoTab">Auto tab</label></div>
+		<div class="VertGap"><input type="checkbox" data-attr="locked" id="FieldInfoLocked"> <label for="FieldInfoLocked">Lock text</label></div>
+		<div class=""><input type="checkbox" data-attr="dont_wrap" id="FieldInfoDontWrap"> <label for="FieldInfoDontWrap">Don't wrap</label></div>
+		<div class=""><input type="checkbox" data-attr="auto_tab" id="FieldInfoAutoTab"> <label for="FieldInfoAutoTab">Auto tab</label></div>
 		
 		<div class="Label" id="FieldInfoBkgndOnly">
-			<div class=""><input type="checkbox" id="FieldInfoShared"> <label for="FieldInfoShared">Shared text</label></div>
-			<div class=""><input type="checkbox" id="FieldInfoDontSearch"> <label for="FieldInfoDontSearch">Don't search</label></div>
+			<div class=""><input type="checkbox" data-attr="shared" id="FieldInfoShared"> <label for="FieldInfoShared">Shared text</label></div>
+			<div class=""><input type="checkbox" data-attr="dont_search" id="FieldInfoDontSearch"> <label for="FieldInfoDontSearch">Don't search</label></div>
 		</div>
 	
 	</div>
 	<div style="float: left;">
 		
-		<div class=""><input type="checkbox" id="FieldInfoAutoSelect"> <label for="FieldInfoAutoSelect">Auto select</label></div>
-		<div style="padding-left: 20px;"><input type="checkbox" id="FieldInfoMultipleLines"> <label for="FieldInfoMultipleLines">Multiple lines</label></div>
-		<div class="VertGap"><input type="checkbox" id="FieldInfoColumnar"> <label for="FieldInfoColumnar">Columnar</label> 
+		<div class=""><input type="checkbox" data-attr="auto_select" id="FieldInfoAutoSelect"> <label for="FieldInfoAutoSelect">Auto select</label></div>
+		<div style="padding-left: 20px;"><input type="checkbox" data-attr="multiple_lines" id="FieldInfoMultipleLines"> <label for="FieldInfoMultipleLines">Multiple lines</label></div>
+		<div class="VertGap"><input type="checkbox" data-attr="columnar" id="FieldInfoColumnar"> <label for="FieldInfoColumnar">Columnar</label> 
 			<input type="button" value="Columns..." style="display:inline-block; margin-left: 10px;" disabled></div>
-		<div style="padding-left: 20px;"><input type="checkbox" id="FieldInfoHasHeader"> <label for="FieldInfoHasHeader">Has header</label></div>
+		<div style="padding-left: 20px;"><input type="checkbox" data-attr="has_header" id="FieldInfoHasHeader"> <label for="FieldInfoHasHeader">Has header</label></div>
 		
 		<input type="button" value="Picklist..." onclick="AppDialogs.edit_text_attr(Field.ATTR_PICKLIST, Application.save_info, 'Field Picklist Items');" style="margin-top: 20px;">
 	</div>
