@@ -1791,6 +1791,19 @@ View.prototype.get_current_object = function(in_multiple_error)
 }
 
 
+View.prototype.get_current_objects = function()
+{
+	if (this._current_object)
+		return  [ this._current_object ];
+	else if (this._selected_objects.length > 0)
+		return this._selected_objects;
+	else if (!this._edit_bkgnd)
+		return this._card;
+	else
+		return this._bkgnd;
+}
+
+
 /*
 	Temporarily overrides whatever the selection is within the view.
 	Enables editing of objects beyond the view which is usually responsible for

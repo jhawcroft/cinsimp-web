@@ -81,9 +81,41 @@ Text.apply_attributes_to_dom = function(in_element, in_attributes)
 Text.edit_style = function(in_objects, in_prior)
 {
 	Text._objects = in_objects;
-	var obj = Text._objects[0];
+	var obj = Text._objects[0]; // hack ** in future this should handle multiple objects
 	
 	if (in_prior) in_prior();
+
+	Dialog.TextStyle.populate_with(obj);
+	
+	var style = obj.get_attr('txt_style');
+	Dialog.TextStyle.element('bold').checked = Text.is_attribute(style, 'bold');
+	Dialog.TextStyle.element('italic').checked = Text.is_attribute(style, 'italic');
+	Dialog.TextStyle.element('shadow').checked = Text.is_attribute(style, 'shadow');
+	Dialog.TextStyle.element('extend').checked = Text.is_attribute(style, 'extend');
+	Dialog.TextStyle.element('condense').checked = Text.is_attribute(style, 'condense');
+	
+	Text._update_sample();
+	
+	Dialog.TextStyle.set_onclose(function(in_dialog, in_save)
+	{
+		if (in_save) 
+		{
+			in_dialog.apply();
+			
+			var style = [];
+			if (in_dialog.element('bold').checked) style.push('bold');
+			if (in_dialog.element('italic').checked) style.push('italic');
+			if (in_dialog.element('shadow').checked) style.push('shadow');
+			if (in_dialog.element('extend').checked) style.push('extend');
+			if (in_dialog.element('condense').checked) style.push('condense');
+			in_dialog.get_object().set_attr('txt_style', style.join(','));
+			
+			View.current.rebuild(); // this should happen automatically in future **TODO**
+		}
+	});
+	Dialog.TextStyle.show();
+	/*
+	
 	
 	document.getElementById('TextFont').value = obj.get_attr(ViewObject.ATTR_TFONT);
 	document.getElementById('TextSize').value = obj.get_attr(ViewObject.ATTR_TSIZE);
@@ -110,7 +142,7 @@ Text.edit_style = function(in_objects, in_prior)
 	document.getElementById('TextStyle5').checked = (style & Text.STYLE_EXTEND);
 	
 	Text._update_sample();
-	Dialog.TextStyle.show();
+	Dialog.TextStyle.show();*/
 }
 
 

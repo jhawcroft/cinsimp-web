@@ -39,6 +39,9 @@ function Dialog(in_title, in_element, in_flags, in_cleanup)
 {
 	Dialog._list.push(this);
 	
+	this._dom_map = null;
+	this._dom_id_map = null;
+	
 	this._flags = in_flags;
 	this._cleanup = in_cleanup;
 	this._close_code = null;
@@ -121,6 +124,13 @@ Dialog.prototype._init_with_element = function(in_element)
 	this._div.style.height = in_element.clientHeight + this._titlebar.clientHeight + 6 + 'px';
 	
 	this._root.style.top = this._titlebar.clientHeight + 'px';
+	
+	if (this._dom_map === null) 
+	{
+		this._dom_map = {};
+		this._dom_id_map = {};
+		this._map(this._root);
+	}
 }
 
 
@@ -183,6 +193,12 @@ Dialog.prototype.getVisible = function()
 }
 
 
+Dialog.prototype.element = function(in_id)
+{
+	return this._dom_id_map[in_id];
+}
+
+
 Dialog.prototype._map = function(in_root)
 {
 	var children = in_root.children;
@@ -207,8 +223,19 @@ Dialog.prototype._map = function(in_root)
 				this._dom_map[attr_name].push( child );
 			}
 		}
+		
+		var attr_id = child.dataset.id;
+		if (attr_id !== undefined)
+			this._dom_id_map[attr_id] = child;
+		
 		this._map(child);
 	}
+}
+
+
+Dialog.prototype.get_object = function()
+{
+	return this._populate_object;
 }
 
 
@@ -229,6 +256,9 @@ Dialog.prototype.apply = function()
 					attr_value = attr_element.checked;
 				else
 					attr_value = attr_element.value;
+				break;
+			case 'select':
+				attr_value = attr_element.value;
 				break;
 			default: 
 				continue;
@@ -256,12 +286,6 @@ Dialog.prototype.apply = function()
 Dialog.prototype.populate_with = function(in_object)
 {
 	this._populate_object = in_object;
-
-	if (this._dom_map === undefined) 
-	{
-		this._dom_map = {};
-		this._map(this._root);
-	}
 	
 	for (var attr_name in this._dom_map)
 	{
@@ -283,6 +307,9 @@ Dialog.prototype.populate_with = function(in_object)
 						attr_element.checked = attr_value;
 					else
 						attr_element.value = attr_value;
+					break;
+				case 'select':
+					attr_element.value = attr_value;
 					break;
 			}
 		}

@@ -246,7 +246,7 @@ as dictated by the server, thus allowing for search nevigability -->
 	</div>
 	<div style="float: right;">
 		<input type="button" class="SameSizeStacked" value="Icon..." onclick="AppDialogs.choose_button_icon();">
-		<input type="button" class="SameSizeStacked" value="Text Style..." onclick="Text.edit_style(Application._objects, Dialog.dismiss.bind(true)); " style="margin-top: 25px;">
+		<input type="button" class="SameSizeStacked" value="Text Style..." onclick="Text.edit_style(View.current.get_current_objects(), Dialog.dismiss.bind(true)); " style="margin-top: 25px;">
 		
 		<input type="button" class="SameSizeStacked" value="Menu..." onclick="AppDialogs.edit_text_attr(Button.ATTR_MENU, Application.save_info, 'Button Menu Items');" style="margin-top: 90px;">
 	
@@ -388,7 +388,7 @@ call stack and debug buttons ? -->
 
 <div id="DialogTextStyle" class="DialogTemplate Inner" style=" width: 620px; height: 380px;">
 	<div style="float: left; margin-right: 30px;" class="">
-		<select id="TextFont" size="8" class="multipleLine" style="height: 240px; width: 260px;" onchange="Text._update_sample();">
+		<select data-attr="txt_font" id="TextFont" size="8" class="multipleLine" style="height: 240px; width: 260px;" onchange="Text._update_sample();">
 			<option value="sans-serif">Sans-Serif (Headings)</option>
 			<option value="serif">Serif (Substantial Text)</option>
 			<option value="monospace">Fixed Width (Data/Code)</option>
@@ -400,22 +400,22 @@ call stack and debug buttons ? -->
 		</select>
 	</div>
 	<div style="float: left; width: 26%;">
-		<div class="Label">Size: <input type="text" id="TextSize" value="12pt" style="width: 70px;" onchange="Text._update_sample();" oninput="Text._update_sample();"></div>
+		<div class="Label">Size: <input type="text" data-attr="txt_size" id="TextSize" value="12pt" style="width: 70px;" onchange="Text._update_sample();" oninput="Text._update_sample();"></div>
 		
 		<div class="Label x2VertGap">Align:</div>
-		<div class="VertGap"><input type="radio" id="TextAlign1" name="TextAlign" value="left" checked onchange="Text._update_sample();"> <label for="TextAlign1">Left</label></div>
-		<div class=""><input type="radio" id="TextAlign2" name="TextAlign" value="center" onchange="Text._update_sample();"> <label for="TextAlign2">Center</label></div>
-		<div class=""><input type="radio" id="TextAlign3" name="TextAlign" value="right" onchange="Text._update_sample();"> <label for="TextAlign3">Right</label></div>
-		<div class=""><input type="radio" id="TextAlign4" name="TextAlign" value="justify" onchange="Text._update_sample();"> <label for="TextAlign4">Justify</label></div>
+		<div class="VertGap"><input type="radio" data-attr="txt_align" id="TextAlign1" name="TextAlign" value="left" checked onchange="Text._update_sample();"> <label for="TextAlign1">Left</label></div>
+		<div class=""><input type="radio" data-attr="txt_align" id="TextAlign2" name="TextAlign" value="center" onchange="Text._update_sample();"> <label for="TextAlign2">Center</label></div>
+		<div class=""><input type="radio" data-attr="txt_align" id="TextAlign3" name="TextAlign" value="right" onchange="Text._update_sample();"> <label for="TextAlign3">Right</label></div>
+		<div class=""><input type="radio" data-attr="txt_align" id="TextAlign4" name="TextAlign" value="justify" onchange="Text._update_sample();"> <label for="TextAlign4">Justify</label></div>
 	</div>
 	
 	<div style="float: left; ">
 		<div class="Label">Style:</div>
-		<div class="VertGap"><input type="checkbox" id="TextStyle1" onchange="Text._update_sample();"> <label for="TextStyle1">Bold</label></div>
-		<div class=""><input type="checkbox" id="TextStyle2" onchange="Text._update_sample();"> <label for="TextStyle2">Italic</label></div>
-		<div class=""><input type="checkbox" id="TextStyle3" onchange="Text._update_sample();"> <label for="TextStyle3">Shadow</label></div>
-		<div class=""><input type="checkbox" id="TextStyle4" onchange="Text._update_sample();"> <label for="TextStyle4">Condense</label></div>
-		<div class=""><input type="checkbox" id="TextStyle5" onchange="Text._update_sample();"> <label for="TextStyle5">Extend</label></div>
+		<div class="VertGap"><input type="checkbox" data-id="bold" id="TextStyle1" onchange="Text._update_sample();"> <label for="TextStyle1">Bold</label></div>
+		<div class=""><input type="checkbox" data-id="italic" id="TextStyle2" onchange="Text._update_sample();"> <label for="TextStyle2">Italic</label></div>
+		<div class=""><input type="checkbox" data-id="shadow" id="TextStyle3" onchange="Text._update_sample();"> <label for="TextStyle3">Shadow</label></div>
+		<div class=""><input type="checkbox" data-id="condense" id="TextStyle4" onchange="Text._update_sample();"> <label for="TextStyle4">Condense</label></div>
+		<div class=""><input type="checkbox" data-id="extend" id="TextStyle5" onchange="Text._update_sample();"> <label for="TextStyle5">Extend</label></div>
 		
 	</div>
 	
@@ -425,7 +425,7 @@ call stack and debug buttons ? -->
 	
 	
 	<div class="Right Bottom">
-		<input type="button" class="SameSizeStacked" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" class="SameSizeStacked VertGap" value="OK" onclick="Text._save_style();"> 
+		<input type="button" class="SameSizeStacked" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" class="SameSizeStacked VertGap" value="OK" onclick="Dialog.dismiss(true)"> 
 	</div>
 </div>
 
