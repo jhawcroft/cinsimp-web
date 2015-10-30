@@ -303,6 +303,17 @@ LayerObject.prototype._resized = function()
 
 
 
+LayerObject.prototype._resize_start = function(in_event)
+{
+	Drag.begin_resize(
+		[(in_event.pageX || in_event.touches[0].pageX), 
+		(in_event.pageY || in_event.touches[0].pageY)], [this], 
+		this._view._guide_drag.bind(this._view)
+	);
+	
+	in_event.preventDefault();
+	in_event.stopPropagation();
+}
 
 
 LayerObject.prototype._move_start = function(in_event)
@@ -331,10 +342,20 @@ LayerObject.prototype._set_selected = function(in_selected)
 		this._selection.style.position = 'absolute';
 		this._selection.style.border = '3px solid blue';
 		
-		//this._drag_handle.addEventListener('mousedown', this._handle_resize_start.bind(this));
-		//this._drag_handle.addEventListener('touchstart', this._handle_resize_start.bind(this));
+		var drag_handle = document.createElement('div');
+		drag_handle.style.display = 'block';
+		drag_handle.style.position = 'absolute';
+		drag_handle.style.right = 0;
+		drag_handle.style.bottom = 0;
+		drag_handle.style.width = '15px';
+		drag_handle.style.height = '15px';
+		drag_handle.style.backgroundColor = 'black';
+		this._selection.appendChild(drag_handle);
+		
 		this._selection.addEventListener('mousedown', this._move_start.bind(this));
 		this._selection.addEventListener('touchstart', this._move_start.bind(this));
+		drag_handle.addEventListener('mousedown', this._resize_start.bind(this));
+		drag_handle.addEventListener('touchstart', this._resize_start.bind(this));// may be a leak on drag handle... **TODO
 		
 		this._resized();
 		
