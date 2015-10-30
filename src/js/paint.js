@@ -125,11 +125,11 @@ function Paint(in_container, in_size)
 	this._init();
 	
 	var brush = new Image();
-	brush.src = gBase+'gfx/brush_mask_1.png';
+	brush.src = CinsImp._base+'gfx/brush_mask_1.png';
 	this.set_brush(brush);
 	
 	this._spray_head = new Image();
-	this._spray_head.src = gBase+'gfx/spray-head.png';
+	this._spray_head.src = CinsImp._base+'gfx/spray-head.png';
 	
 	this._blank_url = this.get_data_png();
 }
