@@ -204,8 +204,34 @@ Dialog.prototype._map = function(in_root)
 }
 
 
+Dialog.prototype.apply = function()
+{
+	for (var attr_name in this._dom_map)
+	{
+		var attr_element = this._dom_map[attr_name];
+		var attr_value = null;
+		
+		switch (attr_element.nodeName.toLowerCase())
+		{
+		case 'input':
+			if (attr_element.type == 'checkbox')
+				attr_value = attr_element.checked;
+			else
+				attr_value = attr_element.value;
+			break;
+		default: 
+			continue;
+		}
+		
+		this._populate_object.set_attr(attr_name, attr_value);
+	}
+}
+
+
 Dialog.prototype.populate_with = function(in_object)
 {
+	this._populate_object = in_object;
+
 	if (this._dom_map === undefined) 
 	{
 		this._dom_map = {};
@@ -225,7 +251,10 @@ Dialog.prototype.populate_with = function(in_object)
 			attr_element.textContent = attr_value;
 			break;
 		case 'input':
-			attr_value.value = attr_value;
+			if (attr_element.type == 'checkbox')
+				attr_element.checked = attr_value;
+			else
+				attr_element.value = attr_value;
 			break;
 		}
 	}
@@ -286,7 +315,12 @@ Dialog.prototype.hide = function()
 	}
 	
 	if (this._cleanup)
+	{
 		this._cleanup(this, this._close_code);
+		this._cleanup = null;
+	}
+	
+	this._populate_object = null;
 }
 
 

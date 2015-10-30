@@ -1325,22 +1325,14 @@ View.prototype._count_klass = function(in_table, in_klass)
 View.prototype._do_bkgnd_info = function()
 {
 	Dialog.BkgndInfo.populate_with(this._bkgnd);
-	/*
-	document.getElementById('BkgndInfoName').value = this._card.bkgnd_name;
-	
-	document.getElementById('BkgndInfoID').textContent = 'Background ID: '+this._card.bkgnd_id;
-	document.getElementById('BkgndInfoCardCount').textContent = 'Background shared by '+
-		this._card.bkgnd_count+' '+(this._card.bkgnd_count == 1 ? 'card' : 'cards')+'.';
-	document.getElementById('BkgndInfoFieldCount').textContent = 'Contains '+Util.plural(this._count_klass(this._objects_bkgnd, Field.TYPE),'field','fields');
-	document.getElementById('BkgndInfoButtonCount').textContent = 'Contains '+Util.plural(this._count_klass(this._objects_bkgnd, Button.TYPE),'button','buttons');
-	
-	document.getElementById('BkgndInfoCantDelete').checked = this._card.bkgnd_cant_delete;
-	document.getElementById('BkgndInfoDontSearch').checked = this._card.bkgnd_dont_search;
-*/
+	Dialog.BkgndInfo.set_onclose(function(in_save)
+	{
+		if (in_save) Dialog.BkgndInfo.apply();
+	});
 	Dialog.BkgndInfo.show();
 }
 
-
+/*
 View.prototype._save_bkgnd_info = function()
 {
 	this._card.bkgnd_name = document.getElementById('BkgndInfoName').value;
@@ -1350,7 +1342,7 @@ View.prototype._save_bkgnd_info = function()
 	
 	Dialog.dismiss();
 }
-
+*/
 
 View.prototype.do_info = function()
 {

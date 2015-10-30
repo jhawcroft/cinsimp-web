@@ -320,8 +320,8 @@ as dictated by the server, thus allowing for search nevigability -->
 	<div class="x2VertGap"><input type="checkbox" data-attr="cant_delete" id="BkgndInfoCantDelete"> <label for="BkgndInfoCantDelete">Can't delete background</label></div>
 	<div class=""><input type="checkbox" data-attr="dont_search" id="BkgndInfoDontSearch"> <label for="BkgndInfoDontSearch">Don't search background</label></div>
 	
-	<div class="Bottom"><input type="button" value="Script..." onclick="View.do_edit_script(View.save_info());"></div>
-	<div class="Bottom Right"><input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="View.save_info()"></div>
+	<div class="Bottom"><input type="button" value="Script..." onclick="View.do_edit_script(Dialog.dismiss);"></div>
+	<div class="Bottom Right"><input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="Dialog.dismiss(true);"></div>
 </div>
 
 
