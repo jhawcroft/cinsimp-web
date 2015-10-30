@@ -214,22 +214,31 @@ AppDialogs.set_icon = function()
 AppDialogs.edit_text_attr = function(in_attr_id, in_prior, in_title)
 {
 	this._text_attr_id = in_attr_id;
-	AppDialogs._object = Application._objects[0];
+	AppDialogs._object = View.current.get_current_object(true);
+	
 	if (in_prior) in_prior();
 	
-	document.getElementById('TextInspect').value = AppDialogs._object.get_attr(in_attr_id);
-	
+	Dialog.TextInspect.element('text').value = AppDialogs._object.get_attr(in_attr_id);
 	Dialog.TextInspect.set_title(in_title);
+	
+	Dialog.TextInspect.set_onclose(function(in_dialog, in_close_code)
+	{
+		if (in_close_code)
+		{
+			AppDialogs._object.set_attr(in_attr_id, in_dialog.element('text').value);
+		}
+	});
+	
 	Dialog.TextInspect.show();
 }
 
-
+/*
 AppDialogs.save_text_attr = function()
 {
 	Dialog.dismiss();
 	
 	AppDialogs._object.set_attr(this._text_attr_id, document.getElementById('TextInspect').value);
-}
+}*/
 
 
 

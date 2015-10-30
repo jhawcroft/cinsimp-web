@@ -248,7 +248,7 @@ as dictated by the server, thus allowing for search nevigability -->
 		<input type="button" class="SameSizeStacked" value="Icon..." onclick="AppDialogs.choose_button_icon();">
 		<input type="button" class="SameSizeStacked" value="Text Style..." onclick="Text.edit_style(View.current.get_current_objects(), Dialog.dismiss.bind(true)); " style="margin-top: 25px;">
 		
-		<input type="button" class="SameSizeStacked" value="Menu..." onclick="AppDialogs.edit_text_attr(Button.ATTR_MENU, Application.save_info, 'Button Menu Items');" style="margin-top: 90px;">
+		<input type="button" class="SameSizeStacked" value="Menu..." onclick="AppDialogs.edit_text_attr('menu', Dialog.dismiss.bind(true), 'Button Menu Items');" style="margin-top: 90px;">
 	
 	</div>
 	<div class="Bottom">
@@ -601,9 +601,9 @@ call stack and debug buttons ? -->
 
 
 <div id="DialogTextInspect" class="DialogTemplate Inner selectable" style="width: 496px; height: 400px; overflow-y: scroll;">
-	<div class="Label"><textarea id="TextInspect" style="width: 450px; height: 320px;"></textarea></div>
+	<div class="Label"><textarea id="TextInspect" data-id="text" style="width: 450px; height: 320px;"></textarea></div>
 	<div class="Bottom Right">
-		<input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="AppDialogs.save_text_attr();">
+		<input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="Dialog.dismiss(true);">
 	</div>
 </div>
 
