@@ -264,21 +264,21 @@ View.prototype._configure_obj_display = function()
 	{
 		var obj = objects[o];
 		obj.set_dom_visiblity(!this._edit_bkgnd);
-		if (obj.get_type() == Field.TYPE)
-			obj.set_dom_editability(this._text_editable);
-		else
-			obj.set_dom_editability(this._text_editable);
+		obj.set_dom_editability(this._text_editable, !this._edit_bkgnd);
+		
 	}
 	
 	var objects = this._bkgnd.get_objects();
 	for (var o = 0; o < objects.length; o++)
 	{
-		var obj = this.objects[o];
+		var obj = objects[o];
+		var te = this._text_editable;
+		var shared = obj.get_attr('shared');
+		if (this._edit_bkgnd && !shared) te = false;
+		if (!this._edit_bkgnd && shared) te = false;
+		var tv = te || !this._edit_bkgnd;
 		obj.set_dom_visiblity(true);
-		if (obj.get_type() == Field.TYPE)
-			obj.set_dom_editability(this._text_editable);
-		else
-			obj.set_dom_editability(this._text_editable);
+		obj.set_dom_editability(te, tv);
 	}
 }
 

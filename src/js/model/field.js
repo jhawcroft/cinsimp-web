@@ -143,26 +143,12 @@ DOM Interaction, Events
 */
 
 
-Field.prototype.set_dom_editability = function(in_edit)
+Field.prototype.set_dom_editability = function(in_edit, in_show_content)
 {
 	var editable = (in_edit && !this.get_attr('locked'));
-	editable = true;
-	/*if (this._is_bkgnd)
-	{
-		if (this.get_attr('shared'))
-		{
-			if (!this._view._edit_bkgnd) editable = false;
-			this._inner.style.visibility = this._div.style.visibility;
-		}
-		else
-			this._inner.style.visibility = (this._view._edit_bkgnd ? 'hidden' : this._div.style.visibility);
-	}
-	else
-		this._inner.style.visibility = this._div.style.visibility;*/
 	
+	this._inner.style.visibility = (in_show_content ? 'visible' : 'hidden');
 	this._inner.contentEditable = editable;
-	
-	//this._inner.classList.toggle('o-edit', editable); // doesn't seem to be reliably effect
 	
 	this._inner.style.cursor = (editable ? 'text' : '');
 	

@@ -195,7 +195,7 @@ LayerObject.prototype.set_dom_visiblity = function(in_visible)
 }
 
 
-LayerObject.prototype.set_dom_editability = function(in_edit) {}
+LayerObject.prototype.set_dom_editability = function(in_edit, in_show_content) {}
 
 
 LayerObject.prototype.kill = function()
