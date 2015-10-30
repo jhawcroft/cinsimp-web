@@ -1277,48 +1277,23 @@ View.prototype._save_field_info = function()
 }
 
 
-View.prototype._do_card_info = function()
-{
-	var card = this._card;
-	var stack = this._stack;
-	
-	document.getElementById('CardInfoName').value = card.get_attr('name');
-	
-	document.getElementById('CardInfoNumber').textContent = 'Card '+card.get_attr('seq')+' out of '+stack.get_attr('count_cards');
-	document.getElementById('CardInfoID').textContent = 'Card ID: '+card.get_attr('id');
-	document.getElementById('CardInfoFieldCount').textContent = 'Contains '+Util.plural(this._count_klass(this._objects_card, Field.TYPE),'field','fields');
-	document.getElementById('CardInfoButtonCount').textContent = 'Contains '+Util.plural(this._count_klass(this._objects_card, Button.TYPE),'button','buttons');
-	
-	document.getElementById('CardInfoCantDelete').checked = card.get_attr('cant_delete');
-	document.getElementById('CardInfoDontSearch').checked = card.get_attr('dont_search');
-	document.getElementById('CardInfoMarked').checked = card.get_attr('marked');
-	
-	Dialog.CardInfo.show();
-}
-
-
-View.prototype._save_card_info = function()
-{
-	var card = this._card;
-	
-	card.set_attr('name', document.getElementById('CardInfoName').value);
-	
-	card.set_attr('cant_delete', document.getElementById('CardInfoCantDelete').checked);
-	card.set_attr('dont_search', document.getElementById('CardInfoDontSearch').checked);
-	card.set_attr('marked', document.getElementById('CardInfoMarked').checked);
-	
-	//card.save();
-
-	Dialog.dismiss();
-}
-
-
 View.prototype._count_klass = function(in_table, in_klass)
 {
 	var count = 0;
 	for (var o = 0; o < in_table.length; o++)
 		if (in_table[o].get_type() == in_klass) count++;
 	return count;
+}
+
+
+View.prototype._do_card_info = function()
+{
+	Dialog.CardInfo.populate_with(this._card);
+	Dialog.CardInfo.set_onclose(function(in_save)
+	{
+		if (in_save) Dialog.CardInfo.apply();
+	});
+	Dialog.CardInfo.show();
 }
 
 
@@ -1332,17 +1307,7 @@ View.prototype._do_bkgnd_info = function()
 	Dialog.BkgndInfo.show();
 }
 
-/*
-View.prototype._save_bkgnd_info = function()
-{
-	this._card.bkgnd_name = document.getElementById('BkgndInfoName').value;
-	
-	this._card.bkgnd_cant_delete = document.getElementById('BkgndInfoCantDelete').checked;
-	this._card.bkgnd_dont_search = document.getElementById('BkgndInfoDontSearch').checked;
-	
-	Dialog.dismiss();
-}
-*/
+
 
 View.prototype.do_info = function()
 {
@@ -1372,10 +1337,10 @@ View.save_info = function()
 		else
 			view._save_field_info();
 	}
-	else if (!view._edit_bkgnd)
+	/*else if (!view._edit_bkgnd)
 		view._save_card_info();
 	else
-		view._save_bkgnd_info();
+		view._save_bkgnd_info();*/
 }
 
 

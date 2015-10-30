@@ -327,18 +327,18 @@ as dictated by the server, thus allowing for search nevigability -->
 
 <div id="DialogCardInfo" class="DialogTemplate Inner" style="width: 450px; height: 330px;">
 	
-	<div class="Label">Card Name: <input type="text" id="CardInfoName" style="width: 310px;"></div>
-	<div id="CardInfoNumber" class="Label VertGap">Card Number: ^0 out of ^1</div>
-	<div id="CardInfoID" class="Label VertGap selectable">Card ID: ^0</div>
-	<div id="CardInfoFieldCount" class="Label VertGap">Contains ^0.</div>
-	<div id="CardInfoButtonCount" class="Label VertGap">Contains ^0.</div>
+	<div class="Label">Card Name: <input type="text" data-attr="name" id="CardInfoName" style="width: 310px;"></div>
+	<div data-attr="seq" id="CardInfoNumber" class="Label VertGap">Card Number: ^0</div>
+	<div data-attr="id" id="CardInfoID" class="Label VertGap selectable">Card ID: ^0</div>
+	<div data-attr="count_fields" id="CardInfoFieldCount" class="Label VertGap">Contains ^0.</div>
+	<div data-attr="count_buttons" id="CardInfoButtonCount" class="Label VertGap">Contains ^0.</div>
 	
-	<div class="x2VertGap"><input type="checkbox" id="CardInfoMarked"> <label for="CardInfoMarked">Marked</label></div>
-	<div class=""><input type="checkbox" id="CardInfoDontSearch"> <label for="CardInfoDontSearch">Don't search card</label></div>
-	<div class=""><input type="checkbox" id="CardInfoCantDelete"> <label for="CardInfoCantDelete">Can't delete card</label></div>
+	<div class="x2VertGap"><input type="checkbox" data-attr="marked" id="CardInfoMarked"> <label for="CardInfoMarked">Marked</label></div>
+	<div class=""><input type="checkbox" data-attr="dont_search" id="CardInfoDontSearch"> <label for="CardInfoDontSearch">Don't search card</label></div>
+	<div class=""><input type="checkbox" data-attr="cant_delete" id="CardInfoCantDelete"> <label for="CardInfoCantDelete">Can't delete card</label></div>
 	
-	<div class="Bottom"><input type="button" value="Script..." onclick="View.do_edit_script(View.save_info());"></div>
-	<div class="Bottom Right"><input type="button" value="Cancel" class="" onclick="Dialog.dismiss()"> <input type="button" value="OK" class="" onclick="View.save_info()"></div>
+	<div class="Bottom"><input type="button" value="Script..." onclick="View.do_edit_script(Dialog.dismiss);"></div>
+	<div class="Bottom Right"><input type="button" value="Cancel" class="" onclick="Dialog.dismiss()"> <input type="button" value="OK" class="" onclick="Dialog.dismiss()"></div>
 </div>
 
 

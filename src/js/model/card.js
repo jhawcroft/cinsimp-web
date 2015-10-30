@@ -121,6 +121,9 @@ Card.prototype._load_def = function(in_def)
 	
 	/* we should check the definition is valid here */ /// ** TODO **
 	
+	this._def.count_fields = 0;
+	this._def.count_buttons = 0;// ** TODO ** need to be calculated initially, and maintained during edits
+	
 	this._notify_set_ready(true);
 }
 
@@ -137,14 +140,23 @@ Card.prototype.get_description = function()
 
 
 
-Card.prototype.get_attr = function(in_attr)
+Card.prototype.get_attr = function(in_attr, in_fmt)
 {
 	if (!(in_attr in this._def))
 		throw Error('Card doesn\'t have an '+in_attr+' attribute.');
 
-	if (in_attr in this._changes)
-		return this._changes[in_attr];
-	return this._def[in_attr];
+	var value = null;
+	if (in_attr in this._changes) value = this._changes[in_attr];
+	else value = this._def[in_attr];
+	
+	if (in_attr == 'seq' && in_fmt == 'ui')
+		value = Util.string('^0 out of ^1', value, this._stack.get_attr('count_cards'));
+	else if (in_attr == 'count_buttons' && in_fmt == 'ui')
+		value = Util.plural(value, 'button', 'buttons');
+	else if (in_attr == 'count_fields' && in_fmt == 'ui')
+		value = Util.plural(value, 'field', 'fields');
+	
+	return value;
 }
 
 
