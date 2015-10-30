@@ -89,7 +89,7 @@ Button.prototype.get_type = function()
 DOM View
 */
 
-LayerObject.create_dom = function(in_view)
+Button.prototype.create_dom = function(in_view)
 {
 	this.parent.create_dom.call(this, in_view);
 	
@@ -111,16 +111,89 @@ LayerObject.create_dom = function(in_view)
 	this._caption.classList.add('zc');
 	
 	this._drop_arrow = null;
+	
+	return this._div;
 }
 
 
-// **TODO** simplify this - just build the thing each time an attribute changes
-// and possibly prior to display, ie. have an idle event for the view
-// which discovers dirty stuff? or a needs display = true?
 
-Button.prototype._display_name_and_icon = function()
+Button.prototype._dom_rebuild = function()
 {
 	var style = this.get_attr('style');
+	
+	switch (style)
+	{
+	case 'borderless':
+		this._div.style.border = '0';
+		this._div.style.borderRadius = '0';
+		break;
+	case 'rectangle':
+		this._div.style.border = '1px solid black';
+		this._div.style.borderRadius = '0';
+		break;
+	case 'rounded':
+		this._div.style.border = '1px solid black';
+		this._div.style.borderRadius = '6px';
+		break;
+		
+	case 'check_box':
+		this._div.style.border = '0';
+		this._div.style.borderRadius = '0';
+		this._icon.style.borderRadius = '0';
+		break;
+	case 'radio':
+		this._div.style.border = '0';
+		this._div.style.borderRadius = '0';
+		this._icon.style.borderRadius = '8px';
+		break;
+	}
+	
+	if ((style != 'check_box') && (style != 'radio'))
+	{
+		/* push button color */
+		if (this.get_attr('hilite'))  
+		{
+			// ought to find an appropriate hilite & text color *** TODO ****
+			this._div.style.backgroundColor = 'black';
+			this._caption.style.color = 'white';
+		}
+		else
+		{
+			this._div.style.backgroundColor = (this.get_attr('color') ? Util.color_to_css(this.get_attr('color')) : 'transparent');
+			this._caption.style.color = '';
+		}
+		this._icon.style.backgroundColor = 'transparent';
+	}
+	else
+	{
+		/* checkbox/radio button color */
+		this._div.style.backgroundColor = 'transparent';
+		this._icon.style.backgroundColor = (this.get_attr('color') ? Util.color_to_css(this.get_attr('color')) : 'transparent');
+		this._icon.style.color = 'black';
+	}
+	
+	if (style == 'borderless')
+	{
+		/* borderless shadow */
+		this._div.style.boxShadow = (this.get_attr('shadow') ? '1px 1px 2px 2px rgba(0,0,0,0.75)' : '');
+		this._icon.style.boxShadow = '';
+	}
+	else if ((style != 'check_box') && (style != 'radio'))
+	{
+		/* bordered push shadow and bevel */
+		this._div.style.boxShadow = (this.get_attr('shadow') ? '1px 1px 2px 2px rgba(0,0,0,0.75), '+
+			'-1px -1px 2px 0px #CCC inset' : '');
+		this._icon.style.boxShadow = '';
+	}
+	else
+	{
+		/* checkbox/radio button shadow and bevel */
+		this._div.style.boxShadow = '';
+		this._icon.style.boxShadow = (this.get_attr('shadow') ? '1px 1px 2px 2px rgba(0,0,0,0.75), '+
+			'-1px -1px 1px 0px #AAA inset' : '-1px -1px 1px 0px #AAA inset');
+		this._icon.style.marginLeft = (this.get_attr('shadow') ? '4px' : '');
+	}
+	
 	if (style == 'check_box' || style == 'radio')
 	{
 		this._icon.style.border = '1px solid black';
@@ -177,142 +250,33 @@ Button.prototype._display_name_and_icon = function()
 	this._caption.innerHTML = '';
 	if (this.get_attr('show_name'))
 		this._caption.appendChild(document.createTextNode(this.get_attr('name')));	
-}
-
-
-Button.prototype._attribute_written = function(in_attr, in_value)
-{
-	switch (in_attr)
+		
+	if (style == 'check_box')
+		this._icon.style.backgroundImage = (this.get_attr('hilite') ? 'url('+CinsImp._base + 'gfx/chk-tick.png)' : '');
+	else if (style == 'radio')
+		this._icon.style.backgroundImage = (this.get_attr('hilite') ? 'url('+CinsImp._base + 'gfx/rbn-dot.png)' : '');
+	else 
+		this._icon.style.backgroundImage = '';
+	this.set_attr('color', this.get_attr('color'));
+	
+	if (this.get_attr('menu') !== null && this.get_attr('menu') !== '' && this._drop_arrow === null &&
+		(style != 'check_box') && (style != 'radio'))
 	{
-	case 'color':
-		if ((this.get_attr('style') != 'check_box') &&
-				(this.get_attr('style') != 'radio'))
-		{
-			/* push button color */
-			if (this.get_attr('hilite'))  
-			{
-				// ought to find an appropriate hilite & text color *** TODO ****
-				this._div.style.backgroundColor = 'black';
-				this._caption.style.color = 'white';
-			}
-			else
-			{
-				this._div.style.backgroundColor = (in_value ? Util.color_to_css(in_value) : 'transparent');
-				this._caption.style.color = '';
-			}
-			this._icon.style.backgroundColor = 'transparent';
-		}
-		else
-		{
-			/* checkbox/radio button color */
-			this._div.style.backgroundColor = 'transparent';
-			this._icon.style.backgroundColor = (in_value ? Util.color_to_css(in_value) : 'transparent');
-			this._icon.style.color = 'black';
-		}
-		break;
-	case 'shadow':
-		if (this.get_attr('style') == 'borderless')
-		{
-			/* borderless shadow */
-			this._div.style.boxShadow = (in_value ? '1px 1px 2px 2px rgba(0,0,0,0.75)' : '');
-			this._icon.style.boxShadow = '';
-		}
-		else if ((this.get_attr('style') != 'check_box') &&
-				(this.get_attr('style') != 'radio'))
-		{
-			/* bordered push shadow and bevel */
-			this._div.style.boxShadow = (in_value ? '1px 1px 2px 2px rgba(0,0,0,0.75), '+
-				'-1px -1px 2px 0px #CCC inset' : '');
-			this._icon.style.boxShadow = '';
-		}
-		else
-		{
-			/* checkbox/radio button shadow and bevel */
-			this._div.style.boxShadow = '';
-			this._icon.style.boxShadow = (in_value ? '1px 1px 2px 2px rgba(0,0,0,0.75), '+
-				'-1px -1px 1px 0px #AAA inset' : '-1px -1px 1px 0px #AAA inset');
-			this._icon.style.marginLeft = (in_value ? '4px' : '');
-		}
-		break;
-	case 'style':
-		switch (in_value)
-		{
-		case 'borderless':
-			this._div.style.border = '0';
-			this._div.style.borderRadius = '0';
-			break;
-		case 'rectangle':
-			this._div.style.border = '1px solid black';
-			this._div.style.borderRadius = '0';
-			break;
-		case 'rounded':
-			this._div.style.border = '1px solid black';
-			this._div.style.borderRadius = '6px';
-			break;
-			
-		case 'check_box':
-			this._div.style.border = '0';
-			this._div.style.borderRadius = '0';
-			this._icon.style.borderRadius = '0';
-			break;
-		case 'radio':
-			this._div.style.border = '0';
-			this._div.style.borderRadius = '0';
-			this._icon.style.borderRadius = '8px';
-			break;
-		}
-		
-		this._display_name_and_icon();
-		this.set_attr('shadow', this.get_attr('shadow'));
-		this.set_attr('color', this.get_attr('color'));
-		this.set_attr('menu', this.get_attr('menu'));
-		break;
-	
-	case 'icon':
-	case 'name':
-	case 'show_name':
-		this._display_name_and_icon();
-		break;
-		
-	case 'hilite':
-		{
-			var style = this.get_attr('style');
-			if (style == 'check_box')
-				this._icon.style.backgroundImage = (in_value ? 'url('+gBase + 'gfx/chk-tick.png)' : '');
-			else if (style == 'radio')
-				this._icon.style.backgroundImage = (in_value ? 'url('+gBase + 'gfx/rbn-dot.png)' : '');
-			else 
-				this._icon.style.backgroundImage = '';
-			this.set_attr('color', this.get_attr('color'));
-			break;
-		}
-		
-	case 'menu':
-		var style = this.get_attr('style');
-		if (in_value !== null && in_value !== '' && this._drop_arrow === null &&
-			(style != 'check_box') && (style != 'radio'))
-		{
-			this._drop_arrow = document.createElement('img');
-			this._drop_arrow.style.verticalAlign = 'middle';
-			this._drop_arrow.style.float = 'right';
-			this._drop_arrow.style.marginLeft = '10px';
-			this._drop_arrow.src = gBase + 'gfx/drop-arrow-black.png';
-			this._inner.appendChild(this._drop_arrow);
-			this._display_name_and_icon();
-		}
-		else if ((in_value === null || in_value === '' || 
-				style == 'check_box' || style == 'radio') && 
-				this._drop_arrow !== null)
-		{
-			try { this._inner.removeChild(this._drop_arrow); }
-			catch (e) {}
-			this._drop_arrow = null;
-			this._display_name_and_icon();
-		}
-		break;
+		this._drop_arrow = document.createElement('img');
+		this._drop_arrow.style.verticalAlign = 'middle';
+		this._drop_arrow.style.float = 'right';
+		this._drop_arrow.style.marginLeft = '10px';
+		this._drop_arrow.src = CinsImp._base + 'gfx/drop-arrow-black.png';
+		this._inner.appendChild(this._drop_arrow);
 	}
-	
-	this.apply_text_attrs(this._caption, in_attr, in_value);
+	else if ((this.get_attr('menu') === null || this.get_attr('menu') === '' || 
+			style == 'check_box' || style == 'radio') && 
+			this._drop_arrow !== null)
+	{
+		try { this._inner.removeChild(this._drop_arrow); }
+		catch (e) {}
+		this._drop_arrow = null;
+	}
 }
 
 

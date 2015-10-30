@@ -119,7 +119,8 @@ View.prototype._init_view = function()
 	this._tool = View.TOOL_BROWSE;
 	this._container = Application._stack_window;
 	
-	this._next_id = 1;
+	this._rebuild_list = [];  /* can be processed at idle, if anything in it *** TODO potentially */
+	//this._next_id = 1;
 	
 	var me = this;
 	this._container.addEventListener('mousedown', 
@@ -606,31 +607,48 @@ View.prototype._renumber_objects = function()
 }
 
 
+View.prototype.rebuild = function()
+{
+	for (var i = 0; i < this._rebuild_list.length; i++)
+		this._rebuild_list[i].rebuild_dom();
+	this._rebuild_list.length = 0;
+}
+
+
+View.prototype.needs_rebuild = function(in_object)
+{
+	this._rebuild_list.push(in_object);
+}
+
+
 View.prototype._add_object = function(in_object)
 {
-	var existing_id = in_object.get_attr(LayerObject.ATTR_ID);
+	/*var existing_id = in_object.get_attr(LayerObject.ATTR_ID);
 	if (existing_id >= this._next_id)
-		this._next_id = existing_id + 1;
+		this._next_id = existing_id + 1;*/
+		
+	
 		
 	if (!this._edit_bkgnd) 
 	{
-		in_object.set_attr(LayerObject.ATTR_PART_NUM, this._objects_card.length + 1);
-		in_object._is_bkgnd = false;
-		this._objects_card.push(in_object);
-		this._layer_obj_card.appendChild(in_object._div);
+		//in_object.set_attr(LayerObject.ATTR_PART_NUM, this._objects_card.length + 1);
+		//in_object._is_bkgnd = false;
+		//this._objects_card.push(in_object);
+		this._layer_obj_card.appendChild( in_object.create_dom(this) );
 	}
 	else 
 	{
-		in_object.set_attr(LayerObject.ATTR_PART_NUM, this._objects_bkgnd.length + 1);
-		in_object._is_bkgnd = true;
-		this._objects_bkgnd.push(in_object);
-		this._layer_obj_card.appendChild(in_object._div);
+		//in_object.set_attr(LayerObject.ATTR_PART_NUM, this._objects_bkgnd.length + 1);
+		//in_object._is_bkgnd = true;
+		//this._objects_bkgnd.push(in_object);
+		this._layer_obj_card.appendChild( in_object.create_dom(this) );
 	}
 	
 	this._renumber_objects();
 	
-	this._layer_obj_card.style.visibility = 'hidden';
-	this._layer_obj_card.style.visibility = 'visible';
+	this.rebuild();
+	//this._layer_obj_card.style.visibility = 'hidden';
+	//this._layer_obj_card.style.visibility = 'visible';
 }
 
 
@@ -639,7 +657,7 @@ View.prototype.do_new_field = function()
 	this.select_none();
 	this.choose_tool(View.TOOL_FIELD);
 	
-	var field = new CinsImp.Model.Field(this, null, this._edit_bkgnd);
+	var field = new CinsImp.Model.Field(null, (this._edit_bkgnd ? this._bkgnd : this._card));
 	this._centre_object(field);
 	this._add_object(field);
 	
@@ -652,7 +670,7 @@ View.prototype.do_new_button = function()
 	this.select_none();
 	this.choose_tool(View.TOOL_BUTTON);
 	
-	var button = new CinsImp.Model.Button(this, null, this._edit_bkgnd);
+	var button = new CinsImp.Model.Button(null, (this._edit_bkgnd ? this._bkgnd : this._card));
 	this._centre_object(button);
 	this._add_object(button);
 	

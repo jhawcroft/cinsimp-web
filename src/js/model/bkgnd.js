@@ -53,6 +53,7 @@ Model.Bkgnd = function(in_stack, in_def, in_ready_handler)
 	this._ready = false;
 	this._changes = {};
 	this._stack = in_stack;
+	this._next_id = 1;
 	
 	/* otherwise, just load the background from the definition */
 	this._load_def(in_def);
@@ -161,6 +162,16 @@ Bkgnd.prototype.save = function(in_onfinished)
 }
 
 
+Bkgnd.prototype.generate_object_id = function()
+{
+	return this._next_id ++;
+}
+
+
+Bkgnd.prototype.add_object = function(in_object)
+{
+	this._def.objects.push(in_object);
+}
 
 
 

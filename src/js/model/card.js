@@ -55,6 +55,7 @@ Model.Card = function(in_stack, in_ident, in_ready_handler)
 	this._stack = in_stack;
 	
 	this._changes = {};
+	this._next_id = 1;
 	
 	/* check if the identifier is not a definition;
 	the definition will need to be fetched before the card can be loaded */
@@ -202,6 +203,17 @@ Card.prototype.save = function(in_onfinished)
 	});
 }
 
+
+Card.prototype.generate_object_id = function()
+{
+	return this._next_id ++;
+}
+
+
+Card.prototype.add_object = function(in_object)
+{
+	this._def.objects.push(in_object);
+}
 
 
 CinsImp._script_loaded('Model.Card');

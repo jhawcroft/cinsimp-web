@@ -50,6 +50,8 @@ Model.LayerObject = function(in_def, in_layer)
 	/* init core performance properties */
 	this._position = [0,0,0,0,0,0]; /* l, t, r, b, w, h */
 	this._layer = in_layer;
+	this._selected = null;
+	this._needs_rebuild = false;
 	
 	/* init defaults */
 	this._def = 
@@ -87,6 +89,13 @@ Model.LayerObject = function(in_def, in_layer)
 	
 	/* load the object definition (if any) */
 	if (in_def !== undefined) this._load_def(in_def);
+	
+	/* add the object to the layer, if specified */
+	if (in_layer) 
+	{
+		in_layer.add_object(this);
+		this.needs_dom_rebuild();
+	}
 }
 var LayerObject = Model.LayerObject;
 LayerObject.TYPE = 'layer-object';
@@ -98,9 +107,10 @@ LayerObject.prototype.get_type = function()
 }
 
 
-LayerObject._load_def = function(in_def)
+LayerObject.prototype._load_def = function(in_def)
 {
-	this._def = in_def;
+	Util.array_apply(this._def, in_def);
+	//this._def = in_def;
 	
 	// should probably be verified **TODO**
 
@@ -126,7 +136,7 @@ LayerObject.prototype.get_stack = function()
 DOM View
 */
 
-LayerObject.create_dom = function(in_view)
+LayerObject.prototype.create_dom = function(in_view)
 {
 	this._view = in_view;
 
@@ -140,6 +150,36 @@ LayerObject.create_dom = function(in_view)
 	
 	this._div.addEventListener('mousedown', this.__handle_point_start.bind(this));
 	this._div.addEventListener('touchstart', this.__handle_point_start.bind(this));
+	
+	this.needs_dom_rebuild();
+	
+	return this._div;
+}
+
+
+LayerObject.prototype._dom_rebuild = function() {}
+
+
+LayerObject.prototype.rebuild_dom = function()
+{
+	if (!this._needs_rebuild) return;
+	this._dom_rebuild();
+	this._needs_rebuild = false;
+	
+	Util.set_dom_loc(this._div, this.get_loc());
+	Util.set_dom_size(this._div, this.get_size());
+	if (this._inner) Util.set_dom_size(this._inner, this.get_size());
+}
+
+
+LayerObject.prototype.needs_dom_rebuild = function()
+{
+	if (this._needs_rebuild) return;
+	if (this._view) 
+	{
+		this._needs_rebuild = true;
+		this._view.needs_rebuild(this);
+	}
 }
 
 
@@ -160,13 +200,6 @@ LayerObject.prototype.kill = function()
 	if (this._div !== undefined && this._div !== null)
 		this._div.parentElement.removeChild(this._div);
 	this._div = null;
-}
-
-
-LayerObject.prototype._reconfigure = function()
-{
-	for (var attr_name in this._attrs)
-		this._attribute_changed(attr_name * 1, this._attrs[attr_name]);
 }
 
 
@@ -252,74 +285,114 @@ LayerObject.prototype.get_card_data = function()
 }
 
 
+LayerObject.prototype._resized = function()
+{
+	if (this._selection)
+	{
+		Util.set_dom_loc(this._selection, this.get_loc());
+		Util.set_dom_size(this._selection, this.get_size());
+	}
+}
+
+
+LayerObject.prototype._set_selected = function(in_selected)
+{
+	if (!in_selected && this._selection) 
+	{
+		this._selection.parentElement.removeChild(this._selection);
+		this._selection = null;
+	}
+	else if (in_selected && !this._selection)
+	{
+		this._selection = document.createElement('div');
+		this._selection.style.display = 'block';
+		this._selection.style.position = 'absolute';
+		this._selection.style.border = '3px solid blue';
+		this._div.parentElement.appendChild(this._selection);
+	}
+}
+
+
 LayerObject.prototype.set_size = function(in_size)
 {
 	/* update the stored position */
-	this._position[4] = in_size[0];
-	this._position[5] = in_size[1];
-	this._position[2] = this._position[0] + this._position[4];
-	this._position[3] = this._position[1] + this._position[5];
+	this._position[4] = Math.round(in_size[0]);
+	this._position[5] = Math.round(in_size[1]);
+	this._position[2] = Math.round(this._position[0] + this._position[4]);
+	this._position[3] = Math.round(this._position[1] + this._position[5]);
 	
 	/* resize the container div(s) */
 	if (this._div)
 	{
-		Util.set_dom_size(this._div, in_size);
-		if (this._inner) Util.set_dom_size(this._inner, in_size);
+		Util.set_dom_size(this._div, this.get_size());
+		if (this._inner) Util.set_dom_size(this._inner, this.get_size());
 	}
 }
 
 
 LayerObject.prototype.get_size = function()
 {
-	return this._position.slice(4, 5);
+	return this._position.slice(4, 6);
 }
 
 
 LayerObject.prototype.set_loc = function(in_loc)
 {
 	/* update the stored position */
-	this._position[0] = in_loc[0];
-	this._position[1] = in_loc[1];
-	this._position[2] = this._position[0] + this._position[4];
-	this._position[3] = this._position[1] + this._position[5];
+	this._position[0] = Math.round(in_loc[0]);
+	this._position[1] = Math.round(in_loc[1]);
+	this._position[2] = Math.round(this._position[0] + this._position[4]);
+	this._position[3] = Math.round(this._position[1] + this._position[5]);
 	
 	/* move the container div(s) */
-	if (this._div) Util.set_dom_loc(this._div, in_loc);
+	if (this._div) Util.set_dom_loc(this._div, this.get_loc());
 }
 
 
 LayerObject.prototype.get_loc = function()
 {
-	return this._position.slice(0, 1);
+	return this._position.slice(0, 2);
 }
 
 
 LayerObject.prototype.set_rect = function(in_rect)
 {
 	/* update the stored position */
-	this._position[0] = in_rect[0];
-	this._position[1] = in_rect[1];
-	this._position[2] = in_rect[2];
-	this._position[3] = in_rect[3];
-	this._position[4] = in_rect[2] - in_rect[0];
-	this._position[5] = in_rect[3] - in_rect[1];
+	this._position[0] = Math.round(in_rect[0]);
+	this._position[1] = Math.round(in_rect[1]);
+	this._position[2] = Math.round(in_rect[2]);
+	this._position[3] = Math.round(in_rect[3]);
+	this._position[4] = Math.round(in_rect[2] - in_rect[0]);
+	this._position[5] = Math.round(in_rect[3] - in_rect[1]);
 	
 	/* reposition the container div(s) */
 	if (this._div)
 	{
-		Util.set_dom_size(this._div, in_size);
-		if (this._inner) Util.set_dom_size(this._inner, in_size);
+		Util.set_dom_loc(this._div, this.get_loc());
+		Util.set_dom_size(this._div, this.get_size());
+		if (this._inner) Util.set_dom_size(this._inner, this.get_size());
 	}
 }
 
 
 LayerObject.prototype.get_rect = function()
 {
-	return this._position.slice(0, 3);
+	return this._position.slice(0, 4);
 }
 
 
 LayerObject.prototype._attribute_written = function() {}
+
+
+LayerObject.prototype._attribute_writable = function(in_attr)
+{
+	if (in_attr != 'id' && in_attr != 'type')
+	{
+		this.needs_dom_rebuild();
+		return true;
+	}
+	return false;
+}
 
 
 LayerObject.prototype.set_attr = function(in_attr, in_value)
@@ -328,17 +401,15 @@ LayerObject.prototype.set_attr = function(in_attr, in_value)
 	else if (in_attr == 'size') return this.set_size(in_value.split(','));
 	else if (in_attr == 'rect') return this.set_rect(in_value.split(','));
 
-	switch (in_attr)
-	{
-	case '':
-		if (in_attr in this._data && (!this._def['shared']))
-			this._data[in_attr] = in_value;
-		else
-			this._def[in_attr] = in_value;
-		break;
-	default:
+	if (!(in_attr in this._def))
 		throw new Error(this.get_type() + ' has no writable attribute "' + in_attr + '"');
-	}
+	if (!this._attribute_writable(in_attr))
+		throw new Error(this.get_type() + ' attribute "' + in_attr + '" is read-only');
+
+	if (in_attr in this._data && (!this._def['shared']))
+		this._data[in_attr] = in_value;
+	else
+		this._def[in_attr] = in_value;
 	
 	if (LayerObject._no_write_note !== true)
 		this._attribute_written(in_attr, in_value);
