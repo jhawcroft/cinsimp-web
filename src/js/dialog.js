@@ -187,6 +187,8 @@ Dialog.prototype.show = function()
 {	
 	if (this.getVisible()) return;
 	
+	this._close_code = null;
+	
 	Dialog._installCover();
 	Dialog._cover.style.width = window.innerWidth + 'px';
 	Dialog._cover.style.height = window.innerHeight + 'px';
