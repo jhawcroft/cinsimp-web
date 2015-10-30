@@ -182,6 +182,21 @@ Dialog.prototype.getVisible = function()
 	return ((this._div.style.visibility != '') && (this._div.style.visibility != 'hidden'));
 }
 
+/*
+Dialog.prototype.map_html = function(in_map)
+{
+	this._html_map = in_map;
+}
+
+
+Dialog.prototype.populate_with = function(in_object)
+{
+	if (!this._html_map)
+		throw Error('Cannot use populate_with(): dialog hasn\'t been HTML mapped');
+	
+	
+}*/
+
 
 Dialog.prototype.show = function()
 {	
