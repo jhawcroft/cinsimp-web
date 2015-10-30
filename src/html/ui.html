@@ -256,7 +256,7 @@ as dictated by the server, thus allowing for search nevigability -->
 		<input type="button" class="SameSizeStacked" value="Link To..." onclick="Application.save_info(); View.do_link_to();">
 	</div>
 	<div class="Right Bottom">
-		<input type="button" style="margin-right: 10px;" value="Script..." onclick="View.do_edit_script(View.save_info());">
+		<input type="button" style="margin-right: 10px;" value="Script..." onclick="View.do_edit_script(Dialog.dismiss.bind(true));">
 		<input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="Dialog.dismiss(true)"> 
 	</div>
 </div>
@@ -305,7 +305,7 @@ as dictated by the server, thus allowing for search nevigability -->
 			<input type="button" class="SameSizeStacked VertGap" value="Text Style..." onclick="Text.edit_style(Application._objects, Dialog.dismiss.bind(true)); ">
 	</div>
 	<div class="Right Bottom">
-		<input type="button" style="margin-right: 10px;" value="Script..." onclick="View.do_edit_script(View.save_info());"> <input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="Dialog.dismiss(true)"> 
+		<input type="button" style="margin-right: 10px;" value="Script..." onclick="View.do_edit_script(Dialog.dismiss.bind(true));"> <input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="Dialog.dismiss(true)"> 
 	</div>
 </div>
 

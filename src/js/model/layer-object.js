@@ -107,6 +107,17 @@ LayerObject.prototype.get_type = function()
 }
 
 
+LayerObject.prototype.get_description = function()
+{
+	var desc = this._layer.get_type() + ' ' + this.get_type() + ' ID ' + 
+		this.get_attr('id');
+	var name = this.get_attr('name');
+	if (name != '')
+		desc += ' "' + name + '"';
+	return desc;
+}
+
+
 LayerObject.prototype._load_def = function(in_def)
 {
 	Util.array_apply(this._def, in_def);
