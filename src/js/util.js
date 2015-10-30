@@ -212,6 +212,39 @@ Util.set_dom_size = function(in_element, in_size, in_height)
 }
 
 
+/*
+	Convenience method to set the location of a DOM element.
+*/
+Util.set_dom_loc = function(in_element, in_loc, in_top)
+{
+	var l = 0, t = 0;
+	if (in_top !== undefined)
+	{
+		l = in_loc * 1;
+		t = in_top * 1;
+	}
+	else if (in_loc.left)
+	{
+		l = in_loc.left * 1;
+		t = in_loc.top * 1;
+	}
+	else if (typeof in_loc == 'object' && in_loc.length && in_loc.length == 2)
+	{
+		l = in_loc[0] * 1;
+		t = in_loc[1] * 1;
+	}
+	else if (typeof in_loc == 'string')
+	{
+		in_size = in_loc.split(',');
+		l = in_loc[0] * 1;
+		t = in_loc[1] * 1;
+	}
+	
+	in_element.style.left = l + 'px';
+	in_element.style.top = t + 'px';
+}
+
+
 Util.localised_string = function(in_template)
 {
 	return in_template;
@@ -227,6 +260,21 @@ Util.string = function(in_template)
 	}
 	return localised;
 }
+
+
+
+Util.array_apply = function(in_dest, in_source) {
+    for (var property in in_source) 
+    {
+    	in_dest[property] = in_source[property];
+        /*if (in_source.hasOwnProperty(property)) 
+        {
+            
+        }*/
+    }
+    return in_dest;
+};
+
 
 
 CinsImp._script_loaded('util');

@@ -639,7 +639,7 @@ View.prototype.do_new_field = function()
 	this.select_none();
 	this.choose_tool(View.TOOL_FIELD);
 	
-	var field = new Field(this, null, this._edit_bkgnd);
+	var field = new CinsImp.Model.Field(this, null, this._edit_bkgnd);
 	this._centre_object(field);
 	this._add_object(field);
 	
@@ -652,7 +652,7 @@ View.prototype.do_new_button = function()
 	this.select_none();
 	this.choose_tool(View.TOOL_BUTTON);
 	
-	var button = new Button(this, null, this._edit_bkgnd);
+	var button = new CinsImp.Model.Button(this, null, this._edit_bkgnd);
 	this._centre_object(button);
 	this._add_object(button);
 	

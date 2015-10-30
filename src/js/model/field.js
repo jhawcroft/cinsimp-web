@@ -44,7 +44,7 @@ Model.Field = function(in_view, in_def, in_bkgnd)
 {
 	/* create the object */
 	LayerObject.call(this, LayerObject.TYPE_FIELD, in_view, in_bkgnd);
-	this._div.classList.remove('Object');//hack - eventually to be removed at the LayerObject level
+	
 	this._div.classList.add('fld');
 	
 	this._inner = document.createElement('div');

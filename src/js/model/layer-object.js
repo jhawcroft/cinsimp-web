@@ -1,6 +1,6 @@
 /*
 CinsImp
-View Object; Button or Field
+Layer Object; Button or Field
 
 *********************************************************************************
 Copyright (c) 2009-2015, Joshua Hawcroft
@@ -41,126 +41,163 @@ var Model = CinsImp.Model;
 
 
 
-Model.LayerObject = function(in_type, in_view, in_bkgnd) 
-{
-	if (!in_view) return;
-	
-	this._num_tag = null;
-	this._is_bkgnd = in_bkgnd;
-	
-	this._rb = [0,0];
-	this._loc = [0,0];
-	this._size = [0,0];
+/*****************************************************************************************
+Construction, Defaults and Serialisation
+*/
 
-	this._div = document.createElement('div');
-	this._div.classList.add('Object');
-	this._div.classList.add('o');
-	this._inner = null;
+Model.LayerObject = function(in_def, in_layer) 
+{
+	/* init core performance properties */
+	this._position = [0,0,0,0,0,0]; /* l, t, r, b, w, h */
+	this._layer = in_layer;
 	
-	this._attrs = {};
-	this._view = in_view;
+	/* init defaults */
+	this._def = 
+	{
+		// this one is determined by the subclass and computed automatically
+		'type': null,
+		
+		// this one is allocated by the layer
+		'id': (in_layer ? in_layer.generate_object_id() : 0),
+		
+		// these two are dynamically managed by the layer
+		'part_num': 0,
+		'klas_num': 0,
+		
+		// loc, size, rect all dynamically accessing _position
+		'loc': '',
+		'size': '',
+		'rect': '',
+		
+		'name': '',
+		'shared': false,
+		'searchable': true,
+		'visible': true,
+		'script': '',
+		'disabled': false,
+		
+		'txt_align': 'left',
+		'txt_font': 'sans-serif',
+		'txt_size': 12,
+		'txt_style': '',
+		
+		'color': '1,1,1',
+		'shadow': false
+	};
 	
-	this._attrs[LayerObject.ATTR_TYPE] = in_type;
-	this._attrs[LayerObject.ATTR_ID] = in_view._next_id ++;
-	this._attrs[LayerObject.ATTR_PART_NUM] = 1;
-	this._attrs[LayerObject.ATTR_KLAS_NUM] = 1;
-	this._attrs[LayerObject.ATTR_LOC] = [0,0];
-	this._attrs[LayerObject.ATTR_SIZE] = [50,50];
-	this._attrs[LayerObject.ATTR_NAME] = '';
-	this._attrs[LayerObject.ATTR_SHARED] = false;
-	this._attrs[LayerObject.ATTR_SEARCHABLE] = true;
-	this._attrs[LayerObject.ATTR_VISIBLE] = true;
-	this._attrs[LayerObject.ATTR_SCRIPT] = {'content':'','selection':0};
-	this._attrs[LayerObject.ATTR_DISABLED] = false;
-	this._attrs[LayerObject.ATTR_TALIGN] = Text.ALIGN_LEFT;
-	this._attrs[LayerObject.ATTR_TFONT] = 'sans-serif';
-	this._attrs[LayerObject.ATTR_TSIZE] = 12;
-	this._attrs[LayerObject.ATTR_TSTYLE] = 0;
-	this._attrs[LayerObject.ATTR_THEIGHT] = 0;
-	this._attrs[LayerObject.ATTR_COLOR] = [1,1,1];
-	this._attrs[LayerObject.ATTR_SHADOW] = false;
-	
-	this._selected = false;
-	
-	this.__install_handlers();
+	/* load the object definition (if any) */
+	if (in_def !== undefined) this._load_def(in_def);
 }
 var LayerObject = Model.LayerObject;
+LayerObject.TYPE = 'layer-object';
 
 
+LayerObject.prototype.get_type = function()
+{
+	return LayerObject.TYPE;
+}
 
-LayerObject.TYPE_BUTTON = 0;
-LayerObject.TYPE_FIELD = 1;
 
-LayerObject.ATTR_TYPE = -1;
-LayerObject.ATTR_ID = -2;
-LayerObject.ATTR_PART_NUM = -3;
-LayerObject.ATTR_KLAS_NUM = -4;
-LayerObject.ATTR_LOC = -5;
-LayerObject.ATTR_SIZE = -6;
-LayerObject.ATTR_NAME = -7;
-LayerObject.ATTR_SHARED = -8;
-LayerObject.ATTR_SEARCHABLE = -9;
-LayerObject.ATTR_VISIBLE = -10;
-LayerObject.ATTR_SCRIPT = -11;
-LayerObject.ATTR_DISABLED = -12;
-LayerObject.ATTR_TALIGN = -13;
-LayerObject.ATTR_TFONT = -14;
-LayerObject.ATTR_TSIZE = -15;
-LayerObject.ATTR_TSTYLE = -16;
-LayerObject.ATTR_THEIGHT = -17;
-LayerObject.ATTR_COLOR = -18;
-LayerObject.ATTR_SHADOW = -19;
+LayerObject._load_def = function(in_def)
+{
+	this._def = in_def;
+	
+	// should probably be verified **TODO**
 
-LayerObject.ATTR_CONTENT = -99;
+	
+}
 
 
 LayerObject.prototype.get_def = function()
 {
-	if ((!this._is_bkgnd) || this.get_attr(LayerObject.ATTR_SHARED))
-		this._attrs[LayerObject.ATTR_CONTENT] = this._get_raw_content();
-	else
-		this._attrs[LayerObject.ATTR_CONTENT] = '';
-		
-	return this._attrs;
+	return this._def;
 }
 
 
-LayerObject.prototype.set_def = function(in_def)
+LayerObject.prototype.get_stack = function()
 {
-	for (var attr_name in in_def)
+	if (!this._layer) return null;
+	return this._layer.get_stack();
+}
+
+
+
+/*****************************************************************************************
+DOM View
+*/
+
+LayerObject.create_dom = function(in_view)
+{
+	this._view = in_view;
+
+	this._div = document.createElement('div');
+	
+	this._div.classList.add('o');
+	this._inner = null;
+	
+	
+	
+	
+	this._div.addEventListener('mousedown', this.__handle_point_start.bind(this));
+	this._div.addEventListener('touchstart', this.__handle_point_start.bind(this));
+}
+
+
+LayerObject.prototype.set_dom_visiblity = function(in_visible)
+{
+	var visible = (in_visible && this.get_attr('visible'));
+	
+	if (this._div)
 	{
-		var attr_value = in_def[attr_name];
-		this.set_attr(attr_name * 1, attr_value);
+		this._div.style.visibility = (visible ? 'visible' : 'hidden');
+		if (this._inner) this._inner.style.visibility = (visible ? 'visible' : 'hidden');
 	}
-}
-
-
-LayerObject.prototype._get_raw_content = function()
-{
-	return '';
-}
-
-
-LayerObject.prototype._set_raw_content = function(in_content)
-{
 }
 
 
 LayerObject.prototype.kill = function()
 {
-	this._div.parentElement.removeChild(this._div);
+	if (this._div !== undefined && this._div !== null)
+		this._div.parentElement.removeChild(this._div);
 	this._div = null;
-	
-	if (this._num_tag != null)
-		this._view._container.removeChild(this._num_tag);
-	this._num_tag = null;
 }
 
 
-LayerObject.prototype.__install_handlers = function()
+LayerObject.prototype._reconfigure = function()
 {
-	this._div.addEventListener('mousedown', this.__handle_point_start.bind(this));
-	this._div.addEventListener('touchstart', this.__handle_point_start.bind(this));
+	for (var attr_name in this._attrs)
+		this._attribute_changed(attr_name * 1, this._attrs[attr_name]);
+}
+
+
+LayerObject.prototype._apply_text_attr = function(in_div, in_attr, in_value)
+{
+	switch (in_attr)
+	{
+	case LayerObject.ATTR_TFONT:
+		in_div.style.fontFamily = in_value;
+		break;
+	case LayerObject.ATTR_TSIZE:
+		in_div.style.fontSize = in_value +'pt';
+		break;
+	case LayerObject.ATTR_TSTYLE:
+		in_div.style.fontWeight = ((in_value & Text.STYLE_BOLD) ? 'bold' : 'normal');
+		in_div.style.fontStyle = ((in_value & Text.STYLE_ITALIC) ? 'italic' : 'normal');
+		in_div.style.textShadow = (in_value & Text.STYLE_SHADOW ? '2px 2px 1px #CCC' : 'none');
+		if (in_value & Text.STYLE_EXTEND) in_div.style.letterSpacing = '1px';
+		else in_div.style.letterSpacing = (in_value & Text.STYLE_CONDENSE ? '-1px' : 'normal');
+		break;
+	case LayerObject.ATTR_TALIGN:
+		if (in_value == Text.ALIGN_LEFT)
+			in_div.style.textAlign = 'left';
+		else if (in_value == Text.ALIGN_CENTRE)
+			in_div.style.textAlign = 'center';
+		else if (in_value == Text.ALIGN_RIGHT)
+			in_div.style.textAlign = 'right';
+		else if (in_value == Text.ALIGN_JUSTIFY)
+			in_div.style.textAlign = 'justify';
+		break;
+	}
 }
 
 
@@ -193,11 +230,147 @@ LayerObject.prototype._handle_resize_start = function(in_event)
 }
 
 
-LayerObject.prototype._reconfigure = function()
+
+/*****************************************************************************************
+Attribute Mutation/Access
+*/
+
+
+// so if the object is on a background layer
+// then the data these modify will be explicitly adjusted by specific attributes:
+// content and hilite specifically in the subclasses.
+
+// it is the responsibility of each subclass to set/get an attribute value from
+// this._data instead of this._def based on the state of get_attr('shared').
+
+// in those cases, the object will have a card and a background value for the
+// same attribute.
+
+
+LayerObject.prototype.set_card_data = function(in_data)
 {
-	for (var attr_name in this._attrs)
-		this._attribute_changed(attr_name * 1, this._attrs[attr_name]);
+	this._data = in_data;
 }
+
+
+LayerObject.prototype.get_card_data = function()
+{
+	if (this._data !== undefined) return this._data;
+	else return null;
+}
+
+
+LayerObject.prototype.set_size = function(in_size)
+{
+	/* update the stored position */
+	this._position[4] = in_size[0];
+	this._position[5] = in_size[1];
+	this._position[2] = this._position[0] + this._position[4];
+	this._position[3] = this._position[1] + this._position[5];
+	
+	/* resize the container div(s) */
+	if (this._div)
+	{
+		Util.set_dom_size(this._div, in_size);
+		if (this._inner) Util.set_dom_size(this._inner, in_size);
+	}
+}
+
+
+LayerObject.prototype.get_size = function()
+{
+	return this._position.slice(4, 5);
+}
+
+
+LayerObject.prototype.set_loc = function(in_loc)
+{
+	/* update the stored position */
+	this._position[0] = in_loc[0];
+	this._position[1] = in_loc[1];
+	this._position[2] = this._position[0] + this._position[4];
+	this._position[3] = this._position[1] + this._position[5];
+	
+	/* move the container div(s) */
+	if (this._div) Util.set_dom_loc(this._div, in_loc);
+}
+
+
+LayerObject.prototype.get_loc = function()
+{
+	return this._position.slice(0, 1);
+}
+
+
+LayerObject.prototype.set_rect = function(in_rect)
+{
+	/* update the stored position */
+	this._position[0] = in_rect[0];
+	this._position[1] = in_rect[1];
+	this._position[2] = in_rect[2];
+	this._position[3] = in_rect[3];
+	this._position[4] = in_rect[2] - in_rect[0];
+	this._position[5] = in_rect[3] - in_rect[1];
+	
+	/* reposition the container div(s) */
+	if (this._div)
+	{
+		Util.set_dom_size(this._div, in_size);
+		if (this._inner) Util.set_dom_size(this._inner, in_size);
+	}
+}
+
+
+LayerObject.prototype.get_rect = function()
+{
+	return this._position.slice(0, 3);
+}
+
+
+LayerObject.prototype.set_attr = function(in_attr, in_value)
+{
+	if (in_attr == 'loc') return this.set_loc(in_value.split(','));
+	else if (in_attr == 'size') return this.set_size(in_value.split(','));
+	else if (in_attr == 'rect') return this.set_rect(in_value.split(','));
+
+	switch (in_attr)
+	{
+	case '':
+		this._def[in_attr] = in_value;
+		break;
+	default:
+		throw new Error(this.get_type() + ' has no writable attribute "' + in_attr + '"');
+	}
+	
+	this._attribute_changed(in_attr, in_value);
+}
+
+
+LayerObject.prototype.get_attr = function(in_attr, in_fmt)
+{
+	if (in_attr == 'type') return this.get_type();
+	else if (in_attr == 'loc') return this.get_loc().join(',');
+	else if (in_attr == 'size') return this.get_size().join(',');
+	else if (in_attr == 'rect') return this.get_rect().join(',');
+	
+	if (!(in_attr in this._def))
+		throw new Error(this.get_type() + ' has no readable attribute "' + in_attr + '"');
+	
+	var value = null;
+	value = this._def[in_attr];
+	
+	
+	
+	return value;
+}
+
+
+
+
+/*
+
+OLD STUFF FOR REFERENCE (during refactoring)
+=======================
 
 
 LayerObject.prototype._set_selected = function(in_selected)
@@ -224,156 +397,25 @@ LayerObject.prototype._set_selected = function(in_selected)
 		this._div.removeChild(this._drag_handle);
 		this._drag_handle = null;
 	}
-}
-
-
-LayerObject.prototype.get_type = function()
-{
-	return 'object';
-}
-
-
-LayerObject.prototype.set_size = function(in_size)
-{
-	/* store the new size as an attribute */
-	this._size = [in_size[0], in_size[1]];
-	this._attrs[LayerObject.ATTR_SIZE] = this._size;
 	
-	/* resize the container div(s) */
-	this._div.style.width = in_size[0] + 'px';
-	this._div.style.height = in_size[1] + 'px';
-	if (this._inner)
-	{
-		this._inner.style.width = in_size[0]-2 + 'px';
-		this._inner.style.height = in_size[1]-2 + 'px';
-	}
 	
-	/* cache the right-bottom coordinates */
-	this._rb[0] = this._loc[0] + this._size[0];
-	this._rb[1] = this._loc[1] + this._size[1];
 	
-	/* notify the subclass */
-	if (this._resized) this._resized();
 	
-	/* re-apply the selection styling if this object 
-	is selected within the authoring environment */
-	if (this._selected)
-		this._div.style.border = '3px solid blue';
-}
-
-
-LayerObject.prototype.get_size = function()
-{
-	return this._size;
-}
-
-
-LayerObject.prototype.set_loc = function(in_loc)
-{
-	this._loc = [in_loc[0], in_loc[1]];
-	this._attrs[LayerObject.ATTR_LOC] = this._loc;
-	this._div.style.left = in_loc[0] + 'px';
-	this._div.style.top = in_loc[1] + 'px';
-	
-	this._rb[0] = this._loc[0] + this._size[0];
-	this._rb[1] = this._loc[1] + this._size[1];
-	
-	if (this._num_tag != null)
-	{
-		this._num_tag.style.left = this._loc[0] + 'px';
-		this._num_tag.style.top = this._loc[1] + 'px';
-	}
-}
-
-
-LayerObject.prototype.get_loc = function()
-{
-	return this._loc;
-}
-
-
-LayerObject.prototype.apply_text_attrs = function(in_div, in_attr, in_value)
-{
-	switch (in_attr)
-	{
-	case LayerObject.ATTR_TFONT:
-		in_div.style.fontFamily = in_value;
-		break;
-	case LayerObject.ATTR_TSIZE:
-		in_div.style.fontSize = in_value +'pt';
-		break;
-	case LayerObject.ATTR_TSTYLE:
-		in_div.style.fontWeight = ((in_value & Text.STYLE_BOLD) ? 'bold' : 'normal');
-		in_div.style.fontStyle = ((in_value & Text.STYLE_ITALIC) ? 'italic' : 'normal');
-		in_div.style.textShadow = (in_value & Text.STYLE_SHADOW ? '2px 2px 1px #CCC' : 'none');
-		if (in_value & Text.STYLE_EXTEND) in_div.style.letterSpacing = '1px';
-		else in_div.style.letterSpacing = (in_value & Text.STYLE_CONDENSE ? '-1px' : 'normal');
-		break;
-	case LayerObject.ATTR_TALIGN:
-		if (in_value == Text.ALIGN_LEFT)
-			in_div.style.textAlign = 'left';
-		else if (in_value == Text.ALIGN_CENTRE)
-			in_div.style.textAlign = 'center';
-		else if (in_value == Text.ALIGN_RIGHT)
-			in_div.style.textAlign = 'right';
-		else if (in_value == Text.ALIGN_JUSTIFY)
-			in_div.style.textAlign = 'justify';
-		break;
-	}
-}
-
-
-LayerObject.prototype.set_attr = function(in_attr, in_value)
-{
 	if ((in_attr == LayerObject.ATTR_KLAS_NUM) && (this._num_tag != null))
 		this._num_tag.innerHTML = in_value * 1;
-
-	switch (in_attr)
-	{
-	case LayerObject.ATTR_LOC:
-		this.set_loc(in_value);
-		break;
-	case LayerObject.ATTR_SIZE:
-		this.set_size(in_value);
-		break;
-	case LayerObject.ATTR_CONTENT:
-		this._set_raw_content(in_value);
-		break;
-	default:
-		this._attrs[in_attr] = in_value;
-	}
 	
 	
 	
-	
-	this._attribute_changed(in_attr, in_value);
-	
+	 re-apply the selection styling if this object 
+	is selected within the authoring environment 
 	if (this._selected)
 		this._div.style.border = '3px solid blue';
+		
+		
+		if (this._selected)
+		this._div.style.border = '3px solid blue';
 }
-
-
-LayerObject.prototype.get_attr = function(in_attr)
-{
-	var result;
-	if (in_attr == LayerObject.ATTR_CONTENT)
-		result = this._get_raw_content();
-	else
-		result = this._attrs[in_attr];
-	if (result === undefined) result = null;
-	return result;
-}
-
-
-LayerObject.prototype._layer_visibility = function(in_visible)
-{
-	var visible =  (in_visible && this.get_attr(LayerObject.ATTR_VISIBLE));
-	this._div.style.visibility = (visible ? 'visible' : 'hidden');
-	if (this._inner)
-		this._inner.style.visibility = (visible ? 'visible' : 'hidden');
-	if (this._num_tag)
-		this._num_tag.style.visibility = (visible && this._view._tool == View.TOOL_FIELD ? 'visible' : 'hidden');
-}
+*/
 
 
 
