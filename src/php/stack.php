@@ -549,7 +549,7 @@ Security and Restrictions Management
 	public function stack_growability()
 	{
 		global $config;
-		if (filesize($this->stack_id) >= $config->restrictions->max_stack_size)
+		if (filesize($this->stack_path) >= $config->restrictions->max_stack_size)
 			return false;
 		return true;
 	}

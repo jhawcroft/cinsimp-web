@@ -71,6 +71,14 @@ Model.Stack = function(in_url_or_def, in_ready_handler)
 };
 var Stack = Model.Stack;
 
+Stack.TYPE = 'stack';
+
+
+Stack.prototype.get_type = function()
+{
+	return Stack.TYPE;
+}
+
 
 /*
 	Stack provided AJAX gateway;
@@ -84,6 +92,8 @@ Stack.prototype.gateway = function(in_msg, in_reply_handler)
 		in_msg.host = this._host;
 		in_msg.url = this._url;
 	}
+	
+	in_msg.id = this._def.id;
 	
 	Ajax.request(in_msg, in_reply_handler);
 }
@@ -137,6 +147,13 @@ Stack.prototype._load_def = function(in_def)
 Stack.prototype.is_ready = function()
 {
 	return this._ready;
+}
+
+
+Stack.prototype.get_description = function()
+{
+	var desc = 'stack ' + this.get_attr('name');
+	return desc;
 }
 
 

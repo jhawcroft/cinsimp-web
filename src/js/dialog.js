@@ -41,6 +41,7 @@ function Dialog(in_title, in_element, in_flags, in_cleanup)
 	
 	this._flags = in_flags;
 	this._cleanup = in_cleanup;
+	this._close_code = null;
 	
 	this._div = document.createElement('div');
 	this._div.className = 'Dialog';
@@ -205,6 +206,18 @@ Dialog.prototype.show = function()
 }
 
 
+Dialog.prototype.set_onclose = function(in_onclose)
+{
+	this._cleanup = in_onclose;
+}
+
+
+Dialog.prototype.get_close_code = function()
+{
+	return this._close_code;
+}
+
+
 Dialog.prototype.hide = function()
 {
 	if (!this.getVisible()) return;
@@ -222,7 +235,7 @@ Dialog.prototype.hide = function()
 	}
 	
 	if (this._cleanup)
-		this._cleanup();
+		this._cleanup(this, this._close_code);
 }
 
 
@@ -237,10 +250,14 @@ Dialog.active = function()
 }
 
 
-Dialog.dismiss = function()
+Dialog.dismiss = function(in_code)
 {
 	var dlg = Dialog.active();
-	if (dlg) dlg.hide();
+	if (dlg) 
+	{
+		if (in_code !== undefined) dlg._close_code = in_code;
+		dlg.hide();
+	}
 }
 
 

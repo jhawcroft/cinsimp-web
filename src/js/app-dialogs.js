@@ -88,7 +88,7 @@ AppDialogs.init = function()
 	picklist.addEventListener('change', AppDialogs._card_size_picked.bind(AppDialogs));
 
 
-	Dialog.ScriptEditor = new Dialog('', document.getElementById('DialogScriptEditor'));
+	Dialog.ScriptEditor = new Dialog('Script Editor', document.getElementById('DialogScriptEditor'));
 	Dialog.ScriptEditor._codeeditor = new JCodeEdit(document.getElementById('ScriptEditorContainer'));
 }
 

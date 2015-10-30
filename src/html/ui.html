@@ -141,7 +141,7 @@
 	
 	<div id="StackInfoCardSize" class="Label x2VertGap">Card size: ^0</div>
 	
-	<div class="Bottom"><input type="button" value="Resize..." onclick="Dialog.dismiss();AppDialogs.do_card_size();"> <input type="button" value="Script..." onclick="View.do_edit_script(View.CURRENT_STACK, View.save_stack_info());""></div>
+	<div class="Bottom"><input type="button" value="Resize..." onclick="Dialog.dismiss();AppDialogs.do_card_size();"> <input type="button" value="Script..." onclick="View.do_edit_script(View.save_stack_info());""></div>
 	
 	<div class="Bottom Right"><input type="button" value="Compact" class="SameSizeStacked" onclick="Dialog.dismiss(); View.compact();"> <input type="button" value="Cancel" class="SameSizeStacked x2VertGap" onclick="Dialog.dismiss()"> <input type="button" value="OK" class="SameSizeStacked VertGap" onclick="View.save_stack_info()"></div>
 	
@@ -256,8 +256,8 @@ as dictated by the server, thus allowing for search nevigability -->
 		<input type="button" class="SameSizeStacked" value="Link To..." onclick="Application.save_info(); View.do_link_to();">
 	</div>
 	<div class="Right Bottom">
-		<input type="button" style="margin-right: 10px;" value="Script..." onclick="Application.do_edit_script(View.CURRENT_OBJECT, Application.save_info());">
-		<input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="Application.save_info();"> 
+		<input type="button" style="margin-right: 10px;" value="Script..." onclick="View.do_edit_script(View.save_info());">
+		<input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="View.save_info();"> 
 	</div>
 </div>
 
@@ -305,7 +305,7 @@ as dictated by the server, thus allowing for search nevigability -->
 			<input type="button" class="SameSizeStacked VertGap" value="Text Style..." onclick="Text.edit_style(Application._objects, Application.save_info()); ">
 	</div>
 	<div class="Right Bottom">
-		<input type="button" style="margin-right: 10px;" value="Script..." onclick="Application.do_edit_script(View.CURRENT_OBJECT, Application.save_info());"> <input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="Application.save_info();"> 
+		<input type="button" style="margin-right: 10px;" value="Script..." onclick="View.do_edit_script(View.save_info());"> <input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="View.save_info();"> 
 	</div>
 </div>
 
@@ -320,8 +320,8 @@ as dictated by the server, thus allowing for search nevigability -->
 	<div class="x2VertGap"><input type="checkbox" id="BkgndInfoCantDelete"> <label for="BkgndInfoCantDelete">Can't delete background</label></div>
 	<div class=""><input type="checkbox" id="BkgndInfoDontSearch"> <label for="BkgndInfoDontSearch">Don't search background</label></div>
 	
-	<div class="Bottom"><input type="button" value="Script..." onclick="Application.do_edit_script(View.CURRENT_BKGND, Application.save_info());"></div>
-	<div class="Bottom Right"><input type="button" value="Cancel" class="" onclick="Dialog.dismiss()"> <input type="button" value="OK" class="" onclick="Application.save_info()"></div>
+	<div class="Bottom"><input type="button" value="Script..." onclick="View.do_edit_script(View.save_info());"></div>
+	<div class="Bottom Right"><input type="button" value="Cancel" class="" onclick="Dialog.dismiss()"> <input type="button" value="OK" class="" onclick="View.save_info()"></div>
 </div>
 
 
@@ -337,8 +337,8 @@ as dictated by the server, thus allowing for search nevigability -->
 	<div class=""><input type="checkbox" id="CardInfoDontSearch"> <label for="CardInfoDontSearch">Don't search card</label></div>
 	<div class=""><input type="checkbox" id="CardInfoCantDelete"> <label for="CardInfoCantDelete">Can't delete card</label></div>
 	
-	<div class="Bottom"><input type="button" value="Script..." onclick="Application.do_edit_script(View.CURRENT_CARD, Application.save_info());"></div>
-	<div class="Bottom Right"><input type="button" value="Cancel" class="" onclick="Dialog.dismiss()"> <input type="button" value="OK" class="" onclick="Application.save_info()"></div>
+	<div class="Bottom"><input type="button" value="Script..." onclick="View.do_edit_script(View.save_info());"></div>
+	<div class="Bottom Right"><input type="button" value="Cancel" class="" onclick="Dialog.dismiss()"> <input type="button" value="OK" class="" onclick="View.save_info()"></div>
 </div>
 
 
@@ -375,7 +375,7 @@ call stack and debug buttons ? -->
 		a handler jump list at least and maybe also a find option ? -->
 	</div>
 	<div class="Bottom Right">
-		<input type="button" value="Cancel" class="" onclick="Dialog.dismiss()"> <input type="button" value="OK" class="" onclick="Dialog.dismiss(); View.save_script();">
+		<input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="Dialog.dismiss(true);">
 	</div>
 </div>
 

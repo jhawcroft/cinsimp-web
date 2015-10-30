@@ -1274,31 +1274,35 @@ View.prototype._save_field_info = function()
 
 View.prototype._do_card_info = function()
 {
-	document.getElementById('CardInfoName').value = this._card.card_name;
+	var card = this._card;
+	var stack = this._stack;
 	
-	document.getElementById('CardInfoNumber').textContent = 'Card '+this._card.card_seq+' out of '+this._stack.count_cards;
-	document.getElementById('CardInfoID').textContent = 'Card ID: '+this._card.card_id;
+	document.getElementById('CardInfoName').value = card.get_attr('name');
+	
+	document.getElementById('CardInfoNumber').textContent = 'Card '+card.get_attr('seq')+' out of '+stack.get_attr('count_cards');
+	document.getElementById('CardInfoID').textContent = 'Card ID: '+card.get_attr('id');
 	document.getElementById('CardInfoFieldCount').textContent = 'Contains '+Util.plural(this._count_klass(this._objects_card, Field.TYPE),'field','fields');
 	document.getElementById('CardInfoButtonCount').textContent = 'Contains '+Util.plural(this._count_klass(this._objects_card, Button.TYPE),'button','buttons');
 	
-	document.getElementById('CardInfoCantDelete').checked = this._card.card_cant_delete;
-	document.getElementById('CardInfoDontSearch').checked = this._card.card_dont_search;
-	document.getElementById('CardInfoMarked').checked = this._card.card_marked;
+	document.getElementById('CardInfoCantDelete').checked = card.get_attr('cant_delete');
+	document.getElementById('CardInfoDontSearch').checked = card.get_attr('dont_search');
+	document.getElementById('CardInfoMarked').checked = card.get_attr('marked');
 	
 	Dialog.CardInfo.show();
 }
 
 
-
-
-
 View.prototype._save_card_info = function()
 {
-	this._card.card_name = document.getElementById('CardInfoName').value;
+	var card = this._card;
 	
-	this._card.card_cant_delete = document.getElementById('CardInfoCantDelete').checked;
-	this._card.card_dont_search = document.getElementById('CardInfoDontSearch').checked;
-	this._card.card_marked = document.getElementById('CardInfoMarked').checked;
+	card.set_attr('name', document.getElementById('CardInfoName').value);
+	
+	card.set_attr('cant_delete', document.getElementById('CardInfoCantDelete').checked);
+	card.set_attr('dont_search', document.getElementById('CardInfoDontSearch').checked);
+	card.set_attr('marked', document.getElementById('CardInfoMarked').checked);
+	
+	//card.save();
 
 	Dialog.dismiss();
 }
@@ -1357,19 +1361,20 @@ View.prototype.do_info = function()
 }
 
 
-View.prototype.save_info = function()
+View.save_info = function()
 {
-	if (this._selected_objects.length == 1)
+	var view = View.current;
+	if (view._selected_objects.length == 1)
 	{
-		if (this._selected_objects[0].get_type() == Button.TYPE)
-			this._save_button_info();
+		if (view._selected_objects[0].get_type() == Button.TYPE)
+			view._save_button_info();
 		else
-			this._save_field_info();
+			view._save_field_info();
 	}
-	else if (!this._edit_bkgnd)
-		this._save_card_info();
+	else if (!view._edit_bkgnd)
+		view._save_card_info();
 	else
-		this._save_bkgnd_info();
+		view._save_bkgnd_info();
 }
 
 
@@ -1760,8 +1765,61 @@ View.compact = function()
 
 
 
-View.do_edit_script = function(in_subject, in_prior)
+View.prototype.get_current_object = function(in_multiple_error)
 {
+	if (this._selected_objects.length > 1)
+	{
+		if (in_multiple_error)
+		{
+			var alert = new Alert();
+			alert.title = 'Multiple Objects Selected';
+			alert.prompt = 'That operation cannot be performed with multiple objects selected.';
+			alert.button1_label = 'OK';
+			alert.show();
+		}
+		return null;
+	}
+	else if (this._selected_objects.length == 1)
+		return this._selected_objects[0];
+	else if (!this._edit_bkgnd)
+		return this._card;
+	else
+		return this._bkgnd;
+}
+
+
+
+View.do_edit_script = function(in_prior)
+{
+	var object = View.current.get_current_object(true);
+	if (!object) return;
+	
+	document.getElementById('ScriptEditorObject').textContent = object.get_description();
+	var script = object.get_attr('script');
+	
+	var sel_pos = 0;
+	if (object.get_type() == Button.TYPE && script == 'on mouseup\n  \nend mouseup')
+		sel_pos = 13;
+		
+	Dialog.ScriptEditor._codeeditor.set_script(script, sel_pos);
+	
+	if (in_prior) in_prior();
+	Dialog.ScriptEditor.show();
+	Dialog.ScriptEditor._codeeditor.focus();
+	
+	Dialog.ScriptEditor.set_onclose(function(in_dialog, in_save) 
+	{
+		if (!in_save) return;
+		var object = View.current.get_current_object(false);
+		object.set_attr('script', in_dialog._codeeditor.get_script());
+	});
+}
+
+
+
+
+/*
+
 	var view = View.current;
 	
 	var desc_label = document.getElementById('ScriptEditorObject');
@@ -1769,7 +1827,7 @@ View.do_edit_script = function(in_subject, in_prior)
 	
 	var is_btn = false;
 	
-	if (in_subject == View.CURRENT_OBJECT)
+	if (in_subject == View.CURRENT_OBJECT) 
 	{
 		Dialog.ScriptEditor._object = view._selected_objects[0];
 		var obj = Dialog.ScriptEditor._object;
@@ -1798,12 +1856,12 @@ View.do_edit_script = function(in_subject, in_prior)
 	{
 		Dialog.ScriptEditor._object = view._stack;
 		Dialog.ScriptEditor._type = View.CURRENT_STACK;
-		desc_label.textContent = 'Script of stack '+view._stack.get_attr('name');
+		desc_label.textContent = 'Script of '+view._stack.get_text_desc();
 		
 		curr_script = view._stack.get_attr('script');
 		Dialog.ScriptEditor._edit_type = 'stack';
 	}
-	else if (in_subject == View.CURRENT_BKGND)
+	else if (in_subject == View.CURRENT_BKGND) 
 	{
 		Dialog.ScriptEditor._object = view._card;
 		Dialog.ScriptEditor._type = View.CURRENT_BKGND;
@@ -1813,59 +1871,18 @@ View.do_edit_script = function(in_subject, in_prior)
 		curr_script = view._card.bkgnd_script;
 		Dialog.ScriptEditor._edit_type = 'bkgnd';
 	}
-	else
+	else if (in_subject == View.CURRENT_CARD)
 	{
 		Dialog.ScriptEditor._object = view._card;
 		Dialog.ScriptEditor._type = View.CURRENT_CARD;
-		desc_label.textContent = 'Script of card ID '+view._card.card_id+
-			(view._card.card_name != '' ? ' "'+view._card.card_name+'"' : '');
+		desc_label.textContent = 'Script of '+view._card.get_text_desc();
 		
 		curr_script = view._card.card_script;
 		Dialog.ScriptEditor._edit_type = 'card';
 	}
-	
-	if (!curr_script) curr_script = '';
-	Dialog.ScriptEditor._codeeditor._jce_ta.value = curr_script;
-	
-	var sel_pos = 0;
-	if (is_btn && curr_script == 'on mouseup\n  \nend mouseup')
-		sel_pos = 13;
-	
-	Dialog.ScriptEditor._codeeditor._jce_ta.selectionStart = sel_pos;
-	Dialog.ScriptEditor._codeeditor._jce_ta.selectionEnd = sel_pos;
-	
-	if (in_prior) in_prior();
-	Dialog.ScriptEditor.show();
-	Dialog.ScriptEditor._codeeditor._jce_ta.focus();
-}
+	*/
 
 
-View.save_script = function()
-{
-	var view = View.current;
-
-	var script_code = Dialog.ScriptEditor._codeeditor._jce_ta.value;
-	var script_sel = Dialog.ScriptEditor._codeeditor._jce_ta.selectionStart;
-	
-	switch (Dialog.ScriptEditor._edit_type)
-	{
-	case 'object':
-		Dialog.ScriptEditor._object.set_attr(ViewObject.ATTR_SCRIPT, script_code);
-		break;
-	case 'stack':
-		Progress.operation_begun('Saving stack script...');
-		view._stack.set_attr('script', script_code);
-		view._stack.save(Progress.operation_finished);
-		break;
-	case 'bkgnd':
-		view._card.bkgnd_script = script_code;
-		break;
-	case 'card':
-		view._card.card_script = script_code;
-		break;
-	}
-	
-}
 
 
 

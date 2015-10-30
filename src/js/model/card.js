@@ -69,6 +69,14 @@ Model.Card = function(in_stack, in_ident, in_ready_handler)
 };
 var Card = Model.Card;
 
+Card.TYPE = 'card';
+
+
+Card.prototype.get_type = function()
+{
+	return Card.TYPE;
+}
+
 
 /*
 	Fetches the definition object for the Card from the server.
@@ -118,7 +126,69 @@ Card.prototype._load_def = function(in_def)
 
 
 
+Card.prototype.get_description = function()
+{
+	var desc = 'card ID ' + this.get_attr('id');
+	var name = this.get_attr('name');
+	if (name != '')
+		desc += ' "' + name + '"';
+	return desc;
+}
 
+
+
+Card.prototype.get_attr = function(in_attr)
+{
+	if (!(in_attr in this._def))
+		throw Error('Card doesn\'t have an '+in_attr+' attribute.');
+
+	if (in_attr in this._changes)
+		return this._changes[in_attr];
+	return this._def[in_attr];
+}
+
+
+Card.prototype.set_attr = function(in_attr, in_value)
+{
+	switch (in_attr)
+	{
+	case 'script':
+	case 'cant_delete':
+	case 'dont_search':
+	case 'marked':
+	case 'name':
+		this._changes[in_attr] = in_value;
+		break;
+	default:
+		throw new Error('Cannot set '+in_attr+' attribute of card');
+	}
+}
+
+
+Card.prototype.apply_changes = function()
+{
+	for (var key in this._changes)
+		this._def[key] = this._changes[key];
+	this._changes = {};
+}
+
+
+Card.prototype.save = function(in_onfinished)
+{
+	var card = this;
+	this._changes['id'] = this._def.id;
+	this._stack.gateway(
+	{
+		cmd: 'save_card',
+		ref: this._def.id,
+		card: this._changes
+	}, 
+	function(in_reply) 
+	{
+		if (in_reply.cmd != 'error') card.apply_changes();
+		if (in_onfinished) in_onfinished(in_reply.cmd != 'error');
+	});
+}
 
 
 

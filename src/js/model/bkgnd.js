@@ -61,6 +61,14 @@ Model.Bkgnd = function(in_stack, in_def, in_ready_handler)
 };
 var Bkgnd = Model.Bkgnd;
 
+Bkgnd.TYPE = 'bkgnd';
+
+
+Bkgnd.prototype.get_type = function()
+{
+	return Bkgnd.TYPE;
+}
+
 
 /*
 	Loads the Bkgnd definition obtained from a gateway server.
