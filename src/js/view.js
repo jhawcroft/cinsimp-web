@@ -258,24 +258,27 @@ View.prototype._configure_obj_display = function()
 	this._text_editable = true; // TODO: user-level, user-modify and cant-modify
 	if (this._mode != View.MODE_BROWSE)
 		this._text_editable = false;
-		
-	for (var o = 0; o < this._objects_card.length; o++)
+	
+	var objects = this._card.get_objects();
+	for (var o = 0; o < objects.length; o++)
 	{
-		var obj = this._objects_card[o];
-		obj._layer_visibility(!this._edit_bkgnd);
+		var obj = objects[o];
+		obj.set_dom_visiblity(!this._edit_bkgnd);
 		if (obj.get_type() == Field.TYPE)
-			obj._display_changed(this._author_fields, this._text_editable);
+			obj.set_dom_editability(this._text_editable);
 		else
-			obj._display_changed(this._author_buttons, this._text_editable);
+			obj.set_dom_editability(this._text_editable);
 	}
-	for (var o = 0; o < this._objects_bkgnd.length; o++)
+	
+	var objects = this._bkgnd.get_objects();
+	for (var o = 0; o < objects.length; o++)
 	{
-		var obj = this._objects_bkgnd[o];
-		obj._layer_visibility(true);
+		var obj = this.objects[o];
+		obj.set_dom_visiblity(true);
 		if (obj.get_type() == Field.TYPE)
-			obj._display_changed(this._author_fields, this._text_editable);
+			obj.set_dom_editability(this._text_editable);
 		else
-			obj._display_changed(this._author_buttons, this._text_editable);
+			obj.set_dom_editability(this._text_editable);
 	}
 }
 

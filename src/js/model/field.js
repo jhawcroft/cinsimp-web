@@ -105,6 +105,12 @@ Field.prototype.create_dom = function(in_view)
 }
 
 
+Field.prototype._dom_rebuild = function()
+{
+
+}
+
+
 // **TODO** simplify this - just build the thing each time an attribute changes
 // and possibly prior to display, ie. have an idle event for the view
 // which discovers dirty stuff? or a needs display = true?
@@ -156,10 +162,11 @@ DOM Interaction, Events
 
 Field.prototype.set_dom_editability = function(in_edit)
 {
-	var editable = (in_edit && (!this._attrs[Field.ATTR_LOCKED]));
-	if (this._is_bkgnd)
+	var editable = (in_edit && !this.get_attr('locked'));
+	editable = true;
+	/*if (this._is_bkgnd)
 	{
-		if (this.get_attr(LayerObject.ATTR_SHARED))
+		if (this.get_attr('shared'))
 		{
 			if (!this._view._edit_bkgnd) editable = false;
 			this._inner.style.visibility = this._div.style.visibility;
@@ -168,7 +175,7 @@ Field.prototype.set_dom_editability = function(in_edit)
 			this._inner.style.visibility = (this._view._edit_bkgnd ? 'hidden' : this._div.style.visibility);
 	}
 	else
-		this._inner.style.visibility = this._div.style.visibility;
+		this._inner.style.visibility = this._div.style.visibility;*/
 	
 	this._inner.contentEditable = editable;
 	

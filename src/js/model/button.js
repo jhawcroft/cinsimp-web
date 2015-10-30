@@ -119,6 +119,10 @@ Button.prototype.create_dom = function(in_view)
 // THIS #$@!* NEEDS TO BE REWRITTEN NOW:  ***TODO***
 Button.prototype._dom_rebuild = function()
 {
+
+
+
+
 	var style = this.get_attr('style');
 	
 	switch (style)

@@ -195,6 +195,9 @@ LayerObject.prototype.set_dom_visiblity = function(in_visible)
 }
 
 
+LayerObject.prototype.set_dom_editability = function(in_edit) {}
+
+
 LayerObject.prototype.kill = function()
 {
 	if (this._div !== undefined && this._div !== null)
@@ -233,7 +236,7 @@ LayerObject.prototype._apply_text_attr = function(in_div, in_attr, in_value)
 	}
 }
 
-
+// **TODO remove
 LayerObject.prototype.__handle_point_start = function(in_event)
 {
 	if (this._view._mode == View.MODE_AUTHORING)
@@ -248,7 +251,7 @@ LayerObject.prototype.__handle_point_start = function(in_event)
 	}
 }
 
-
+// **TODO remove
 LayerObject.prototype._handle_resize_start = function(in_event)
 {
 	Drag.begin_resize(
