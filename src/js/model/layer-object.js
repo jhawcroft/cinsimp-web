@@ -206,35 +206,21 @@ LayerObject.prototype.kill = function()
 }
 
 
-LayerObject.prototype._apply_text_attr = function(in_div, in_attr, in_value)
+LayerObject.prototype._apply_text_attrs = function(in_div)
 {
-	switch (in_attr)
-	{
-	case LayerObject.ATTR_TFONT:
-		in_div.style.fontFamily = in_value;
-		break;
-	case LayerObject.ATTR_TSIZE:
-		in_div.style.fontSize = in_value +'pt';
-		break;
-	case LayerObject.ATTR_TSTYLE:
-		in_div.style.fontWeight = ((in_value & Text.STYLE_BOLD) ? 'bold' : 'normal');
-		in_div.style.fontStyle = ((in_value & Text.STYLE_ITALIC) ? 'italic' : 'normal');
-		in_div.style.textShadow = (in_value & Text.STYLE_SHADOW ? '2px 2px 1px #CCC' : 'none');
-		if (in_value & Text.STYLE_EXTEND) in_div.style.letterSpacing = '1px';
-		else in_div.style.letterSpacing = (in_value & Text.STYLE_CONDENSE ? '-1px' : 'normal');
-		break;
-	case LayerObject.ATTR_TALIGN:
-		if (in_value == Text.ALIGN_LEFT)
-			in_div.style.textAlign = 'left';
-		else if (in_value == Text.ALIGN_CENTRE)
-			in_div.style.textAlign = 'center';
-		else if (in_value == Text.ALIGN_RIGHT)
-			in_div.style.textAlign = 'right';
-		else if (in_value == Text.ALIGN_JUSTIFY)
-			in_div.style.textAlign = 'justify';
-		break;
-	}
+	in_div.style.fontFamily = this.get_attr('txt_font');
+	in_div.style.fontSize = this.get_attr('txt_size') +'pt';
+	
+	var style = this.get_attr('txt_style');
+	/*in_div.style.fontWeight = ((style & Text.STYLE_BOLD) ? 'bold' : 'normal');
+	in_div.style.fontStyle = ((style & Text.STYLE_ITALIC) ? 'italic' : 'normal');
+	in_div.style.textShadow = (style & Text.STYLE_SHADOW ? '2px 2px 1px #CCC' : 'none');
+	if (style & Text.STYLE_EXTEND) in_div.style.letterSpacing = '1px';
+	else in_div.style.letterSpacing = (style & Text.STYLE_CONDENSE ? '-1px' : 'normal');*/
+	
+	in_div.style.textAlign = this.get_attr('txt_align');
 }
+
 
 // **TODO remove
 LayerObject.prototype.__handle_point_start = function(in_event)

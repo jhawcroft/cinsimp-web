@@ -90,6 +90,7 @@ Util.classInheritsFrom = function( in_subclass, in_superclass )
 
 Util.color_to_css = function(in_color)
 {
+	if (in_color === null || in_color == '') return 'transparent';
 	var components = [in_color[0] * 255, in_color[1] * 255, in_color[2] * 255];
 	return 'rgb(' + components.join(',') + ')';
 }

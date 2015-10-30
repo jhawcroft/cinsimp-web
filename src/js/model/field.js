@@ -107,43 +107,26 @@ Field.prototype.create_dom = function(in_view)
 
 Field.prototype._dom_rebuild = function()
 {
-
+	this._div.style.border = (this.get_attr('border') ? '1px solid black' : '');
+	this._div.style.backgroundColor = Util.color_to_css(this.get_attr('border'));
+	this._div.style.boxShadow = (this.get_attr('shadow') ? '2px 2px 2px 2px rgba(0,0,0,0.75)' : '');
+	
+	this._inner.style.overflowY = (this.get_attr('scroll') ? 'scroll' : 'hidden');
+	this._inner.style.padding = (this.get_attr('wide_margins') ? '10px' : '0px');
+	this._inner.style.whiteSpace = (this.get_attr('dont_wrap') ? 'nowrap' : 'normal');
+	
+	this._apply_text_attrs(this._inner);
 }
 
-
-// **TODO** simplify this - just build the thing each time an attribute changes
-// and possibly prior to display, ie. have an idle event for the view
-// which discovers dirty stuff? or a needs display = true?
 
 Field.prototype._attribute_written = function(in_attr, in_value)
 {
 	switch (in_attr)
 	{
-	case 'border':
-		this._div.style.border = (in_value ? '1px solid black' : '');
-		break;
-	case 'color':
-		this._div.style.backgroundColor = (in_value ? Util.color_to_css(in_value) : 'transparent');
-		break;
-	case 'shadow':
-		this._div.style.boxShadow = (in_value ? '2px 2px 2px 2px rgba(0,0,0,0.75)' : '');
-		break;
-	case 'scroll':
-		this._inner.style.overflowY = (in_value ? 'scroll' : 'hidden');
-		break;
-	case 'wide_margins':
-		this._inner.style.padding = (in_value ? '10px' : '0px');
-		break;
-	case 'dont_wrap':
-		this._inner.style.whiteSpace = (in_value ? 'nowrap' : 'normal');
-		break;
-		
 	case 'content':
 		if (this._div) this._inner.innerHTML = in_value;
 		break;
 	}
-	
-	this.apply_text_attrs(this._inner, in_attr, in_value);
 }
 
 
