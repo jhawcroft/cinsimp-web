@@ -40,89 +40,119 @@ CinsImp.Model = CinsImp.Model || {};
 var Model = CinsImp.Model;
 
 
-Model.Field = function(in_view, in_def, in_bkgnd) 
+
+/*****************************************************************************************
+Construction, Defaults and Serialisation
+*/
+
+Model.Field = function(in_def, in_layer) 
 {
 	/* create the object */
-	LayerObject.call(this, LayerObject.TYPE_FIELD, in_view, in_bkgnd);
+	LayerObject.call(this, in_def, in_layer);
+	this._data = 
+	{
+		'content': ''
+	};
 	
-	this._div.classList.add('fld');
-	
-	this._inner = document.createElement('div');
-	this._div.appendChild(this._inner);
-	this._inner.style.boxSizing = 'border-box';
-	//this._inner.style.border = '1px dotted red';
-	
-	this._num_tag = document.createElement('div');
-	this._num_tag.className = 'NumTag';
-	this._view._container.appendChild(this._num_tag);
-	
-	/* set defaults */
+	/* init defaults */
 	if (!in_def)
 	{
+		Util.array_apply(this._def, 
+		{
+			'border': true,
+			'shadow': false,
+			'scroll': false,
+			'locked': false,
+			'dont_wrap': false,
+			'auto_tab': false,
+			'wide_margins': false,
+			'auto_select': false,
+			'selection': '',
+			'picklist': '',
+		
+			'content': ''
+		});
 		this.set_size([200, 85]);
-		this.set_attr(LayerObject.ATTR_COLOR, [1,1,1]);
-		this.set_attr(LayerObject.ATTR_SHADOW, false);
-		
-		this.set_attr(Field.ATTR_BORDER, true);
-		this.set_attr(Field.ATTR_SCROLL, false);
-		this.set_attr(Field.ATTR_LOCKED, false);
-		
-		this.set_attr(Field.ATTR_DONT_WRAP, false);
-		this.set_attr(Field.ATTR_FIXED_LINES, false);
-		this.set_attr(Field.ATTR_AUTO_TAB, false);
-		this.set_attr(Field.ATTR_WIDE_MARGINS, false);
-		this.set_attr(Field.ATTR_SHOW_LINES, false);
-		this.set_attr(Field.ATTR_AUTO_SELECT, false);
-		this.set_attr(Field.ATTR_FIRST_SELECTED, -1);
-		this.set_attr(Field.ATTR_LAST_SELECTED, -1);
-		
-		this.set_attr(Field.ATTR_PICKLIST, '');
 	}
-	else
-		this.set_def(in_def);
-	
-	/* complete configuration */
-	this._reconfigure();
 }
 var Field = Model.Field;
 Util.classInheritsFrom(Field, Model.LayerObject);
+Field.TYPE = 'field';
 
 
 Field.prototype.get_type = function()
 {
 	return Field.TYPE;
 }
-Field.TYPE = 'field';
-
-
-Field.ATTR_BORDER = 1;
-Field.ATTR_SCROLL = 2;
-Field.ATTR_LOCKED = 3;
-Field.ATTR_DONT_WRAP = 4;
-Field.ATTR_FIXED_LINES = 5;
-Field.ATTR_AUTO_TAB = 6;
-Field.ATTR_WIDE_MARGINS = 7;
-Field.ATTR_SHOW_LINES = 8;
-Field.ATTR_AUTO_SELECT = 9;
-Field.ATTR_FIRST_SELECTED = 10;
-Field.ATTR_LAST_SELECTED = 11;
-Field.ATTR_PICKLIST = 12;
 
 
 
-Field.prototype._get_raw_content = function()
+/*****************************************************************************************
+DOM View
+*/
+
+LayerObject.create_dom = function(in_view)
 {
-	return this._inner.innerHTML;
+	this.parent.create_dom.call(this, in_view);
+	
+	this._div.classList.add('fld');
+	
+	this._inner = document.createElement('div');
+	this._div.appendChild(this._inner);
+	this._inner.style.boxSizing = 'border-box';
 }
 
 
-Field.prototype._set_raw_content = function(in_content)
+// **TODO** simplify this - just build the thing each time an attribute changes
+// and possibly prior to display, ie. have an idle event for the view
+// which discovers dirty stuff? or a needs display = true?
+
+Field.prototype._attribute_written = function(in_attr, in_value)
 {
-	this._inner.innerHTML = in_content;
+	switch (in_attr)
+	{
+	case 'border':
+		this._div.style.border = (in_value ? '1px solid black' : '');
+		break;
+	case 'color':
+		this._div.style.backgroundColor = (in_value ? Util.color_to_css(in_value) : 'transparent');
+		break;
+	case 'shadow':
+		this._div.style.boxShadow = (in_value ? '2px 2px 2px 2px rgba(0,0,0,0.75)' : '');
+		break;
+	case 'scroll':
+		this._inner.style.overflowY = (in_value ? 'scroll' : 'hidden');
+		break;
+	case 'wide_margins':
+		this._inner.style.padding = (in_value ? '10px' : '0px');
+		break;
+	case 'dont_wrap':
+		this._inner.style.whiteSpace = (in_value ? 'nowrap' : 'normal');
+		break;
+		
+	case 'content':
+		if (this._div) this._inner.innerHTML = in_value;
+		break;
+	}
+	
+	this.apply_text_attrs(this._inner, in_attr, in_value);
 }
 
 
-Field.prototype._display_changed = function(in_author, in_edit)
+Field.prototype._attribute_reading = function(in_attr)
+{
+	if (this._div && in_attr == 'content')
+		this.set_attr(in_attr, this._inner.innerHTML);
+}
+
+
+
+/*****************************************************************************************
+DOM Interaction, Events
+*/
+
+
+Field.prototype.set_dom_editability = function(in_edit)
 {
 	var editable = (in_edit && (!this._attrs[Field.ATTR_LOCKED]));
 	if (this._is_bkgnd)
@@ -154,32 +184,6 @@ Field.prototype._display_changed = function(in_author, in_edit)
 }
 
 
-Field.prototype._attribute_changed = function(in_attr, in_value)
-{
-	switch (in_attr)
-	{
-	case Field.ATTR_BORDER:
-		this._div.style.border = (in_value ? '1px solid black' : '');
-		break;
-	case LayerObject.ATTR_COLOR:
-		this._div.style.backgroundColor = (in_value ? Util.color_to_css(in_value) : 'transparent');
-		break;
-	case LayerObject.ATTR_SHADOW:
-		this._div.style.boxShadow = (in_value ? '2px 2px 2px 2px rgba(0,0,0,0.75)' : '');
-		break;
-	case Field.ATTR_SCROLL:
-		this._inner.style.overflowY = (in_value ? 'scroll' : 'hidden');
-		break;
-	case Field.ATTR_WIDE_MARGINS:
-		this._inner.style.padding = (in_value ? '10px' : '0px');
-		break;
-	case Field.ATTR_DONT_WRAP:
-		this._inner.style.whiteSpace = (in_value ? 'nowrap' : 'normal');
-		break;
-	}
-	
-	this.apply_text_attrs(this._inner, in_attr, in_value);
-}
 
 
 CinsImp._script_loaded('Model.Field');

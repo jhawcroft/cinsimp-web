@@ -48,6 +48,10 @@ Model.Button = function(in_def, in_layer)
 {
 	/* create the object */
 	LayerObject.call(this, in_def, in_layer);
+	this._data = 
+	{
+		'hilite': false
+	};
 	
 	/* init defaults */
 	if (!in_def)
@@ -57,6 +61,7 @@ Model.Button = function(in_def, in_layer)
 			'name': 'New Button',
 			'script': 'on mouseup\r  \rend mouseup',
 			'style': 'rounded',
+			'shadow': true,
 			'family': 0,
 			'menu': '',
 			'icon': 0,
@@ -108,6 +113,10 @@ LayerObject.create_dom = function(in_view)
 	this._drop_arrow = null;
 }
 
+
+// **TODO** simplify this - just build the thing each time an attribute changes
+// and possibly prior to display, ie. have an idle event for the view
+// which discovers dirty stuff? or a needs display = true?
 
 Button.prototype._display_name_and_icon = function()
 {
@@ -171,7 +180,7 @@ Button.prototype._display_name_and_icon = function()
 }
 
 
-Button.prototype._attribute_changed = function(in_attr, in_value)
+Button.prototype._attribute_written = function(in_attr, in_value)
 {
 	switch (in_attr)
 	{
@@ -307,6 +316,12 @@ Button.prototype._attribute_changed = function(in_attr, in_value)
 }
 
 
+Button.prototype.set_dom_editability = function(in_edit)
+{
+	this._div.classList.toggle('Editable', in_edit);
+}
+
+
 
 /*****************************************************************************************
 DOM Interaction, Events
@@ -366,11 +381,6 @@ Button.prototype._auto_hilite = function(in_down)
 	}
 }
 
-
-Button.prototype.set_dom_editability = function(in_edit)
-{
-	this._div.classList.toggle('Editable', in_edit);
-}
 
 
 

@@ -235,28 +235,20 @@ LayerObject.prototype._handle_resize_start = function(in_event)
 Attribute Mutation/Access
 */
 
-
-// so if the object is on a background layer
-// then the data these modify will be explicitly adjusted by specific attributes:
-// content and hilite specifically in the subclasses.
-
-// it is the responsibility of each subclass to set/get an attribute value from
-// this._data instead of this._def based on the state of get_attr('shared').
-
-// in those cases, the object will have a card and a background value for the
-// same attribute.
-
-
 LayerObject.prototype.set_card_data = function(in_data)
 {
-	this._data = in_data;
+	for (attr in this._data)
+	{
+		if (in_data.hasOwnProperty(attr))
+			this._data[attr] = in_data[attr];
+	}
 }
 
 
 LayerObject.prototype.get_card_data = function()
 {
-	if (this._data !== undefined) return this._data;
-	else return null;
+	if (this._data === undefined) return null;
+	return this._data;
 }
 
 
@@ -327,6 +319,9 @@ LayerObject.prototype.get_rect = function()
 }
 
 
+LayerObject.prototype._attribute_written = function() {}
+
+
 LayerObject.prototype.set_attr = function(in_attr, in_value)
 {
 	if (in_attr == 'loc') return this.set_loc(in_value.split(','));
@@ -336,14 +331,21 @@ LayerObject.prototype.set_attr = function(in_attr, in_value)
 	switch (in_attr)
 	{
 	case '':
-		this._def[in_attr] = in_value;
+		if (in_attr in this._data && (!this._def['shared']))
+			this._data[in_attr] = in_value;
+		else
+			this._def[in_attr] = in_value;
 		break;
 	default:
 		throw new Error(this.get_type() + ' has no writable attribute "' + in_attr + '"');
 	}
 	
-	this._attribute_changed(in_attr, in_value);
+	if (LayerObject._no_write_note !== true)
+		this._attribute_written(in_attr, in_value);
 }
+
+
+LayerObject.prototype._attribute_reading = function() {}
 
 
 LayerObject.prototype.get_attr = function(in_attr, in_fmt)
@@ -356,10 +358,16 @@ LayerObject.prototype.get_attr = function(in_attr, in_fmt)
 	if (!(in_attr in this._def))
 		throw new Error(this.get_type() + ' has no readable attribute "' + in_attr + '"');
 	
+	LayerObject._no_write_note = true;
+	try { this._attribute_reading(in_attr); }
+	catch (err) {}
+	LayerObject._no_write_note = false;
+	
 	var value = null;
-	value = this._def[in_attr];
-	
-	
+	if (in_attr in this._data && (!this._def['shared']))
+		value = this._data[in_attr];
+	else
+		value = this._def[in_attr];
 	
 	return value;
 }
