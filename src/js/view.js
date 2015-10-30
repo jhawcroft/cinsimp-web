@@ -339,72 +339,72 @@ View.prototype._guide_drag_layer = function(in_context, in_object, in_rect, in_l
 		var obj = in_layer[o];
 		if (obj == in_object) continue;
 		
-		var deltaT = Math.abs(obj._loc[1] - in_rect[1]);
-		var deltaB = Math.abs(obj._rb[1] - in_rect[1]);
-		var deltaL = Math.abs(obj._loc[0] - in_rect[0]);
-		var deltaR = Math.abs(obj._rb[0] - in_rect[0]);
+		var deltaT = Math.abs(obj._position[1] - in_rect[1]);
+		var deltaB = Math.abs(obj._position[3] - in_rect[1]);
+		var deltaL = Math.abs(obj._position[0] - in_rect[0]);
+		var deltaR = Math.abs(obj._position[2] - in_rect[0]);
 		
 		if (deltaT < in_context.objYDelta)
 		{
 			in_context.objYDelta = deltaT;
 			in_context.objY = obj;
-			in_context.objYCoord = obj._loc[1];
+			in_context.objYCoord = obj._position[1];
 			in_context.alignY = 0;
 		}
 		if (deltaB < in_context.objYDelta)
 		{
 			in_context.objYDelta = deltaB;
 			in_context.objY = obj;
-			in_context.objYCoord = obj._rb[1];
+			in_context.objYCoord = obj._position[3];
 			in_context.alignY = 0;
 		}
 		if (deltaL < in_context.objXDelta)
 		{
 			in_context.objXDelta = deltaL;
 			in_context.objX = obj;
-			in_context.objXCoord = obj._loc[0];
+			in_context.objXCoord = obj._position[0];
 			in_context.alignX = 0;
 		}
 		if (deltaR < in_context.objXDelta)
 		{
 			in_context.objXDelta = deltaR;
 			in_context.objX = obj;
-			in_context.objXCoord = obj._rb[0];
+			in_context.objXCoord = obj._position[2];
 			in_context.alignX = 0;
 		}
 		
 		if (no_size) continue;
-		var deltaT = Math.abs(obj._loc[1] - in_rect[3]);
-		var deltaB = Math.abs(obj._rb[1] - in_rect[3]);
-		var deltaL = Math.abs(obj._loc[0] - in_rect[2]);
-		var deltaR = Math.abs(obj._rb[0] - in_rect[2]);
+		var deltaT = Math.abs(obj._position[1] - in_rect[3]);
+		var deltaB = Math.abs(obj._position[3] - in_rect[3]);
+		var deltaL = Math.abs(obj._position[0] - in_rect[2]);
+		var deltaR = Math.abs(obj._position[2] - in_rect[2]);
 		
 		if (deltaT < in_context.objYDelta)
 		{
 			in_context.objYDelta = deltaT;
 			in_context.objY = obj;
-			in_context.objYCoord = obj._loc[1];
+			in_context.objYCoord = obj._position[1];
 			in_context.alignY = 1;
 		}
 		if (deltaB < in_context.objYDelta)
 		{
 			in_context.objYDelta = deltaB;
 			in_context.objY = obj;
-			in_context.objYCoord = obj._rb[1];
+			in_context.objYCoord = obj._position[3];
 			in_context.alignY = 1;
 		}
 		if (deltaL < in_context.objXDelta)
 		{
 			in_context.objXDelta = deltaL;
 			in_context.objX = obj;
-			in_context.objXCoord = obj._loc[0];
+			in_context.objXCoord = obj._position[0];
 			in_context.alignX = 1;
 		}
 		if (deltaR < in_context.objXDelta)
 		{
 			in_context.objXDelta = deltaR;
 			in_context.objX = obj;
-			in_context.objXCoord = obj._rb[0];
+			in_context.objXCoord = obj._position[2];
 			in_context.alignX = 1;
 		}
 	}
@@ -428,7 +428,7 @@ View.prototype._guide_drag = function(in_object, in_loc, no_size, out_snapped)
 	};
 	
 	var proposed_rect = [in_loc[0], in_loc[1], 
-		in_loc[0] + in_object._size[0], in_loc[1] + in_object._size[1]];
+		in_loc[0] + in_object._position[4], in_loc[1] + in_object._position[5]];
 	
 	this._guide_drag_layer(context, in_object, proposed_rect, this._objects_card, no_size);
 	this._guide_drag_layer(context, in_object, proposed_rect, this._objects_bkgnd, no_size);
@@ -436,14 +436,14 @@ View.prototype._guide_drag = function(in_object, in_loc, no_size, out_snapped)
 	if (context.objY != null && context.objYDelta <= THRESHOLD)
 	{
 		in_loc[1] = context.objYCoord;
-		if (context.alignY != 0) in_loc[1] -= in_object._size[1];
+		if (context.alignY != 0) in_loc[1] -= in_object._position[5];
 		out_snapped[1] = (context.alignY == 0 ? -1 : 1);
 	}
 	else out_snapped[1] = 0;
 	if (context.objX != null && context.objXDelta <= THRESHOLD)
 	{
 		in_loc[0] = context.objXCoord;
-		if (context.alignX != 0) in_loc[0] -= in_object._size[0];
+		if (context.alignX != 0) in_loc[0] -= in_object._position[4];
 		out_snapped[0] = (context.alignX == 0 ? -1 : 1);
 	}
 	else out_snapped[0] = 0;

@@ -287,11 +287,33 @@ LayerObject.prototype.get_card_data = function()
 
 LayerObject.prototype._resized = function()
 {
+	if (this._div)
+	{
+		Util.set_dom_loc(this._div, this.get_loc());
+		Util.set_dom_size(this._div, this.get_size());
+		if (this._inner) Util.set_dom_size(this._inner, this.get_size());
+	}
+	
 	if (this._selection)
 	{
 		Util.set_dom_loc(this._selection, this.get_loc());
 		Util.set_dom_size(this._selection, this.get_size());
 	}
+}
+
+
+
+
+
+LayerObject.prototype._move_start = function(in_event)
+{
+	Util.update_modifiers(in_event);
+	this._view._author_point_start(this, 
+		[(in_event.pageX || in_event.touches[0].pageX), 
+		(in_event.pageY || in_event.touches[0].pageY)]);
+	
+	in_event.preventDefault();
+	in_event.stopPropagation();
 }
 
 
@@ -308,6 +330,14 @@ LayerObject.prototype._set_selected = function(in_selected)
 		this._selection.style.display = 'block';
 		this._selection.style.position = 'absolute';
 		this._selection.style.border = '3px solid blue';
+		
+		//this._drag_handle.addEventListener('mousedown', this._handle_resize_start.bind(this));
+		//this._drag_handle.addEventListener('touchstart', this._handle_resize_start.bind(this));
+		this._selection.addEventListener('mousedown', this._move_start.bind(this));
+		this._selection.addEventListener('touchstart', this._move_start.bind(this));
+		
+		this._resized();
+		
 		this._div.parentElement.appendChild(this._selection);
 	}
 }
@@ -322,11 +352,7 @@ LayerObject.prototype.set_size = function(in_size)
 	this._position[3] = Math.round(this._position[1] + this._position[5]);
 	
 	/* resize the container div(s) */
-	if (this._div)
-	{
-		Util.set_dom_size(this._div, this.get_size());
-		if (this._inner) Util.set_dom_size(this._inner, this.get_size());
-	}
+	this._resized();
 }
 
 
@@ -345,7 +371,7 @@ LayerObject.prototype.set_loc = function(in_loc)
 	this._position[3] = Math.round(this._position[1] + this._position[5]);
 	
 	/* move the container div(s) */
-	if (this._div) Util.set_dom_loc(this._div, this.get_loc());
+	this._resized();
 }
 
 
@@ -366,12 +392,7 @@ LayerObject.prototype.set_rect = function(in_rect)
 	this._position[5] = Math.round(in_rect[3] - in_rect[1]);
 	
 	/* reposition the container div(s) */
-	if (this._div)
-	{
-		Util.set_dom_loc(this._div, this.get_loc());
-		Util.set_dom_size(this._div, this.get_size());
-		if (this._inner) Util.set_dom_size(this._inner, this.get_size());
-	}
+	this._resized();
 }
 
 
