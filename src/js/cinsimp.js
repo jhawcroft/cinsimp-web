@@ -185,8 +185,8 @@ var CinsImp = {
 */
 	_init4: function()
 	{
-		this.load_script('field.js');//
-		this.load_script('button.js');//
+		this.load_script('model/field.js');//
+		this.load_script('model/button.js');//
 		
 		this.load_script('task-scripter.js');//
 		this.load_script('app-dialogs.js');
@@ -225,7 +225,7 @@ var CinsImp = {
 		/* the stack view and authoring: */
 		this.load_stylesheet('objects.css');
 		
-		this.load_script('object.js');//
+		this.load_script('model/layer-object.js');//
 		this.load_script('view.js');//
 		
 		/* the paint sub-system: */

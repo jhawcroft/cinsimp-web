@@ -586,42 +586,42 @@ View.prototype._renumber_objects = function()
 	for (var o = 0; o < this._objects_bkgnd.length; o++)
 	{
 		var obj = this._objects_bkgnd[o];
-		obj.set_attr(ViewObject.ATTR_PART_NUM, o + 1);
+		obj.set_attr(LayerObject.ATTR_PART_NUM, o + 1);
 		if (obj.get_type() == Button.TYPE)
-			obj.set_attr(ViewObject.ATTR_KLAS_NUM, btn_num ++);
+			obj.set_attr(LayerObject.ATTR_KLAS_NUM, btn_num ++);
 		else
-			obj.set_attr(ViewObject.ATTR_KLAS_NUM, fld_num ++);
+			obj.set_attr(LayerObject.ATTR_KLAS_NUM, fld_num ++);
 	}
 	var btn_num = 1;
 	var fld_num = 1;
 	for (var o = 0; o < this._objects_card.length; o++)
 	{
 		var obj = this._objects_card[o];
-		obj.set_attr(ViewObject.ATTR_PART_NUM, o + 1);
+		obj.set_attr(LayerObject.ATTR_PART_NUM, o + 1);
 		if (obj.get_type() == Button.TYPE)
-			obj.set_attr(ViewObject.ATTR_KLAS_NUM, btn_num ++);
+			obj.set_attr(LayerObject.ATTR_KLAS_NUM, btn_num ++);
 		else
-			obj.set_attr(ViewObject.ATTR_KLAS_NUM, fld_num ++);
+			obj.set_attr(LayerObject.ATTR_KLAS_NUM, fld_num ++);
 	}
 }
 
 
 View.prototype._add_object = function(in_object)
 {
-	var existing_id = in_object.get_attr(ViewObject.ATTR_ID);
+	var existing_id = in_object.get_attr(LayerObject.ATTR_ID);
 	if (existing_id >= this._next_id)
 		this._next_id = existing_id + 1;
 		
 	if (!this._edit_bkgnd) 
 	{
-		in_object.set_attr(ViewObject.ATTR_PART_NUM, this._objects_card.length + 1);
+		in_object.set_attr(LayerObject.ATTR_PART_NUM, this._objects_card.length + 1);
 		in_object._is_bkgnd = false;
 		this._objects_card.push(in_object);
 		this._layer_obj_card.appendChild(in_object._div);
 	}
 	else 
 	{
-		in_object.set_attr(ViewObject.ATTR_PART_NUM, this._objects_bkgnd.length + 1);
+		in_object.set_attr(LayerObject.ATTR_PART_NUM, this._objects_bkgnd.length + 1);
 		in_object._is_bkgnd = true;
 		this._objects_bkgnd.push(in_object);
 		this._layer_obj_card.appendChild(in_object._div);
@@ -694,12 +694,12 @@ View.prototype._keep_content = function() // need to replace this for resequenci
 	/* dump the card content */
 	/*var card_data = new Array(this._objects_card.length + this._objects_bkgnd.length);
 	for (var o = 0; o < this._objects_card.length; o++)
-		card_data[o] = [this._objects_card[o]._attrs[ViewObject.ATTR_ID],
-						this._objects_card[o].get_attr(ViewObject.ATTR_CONTENT)];
+		card_data[o] = [this._objects_card[o]._attrs[LayerObject.ATTR_ID],
+						this._objects_card[o].get_attr(LayerObject.ATTR_CONTENT)];
 	var offset = this._objects_card.length;
 	for (var o = 0; o < this._objects_bkgnd.length; o++)
-		card_data[o + offset] = [this._objects_bkgnd[o]._attrs[ViewObject.ATTR_ID], 
-								this._objects_bkgnd[o].get_attr(ViewObject.ATTR_CONTENT)];
+		card_data[o + offset] = [this._objects_bkgnd[o]._attrs[LayerObject.ATTR_ID], 
+								this._objects_bkgnd[o].get_attr(LayerObject.ATTR_CONTENT)];
 	this._card.content = card_data;*/
 	
 	
@@ -710,15 +710,15 @@ View.prototype._keep_content = function() // need to replace this for resequenci
 	for (var o = 0; o < this._objects_bkgnd.length; o++)
 	{
 		var obj = this._objects_bkgnd[o];
-		if (obj.get_attr(ViewObject.ATTR_SHARED)) continue;
+		if (obj.get_attr(LayerObject.ATTR_SHARED)) continue;
 		
 		if (obj.get_type() == Button.TYPE)
-			var data = [obj.get_attr(ViewObject.ATTR_ID),
-				obj.get_attr(ViewObject.ATTR_CONTENT),
+			var data = [obj.get_attr(LayerObject.ATTR_ID),
+				obj.get_attr(LayerObject.ATTR_CONTENT),
 				obj.get_attr(Button.ATTR_HILITE)];
 		else
-			var data = [obj.get_attr(ViewObject.ATTR_ID),
-				obj.get_attr(ViewObject.ATTR_CONTENT)];
+			var data = [obj.get_attr(LayerObject.ATTR_ID),
+				obj.get_attr(LayerObject.ATTR_CONTENT)];
 			
 		objects.push(data);
 	}
@@ -744,15 +744,15 @@ View.prototype._save_defs_n_content = function()
 	for (var o = 0; o < this._objects_bkgnd.length; o++)
 	{
 		var obj = this._objects_bkgnd[o];
-		if (obj.get_attr(ViewObject.ATTR_SHARED)) continue;
+		if (obj.get_attr(LayerObject.ATTR_SHARED)) continue;
 		
 		if (obj.get_type() == Button.TYPE)
-			var data = [obj.get_attr(ViewObject.ATTR_ID),
-				obj.get_attr(ViewObject.ATTR_CONTENT),
+			var data = [obj.get_attr(LayerObject.ATTR_ID),
+				obj.get_attr(LayerObject.ATTR_CONTENT),
 				obj.get_attr(Button.ATTR_HILITE)];
 		else
-			var data = [obj.get_attr(ViewObject.ATTR_ID),
-				obj.get_attr(ViewObject.ATTR_CONTENT)];
+			var data = [obj.get_attr(LayerObject.ATTR_ID),
+				obj.get_attr(LayerObject.ATTR_CONTENT)];
 			
 		objects.push(data);
 	}
@@ -792,11 +792,11 @@ View.prototype._save_card = function(in_handler)
 
 View.prototype._resurect = function(in_def, in_bkgnd)
 {
-	var id = in_def[ViewObject.ATTR_ID] * 1;
+	var id = in_def[LayerObject.ATTR_ID] * 1;
 	if (id >= this._next_id) this._next_id = id + 1;
 		
 	var obj = null;
-	if (in_def[ViewObject.ATTR_TYPE] == ViewObject.TYPE_BUTTON)
+	if (in_def[LayerObject.ATTR_TYPE] == LayerObject.TYPE_BUTTON)
 		obj = new Button(this, in_def, in_bkgnd);
 	else
 		obj = new Field(this, in_def, in_bkgnd);
@@ -915,9 +915,9 @@ View.prototype._rebuild_card = function() // will have to do separate load objec
 		{
 			var data = this._card.content[o];
 			if (o >= offset)
-				this._objects_bkgnd[o - offset].set_attr(ViewObject.ATTR_CONTENT, data[1]);
+				this._objects_bkgnd[o - offset].set_attr(LayerObject.ATTR_CONTENT, data[1]);
 			else
-				this._objects_card[o].set_attr(ViewObject.ATTR_CONTENT, data[1]);
+				this._objects_card[o].set_attr(LayerObject.ATTR_CONTENT, data[1]);
 		}
 	}
 	catch (e) {}*/
@@ -932,7 +932,7 @@ View.prototype._rebuild_card = function() // will have to do separate load objec
 			var obj = this._lookup_bkgnd_part_by_id(data[0]);
 			if (obj) 
 			{
-				obj.set_attr(ViewObject.ATTR_CONTENT, data[1]);
+				obj.set_attr(LayerObject.ATTR_CONTENT, data[1]);
 				if (data.length == 3)
 					obj.set_attr(Button.ATTR_HILITE, data[2]);
 			}
@@ -959,7 +959,7 @@ View.prototype._lookup_bkgnd_part_by_id = function(in_part_id)
 	for (var o = 0; o < this._objects_bkgnd.length; o++)
 	{
 		var obj = this._objects_bkgnd[o];
-		if (obj.get_attr(ViewObject.ATTR_ID) == in_part_id)
+		if (obj.get_attr(LayerObject.ATTR_ID) == in_part_id)
 			return obj;
 	}
 	return null;
@@ -1150,11 +1150,11 @@ View.prototype._do_button_info = function()
 	var obj = this._selected_objects[0];
 	Application._objects = this._selected_objects;
 	
-	document.getElementById('ButtonInfoName').value = obj.get_attr(ViewObject.ATTR_NAME);
+	document.getElementById('ButtonInfoName').value = obj.get_attr(LayerObject.ATTR_NAME);
 	document.getElementById('ButtonInfoNumber').textContent = 
-		(obj._is_bkgnd ? 'Bkgnd' : 'Card') + ' button number: ' + obj.get_attr(ViewObject.ATTR_KLAS_NUM);
+		(obj._is_bkgnd ? 'Bkgnd' : 'Card') + ' button number: ' + obj.get_attr(LayerObject.ATTR_KLAS_NUM);
 	document.getElementById('ButtonInfoID').textContent = 
-		(obj._is_bkgnd ? 'Bkgnd' : 'Card') + ' button ID: ' + obj.get_attr(ViewObject.ATTR_ID);
+		(obj._is_bkgnd ? 'Bkgnd' : 'Card') + ' button ID: ' + obj.get_attr(LayerObject.ATTR_ID);
 		
 	switch (obj.get_attr(Button.ATTR_STYLE))
 	{
@@ -1176,14 +1176,14 @@ View.prototype._do_button_info = function()
 		break;
 	}
 	
-	document.getElementById('ButtonInfoShadow').checked = obj.get_attr(ViewObject.ATTR_SHADOW);
-	document.getElementById('ButtonInfoOpaque').checked = (obj.get_attr(ViewObject.ATTR_COLOR) != null);
+	document.getElementById('ButtonInfoShadow').checked = obj.get_attr(LayerObject.ATTR_SHADOW);
+	document.getElementById('ButtonInfoOpaque').checked = (obj.get_attr(LayerObject.ATTR_COLOR) != null);
 	document.getElementById('ButtonInfoShowName').checked = obj.get_attr(Button.ATTR_SHOW_NAME);
 	
 	document.getElementById('ButtonInfoAutoHilite').checked = obj.get_attr(Button.ATTR_AUTO_HILITE);
 	
 	document.getElementById('ButtonInfoBkgndOnly').style.visibility = (obj._is_bkgnd ? 'visible' : 'hidden');
-	document.getElementById('ButtonInfoShared').checked = obj.get_attr(ViewObject.ATTR_SHARED);	
+	document.getElementById('ButtonInfoShared').checked = obj.get_attr(LayerObject.ATTR_SHARED);	
 		
 	Dialog.ButtonInfo.show();
 }
@@ -1193,14 +1193,14 @@ View.prototype._save_button_info = function()
 {
 	var obj = this._selected_objects[0];
 	
-	obj.set_attr(ViewObject.ATTR_NAME, document.getElementById('ButtonInfoName').value);
+	obj.set_attr(LayerObject.ATTR_NAME, document.getElementById('ButtonInfoName').value);
 	
-	obj.set_attr(ViewObject.ATTR_SHADOW, document.getElementById('ButtonInfoShadow').checked);
-	obj.set_attr(ViewObject.ATTR_COLOR, (document.getElementById('ButtonInfoOpaque').checked ? [1,1,1] : null));
+	obj.set_attr(LayerObject.ATTR_SHADOW, document.getElementById('ButtonInfoShadow').checked);
+	obj.set_attr(LayerObject.ATTR_COLOR, (document.getElementById('ButtonInfoOpaque').checked ? [1,1,1] : null));
 	obj.set_attr(Button.ATTR_SHOW_NAME, document.getElementById('ButtonInfoShowName').checked);
 	
 	obj.set_attr(Button.ATTR_AUTO_HILITE, document.getElementById('ButtonInfoAutoHilite').checked);
-	obj.set_attr(ViewObject.ATTR_SHARED, document.getElementById('ButtonInfoShared').checked);
+	obj.set_attr(LayerObject.ATTR_SHARED, document.getElementById('ButtonInfoShared').checked);
 	
 	if (document.getElementById('ButtonInfoType1').checked)
 		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_BORDERLESS);
@@ -1222,15 +1222,15 @@ View.prototype._do_field_info = function()
 	var obj = this._selected_objects[0];
 	Application._objects = this._selected_objects;
 	
-	document.getElementById('FieldInfoName').value = obj.get_attr(ViewObject.ATTR_NAME);
+	document.getElementById('FieldInfoName').value = obj.get_attr(LayerObject.ATTR_NAME);
 	document.getElementById('FieldInfoNumber').textContent = 
-		(obj._is_bkgnd ? 'Bkgnd' : 'Card') + ' field number: ' + obj.get_attr(ViewObject.ATTR_KLAS_NUM);
+		(obj._is_bkgnd ? 'Bkgnd' : 'Card') + ' field number: ' + obj.get_attr(LayerObject.ATTR_KLAS_NUM);
 	document.getElementById('FieldInfoID').textContent = 
-		(obj._is_bkgnd ? 'Bkgnd' : 'Card') + ' field ID: ' + obj.get_attr(ViewObject.ATTR_ID);
+		(obj._is_bkgnd ? 'Bkgnd' : 'Card') + ' field ID: ' + obj.get_attr(LayerObject.ATTR_ID);
 	
 	document.getElementById('FieldInfoBorder').checked = obj.get_attr(Field.ATTR_BORDER);
-	document.getElementById('FieldInfoShadow').checked = obj.get_attr(ViewObject.ATTR_SHADOW);
-	document.getElementById('FieldInfoOpaque').checked = (obj.get_attr(ViewObject.ATTR_COLOR) != null);
+	document.getElementById('FieldInfoShadow').checked = obj.get_attr(LayerObject.ATTR_SHADOW);
+	document.getElementById('FieldInfoOpaque').checked = (obj.get_attr(LayerObject.ATTR_COLOR) != null);
 	document.getElementById('FieldInfoScrolling').checked = obj.get_attr(Field.ATTR_SCROLL);
 	
 	document.getElementById('FieldInfoShowLines').checked = obj.get_attr(Field.ATTR_SHOW_LINES);
@@ -1240,8 +1240,8 @@ View.prototype._do_field_info = function()
 	document.getElementById('FieldInfoAutoTab').checked = obj.get_attr(Field.ATTR_AUTO_TAB);
 
 	document.getElementById('FieldInfoBkgndOnly').style.visibility = (obj._is_bkgnd ? 'visible' : 'hidden');
-	document.getElementById('FieldInfoShared').checked = obj.get_attr(ViewObject.ATTR_SHARED);
-	document.getElementById('FieldInfoDontSearch').checked = ! obj.get_attr(ViewObject.ATTR_SEARCHABLE);
+	document.getElementById('FieldInfoShared').checked = obj.get_attr(LayerObject.ATTR_SHARED);
+	document.getElementById('FieldInfoDontSearch').checked = ! obj.get_attr(LayerObject.ATTR_SEARCHABLE);
 	
 	document.getElementById('FieldInfoAutoSelect').checked = obj.get_attr(Field.ATTR_AUTO_SELECT);
 	document.getElementById('FieldInfoMultipleLines').checked = obj.get_attr(Field.ATTR_MULTIPLE_LINES);
@@ -1254,11 +1254,11 @@ View.prototype._save_field_info = function()
 {
 	var obj = this._selected_objects[0];
 	
-	obj.set_attr(ViewObject.ATTR_NAME, document.getElementById('FieldInfoName').value);
+	obj.set_attr(LayerObject.ATTR_NAME, document.getElementById('FieldInfoName').value);
 	
 	obj.set_attr(Field.ATTR_BORDER, document.getElementById('FieldInfoBorder').checked);
-	obj.set_attr(ViewObject.ATTR_SHADOW, document.getElementById('FieldInfoShadow').checked);
-	obj.set_attr(ViewObject.ATTR_COLOR, (document.getElementById('FieldInfoOpaque').checked ? [1,1,1] : null));
+	obj.set_attr(LayerObject.ATTR_SHADOW, document.getElementById('FieldInfoShadow').checked);
+	obj.set_attr(LayerObject.ATTR_COLOR, (document.getElementById('FieldInfoOpaque').checked ? [1,1,1] : null));
 	obj.set_attr(Field.ATTR_SCROLL, document.getElementById('FieldInfoScrolling').checked);
 	
 	obj.set_attr(Field.ATTR_SHOW_LINES, document.getElementById('FieldInfoShowLines').checked);
@@ -1267,8 +1267,8 @@ View.prototype._save_field_info = function()
 	obj.set_attr(Field.ATTR_DONT_WRAP, document.getElementById('FieldInfoDontWrap').checked);
 	obj.set_attr(Field.ATTR_AUTO_TAB, document.getElementById('FieldInfoAutoTab').checked);
 
-	obj.set_attr(ViewObject.ATTR_SHARED, document.getElementById('FieldInfoShared').checked);
-	obj.set_attr(ViewObject.ATTR_SEARCHABLE, ! document.getElementById('FieldInfoDontSearch').checked);
+	obj.set_attr(LayerObject.ATTR_SHARED, document.getElementById('FieldInfoShared').checked);
+	obj.set_attr(LayerObject.ATTR_SEARCHABLE, ! document.getElementById('FieldInfoDontSearch').checked);
 	
 	obj.set_attr(Field.ATTR_AUTO_SELECT, document.getElementById('FieldInfoAutoSelect').checked);
 	obj.set_attr(Field.ATTR_MULTIPLE_LINES, document.getElementById('FieldInfoMultipleLines').checked);
@@ -1356,14 +1356,14 @@ View.prototype._enumerate_in_sequence = function()
 	{
 		var obj = this._objects_bkgnd[o];
 		if (obj._selected)
-			bkgnd_list.push({ obj: obj, num: obj.get_attr(ViewObject.ATTR_PART_NUM), idx: o });
+			bkgnd_list.push({ obj: obj, num: obj.get_attr(LayerObject.ATTR_PART_NUM), idx: o });
 	}
 	var card_list = [];
 	for (var o = 0; o < this._objects_card.length; o++)
 	{
 		var obj = this._objects_card[o];
 		if (obj._selected)
-			card_list.push({ obj: obj, num: obj.get_attr(ViewObject.ATTR_PART_NUM), idx: o });
+			card_list.push({ obj: obj, num: obj.get_attr(LayerObject.ATTR_PART_NUM), idx: o });
 	}
 	return { card: card_list, bkgnd: bkgnd_list };
 }
@@ -1817,8 +1817,8 @@ View.do_edit_script = function(in_prior)
 	{
 		Dialog.ScriptEditor._object = view._selected_objects[0];
 		var obj = Dialog.ScriptEditor._object;
-		var id = obj.get_attr(ViewObject.ATTR_ID);
-		var name = obj.get_attr(ViewObject.ATTR_NAME);
+		var id = obj.get_attr(LayerObject.ATTR_ID);
+		var name = obj.get_attr(LayerObject.ATTR_NAME);
 		var layer = (obj._is_bkgnd ? 'background' : 'card');
 		
 		if (obj.get_type() == Button.TYPE)
@@ -1835,7 +1835,7 @@ View.do_edit_script = function(in_prior)
 				(name != '' ? ' "'+name+'"' : '');
 		}
 		
-		curr_script = obj.get_attr(ViewObject.ATTR_SCRIPT);
+		curr_script = obj.get_attr(LayerObject.ATTR_SCRIPT);
 		Dialog.ScriptEditor._edit_type = 'object';
 	}
 	else if (in_subject == View.CURRENT_STACK)

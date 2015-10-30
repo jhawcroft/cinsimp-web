@@ -34,8 +34,14 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+var CinsImp = CinsImp || {};
+CinsImp.Model = CinsImp.Model || {};
 
-function ViewObject(in_type, in_view, in_bkgnd) 
+var Model = CinsImp.Model;
+
+
+
+Model.LayerObject = function(in_type, in_view, in_bkgnd) 
 {
 	if (!in_view) return;
 	
@@ -54,69 +60,72 @@ function ViewObject(in_type, in_view, in_bkgnd)
 	this._attrs = {};
 	this._view = in_view;
 	
-	this._attrs[ViewObject.ATTR_TYPE] = in_type;
-	this._attrs[ViewObject.ATTR_ID] = in_view._next_id ++;
-	this._attrs[ViewObject.ATTR_PART_NUM] = 1;
-	this._attrs[ViewObject.ATTR_KLAS_NUM] = 1;
-	this._attrs[ViewObject.ATTR_LOC] = [0,0];
-	this._attrs[ViewObject.ATTR_SIZE] = [50,50];
-	this._attrs[ViewObject.ATTR_NAME] = '';
-	this._attrs[ViewObject.ATTR_SHARED] = false;
-	this._attrs[ViewObject.ATTR_SEARCHABLE] = true;
-	this._attrs[ViewObject.ATTR_VISIBLE] = true;
-	this._attrs[ViewObject.ATTR_SCRIPT] = {'content':'','selection':0};
-	this._attrs[ViewObject.ATTR_DISABLED] = false;
-	this._attrs[ViewObject.ATTR_TALIGN] = Text.ALIGN_LEFT;
-	this._attrs[ViewObject.ATTR_TFONT] = 'sans-serif';
-	this._attrs[ViewObject.ATTR_TSIZE] = 12;
-	this._attrs[ViewObject.ATTR_TSTYLE] = 0;
-	this._attrs[ViewObject.ATTR_THEIGHT] = 0;
-	this._attrs[ViewObject.ATTR_COLOR] = [1,1,1];
-	this._attrs[ViewObject.ATTR_SHADOW] = false;
+	this._attrs[LayerObject.ATTR_TYPE] = in_type;
+	this._attrs[LayerObject.ATTR_ID] = in_view._next_id ++;
+	this._attrs[LayerObject.ATTR_PART_NUM] = 1;
+	this._attrs[LayerObject.ATTR_KLAS_NUM] = 1;
+	this._attrs[LayerObject.ATTR_LOC] = [0,0];
+	this._attrs[LayerObject.ATTR_SIZE] = [50,50];
+	this._attrs[LayerObject.ATTR_NAME] = '';
+	this._attrs[LayerObject.ATTR_SHARED] = false;
+	this._attrs[LayerObject.ATTR_SEARCHABLE] = true;
+	this._attrs[LayerObject.ATTR_VISIBLE] = true;
+	this._attrs[LayerObject.ATTR_SCRIPT] = {'content':'','selection':0};
+	this._attrs[LayerObject.ATTR_DISABLED] = false;
+	this._attrs[LayerObject.ATTR_TALIGN] = Text.ALIGN_LEFT;
+	this._attrs[LayerObject.ATTR_TFONT] = 'sans-serif';
+	this._attrs[LayerObject.ATTR_TSIZE] = 12;
+	this._attrs[LayerObject.ATTR_TSTYLE] = 0;
+	this._attrs[LayerObject.ATTR_THEIGHT] = 0;
+	this._attrs[LayerObject.ATTR_COLOR] = [1,1,1];
+	this._attrs[LayerObject.ATTR_SHADOW] = false;
 	
 	this._selected = false;
 	
 	this.__install_handlers();
 }
-
-ViewObject.TYPE_BUTTON = 0;
-ViewObject.TYPE_FIELD = 1;
-
-ViewObject.ATTR_TYPE = -1;
-ViewObject.ATTR_ID = -2;
-ViewObject.ATTR_PART_NUM = -3;
-ViewObject.ATTR_KLAS_NUM = -4;
-ViewObject.ATTR_LOC = -5;
-ViewObject.ATTR_SIZE = -6;
-ViewObject.ATTR_NAME = -7;
-ViewObject.ATTR_SHARED = -8;
-ViewObject.ATTR_SEARCHABLE = -9;
-ViewObject.ATTR_VISIBLE = -10;
-ViewObject.ATTR_SCRIPT = -11;
-ViewObject.ATTR_DISABLED = -12;
-ViewObject.ATTR_TALIGN = -13;
-ViewObject.ATTR_TFONT = -14;
-ViewObject.ATTR_TSIZE = -15;
-ViewObject.ATTR_TSTYLE = -16;
-ViewObject.ATTR_THEIGHT = -17;
-ViewObject.ATTR_COLOR = -18;
-ViewObject.ATTR_SHADOW = -19;
-
-ViewObject.ATTR_CONTENT = -99;
+var LayerObject = Model.LayerObject;
 
 
-ViewObject.prototype.get_def = function()
+
+LayerObject.TYPE_BUTTON = 0;
+LayerObject.TYPE_FIELD = 1;
+
+LayerObject.ATTR_TYPE = -1;
+LayerObject.ATTR_ID = -2;
+LayerObject.ATTR_PART_NUM = -3;
+LayerObject.ATTR_KLAS_NUM = -4;
+LayerObject.ATTR_LOC = -5;
+LayerObject.ATTR_SIZE = -6;
+LayerObject.ATTR_NAME = -7;
+LayerObject.ATTR_SHARED = -8;
+LayerObject.ATTR_SEARCHABLE = -9;
+LayerObject.ATTR_VISIBLE = -10;
+LayerObject.ATTR_SCRIPT = -11;
+LayerObject.ATTR_DISABLED = -12;
+LayerObject.ATTR_TALIGN = -13;
+LayerObject.ATTR_TFONT = -14;
+LayerObject.ATTR_TSIZE = -15;
+LayerObject.ATTR_TSTYLE = -16;
+LayerObject.ATTR_THEIGHT = -17;
+LayerObject.ATTR_COLOR = -18;
+LayerObject.ATTR_SHADOW = -19;
+
+LayerObject.ATTR_CONTENT = -99;
+
+
+LayerObject.prototype.get_def = function()
 {
-	if ((!this._is_bkgnd) || this.get_attr(ViewObject.ATTR_SHARED))
-		this._attrs[ViewObject.ATTR_CONTENT] = this._get_raw_content();
+	if ((!this._is_bkgnd) || this.get_attr(LayerObject.ATTR_SHARED))
+		this._attrs[LayerObject.ATTR_CONTENT] = this._get_raw_content();
 	else
-		this._attrs[ViewObject.ATTR_CONTENT] = '';
+		this._attrs[LayerObject.ATTR_CONTENT] = '';
 		
 	return this._attrs;
 }
 
 
-ViewObject.prototype.set_def = function(in_def)
+LayerObject.prototype.set_def = function(in_def)
 {
 	for (var attr_name in in_def)
 	{
@@ -126,18 +135,18 @@ ViewObject.prototype.set_def = function(in_def)
 }
 
 
-ViewObject.prototype._get_raw_content = function()
+LayerObject.prototype._get_raw_content = function()
 {
 	return '';
 }
 
 
-ViewObject.prototype._set_raw_content = function(in_content)
+LayerObject.prototype._set_raw_content = function(in_content)
 {
 }
 
 
-ViewObject.prototype.kill = function()
+LayerObject.prototype.kill = function()
 {
 	this._div.parentElement.removeChild(this._div);
 	this._div = null;
@@ -148,14 +157,14 @@ ViewObject.prototype.kill = function()
 }
 
 
-ViewObject.prototype.__install_handlers = function()
+LayerObject.prototype.__install_handlers = function()
 {
 	this._div.addEventListener('mousedown', this.__handle_point_start.bind(this));
 	this._div.addEventListener('touchstart', this.__handle_point_start.bind(this));
 }
 
 
-ViewObject.prototype.__handle_point_start = function(in_event)
+LayerObject.prototype.__handle_point_start = function(in_event)
 {
 	if (this._view._mode == View.MODE_AUTHORING)
 	{
@@ -170,7 +179,7 @@ ViewObject.prototype.__handle_point_start = function(in_event)
 }
 
 
-ViewObject.prototype._handle_resize_start = function(in_event)
+LayerObject.prototype._handle_resize_start = function(in_event)
 {
 	Drag.begin_resize(
 		[(in_event.pageX || in_event.touches[0].pageX), 
@@ -184,14 +193,14 @@ ViewObject.prototype._handle_resize_start = function(in_event)
 }
 
 
-ViewObject.prototype._reconfigure = function()
+LayerObject.prototype._reconfigure = function()
 {
 	for (var attr_name in this._attrs)
 		this._attribute_changed(attr_name * 1, this._attrs[attr_name]);
 }
 
 
-ViewObject.prototype._set_selected = function(in_selected)
+LayerObject.prototype._set_selected = function(in_selected)
 {
 	//this._div.classList.toggle('Selected', in_selected);
 	
@@ -218,17 +227,17 @@ ViewObject.prototype._set_selected = function(in_selected)
 }
 
 
-ViewObject.prototype.get_type = function()
+LayerObject.prototype.get_type = function()
 {
 	return 'object';
 }
 
 
-ViewObject.prototype.set_size = function(in_size)
+LayerObject.prototype.set_size = function(in_size)
 {
 	/* store the new size as an attribute */
 	this._size = [in_size[0], in_size[1]];
-	this._attrs[ViewObject.ATTR_SIZE] = this._size;
+	this._attrs[LayerObject.ATTR_SIZE] = this._size;
 	
 	/* resize the container div(s) */
 	this._div.style.width = in_size[0] + 'px';
@@ -253,16 +262,16 @@ ViewObject.prototype.set_size = function(in_size)
 }
 
 
-ViewObject.prototype.get_size = function()
+LayerObject.prototype.get_size = function()
 {
 	return this._size;
 }
 
 
-ViewObject.prototype.set_loc = function(in_loc)
+LayerObject.prototype.set_loc = function(in_loc)
 {
 	this._loc = [in_loc[0], in_loc[1]];
-	this._attrs[ViewObject.ATTR_LOC] = this._loc;
+	this._attrs[LayerObject.ATTR_LOC] = this._loc;
 	this._div.style.left = in_loc[0] + 'px';
 	this._div.style.top = in_loc[1] + 'px';
 	
@@ -277,30 +286,30 @@ ViewObject.prototype.set_loc = function(in_loc)
 }
 
 
-ViewObject.prototype.get_loc = function()
+LayerObject.prototype.get_loc = function()
 {
 	return this._loc;
 }
 
 
-ViewObject.prototype.apply_text_attrs = function(in_div, in_attr, in_value)
+LayerObject.prototype.apply_text_attrs = function(in_div, in_attr, in_value)
 {
 	switch (in_attr)
 	{
-	case ViewObject.ATTR_TFONT:
+	case LayerObject.ATTR_TFONT:
 		in_div.style.fontFamily = in_value;
 		break;
-	case ViewObject.ATTR_TSIZE:
+	case LayerObject.ATTR_TSIZE:
 		in_div.style.fontSize = in_value +'pt';
 		break;
-	case ViewObject.ATTR_TSTYLE:
+	case LayerObject.ATTR_TSTYLE:
 		in_div.style.fontWeight = ((in_value & Text.STYLE_BOLD) ? 'bold' : 'normal');
 		in_div.style.fontStyle = ((in_value & Text.STYLE_ITALIC) ? 'italic' : 'normal');
 		in_div.style.textShadow = (in_value & Text.STYLE_SHADOW ? '2px 2px 1px #CCC' : 'none');
 		if (in_value & Text.STYLE_EXTEND) in_div.style.letterSpacing = '1px';
 		else in_div.style.letterSpacing = (in_value & Text.STYLE_CONDENSE ? '-1px' : 'normal');
 		break;
-	case ViewObject.ATTR_TALIGN:
+	case LayerObject.ATTR_TALIGN:
 		if (in_value == Text.ALIGN_LEFT)
 			in_div.style.textAlign = 'left';
 		else if (in_value == Text.ALIGN_CENTRE)
@@ -314,20 +323,20 @@ ViewObject.prototype.apply_text_attrs = function(in_div, in_attr, in_value)
 }
 
 
-ViewObject.prototype.set_attr = function(in_attr, in_value)
+LayerObject.prototype.set_attr = function(in_attr, in_value)
 {
-	if ((in_attr == ViewObject.ATTR_KLAS_NUM) && (this._num_tag != null))
+	if ((in_attr == LayerObject.ATTR_KLAS_NUM) && (this._num_tag != null))
 		this._num_tag.innerHTML = in_value * 1;
 
 	switch (in_attr)
 	{
-	case ViewObject.ATTR_LOC:
+	case LayerObject.ATTR_LOC:
 		this.set_loc(in_value);
 		break;
-	case ViewObject.ATTR_SIZE:
+	case LayerObject.ATTR_SIZE:
 		this.set_size(in_value);
 		break;
-	case ViewObject.ATTR_CONTENT:
+	case LayerObject.ATTR_CONTENT:
 		this._set_raw_content(in_value);
 		break;
 	default:
@@ -344,10 +353,10 @@ ViewObject.prototype.set_attr = function(in_attr, in_value)
 }
 
 
-ViewObject.prototype.get_attr = function(in_attr)
+LayerObject.prototype.get_attr = function(in_attr)
 {
 	var result;
-	if (in_attr == ViewObject.ATTR_CONTENT)
+	if (in_attr == LayerObject.ATTR_CONTENT)
 		result = this._get_raw_content();
 	else
 		result = this._attrs[in_attr];
@@ -356,9 +365,9 @@ ViewObject.prototype.get_attr = function(in_attr)
 }
 
 
-ViewObject.prototype._layer_visibility = function(in_visible)
+LayerObject.prototype._layer_visibility = function(in_visible)
 {
-	var visible =  (in_visible && this.get_attr(ViewObject.ATTR_VISIBLE));
+	var visible =  (in_visible && this.get_attr(LayerObject.ATTR_VISIBLE));
 	this._div.style.visibility = (visible ? 'visible' : 'hidden');
 	if (this._inner)
 		this._inner.style.visibility = (visible ? 'visible' : 'hidden');
@@ -368,6 +377,6 @@ ViewObject.prototype._layer_visibility = function(in_visible)
 
 
 
-CinsImp._script_loaded('object');
+CinsImp._script_loaded('Model.LayerObject');
 
 

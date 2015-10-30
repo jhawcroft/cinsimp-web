@@ -34,45 +34,17 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// suggest we improve this soon to use the 'Bootstrap WYSIWYG' editor,
-// which is very lightweight.
-// may need to modify to work without jQuery,
-// but shouldn't be difficult
+var CinsImp = CinsImp || {};
+CinsImp.Model = CinsImp.Model || {};
 
-// should also consider just doing it directly.
-// IE doesn't (at time of writing - Oct 2015, probably IE 11) support the HTML 5 inputEvent,
-// but the other browsers do, so I don't really care...
+var Model = CinsImp.Model;
 
 
-/*
-
-A note about importing fields from HyperCard:
-
--	style -> a combination of the 4 attributes: border, color, shadow, scroll:
-	transparent: false, null, false, false
-	opaque: false, [1,1,1], false, false
-	rectangle: true, [1,1,1], false, false
-	shadow: true, [1,1,1], true, false
-	scrolling: true, [1,1,1], false, true
-
--	field size will need to be slightly adjusted if shadow is present
-	because the CSS shadow is applied to the outside, not the inside of the field,
-	ie. increase the width and height by about 2 pixels to compensate during import.
-
-
-
-SHOULD PROBABLY USE AN INNER LIKE BUTTONS, AND MAKE THAT EDITABLE.
-MAKES IT EASER TO HIDE AND SHOW CONTENT WITHOUT HIDING THE FIELD ITSELF TOO.
-AND WILL MAKE IT EASIER TO IMPLEMENT CALENDAR WIDGETS/ POPUP MENU WIDGETS.
-
-*/
-
-
-function Field(in_view, in_def, in_bkgnd) 
+Model.Field = function(in_view, in_def, in_bkgnd) 
 {
 	/* create the object */
-	ViewObject.call(this, ViewObject.TYPE_FIELD, in_view, in_bkgnd);
-	this._div.classList.remove('Object');//hack - eventually to be removed at the ViewObject level
+	LayerObject.call(this, LayerObject.TYPE_FIELD, in_view, in_bkgnd);
+	this._div.classList.remove('Object');//hack - eventually to be removed at the LayerObject level
 	this._div.classList.add('fld');
 	
 	this._inner = document.createElement('div');
@@ -88,8 +60,8 @@ function Field(in_view, in_def, in_bkgnd)
 	if (!in_def)
 	{
 		this.set_size([200, 85]);
-		this.set_attr(ViewObject.ATTR_COLOR, [1,1,1]);
-		this.set_attr(ViewObject.ATTR_SHADOW, false);
+		this.set_attr(LayerObject.ATTR_COLOR, [1,1,1]);
+		this.set_attr(LayerObject.ATTR_SHADOW, false);
 		
 		this.set_attr(Field.ATTR_BORDER, true);
 		this.set_attr(Field.ATTR_SCROLL, false);
@@ -112,8 +84,8 @@ function Field(in_view, in_def, in_bkgnd)
 	/* complete configuration */
 	this._reconfigure();
 }
-
-Util.classInheritsFrom(Field, ViewObject);
+var Field = Model.Field;
+Util.classInheritsFrom(Field, Model.LayerObject);
 
 
 Field.prototype.get_type = function()
@@ -155,7 +127,7 @@ Field.prototype._display_changed = function(in_author, in_edit)
 	var editable = (in_edit && (!this._attrs[Field.ATTR_LOCKED]));
 	if (this._is_bkgnd)
 	{
-		if (this.get_attr(ViewObject.ATTR_SHARED))
+		if (this.get_attr(LayerObject.ATTR_SHARED))
 		{
 			if (!this._view._edit_bkgnd) editable = false;
 			this._inner.style.visibility = this._div.style.visibility;
@@ -189,10 +161,10 @@ Field.prototype._attribute_changed = function(in_attr, in_value)
 	case Field.ATTR_BORDER:
 		this._div.style.border = (in_value ? '1px solid black' : '');
 		break;
-	case ViewObject.ATTR_COLOR:
+	case LayerObject.ATTR_COLOR:
 		this._div.style.backgroundColor = (in_value ? Util.color_to_css(in_value) : 'transparent');
 		break;
-	case ViewObject.ATTR_SHADOW:
+	case LayerObject.ATTR_SHADOW:
 		this._div.style.boxShadow = (in_value ? '2px 2px 2px 2px rgba(0,0,0,0.75)' : '');
 		break;
 	case Field.ATTR_SCROLL:
@@ -210,6 +182,6 @@ Field.prototype._attribute_changed = function(in_attr, in_value)
 }
 
 
-CinsImp._script_loaded('field');
+CinsImp._script_loaded('Model.Field');
 
 

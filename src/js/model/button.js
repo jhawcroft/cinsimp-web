@@ -34,12 +34,18 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+var CinsImp = CinsImp || {};
+CinsImp.Model = CinsImp.Model || {};
 
-function Button(in_view, in_def, in_bkgnd) 
+var Model = CinsImp.Model;
+
+
+
+Model.Button = function(in_view, in_def, in_bkgnd) 
 {
 	/* create the object */
-	ViewObject.call(this, ViewObject.TYPE_BUTTON, in_view, in_bkgnd);
-	this._div.classList.remove('Object');//hack - eventually to be removed at the ViewObject level
+	LayerObject.call(this, LayerObject.TYPE_BUTTON, in_view, in_bkgnd);
+	this._div.classList.remove('Object');//hack - eventually to be removed at the LayerObject level
 	this._div.classList.add('btn');
 	
 	this._inner = document.createElement('div');
@@ -66,9 +72,9 @@ function Button(in_view, in_def, in_bkgnd)
 	/* set defaults or apply a persistant definition */
 	if (!in_def)
 	{
-		this.set_attr(ViewObject.ATTR_COLOR, [1,1,1]);
-		this.set_attr(ViewObject.ATTR_SHADOW, true);
-		this.set_attr(ViewObject.ATTR_NAME, 'New Button');
+		this.set_attr(LayerObject.ATTR_COLOR, [1,1,1]);
+		this.set_attr(LayerObject.ATTR_SHADOW, true);
+		this.set_attr(LayerObject.ATTR_NAME, 'New Button');
 		this.set_size([95, 22]);
 		
 		this.set_attr(Button.ATTR_STYLE, Button.STYLE_ROUNDED);
@@ -79,7 +85,7 @@ function Button(in_view, in_def, in_bkgnd)
 		this.set_attr(Button.ATTR_HILITE, false);
 		this.set_attr(Button.ATTR_AUTO_HILITE, false);
 		
-		this.set_attr(ViewObject.ATTR_SCRIPT, 
+		this.set_attr(LayerObject.ATTR_SCRIPT, 
 			{'content':'on mouseup\r  \rend mouseup\r','selection':13});
 	}
 	else
@@ -88,8 +94,8 @@ function Button(in_view, in_def, in_bkgnd)
 	/* complete configuration */
 	this._reconfigure();
 }
-
-Util.classInheritsFrom(Button, ViewObject);
+var Button = Model.Button;
+Util.classInheritsFrom(Button, Model.LayerObject);
 
 
 Button.prototype.get_type = function()
@@ -228,7 +234,7 @@ Button.prototype._display_name_and_icon = function()
 	
 	this._caption.innerHTML = '';
 	if (this.get_attr(Button.ATTR_SHOW_NAME))
-		this._caption.appendChild(document.createTextNode(this.get_attr(ViewObject.ATTR_NAME)));	
+		this._caption.appendChild(document.createTextNode(this.get_attr(LayerObject.ATTR_NAME)));	
 }
 
 
@@ -236,7 +242,7 @@ Button.prototype._attribute_changed = function(in_attr, in_value)
 {
 	switch (in_attr)
 	{
-	case ViewObject.ATTR_COLOR:
+	case LayerObject.ATTR_COLOR:
 		if ((this.get_attr(Button.ATTR_STYLE) != Button.STYLE_CHECK_BOX) &&
 				(this.get_attr(Button.ATTR_STYLE) != Button.STYLE_RADIO))
 		{
@@ -262,7 +268,7 @@ Button.prototype._attribute_changed = function(in_attr, in_value)
 			this._icon.style.color = 'black';
 		}
 		break;
-	case ViewObject.ATTR_SHADOW:
+	case LayerObject.ATTR_SHADOW:
 		if (this.get_attr(Button.ATTR_STYLE) == Button.STYLE_BORDERLESS)
 		{
 			/* borderless shadow */
@@ -315,13 +321,13 @@ Button.prototype._attribute_changed = function(in_attr, in_value)
 		}
 		
 		this._display_name_and_icon();
-		this.set_attr(ViewObject.ATTR_SHADOW, this.get_attr(ViewObject.ATTR_SHADOW));
-		this.set_attr(ViewObject.ATTR_COLOR, this.get_attr(ViewObject.ATTR_COLOR));
+		this.set_attr(LayerObject.ATTR_SHADOW, this.get_attr(LayerObject.ATTR_SHADOW));
+		this.set_attr(LayerObject.ATTR_COLOR, this.get_attr(LayerObject.ATTR_COLOR));
 		this.set_attr(Button.ATTR_MENU, this.get_attr(Button.ATTR_MENU));
 		break;
 	
 	case Button.ATTR_ICON:
-	case ViewObject.ATTR_NAME:
+	case LayerObject.ATTR_NAME:
 	case Button.ATTR_SHOW_NAME:
 		this._display_name_and_icon();
 		break;
@@ -335,7 +341,7 @@ Button.prototype._attribute_changed = function(in_attr, in_value)
 				this._icon.style.backgroundImage = (in_value ? 'url('+gBase + 'gfx/rbn-dot.png)' : '');
 			else 
 				this._icon.style.backgroundImage = '';
-			this.set_attr(ViewObject.ATTR_COLOR, this.get_attr(ViewObject.ATTR_COLOR));
+			this.set_attr(LayerObject.ATTR_COLOR, this.get_attr(LayerObject.ATTR_COLOR));
 			break;
 		}
 		
@@ -374,7 +380,7 @@ Button.prototype._display_changed = function(in_author, in_edit)
 }
 
 
-CinsImp._script_loaded('button');
+CinsImp._script_loaded('Model.Button');
 
 
 
