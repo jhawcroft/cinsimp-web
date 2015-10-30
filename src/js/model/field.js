@@ -110,7 +110,7 @@ Field.prototype.create_dom = function(in_view)
 Field.prototype._dom_rebuild = function()
 {
 	this._div.style.border = (this.get_attr('border') ? '1px solid black' : '');
-	this._div.style.backgroundColor = Util.color_to_css(this.get_attr('border'));
+	this._div.style.backgroundColor = Util.color_to_css(this.get_attr('color'));
 	this._div.style.boxShadow = (this.get_attr('shadow') ? '2px 2px 2px 2px rgba(0,0,0,0.75)' : '');
 	
 	this._inner.style.overflowY = (this.get_attr('scroll') ? 'scroll' : 'hidden');
