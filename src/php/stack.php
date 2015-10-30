@@ -1220,7 +1220,7 @@ Eventually methods for icon deletion/rename:
 		if ($row === false || count($row) == 0) CinsImpError::missing('Background');
 		
 		$bkgnd = array(
-			'id'=>$row[0],
+			'id'=>intval($row[0]),
 			'name'=>$row[1],
 			'cant_delete'=>Stack::decode_bool($row[2]),
 			'dont_search'=>Stack::decode_bool($row[3]),
@@ -1302,9 +1302,9 @@ Eventually methods for icon deletion/rename:
 		if ($row === false || count($row) == 0) CinsImpError::missing('Card');
 		
 		$card = array(
-			'id'=>$row[0],
-			'bkgnd_id'=>$row[1],
-			'seq'=>$row[2],
+			'id'=>intval($row[0]),
+			'bkgnd_id'=>intval($row[1]),
+			'seq'=>intval($row[2]),
 			'name'=>$row[3],
 			'cant_delete'=>Stack::decode_bool($row[4]),
 			'dont_search'=>Stack::decode_bool($row[5]),
