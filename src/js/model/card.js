@@ -216,6 +216,13 @@ Card.prototype.add_object = function(in_object)
 }
 
 
+Card.prototype.get_objects = function()
+{
+	return this._def.objects;
+}
+
+
+
 CinsImp._script_loaded('Model.Card');
 
 

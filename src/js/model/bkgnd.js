@@ -174,6 +174,13 @@ Bkgnd.prototype.add_object = function(in_object)
 }
 
 
+Bkgnd.prototype.get_objects = function()
+{
+	return this._def.objects;
+}
+
+
+
 
 
 CinsImp._script_loaded('Model.Bkgnd');

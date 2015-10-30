@@ -430,8 +430,8 @@ View.prototype._guide_drag = function(in_object, in_loc, no_size, out_snapped)
 	var proposed_rect = [in_loc[0], in_loc[1], 
 		in_loc[0] + in_object._position[4], in_loc[1] + in_object._position[5]];
 	
-	this._guide_drag_layer(context, in_object, proposed_rect, this._objects_card, no_size);
-	this._guide_drag_layer(context, in_object, proposed_rect, this._objects_bkgnd, no_size);
+	this._guide_drag_layer(context, in_object, proposed_rect, this._card.get_objects(), no_size);
+	this._guide_drag_layer(context, in_object, proposed_rect, this._bkgnd.get_objects(), no_size);
 	
 	if (context.objY != null && context.objYDelta <= THRESHOLD)
 	{
