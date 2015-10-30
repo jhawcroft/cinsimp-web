@@ -311,17 +311,17 @@ as dictated by the server, thus allowing for search nevigability -->
 
 
 <div id="DialogBkgndInfo" class="DialogTemplate Inner" style="width: 450px; height: 300px;">
-	<div class="Label">Background Name: <input type="text" id="BkgndInfoName" style="width: 260px;"></div>
-	<div id="BkgndInfoID" class="Label VertGap selectable">Background ID: ^0</div>
-	<div id="BkgndInfoCardCount" class="Label VertGap">Background shared by ^0.</div>
-	<div id="BkgndInfoFieldCount" class="Label VertGap">Contains ^0.</div>
-	<div id="BkgndInfoButtonCount" class="Label VertGap">Contains ^0.</div>
+	<div class="Label">Background Name: <input type="text" data-attr="name" id="BkgndInfoName" style="width: 260px;"></div>
+	<div data-attr="id" id="BkgndInfoID" class="Label VertGap selectable">Background ID: ^0</div>
+	<div data-attr="count_cards" id="BkgndInfoCardCount" class="Label VertGap">Background shared by ^0.</div>
+	<div data-attr="count_fields" id="BkgndInfoFieldCount" class="Label VertGap">Contains ^0.</div>
+	<div data-attr="count_buttons" id="BkgndInfoButtonCount" class="Label VertGap">Contains ^0.</div>
 	
-	<div class="x2VertGap"><input type="checkbox" id="BkgndInfoCantDelete"> <label for="BkgndInfoCantDelete">Can't delete background</label></div>
-	<div class=""><input type="checkbox" id="BkgndInfoDontSearch"> <label for="BkgndInfoDontSearch">Don't search background</label></div>
+	<div class="x2VertGap"><input type="checkbox" data-attr="cant_delete" id="BkgndInfoCantDelete"> <label for="BkgndInfoCantDelete">Can't delete background</label></div>
+	<div class=""><input type="checkbox" data-attr="dont_search" id="BkgndInfoDontSearch"> <label for="BkgndInfoDontSearch">Don't search background</label></div>
 	
 	<div class="Bottom"><input type="button" value="Script..." onclick="View.do_edit_script(View.save_info());"></div>
-	<div class="Bottom Right"><input type="button" value="Cancel" class="" onclick="Dialog.dismiss()"> <input type="button" value="OK" class="" onclick="View.save_info()"></div>
+	<div class="Bottom Right"><input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="View.save_info()"></div>
 </div>
 
 

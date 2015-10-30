@@ -117,8 +117,8 @@ window.addEventListener('keyup', Util._update_modifiers, true);
 
 Util.plural = function(in_value, in_singular, in_plural)
 {
-	if (in_value == 1) return in_value + ' ' + in_singular;
-	else return in_value + ' ' + in_plural;
+	if (in_value == 1) return in_value + ' ' + Util.localised_string(in_singular);
+	else return in_value + ' ' + Util.localised_string(in_plural);
 }
 
 
@@ -212,7 +212,21 @@ Util.set_dom_size = function(in_element, in_size, in_height)
 }
 
 
+Util.localised_string = function(in_template)
+{
+	return in_template;
+}
 
+
+Util.string = function(in_template)
+{
+	var localised = Util.localised_string(in_template);
+	for (var i = 1; i < arguments.length; i++)
+	{
+		localised = localised.replace('^'+(i-1), arguments[i]);
+	}
+	return localised;
+}
 
 
 CinsImp._script_loaded('util');

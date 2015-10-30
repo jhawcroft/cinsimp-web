@@ -70,6 +70,7 @@ Bkgnd.prototype.get_type = function()
 }
 
 
+
 /*
 	Loads the Bkgnd definition obtained from a gateway server.
 */
@@ -79,9 +80,85 @@ Bkgnd.prototype._load_def = function(in_def)
 	
 	/* we should check the definition is valid here */ /// ** TODO **
 	
+	this._def.count_fields = 0;
+	this._def.count_buttons = 0;// ** TODO ** need to be calculated initially, and maintained during edits
+	
 	this._ready = true;
 }
 
+
+
+Bkgnd.prototype.get_description = function()
+{
+	var desc = 'background ID ' + this.get_attr('id');
+	var name = this.get_attr('name');
+	if (name != '')
+		desc += ' "' + name + '"';
+	return desc;
+}
+
+
+
+Bkgnd.prototype.get_attr = function(in_attr, in_fmt)
+{
+	if (!(in_attr in this._def))
+		throw Error('Bkgnd doesn\'t have an '+in_attr+' attribute.');
+
+	var value = null;
+	if (in_attr in this._changes) value = this._changes[in_attr];
+	else value = this._def[in_attr];
+	
+	if (in_attr == 'count_cards' && in_fmt == 'ui')
+		value = Util.plural(value, 'card', 'cards');
+	else if (in_attr == 'count_buttons' && in_fmt == 'ui')
+		value = Util.plural(value, 'button', 'buttons');
+	else if (in_attr == 'count_fields' && in_fmt == 'ui')
+		value = Util.plural(value, 'field', 'fields');
+	
+	return value;
+}
+
+
+Bkgnd.prototype.set_attr = function(in_attr, in_value)
+{
+	switch (in_attr)
+	{
+	case 'script':
+	case 'cant_delete':
+	case 'dont_search':
+	case 'name':
+		this._changes[in_attr] = in_value;
+		break;
+	default:
+		throw new Error('Cannot set '+in_attr+' attribute of bkgnd');
+	}
+}
+
+
+Bkgnd.prototype.apply_changes = function()
+{
+	for (var key in this._changes)
+		this._def[key] = this._changes[key];
+	this._changes = {};
+}
+
+
+Bkgnd.prototype.save = function(in_onfinished)
+{
+	var card = this;
+	this._changes['id'] = this._def.id;
+	this._stack.gateway(
+	{
+		cmd: 'save_card',
+		ref: this._def.id,
+		bkgnd: this._changes
+	}, 
+	function(in_reply) 
+	{
+		if (in_reply.cmd != 'error') card.apply_changes();
+		if (in_onfinished) in_onfinished(in_reply.cmd != 'error');
+	});
+}
 
 
 

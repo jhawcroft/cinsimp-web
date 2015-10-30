@@ -1226,7 +1226,8 @@ Eventually methods for icon deletion/rename:
 			'dont_search'=>Stack::decode_bool($row[3]),
 			'script'=>$row[4],
 			'art'=>Stack::_evl($row[5]),
-			'art_hidden'=>Stack::decode_bool($row[6])
+			'art_hidden'=>Stack::decode_bool($row[6]),
+			'count_cards'=>$this->stack_get_count_cards($row[0])
 		);
 		
 		$bkgnd['objects'] = Stack::_layer_parts($row[0]);

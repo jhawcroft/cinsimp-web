@@ -182,20 +182,54 @@ Dialog.prototype.getVisible = function()
 	return ((this._div.style.visibility != '') && (this._div.style.visibility != 'hidden'));
 }
 
-/*
-Dialog.prototype.map_html = function(in_map)
+
+Dialog.prototype._map = function(in_root)
 {
-	this._html_map = in_map;
+	var children = in_root.children;
+	for (var i = 0; i < children.length; i++)
+	{
+		var child = children[i];
+		if (child.dataset.attr !== undefined)
+		{
+			this._dom_map[child.dataset.attr] = child;
+			switch (child.nodeName.toLowerCase())
+			{
+			case 'div':
+				child.dataset.str_tmpl = child.textContent;
+				break;
+			}
+		}
+		this._map(child);
+	}
 }
 
 
 Dialog.prototype.populate_with = function(in_object)
 {
-	if (!this._html_map)
-		throw Error('Cannot use populate_with(): dialog hasn\'t been HTML mapped');
+	if (this._dom_map === undefined) 
+	{
+		this._dom_map = {};
+		this._map(this._root);
+	}
 	
-	
-}*/
+	for (var attr_name in this._dom_map)
+	{
+		var attr_element = this._dom_map[attr_name];
+		var attr_value = in_object.get_attr(attr_name, 'ui');
+		
+		switch (attr_element.nodeName.toLowerCase())
+		{
+		case 'div':
+			if (attr_element.dataset.str_tmpl)
+				attr_value = Util.string(attr_element.dataset.str_tmpl, attr_value);
+			attr_element.textContent = attr_value;
+			break;
+		case 'input':
+			attr_value.value = attr_value;
+			break;
+		}
+	}
+}
 
 
 Dialog.prototype.show = function()

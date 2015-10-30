@@ -1324,6 +1324,8 @@ View.prototype._count_klass = function(in_table, in_klass)
 
 View.prototype._do_bkgnd_info = function()
 {
+	Dialog.BkgndInfo.populate_with(this._bkgnd);
+	/*
 	document.getElementById('BkgndInfoName').value = this._card.bkgnd_name;
 	
 	document.getElementById('BkgndInfoID').textContent = 'Background ID: '+this._card.bkgnd_id;
@@ -1334,7 +1336,7 @@ View.prototype._do_bkgnd_info = function()
 	
 	document.getElementById('BkgndInfoCantDelete').checked = this._card.bkgnd_cant_delete;
 	document.getElementById('BkgndInfoDontSearch').checked = this._card.bkgnd_dont_search;
-
+*/
 	Dialog.BkgndInfo.show();
 }
 
