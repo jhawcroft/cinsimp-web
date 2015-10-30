@@ -91,7 +91,8 @@ Util.classInheritsFrom = function( in_subclass, in_superclass )
 Util.color_to_css = function(in_color)
 {
 	if (in_color === null || in_color == '') return 'transparent';
-	var components = [in_color[0] * 255, in_color[1] * 255, in_color[2] * 255];
+	var components = in_color.split(',');
+	var components = [components[0] * 255, components[1] * 255, components[2] * 255];
 	return 'rgb(' + components.join(',') + ')';
 }
 
@@ -270,7 +271,8 @@ Util.string = function(in_template)
 
 
 
-Util.array_apply = function(in_dest, in_source) {
+Util.array_apply = function(in_dest, in_source) 
+{
     for (var property in in_source) 
     {
     	in_dest[property] = in_source[property];
@@ -281,6 +283,13 @@ Util.array_apply = function(in_dest, in_source) {
     }
     return in_dest;
 };
+
+
+Util.null_or_empty = function(in_value)
+{
+	if (in_value === null || in_value == '') return true;
+	else return false;
+}
 
 
 

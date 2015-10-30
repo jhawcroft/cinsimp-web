@@ -246,7 +246,7 @@ as dictated by the server, thus allowing for search nevigability -->
 	</div>
 	<div style="float: right;">
 		<input type="button" class="SameSizeStacked" value="Icon..." onclick="AppDialogs.choose_button_icon();">
-		<input type="button" class="SameSizeStacked" value="Text Style..." onclick="Text.edit_style(Application._objects, Application.save_info()); " style="margin-top: 25px;">
+		<input type="button" class="SameSizeStacked" value="Text Style..." onclick="Text.edit_style(Application._objects, Dialog.dismiss.bind(true)); " style="margin-top: 25px;">
 		
 		<input type="button" class="SameSizeStacked" value="Menu..." onclick="AppDialogs.edit_text_attr(Button.ATTR_MENU, Application.save_info, 'Button Menu Items');" style="margin-top: 90px;">
 	
@@ -257,7 +257,7 @@ as dictated by the server, thus allowing for search nevigability -->
 	</div>
 	<div class="Right Bottom">
 		<input type="button" style="margin-right: 10px;" value="Script..." onclick="View.do_edit_script(View.save_info());">
-		<input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="View.save_info();"> 
+		<input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="Dialog.dismiss(true)"> 
 	</div>
 </div>
 
@@ -297,15 +297,15 @@ as dictated by the server, thus allowing for search nevigability -->
 			<input type="button" value="Columns..." style="display:inline-block; margin-left: 10px;" disabled></div>
 		<div style="padding-left: 20px;"><input type="checkbox" data-attr="has_header" id="FieldInfoHasHeader"> <label for="FieldInfoHasHeader">Has header</label></div>
 		
-		<input type="button" value="Picklist..." onclick="AppDialogs.edit_text_attr(Field.ATTR_PICKLIST, Application.save_info, 'Field Picklist Items');" style="margin-top: 20px;">
+		<input type="button" value="Picklist..." onclick="AppDialogs.edit_text_attr(Field.ATTR_PICKLIST, Dialog.dismiss.bind(true), 'Field Picklist Items');" style="margin-top: 20px;">
 	</div>
 	
 	<div class="Bottom" style="display: block; position: absolute;">
 			
-			<input type="button" class="SameSizeStacked VertGap" value="Text Style..." onclick="Text.edit_style(Application._objects, Application.save_info()); ">
+			<input type="button" class="SameSizeStacked VertGap" value="Text Style..." onclick="Text.edit_style(Application._objects, Dialog.dismiss.bind(true)); ">
 	</div>
 	<div class="Right Bottom">
-		<input type="button" style="margin-right: 10px;" value="Script..." onclick="View.do_edit_script(View.save_info());"> <input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="View.save_info();"> 
+		<input type="button" style="margin-right: 10px;" value="Script..." onclick="View.do_edit_script(View.save_info());"> <input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="Dialog.dismiss(true)"> 
 	</div>
 </div>
 

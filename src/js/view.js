@@ -1168,7 +1168,20 @@ View.prototype.refresh = function()
 
 View.prototype._do_button_info = function()
 {
-	var obj = this._selected_objects[0];
+	var button = View.current.get_current_object(true);
+
+	Dialog.ButtonInfo.populate_with(button);
+	Dialog.ButtonInfo.set_onclose(function(in_dialog, in_save)
+	{
+		if (in_save) 
+		{
+			in_dialog.apply();
+			View.current.rebuild(); // this should happen automatically in future **TODO**
+		}
+	});
+	Dialog.ButtonInfo.show();
+	
+	/*var obj = this._selected_objects[0];
 	Application._objects = this._selected_objects;
 	
 	document.getElementById('ButtonInfoName').value = obj.get_attr(LayerObject.ATTR_NAME);
@@ -1206,7 +1219,7 @@ View.prototype._do_button_info = function()
 	document.getElementById('ButtonInfoBkgndOnly').style.visibility = (obj._is_bkgnd ? 'visible' : 'hidden');
 	document.getElementById('ButtonInfoShared').checked = obj.get_attr(LayerObject.ATTR_SHARED);	
 		
-	Dialog.ButtonInfo.show();
+	Dialog.ButtonInfo.show();*/
 }
 
 

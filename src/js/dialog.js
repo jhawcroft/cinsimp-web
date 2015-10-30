@@ -189,14 +189,22 @@ Dialog.prototype._map = function(in_root)
 	for (var i = 0; i < children.length; i++)
 	{
 		var child = children[i];
-		if (child.dataset.attr !== undefined)
+		var attr_name = child.dataset.attr;
+		if (attr_name !== undefined)
 		{
-			this._dom_map[child.dataset.attr] = child;
-			switch (child.nodeName.toLowerCase())
+			if (this._dom_map[attr_name] === undefined)
 			{
-			case 'div':
-				child.dataset.str_tmpl = child.textContent;
-				break;
+				this._dom_map[attr_name] = [ child ];
+				switch (child.nodeName.toLowerCase())
+				{
+				case 'div':
+					child.dataset.str_tmpl = child.textContent;
+					break;
+				}
+			}
+			else /* multiple elements; likely to be a radio group */
+			{
+				this._dom_map[attr_name].push( child );
 			}
 		}
 		this._map(child);
@@ -208,22 +216,39 @@ Dialog.prototype.apply = function()
 {
 	for (var attr_name in this._dom_map)
 	{
-		var attr_element = this._dom_map[attr_name];
-		var attr_value = null;
+		var attr_elements = this._dom_map[attr_name];
+		var attr_value = undefined;
 		
-		switch (attr_element.nodeName.toLowerCase())
+		if (attr_elements.length == 1)
 		{
-		case 'input':
-			if (attr_element.type == 'checkbox')
-				attr_value = attr_element.checked;
-			else
-				attr_value = attr_element.value;
-			break;
-		default: 
-			continue;
+			var attr_element = attr_elements[0];
+			switch (attr_element.nodeName.toLowerCase())
+			{
+			case 'input':
+				if (attr_element.type == 'checkbox')
+					attr_value = attr_element.checked;
+				else
+					attr_value = attr_element.value;
+				break;
+			default: 
+				continue;
+			}
+		}
+		else
+		{
+			for (var e = 0; e < attr_elements.length; e++)
+			{
+				var attr_element = attr_elements[e];
+				if (attr_element.checked)
+				{
+					attr_value = attr_element.value;
+					break;
+				}
+			}
 		}
 		
-		this._populate_object.set_attr(attr_name, attr_value);
+		if (attr_value !== undefined)
+			this._populate_object.set_attr(attr_name, attr_value);
 	}
 }
 
@@ -240,22 +265,38 @@ Dialog.prototype.populate_with = function(in_object)
 	
 	for (var attr_name in this._dom_map)
 	{
-		var attr_element = this._dom_map[attr_name];
+		var attr_elements = this._dom_map[attr_name];
 		var attr_value = in_object.get_attr(attr_name, 'ui');
 		
-		switch (attr_element.nodeName.toLowerCase())
+		if (attr_elements.length == 1)
 		{
-		case 'div':
-			if (attr_element.dataset.str_tmpl)
-				attr_value = Util.string(attr_element.dataset.str_tmpl, attr_value);
-			attr_element.textContent = attr_value;
-			break;
-		case 'input':
-			if (attr_element.type == 'checkbox')
-				attr_element.checked = attr_value;
-			else
-				attr_element.value = attr_value;
-			break;
+			var attr_element = attr_elements[0];
+			switch (attr_element.nodeName.toLowerCase())
+			{
+				case 'div':
+					if (attr_element.dataset.str_tmpl)
+						attr_value = Util.string(attr_element.dataset.str_tmpl, attr_value);
+					attr_element.textContent = attr_value;
+					break;
+				case 'input':
+					if (attr_element.type == 'checkbox')
+						attr_element.checked = attr_value;
+					else
+						attr_element.value = attr_value;
+					break;
+			}
+		}
+		else
+		{
+			for (var e = 0; e < attr_elements.length; e++)
+			{
+				var attr_element = attr_elements[e];
+				if (attr_element.value == attr_value)
+				{
+					attr_element.checked = true;
+					break;
+				}
+			}
 		}
 	}
 }

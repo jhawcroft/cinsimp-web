@@ -402,6 +402,21 @@ LayerObject.prototype.get_rect = function()
 }
 
 
+LayerObject.prototype._set_opaque = function(in_opaque)
+{
+	if (!in_opaque)
+		this.set_attr('color', '');
+	else
+		this.set_attr('color', '1,1,1');
+}
+
+
+LayerObject.prototype._get_opaque = function()
+{
+	return ! Util.null_or_empty(this.get_attr('color'));
+}
+
+
 LayerObject.prototype._attribute_written = function() {}
 
 
@@ -421,6 +436,7 @@ LayerObject.prototype.set_attr = function(in_attr, in_value)
 	if (in_attr == 'loc') return this.set_loc(in_value.split(','));
 	else if (in_attr == 'size') return this.set_size(in_value.split(','));
 	else if (in_attr == 'rect') return this.set_rect(in_value.split(','));
+	else if (in_attr == 'opaque') return this._set_opaque(in_value);
 
 	if (!(in_attr in this._def))
 		throw new Error(this.get_type() + ' has no writable attribute "' + in_attr + '"');
@@ -446,6 +462,7 @@ LayerObject.prototype.get_attr = function(in_attr, in_fmt)
 	else if (in_attr == 'loc') return this.get_loc().join(',');
 	else if (in_attr == 'size') return this.get_size().join(',');
 	else if (in_attr == 'rect') return this.get_rect().join(',');
+	else if (in_attr == 'opaque') return this._get_opaque();
 	
 	if (!(in_attr in this._def))
 		throw new Error(this.get_type() + ' has no readable attribute "' + in_attr + '"');
