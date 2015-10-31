@@ -1171,8 +1171,11 @@ View.prototype._do_button_info = function()
 	var button = View.current.get_current_object(true);
 
 	Dialog.ButtonInfo.populate_with(button);
+	Dialog.ButtonInfo.element('bkgnd-only').style.visibility = (button.is_bkgnd() ? 'visible' : 'hidden');
+	
 	Dialog.ButtonInfo.set_onclose(function(in_dialog, in_save)
 	{
+		in_dialog.element('bkgnd-only').style.visibility = 'hidden';
 		if (in_save) 
 		{
 			in_dialog.apply();
@@ -1180,79 +1183,28 @@ View.prototype._do_button_info = function()
 		}
 	});
 	Dialog.ButtonInfo.show();
-	
-	/*var obj = this._selected_objects[0];
-	Application._objects = this._selected_objects;
-	
-	document.getElementById('ButtonInfoName').value = obj.get_attr(LayerObject.ATTR_NAME);
-	document.getElementById('ButtonInfoNumber').textContent = 
-		(obj._is_bkgnd ? 'Bkgnd' : 'Card') + ' button number: ' + obj.get_attr(LayerObject.ATTR_KLAS_NUM);
-	document.getElementById('ButtonInfoID').textContent = 
-		(obj._is_bkgnd ? 'Bkgnd' : 'Card') + ' button ID: ' + obj.get_attr(LayerObject.ATTR_ID);
-		
-	switch (obj.get_attr(Button.ATTR_STYLE))
-	{
-	case Button.STYLE_RECTANGLE:
-		document.getElementById('ButtonInfoType2').checked = true;
-		break;
-	case Button.STYLE_ROUNDED:
-		document.getElementById('ButtonInfoType3').checked = true;
-		break;
-	case Button.STYLE_CHECK_BOX:
-		document.getElementById('ButtonInfoType4').checked = true;
-		break;
-	case Button.STYLE_RADIO:
-		document.getElementById('ButtonInfoType5').checked = true;
-		break;
-	case Button.STYLE_BORDERLESS:
-	default:
-		document.getElementById('ButtonInfoType1').checked = true;
-		break;
-	}
-	
-	document.getElementById('ButtonInfoShadow').checked = obj.get_attr(LayerObject.ATTR_SHADOW);
-	document.getElementById('ButtonInfoOpaque').checked = (obj.get_attr(LayerObject.ATTR_COLOR) != null);
-	document.getElementById('ButtonInfoShowName').checked = obj.get_attr(Button.ATTR_SHOW_NAME);
-	
-	document.getElementById('ButtonInfoAutoHilite').checked = obj.get_attr(Button.ATTR_AUTO_HILITE);
-	
-	document.getElementById('ButtonInfoBkgndOnly').style.visibility = (obj._is_bkgnd ? 'visible' : 'hidden');
-	document.getElementById('ButtonInfoShared').checked = obj.get_attr(LayerObject.ATTR_SHARED);	
-		
-	Dialog.ButtonInfo.show();*/
-}
-
-
-View.prototype._save_button_info = function()
-{
-	var obj = this._selected_objects[0];
-	
-	obj.set_attr(LayerObject.ATTR_NAME, document.getElementById('ButtonInfoName').value);
-	
-	obj.set_attr(LayerObject.ATTR_SHADOW, document.getElementById('ButtonInfoShadow').checked);
-	obj.set_attr(LayerObject.ATTR_COLOR, (document.getElementById('ButtonInfoOpaque').checked ? [1,1,1] : null));
-	obj.set_attr(Button.ATTR_SHOW_NAME, document.getElementById('ButtonInfoShowName').checked);
-	
-	obj.set_attr(Button.ATTR_AUTO_HILITE, document.getElementById('ButtonInfoAutoHilite').checked);
-	obj.set_attr(LayerObject.ATTR_SHARED, document.getElementById('ButtonInfoShared').checked);
-	
-	if (document.getElementById('ButtonInfoType1').checked)
-		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_BORDERLESS);
-	else if (document.getElementById('ButtonInfoType2').checked)
-		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_RECTANGLE);
-	else if (document.getElementById('ButtonInfoType3').checked)
-		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_ROUNDED);
-	else if (document.getElementById('ButtonInfoType4').checked)
-		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_CHECK_BOX);
-	else if (document.getElementById('ButtonInfoType5').checked)
-		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_RADIO);
-
-	Dialog.dismiss();
 }
 
 
 View.prototype._do_field_info = function()
 {
+	var field = View.current.get_current_object(true);
+
+	Dialog.FieldInfo.populate_with(field);
+	Dialog.FieldInfo.element('bkgnd-only').style.visibility = (field.is_bkgnd() ? 'visible' : 'hidden');
+	
+	Dialog.FieldInfo.set_onclose(function(in_dialog, in_save)
+	{
+		in_dialog.element('bkgnd-only').style.visibility = 'hidden';
+		if (in_save) 
+		{
+			in_dialog.apply();
+			View.current.rebuild(); // this should happen automatically in future **TODO**
+		}
+	});
+	Dialog.FieldInfo.show();
+	
+	/*
 	var obj = this._selected_objects[0];
 	Application._objects = this._selected_objects;
 	
@@ -1280,7 +1232,7 @@ View.prototype._do_field_info = function()
 	document.getElementById('FieldInfoAutoSelect').checked = obj.get_attr(Field.ATTR_AUTO_SELECT);
 	document.getElementById('FieldInfoMultipleLines').checked = obj.get_attr(Field.ATTR_MULTIPLE_LINES);
 	
-	Dialog.FieldInfo.show();
+	Dialog.FieldInfo.show();*/
 }
 
 

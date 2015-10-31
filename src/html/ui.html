@@ -241,7 +241,7 @@ as dictated by the server, thus allowing for search nevigability -->
 			<div class="Label"><input type="checkbox" data-attr="show_name" id="ButtonInfoShowName" checked> <label for="ButtonInfoShowName">Show name</label></div>
 
 			<div class="Label x2VertGap"><input type="checkbox" data-attr="auto_hilite" id="ButtonInfoAutoHilite"> <label for="ButtonInfoAutoHilite">Auto hilite</label></div>
-			<div class="Label" id="ButtonInfoBkgndOnly"><input type="checkbox" data-attr="shared" id="ButtonInfoShared"> <label for="ButtonInfoShared">Shared hilite</label></div>
+			<div class="Label" data-id="bkgnd-only" id="ButtonInfoBkgndOnly"><input type="checkbox" data-attr="shared" id="ButtonInfoShared"> <label for="ButtonInfoShared">Shared hilite</label></div>
 	
 	</div>
 	<div style="float: right;">
@@ -284,25 +284,25 @@ as dictated by the server, thus allowing for search nevigability -->
 		<div class=""><input type="checkbox" data-attr="auto_tab" id="FieldInfoAutoTab"> <label for="FieldInfoAutoTab">Auto tab</label></div>
 		
 		<div class="Label" id="FieldInfoBkgndOnly">
-			<div class=""><input type="checkbox" data-attr="shared" id="FieldInfoShared"> <label for="FieldInfoShared">Shared text</label></div>
+			<div data-id="bkgnd-only" class=""><input type="checkbox" data-attr="shared" id="FieldInfoShared"> <label for="FieldInfoShared">Shared text</label></div>
 			<div class=""><input type="checkbox" data-attr="dont_search" id="FieldInfoDontSearch"> <label for="FieldInfoDontSearch">Don't search</label></div>
 		</div>
 	
 	</div>
 	<div style="float: left;">
 		
-		<div class=""><input type="checkbox" data-attr="auto_select" id="FieldInfoAutoSelect"> <label for="FieldInfoAutoSelect">Auto select</label></div>
-		<div style="padding-left: 20px;"><input type="checkbox" data-attr="multiple_lines" id="FieldInfoMultipleLines"> <label for="FieldInfoMultipleLines">Multiple lines</label></div>
-		<div class="VertGap"><input type="checkbox" data-attr="columnar" id="FieldInfoColumnar"> <label for="FieldInfoColumnar">Columnar</label> 
-			<input type="button" value="Columns..." style="display:inline-block; margin-left: 10px;" disabled></div>
-		<div style="padding-left: 20px;"><input type="checkbox" data-attr="has_header" id="FieldInfoHasHeader"> <label for="FieldInfoHasHeader">Has header</label></div>
+		<div style="visibility: hidden;"><input type="checkbox" data-attr="auto_select" id="FieldInfoAutoSelect"> <label for="FieldInfoAutoSelect">Auto select</label></div>
+		<div style="visibility: hidden; padding-left: 20px;"><input type="checkbox" data-attr="multiple_lines" id="FieldInfoMultipleLines"> <label for="FieldInfoMultipleLines">Multiple lines</label></div>
+		<div style="visibility: hidden;" class="VertGap"><input type="checkbox" data-attr="columnar" id="FieldInfoColumnar"> <label for="FieldInfoColumnar">Columnar</label> 
+			<input type="button" value="Columns..." style="visibility: hidden; display:inline-block; margin-left: 10px;" disabled></div>
+		<div style="visibility: hidden; padding-left: 20px;"><input type="checkbox" data-attr="has_header" id="FieldInfoHasHeader"> <label for="FieldInfoHasHeader">Has header</label></div>
 		
-		<input type="button" value="Picklist..." onclick="AppDialogs.edit_text_attr(Field.ATTR_PICKLIST, Dialog.dismiss.bind(true), 'Field Picklist Items');" style="margin-top: 20px;">
+		<input type="button" value="Picklist..." onclick="AppDialogs.edit_text_attr('picklist', Dialog.dismiss.bind(true), 'Field Picklist Items');" style="margin-top: 20px;">
 	</div>
 	
 	<div class="Bottom" style="display: block; position: absolute;">
 			
-			<input type="button" class="SameSizeStacked VertGap" value="Text Style..." onclick="Text.edit_style(Application._objects, Dialog.dismiss.bind(true)); ">
+			<input type="button" class="SameSizeStacked VertGap" value="Text Style..." onclick="Text.edit_style(View.current.get_current_objects(), Dialog.dismiss.bind(true)); ">
 	</div>
 	<div class="Right Bottom">
 		<input type="button" style="margin-right: 10px;" value="Script..." onclick="View.do_edit_script(Dialog.dismiss.bind(true));"> <input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="Dialog.dismiss(true)"> 

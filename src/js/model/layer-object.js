@@ -77,6 +77,9 @@ Model.LayerObject = function(in_def, in_layer)
 		'visible': true,
 		'script': '',
 		'disabled': false,
+		'multiple_lines': false,
+		'columnar': false,
+		'has_header': false,
 		
 		'txt_align': 'left',
 		'txt_font': 'sans-serif',
@@ -115,6 +118,12 @@ LayerObject.prototype.get_description = function()
 	if (name != '')
 		desc += ' "' + name + '"';
 	return desc;
+}
+
+
+LayerObject.prototype.is_bkgnd = function()
+{
+	return (this._layer && this._layer.get_type() == Bkgnd.TYPE);
 }
 
 
@@ -448,6 +457,7 @@ LayerObject.prototype.set_attr = function(in_attr, in_value)
 	else if (in_attr == 'size') return this.set_size(in_value.split(','));
 	else if (in_attr == 'rect') return this.set_rect(in_value.split(','));
 	else if (in_attr == 'opaque') return this._set_opaque(in_value);
+	else if (in_attr == 'dont_search') return this.set_attr('searchable', !in_value);
 
 	if (!(in_attr in this._def))
 		throw new Error(this.get_type() + ' has no writable attribute "' + in_attr + '"');
@@ -474,6 +484,7 @@ LayerObject.prototype.get_attr = function(in_attr, in_fmt)
 	else if (in_attr == 'size') return this.get_size().join(',');
 	else if (in_attr == 'rect') return this.get_rect().join(',');
 	else if (in_attr == 'opaque') return this._get_opaque();
+	else if (in_attr == 'dont_search') return !this.get_attr('searchable');
 	
 	if (!(in_attr in this._def))
 		throw new Error(this.get_type() + ' has no readable attribute "' + in_attr + '"');
