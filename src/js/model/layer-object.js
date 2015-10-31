@@ -137,12 +137,13 @@ LayerObject.prototype._load_def = function(in_def)
 }
 
 
-LayerObject.prototype._flush_attributes = function() {};
+LayerObject.prototype._make_consistent = function() {};
 
-LayerObject.prototype._flush = function()
+
+LayerObject.prototype.make_consistent = function()
 {
 	LayerObject._no_write_note = true;
-	try { this._flush_attributes(); }
+	try { this._make_consistent(); }
 	catch (err) {}
 	LayerObject._no_write_note = false;
 }
@@ -150,7 +151,7 @@ LayerObject.prototype._flush = function()
 
 LayerObject.prototype.get_def = function()
 {
-	this._flush();
+	this.make_consistent();
 	return this._def;
 }
 
@@ -487,7 +488,7 @@ LayerObject.prototype.set_attr = function(in_attr, in_value)
 	if (!this._attribute_writable(in_attr))
 		throw new Error(this.get_type() + ' attribute "' + in_attr + '" is read-only');
 
-	if (in_attr in this._data && (!this._def['shared']))
+	if (this.is_bkgnd() && in_attr in this._data && (!this._def['shared']))
 		this._data[in_attr] = in_value;
 	else
 		this._def[in_attr] = in_value;
@@ -512,10 +513,8 @@ LayerObject.prototype.get_attr = function(in_attr, in_fmt)
 	if (!(in_attr in this._def))
 		throw new Error(this.get_type() + ' has no readable attribute "' + in_attr + '"');
 	
-	this._flush();
-	
 	var value = null;
-	if (in_attr in this._data && (!this._def['shared']))
+	if (this.is_bkgnd() && in_attr in this._data && (!this._def['shared']))
 		value = this._data[in_attr];
 	else
 		value = this._def[in_attr];

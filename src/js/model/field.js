@@ -104,6 +104,12 @@ Field.prototype._dom_create = function(in_view)
 }
 
 
+Field.prototype._handle_dirty = function()
+{
+	if (this._layer) this._layer.dirty_objects();
+}
+
+
 Field.prototype._dom_rebuild = function()
 {
 	this._div.style.border = (this.get_attr('border') ? '1px solid black' : '');
@@ -114,7 +120,12 @@ Field.prototype._dom_rebuild = function()
 	this._inner.style.padding = (this.get_attr('wide_margins') ? '10px' : '0px');
 	this._inner.style.whiteSpace = (this.get_attr('dont_wrap') ? 'nowrap' : 'normal');
 	
+	this._inner.addEventListener('input', this._handle_dirty.bind(this));
+	this._inner.addEventListener('blur', this.make_consistent.bind(this));
+	
 	this._apply_text_attrs(this._inner);
+	
+	this._inner.innerHTML = this.get_attr('content');
 }
 
 
@@ -129,7 +140,7 @@ Field.prototype._attribute_written = function(in_attr, in_value)
 }
 
 
-Field.prototype._flush_attributes = function()
+Field.prototype._make_consistent = function()
 {
 	if (!this._div) return;
 	this.set_attr('content', this._inner.innerHTML);

@@ -849,7 +849,7 @@ View.prototype._save_card = function(in_handler)
 		if (in_success)
 			in_view._bkgnd.save(function(in_success, in_view)
 			{
-				if (in_success) in_handler.bind(in_view);
+				if (in_success && in_handler) in_handler.call(in_view);
 			},
 			in_view);
 	},
