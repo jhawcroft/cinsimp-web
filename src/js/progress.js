@@ -50,7 +50,6 @@ Progress.operation_begun = function(in_status, in_immediate)
 	if (!in_status)
 		in_status = 'Accessing server...';
 	document.getElementById('ProgressMessage').textContent = in_status;
-	document.getElementById('ProgressBarBox').classList.add('Indeterminate');
 
 	Progress._in_progress = true;
 	Progress._can_hide = false;
@@ -70,8 +69,8 @@ Progress.operation_begun = function(in_status, in_immediate)
 Progress._show = function()
 {
 	if (!Progress._in_progress) return;
-	document.getElementById('ProgressBarBox').style.animationName = 'progress-barber-pole';
 	Dialog.Progress.show();
+	document.getElementById('ProgressBarBox').classList.add('Indeterminate');
 	
 	if (Progress._can_hide_timer)
 		window.clearTimeout(Progress._can_hide_timer);
