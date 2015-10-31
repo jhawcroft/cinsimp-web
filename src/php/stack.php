@@ -1080,8 +1080,7 @@ Eventually methods for icon deletion/rename:
 /*
 	Looks up the first card ID for the stack.
 */
-/*
-	public function stack_get_first_card_id()
+	/*public function stack_get_first_card_id()
 	{
 		$stmt = $this->file_db->prepare('SELECT card_id FROM card WHERE card_seq=10');
 		Stack::sl_ok($stmt, $this->file_db, 'Getting First Card (1)');
@@ -1090,8 +1089,8 @@ Eventually methods for icon deletion/rename:
 		Stack::sl_ok($row, $this->file_db, 'Getting First Card(3)');
 		return $row[0];
 	}
-	
 	*/
+
 
 /*
 	Looks up the card ID for the Nth card within either the stack or the 
@@ -1393,6 +1392,9 @@ Eventually methods for icon deletion/rename:
 	{
 		$this->_check_growability();
 		
+		// ** TODO ** some card properties, such as Cant_Delete, Marked, Dont_search, script
+		// might only be available in certain user-levels?  may want to check later during a security audit
+		
 		Util::keys_required($card, array('id'));
 		$card_id = intval($card['id']);
 		
@@ -1442,45 +1444,31 @@ Eventually methods for icon deletion/rename:
 	{
 		$this->_check_growability();
 		
-	
-		$card_id = null;
 		$this->file_db->beginTransaction();
 	
-		$stmt = $this->file_db->prepare(
-			'SELECT card.bkgnd_id, card_seq '.
-			'FROM card JOIN bkgnd ON card.bkgnd_id=bkgnd.bkgnd_id '.
-			'WHERE card_id=?'
-		);
-		Stack::sl_ok($stmt, $this->file_db, 'Creating Card (1)');
-		Stack::sl_ok($stmt->execute(array(intval($after_card_id))), $this->file_db, 'Creating Card (2)');
+		/* request some information about the preceeding card; bkgnd ID and sequence */
+		$stmt = $this->file_db->prepare('SELECT bkgnd_id, seq FROM card WHERE id=?');
+		$stmt->execute(array( intval($after_card_id) ));
 		$row = $stmt->fetch(PDO::FETCH_NUM);
-		Stack::sl_ok($row, $this->file_db, 'Creating Card (3)');
-		$bkgnd_id = $row[0];
-		$existing_seq = $row[1];
+		$bkgnd_id = intval($row[0]);
+		$existing_seq = intval($row[1]);
 		
+		/* if a new background is requested too, create it */
 		if ($new_bkgnd_too)
 		{
-			$stmt = $this->file_db->prepare(
-				'INSERT INTO bkgnd (object_data, bkgnd_data) VALUES (\'\', ?)'
-			);
-			Stack::sl_ok($stmt, $this->file_db, 'Creating Bkgnd (1)');
-			Stack::sl_ok($stmt->execute(array('')), $this->file_db, 'Creating Bkgnd (2)');
-			$bkgnd_id = $this->file_db->lastInsertId();
+			$stmt = $this->file_db->prepare('INSERT INTO bkgnd (id) VALUES (NULL)');
+			$stmt->execute();
+			$bkgnd_id = intval($this->file_db->lastInsertId());
 		}
-		if ($bkgnd_id === null) Stack::sl_ok(false, null, 'Creating Card (4)');
 	   
-	   	$stmt = $this->file_db->prepare(
-			'UPDATE card SET card_seq=card_seq+10 WHERE card_seq>?'
-		);
-		Stack::sl_ok($stmt, $this->file_db, 'Creating Card (5)');
-		Stack::sl_ok($stmt->execute(array($existing_seq)), $this->file_db, 'Creating Card (6)');
-	   
-	   	$stmt = $this->file_db->prepare(
-			'INSERT INTO card (bkgnd_id,card_seq,object_data,card_data) VALUES (?,?,\'\',\'\')'
-		);
-		Stack::sl_ok($stmt, $this->file_db, 'Creating Card (7)');
-		Stack::sl_ok($stmt->execute(array( $bkgnd_id, ($existing_seq + 10) )), $this->file_db, 'Creating Card (8)');
-	   	$card_id = $this->file_db->lastInsertId();
+	    /* make room for the new card */
+	   	$stmt = $this->file_db->prepare('UPDATE card SET seq = seq + 1 WHERE seq > ?');
+		$stmt->execute(array( $existing_seq ));
+		
+	    /* insert the new card */
+	   	$stmt = $this->file_db->prepare('INSERT INTO card (id,bkgnd_id,seq) VALUES (NULL,?,?)');
+	   	$stmt->execute(array( $bkgnd_id, $existing_seq + 1 ));
+	   	$card_id = intval($this->file_db->lastInsertId());
 	   
 	   	$this->file_db->commit();
 	
@@ -1496,77 +1484,86 @@ Eventually methods for icon deletion/rename:
 */
 	public function stack_delete_card($card_id)
 	{
-		$this->stack_will_be_modified();
+		$this->_check_mutability();
 	
 		$next_card_id = null;
 		$this->file_db->beginTransaction();
 		
-		$stmt = $this->file_db->prepare(
-			'SELECT bkgnd_id, card_seq FROM card WHERE card_id=?'
-		);
-		Stack::sl_ok($stmt, $this->file_db, 'Deleting Card (1)');
-		Stack::sl_ok($stmt->execute(array( intval($card_id) )), $this->file_db, 'Deleting Card (2)');
+		/* request some information about the card; bkgnd ID, sequence and cant_delete flags */
+		$stmt = $this->file_db->prepare('SELECT card.bkgnd_id, card.seq, card.cant_delete, bkgnd.cant_delete '.
+			'FROM card JOIN bkgnd ON card.bkgnd_id=bkgnd.id WHERE card.id=?');
+		$stmt->execute(array( intval($card_id) ));
 		$row = $stmt->fetch(PDO::FETCH_NUM);
-		Stack::sl_ok($row, $this->file_db, 'Deleting Card (3)');
-		$bkgnd_id = $row[0];
-		$existing_seq = $row[1];
+		$bkgnd_id = intval($row[0]);
+		$existing_seq = intval($row[1]);
+		$card_cant_delete = Stack::decode_bool($row[2]);
+		$bkgnd_cant_delete = Stack::decode_bool($row[3]);
 		
-		$stmt = $this->file_db->prepare(
-			'SELECT COUNT(card.card_id) FROM card WHERE bkgnd_id=?'
-		);
-		Stack::sl_ok($stmt, $this->file_db, 'Deleting Card (4)');
-		Stack::sl_ok($stmt->execute(array( intval($bkgnd_id) )), $this->file_db, 'Deleting Card (5)');
+		if ($card_cant_delete)
+			CinsImpError::general('Cannot delete protected card');
+		
+		/* count the number of cards in the same background;
+		if this is the last card, the background must be deleted too */
+		$stmt = $this->file_db->prepare('SELECT COUNT(*) FROM card WHERE bkgnd_id=?');
+		$stmt->execute(array( intval($bkgnd_id) ));
 		$row = $stmt->fetch(PDO::FETCH_NUM);
-		Stack::sl_ok($row, $this->file_db, 'Deleting Card (6)');
-		$bkgnd_count = $row[0];
+		$bkgnd_count = intval($row[0]);
 		$cleanup_bkgnd = ($bkgnd_count == 1);
 		
-		$stmt = $this->file_db->prepare(
-			'SELECT COUNT(card.card_id) FROM card'
-		);
-		Stack::sl_ok($stmt, $this->file_db, 'Deleting Card (7)');
-		Stack::sl_ok($stmt->execute(), $this->file_db, 'Deleting Card (8)');
+		if ($cleanup_bkgnd && $bkgnd_cant_delete)
+			CinsImpError::general('Cannot delete last card of protected background');
+		
+		/* count the number of cards in the stack;
+		if this is the last card, it cannot be deleted (last card in stack) */
+		$stmt = $this->file_db->prepare('SELECT COUNT(*) FROM card');
+		$stmt->execute();
 		$row = $stmt->fetch(PDO::FETCH_NUM);
-		Stack::sl_ok($row, $this->file_db, 'Deleting Card (9)');
-		$stack_count = $row[0];
+		$stack_count = intval($row[0]);
+		
 		if ($stack_count == 1)
-			Stack::sl_ok(false, null, 'Deleting Card (10); Last Card in Stack');
+			CinsImpError::general('Cannot delete last card of stack');
 		
-		$stmt = $this->file_db->prepare(
-			'DELETE FROM card WHERE card_id=?'
-		);
-		Stack::sl_ok($stmt, $this->file_db, 'Deleting Card (11)');
-		$rows = $stmt->execute(array( intval($card_id) ));
-		if ($rows === 0) $rows = false;
-		Stack::sl_ok($rows, $this->file_db, 'Deleting Card (12)');
+		/* delete the actual card */
+		$stmt = $this->file_db->prepare('DELETE FROM card WHERE id=?');
+		$stmt->execute(array( intval($card_id) ));
 		
-		$stmt = $this->file_db->prepare(
-			'UPDATE card SET card_seq=card_seq-10 WHERE card_seq>?'
-		);
-		Stack::sl_ok($stmt, $this->file_db, 'Deleting Card (13)');
-		Stack::sl_ok($stmt->execute(array( intval($existing_seq) )), $this->file_db, 'Deleting Card (14)');
+		$stmt = $this->file_db->prepare('DELETE FROM card_data WHERE card_id=?');
+		$stmt->execute(array( intval($card_id) ));
 		
+		$stmt = $this->file_db->prepare('DELETE FROM button WHERE layer_id=?');
+		$stmt->execute(array( - intval($card_id) ));
+		$stmt = $this->file_db->prepare('DELETE FROM field WHERE layer_id=?');
+		$stmt->execute(array( - intval($card_id) ));
+		
+		/* close the gap */
+		$stmt = $this->file_db->prepare('UPDATE card SET seq = seq - 1 WHERE seq > ?');
+		$stmt->execute(array( intval($existing_seq) ));
+		
+		/* delete the background if required */
 		if ($cleanup_bkgnd)
 		{
-			$stmt = $this->file_db->prepare(
-				'DELETE FROM bkgnd WHERE bkgnd_id=?'
-			);
-			Stack::sl_ok($stmt, $this->file_db, 'Deleting Bkgnd (1)');
-			$rows = $stmt->execute(array( $bkgnd_id ));
-			if ($rows === 0) $rows = false;
-			Stack::sl_ok($rows, $this->file_db, 'Deleting Bkgnd (2)');
+			$stmt = $this->file_db->prepare('DELETE FROM bkgnd WHERE id=?');
+			$stmt->execute(array( $bkgnd_id ));
+			
+			$stmt = $this->file_db->prepare('DELETE FROM button WHERE layer_id=?');
+			$stmt->execute(array( $bkgnd_id ));
+			$stmt = $this->file_db->prepare('DELETE FROM field WHERE layer_id=?');
+			$stmt->execute(array( $bkgnd_id ));
 		}
 		
-		$stmt = $this->file_db->prepare(
-			'SELECT card_id FROM card WHERE card_seq=?'
-		);
-		Stack::sl_ok($stmt, $this->file_db, 'Deleting Card (15)');
-		Stack::sl_ok($stmt->execute(array( intval($existing_seq) )), $this->file_db, 'Deleting Card (16)');
+		/* select the card preceeding that which was deleted */
+		$stmt = $this->file_db->prepare('SELECT id FROM card WHERE seq=?');
+		$stmt->execute(array( intval($existing_seq) ));
 		$row = $stmt->fetch(PDO::FETCH_NUM);
 		if ($row)
-			$next_card_id = $row[0];
+			$next_card_id = intval($row[0]);
 		else
-			$next_card_id = $this->stack_get_first_card_id();
+		{
+			$stmt = $this->file_db->prepare('SELECT id FROM card WHERE seq = 1');
+			$stmt->execute();
+			$row = $stmt->fetch(PDO::FETCH_NUM);
+			$next_card_id = intval($row[0]);
+		}
 		
 		$this->file_db->commit();
 		return $next_card_id;
@@ -1584,6 +1581,7 @@ HyperCard Import Support (Revise Later)
 */
 	public function stack_inject_bkgnd($card)
 	{
+		CinsImpError::unimplemented();// UNTIL REFACTORED, DISABLED
 		$this->stack_will_be_modified();
 	
 		$data = array();
@@ -1616,6 +1614,8 @@ HyperCard Import Support (Revise Later)
 */
 	public function stack_inject_card($card)
 	{
+		CinsImpError::unimplemented();// UNTIL REFACTORED, DISABLED
+		
 		$this->stack_will_be_grown();
 	
 		$data = array();
@@ -1653,6 +1653,7 @@ HyperCard Import Support (Revise Later)
 */
 	public function zap_all_cards()
 	{
+		CinsImpError::unimplemented();// UNTIL REFACTORED, DISABLED
 		$this->stack_will_be_modified();
 		
 		$stmt = $this->file_db->prepare(

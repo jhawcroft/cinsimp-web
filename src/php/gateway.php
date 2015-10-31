@@ -260,6 +260,11 @@ Regular Command Handlers
 		return $outbound;
 	}
 	
+	
+	//private static function _return_card_and_bkgnd($stack, $card_ref, &$inbound, &$outbound)
+	//{
+	//	$outbound['card'] = $stack->stack_load_card($card_ref, 
+	//}
 
 /*
 	cmd: load_card
@@ -316,9 +321,12 @@ Regular Command Handlers
 */
 	public static function new_card($inbound, $outbound)
 	{
-		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']), Util::optional($inbound, 'auth_hash'));
-		$inbound['card_id'] = $stack->stack_new_card($inbound['card_id'], false);
-		return Gateway::load_card($inbound, $outbound);
+		Util::keys_required($inbound, array('id', 'card_id'));
+		$stack = new Stack(Util::safe_stack_id($inbound['id']), Util::optional($inbound, 'auth_hash'));
+		$card_id = $stack->stack_new_card(intval($inbound['card_id']), false);
+		$outbound['card'] = $stack->stack_load_card($card_id);
+		$outbound['bkgnd'] = $stack->stack_load_bkgnd($outbound['card']['bkgnd_id']);
+		return $outbound;
 	}
 	
 
@@ -329,9 +337,12 @@ Regular Command Handlers
 */
 	public static function new_bkgnd($inbound, $outbound)
 	{
-		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']), Util::optional($inbound, 'auth_hash'));
-		$inbound['card_id'] = $stack->stack_new_card($inbound['card_id'], true);
-		return Gateway::load_card($inbound, $outbound);
+		Util::keys_required($inbound, array('id', 'card_id'));
+		$stack = new Stack(Util::safe_stack_id($inbound['id']), Util::optional($inbound, 'auth_hash'));
+		$card_id = $stack->stack_new_card($inbound['card_id'], true);
+		$outbound['card'] = $stack->stack_load_card($card_id);
+		$outbound['bkgnd'] = $stack->stack_load_bkgnd($outbound['card']['bkgnd_id']);
+		return $outbound;
 	}
 	
 
@@ -342,10 +353,11 @@ Regular Command Handlers
 */
 	public static function delete_card($inbound, $outbound)
 	{
-		$stack = new Stack(Util::safe_stack_id($inbound['stack_id']), Util::optional($inbound, 'auth_hash'));
-		$inbound['card_id'] = $stack->stack_delete_card($inbound['card_id']);
-		$outbound = Gateway::load_card($inbound, $outbound);
-		$outbound['stack'] = $stack->stack_load();
+		Util::keys_required($inbound, array('id', 'card_id'));
+		$stack = new Stack(Util::safe_stack_id($inbound['id']), Util::optional($inbound, 'auth_hash'));
+		$next_card_id = $stack->stack_delete_card($inbound['card_id']);
+		$outbound['card'] = $stack->stack_load_card($next_card_id);
+		$outbound['bkgnd'] = $stack->stack_load_bkgnd($outbound['card']['bkgnd_id']);
 		return $outbound;
 	}
 	

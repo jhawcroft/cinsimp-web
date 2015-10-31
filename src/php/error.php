@@ -97,6 +97,11 @@ class CinsImpError extends Exception
 		throw new CinsImpError('Authentication Required', 401, $in_detail);
 	}
 	
+	public static function forbidden($in_detail = '')
+	{
+		throw new CinsImpError('Forbidden', 403, $in_detail);
+	}
+	
 	public static function internal($in_detail)
 	{
 		throw new CinsImpError('Internal Application Error', 500, $in_detail);
