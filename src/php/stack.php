@@ -1113,15 +1113,7 @@ Eventually methods for icon deletion/rename:
 		return $row[0];
 	}
 
-
-
-
-// also, getting cards should support server-side ordinals
-// because the total number is never accurately known if the stack is accessed by 
-// multiple users - thus the server should provide it
-
-// +ve is bkgnd, -ve is card
-
+	
 /*
 	Returns a list of the buttons and fields within the specified card/background layer.
 	If layer ID is -ve, it's a card ID, if it's +ve, it's a bkgnd ID.
@@ -1135,6 +1127,13 @@ Eventually methods for icon deletion/rename:
 		{
 			unset($row['layer_id']);
 			$row['type'] = 'button';
+			
+			$row['id'] = intval($row['id']);
+			$row['part_num'] = intval($row['part_num']);
+			$row['txt_size'] = intval($row['txt_size']);
+			
+			$row['family'] = intval($row['family']);
+			$row['icon'] = intval($row['icon']);
 			
 			$row['shared'] = Stack::decode_bool($row['shared']);
 			$row['searchable'] = Stack::decode_bool($row['searchable']);
@@ -1155,6 +1154,10 @@ Eventually methods for icon deletion/rename:
 		{
 			unset($row['layer_id']);
 			$row['type'] = 'field';
+			
+			$row['id'] = intval($row['id']);
+			$row['part_num'] = intval($row['part_num']);
+			$row['txt_size'] = intval($row['txt_size']);
 			
 			$row['shared'] = Stack::decode_bool($row['shared']);
 			$row['searchable'] = Stack::decode_bool($row['searchable']);
