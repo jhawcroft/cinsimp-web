@@ -1116,54 +1116,45 @@ View.prototype.do_delete_card = function()
 }
 
 
-View.prototype._go_nth_card = function(in_num, in_bkgnd)
+View.prototype._go_nth_card = function(in_ref, in_bkgnd)
 {
-	/* submit ajax request to load the card */
-	msg = {
-		cmd: 'load_card',
-		stack_id: this._stack.stack_id,
-		stack_num: in_num
-	};
-	
-	Progress.operation_begun();
-	var me = this;
-	Ajax.send(msg, function(msg, status) {
-		Progress.operation_finished();
-		if ((status != 'ok') || (msg.cmd != 'load_card'))
-			alert('Save card error: '+status+"\n"+JSON.stringify(msg));
-		else
+	var view = this;
+	Progress.operation_begun('Saving the current card...');
+	this._save_card(function()
+	{
+		Progress.status('Loading the card...');
+		view._card.load_nth(in_ref, in_bkgnd, function(in_new_card, in_new_bkgnd)
 		{
-			me._card = msg.card;
-			me._rebuild_card();
-		}
+			if (in_new_card)
+			{
+				view._card = in_new_card;
+				if (in_new_bkgnd) view._bkgnd = in_new_bkgnd;
+				view._rebuild_layers();
+			}
+			Progress.operation_finished();
+		});
 	});
 }
 
 
 View.prototype.go_first = function()
 {
-	this._save_card( this._go_nth_card.bind(this, 1) );
+	this._go_nth_card('#1');
 }
 
 View.prototype.go_prev = function()
 {
-	if (this._card.card_seq == 1)
-		this.go_last();
-	else
-		this._save_card( this._go_nth_card.bind(this, this._card.card_seq - 1) );
+	this._go_nth_card('#previous');
 }
 
 View.prototype.go_next = function()
 {
-	if (this._card.card_seq == this._stack.count_cards)
-		this.go_first();
-	else
-		this._save_card( this._go_nth_card.bind(this, this._card.card_seq + 1) );
+	this._go_nth_card('#next');
 }
 
 View.prototype.go_last = function()
 {
-	this._save_card( this._go_nth_card.bind(this, this._stack.count_cards) );
+	this._go_nth_card('#last');
 }
 
 

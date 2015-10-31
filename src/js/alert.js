@@ -57,6 +57,8 @@ Alert.ICON_WARNING = 1;
 
 Alert.prototype.show = function()
 {
+	Progress.operation_finished();
+
 	var d_prompt = document.getElementById('AlertPrompt');
 	
 	var d_btn1 = document.getElementById('AlertBtn1');

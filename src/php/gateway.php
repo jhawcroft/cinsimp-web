@@ -275,7 +275,11 @@ Regular Command Handlers
 	{
 		Util::keys_required($inbound, array('id','ref'));
 		$stack = new Stack(Util::safe_stack_id($inbound['id']), Util::optional($inbound, 'auth_hash'));
-		$outbound['card'] = $stack->stack_load_card($inbound['ref']);
+		$outbound['card'] = $stack->stack_load_card(
+			$inbound['ref'], 
+			Util::optional($inbound, 'bkgnd_id'), 
+			Util::optional($inbound, 'current')
+		);
 		$outbound['bkgnd'] = $stack->stack_load_bkgnd($outbound['card']['bkgnd_id']);
 		return $outbound;
 	}

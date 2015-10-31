@@ -1287,6 +1287,14 @@ Eventually methods for icon deletion/rename:
 			$in_ref = trim(substr($in_ref, 1));
 			switch ($in_ref)
 			{
+			case 'next':
+				
+				CinsImpError::unimplemented('ordinal card access');
+				break;
+			case 'prev':
+			case 'previous':
+				CinsImpError::unimplemented('ordinal card access');
+				break;
 			case 'last':
 				CinsImpError::unimplemented('ordinal card access');
 				break;
@@ -1313,9 +1321,15 @@ Eventually methods for icon deletion/rename:
 /*
 	Retrieves the card data for the supplied card ID.
 */
-	public function stack_load_card($card_id)
+	public function stack_load_card($card_id, $bkgnd_id = null, $in_current = null)
 	{
-		$card_id = $this->_card_ref_to_id($card_id);
+		$card_id = $this->_card_ref_to_id($card_id, $bkgnd_id);
+		
+		// **TODO eventually we can optimise to not send the same background
+		// as that on which the current card sits
+		
+		// **TODO eventually modify so it can retrieve a card via any means
+		// within and relative to a specific background
 		
 		$stmt = $this->file_db->prepare(
 'SELECT id,bkgnd_id,seq,name,cant_delete,dont_search,marked,script,art,art_hidden FROM card WHERE id=?'

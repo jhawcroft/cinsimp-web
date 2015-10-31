@@ -384,6 +384,45 @@ Card.prototype.destroy = function(in_onfinished)
 }
 
 
+Card.load_nth = function(in_stack, in_ref, in_bkgnd, in_onfinished, in_existing_card)
+{
+	if (in_existing_card !== null && typeof in_existing_card == 'object')
+		in_existing_card = in_existing_card._def.id;
+	if (in_bkgnd !== null && typeof in_bkgnd == 'object')
+		in_bkgnd = in_bkgnd._def.id;
+	
+	var msg = 
+	{
+		cmd: 'load_card',
+		ref: in_ref
+	};
+	if (in_existing_card !== null) msg.current = in_existing_card;
+	if (in_bkgnd !== null) msg.bkgnd_id = in_bkgnd;
+	
+	in_stack.gateway(msg,
+	function(in_reply)
+	{
+		if (in_reply.cmd != 'error')
+		{
+			if (in_onfinished) in_onfinished(
+				new CinsImp.Model.Card(in_stack, in_reply.card),
+				(in_reply.bkgnd ? new CinsImp.Model.Bkgnd(in_stack, in_reply.bkgnd) : null)
+			);
+		}
+		else
+		{
+			if (in_onfinished) in_onfinished(null, null);
+		}
+	});
+}
+
+
+Card.prototype.load_nth = function(in_ref, in_bkgnd, in_onfinished)
+{
+	Card.load_nth(this._stack, in_ref, in_bkgnd, in_onfinished, this);
+}
+
+
 
 CinsImp._script_loaded('Model.Card');
 
