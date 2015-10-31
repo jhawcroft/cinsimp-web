@@ -124,6 +124,8 @@ LayerObject.prototype.is_bkgnd = function()
 
 LayerObject.prototype._load_def = function(in_def)
 {
+	if (!in_def) return;
+	
 	Util.array_apply(this._def, in_def);
 	this.set_rect(in_def.rect.split(','));
 	
@@ -153,6 +155,10 @@ LayerObject.prototype.get_stack = function()
 DOM View
 */
 
+
+LayerObject.prototype._dom_create = function() {}
+
+
 LayerObject.prototype.create_dom = function(in_view)
 {
 	if (this._div) return this._div;
@@ -170,6 +176,7 @@ LayerObject.prototype.create_dom = function(in_view)
 	this._div.addEventListener('mousedown', this.__handle_point_start.bind(this));
 	this._div.addEventListener('touchstart', this.__handle_point_start.bind(this));
 	
+	this._dom_create();
 	this.needs_dom_rebuild();
 	
 	return this._div;

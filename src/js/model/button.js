@@ -94,10 +94,8 @@ Button.prototype.get_type = function()
 DOM View
 */
 
-Button.prototype.create_dom = function(in_view)
-{
-	this.parent.create_dom.call(this, in_view);
-	
+Button.prototype._dom_create = function(in_view)
+{	
 	this._div.classList.add('btn');
 	
 	this._inner = document.createElement('div');
@@ -116,8 +114,6 @@ Button.prototype.create_dom = function(in_view)
 	this._caption.classList.add('zc');
 	
 	this._drop_arrow = null;
-	
-	return this._div;
 }
 
 

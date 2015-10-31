@@ -94,17 +94,13 @@ Field.prototype.get_type = function()
 DOM View
 */
 
-Field.prototype.create_dom = function(in_view)
+Field.prototype._dom_create = function(in_view)
 {
-	this.parent.create_dom.call(this, in_view);
-	
 	this._div.classList.add('fld');
 	
 	this._inner = document.createElement('div');
 	this._div.appendChild(this._inner);
 	this._inner.style.boxSizing = 'border-box';
-	
-	return this._div;
 }
 
 
