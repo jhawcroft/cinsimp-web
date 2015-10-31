@@ -137,8 +137,20 @@ LayerObject.prototype._load_def = function(in_def)
 }
 
 
+LayerObject.prototype._flush_attributes = function() {};
+
+LayerObject.prototype._flush = function()
+{
+	LayerObject._no_write_note = true;
+	try { this._flush_attributes(); }
+	catch (err) {}
+	LayerObject._no_write_note = false;
+}
+
+
 LayerObject.prototype.get_def = function()
 {
+	this._flush();
 	return this._def;
 }
 
@@ -226,6 +238,9 @@ LayerObject.prototype.set_dom_editability = function(in_edit, in_show_content) {
 
 LayerObject.prototype.kill = function()
 {
+	if (this._selection) 
+		this._selection.parentElement.removeChild(this._selection);
+	this._selection = null;
 	if (this._div !== undefined && this._div !== null)
 		this._div.parentElement.removeChild(this._div);
 	this._div = null;
@@ -497,10 +512,7 @@ LayerObject.prototype.get_attr = function(in_attr, in_fmt)
 	if (!(in_attr in this._def))
 		throw new Error(this.get_type() + ' has no readable attribute "' + in_attr + '"');
 	
-	LayerObject._no_write_note = true;
-	try { this._attribute_reading(in_attr); }
-	catch (err) {}
-	LayerObject._no_write_note = false;
+	this._flush();
 	
 	var value = null;
 	if (in_attr in this._data && (!this._def['shared']))
@@ -511,6 +523,12 @@ LayerObject.prototype.get_attr = function(in_attr, in_fmt)
 	return value;
 }
 
+
+
+LayerObject.prototype.get_layer = function()
+{
+	return this._layer;
+}
 
 
 

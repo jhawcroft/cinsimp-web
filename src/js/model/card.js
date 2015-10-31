@@ -252,6 +252,31 @@ Card.prototype.add_object = function(in_object)
 }
 
 
+Card.prototype.remove_object = function(in_object)
+{
+	var idx = this._objects.indexOf(in_object);
+	if (idx < 0) throw new Error('Can\'t remove object from layer, as it isn\'t on the layer');
+	
+	this._objects.splice(idx, 1);
+	in_object.kill();
+	
+	this.dirty_objects();
+}
+/*var idx = this._objects_card.indexOf(obj);
+		if (idx >= 0)
+			this._objects_card.splice(idx, 1);
+		idx = this._objects_bkgnd.indexOf(obj);
+		if (idx >= 0)
+			this._objects_bkgnd.splice(idx, 1);
+		obj.kill();
+		
+		
+		this._selected_objects.length = 0;
+	
+	//this._renumber_objects();
+	*/
+
+
 Card.prototype.get_objects = function()
 {
 	return this._objects;

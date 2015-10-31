@@ -732,17 +732,18 @@ View.prototype.do_delete_objects = function()
 	for (var o = 0; o < this._selected_objects.length; o++)
 	{
 		var obj = this._selected_objects[o];
-		var idx = this._objects_card.indexOf(obj);
+		obj.get_layer().remove_object(obj);
+		/*var idx = this._objects_card.indexOf(obj);
 		if (idx >= 0)
 			this._objects_card.splice(idx, 1);
 		idx = this._objects_bkgnd.indexOf(obj);
 		if (idx >= 0)
 			this._objects_bkgnd.splice(idx, 1);
-		obj.kill();
+		obj.kill();*/
 	}
 	this._selected_objects.length = 0;
 	
-	this._renumber_objects();
+	//this._renumber_objects();
 }
 
 

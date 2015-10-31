@@ -129,11 +129,13 @@ Field.prototype._attribute_written = function(in_attr, in_value)
 }
 
 
-Field.prototype._attribute_reading = function(in_attr)
+Field.prototype._flush_attributes = function()
 {
-	if (this._div && in_attr == 'content')
-		this.set_attr(in_attr, this._inner.innerHTML);
+	if (!this._div) return;
+	this.set_attr('content', this._inner.innerHTML);
 }
+
+
 
 
 
