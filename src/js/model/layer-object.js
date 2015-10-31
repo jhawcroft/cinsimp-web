@@ -55,10 +55,7 @@ Model.LayerObject = function(in_def, in_layer)
 	
 	/* init defaults */
 	this._def = 
-	{
-		// this one is determined by the subclass and computed automatically
-		'type': null,
-		
+	{	
 		// this one is allocated by the layer
 		'id': (in_layer ? in_layer.generate_object_id() : 0),
 		
@@ -67,9 +64,7 @@ Model.LayerObject = function(in_def, in_layer)
 		'klas_num': 0,
 		
 		// loc, size, rect all dynamically accessing _position
-		'loc': '',
-		'size': '',
-		'rect': '',
+		'rect': '0,0,0,0',
 		
 		'name': '',
 		'shared': false,
@@ -286,6 +281,8 @@ LayerObject.prototype.get_card_data = function()
 
 LayerObject.prototype._resized = function()
 {
+	this._def['rect'] = this.get_rect().join(',');
+
 	if (this._div)
 	{
 		Util.set_dom_loc(this._div, this.get_loc());

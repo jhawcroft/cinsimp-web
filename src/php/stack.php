@@ -364,8 +364,7 @@ CREATE TABLE button (
 	id INTEGER NOT NULL,
 	layer_id INTEGER NOT NULL,
 	part_num INTEGER NOT NULL,
-	location TEXT NOT NULL,
-	size TEXT NOT NULL,
+	rect TEXT NOT NULL,
 	name TEXT NOT NULL DEFAULT '',
 	shared INTEGER NOT NULL DEFAULT 0,
 	searchable INTEGER NOT NULL DEFAULT 1,
@@ -395,8 +394,7 @@ CREATE TABLE field (
 	id INTEGER NOT NULL,
 	layer_id INTEGER NOT NULL,
 	part_num INTEGER NOT NULL,
-	location TEXT NOT NULL,
-	size TEXT NOT NULL,
+	rect TEXT NOT NULL,
 	name TEXT NOT NULL DEFAULT '',
 	shared INTEGER NOT NULL DEFAULT 0,
 	searchable INTEGER NOT NULL DEFAULT 1,
@@ -763,6 +761,19 @@ Accessors and Mutators
 				CinsImpError::malformed('_sql_type_verify: field "'.$field_name.'": illegal Point');
 			$components[0] = intval($components[0]);
 			$components[1] = intval($components[1]);
+			$field_value = implode(',', $components);
+			break;
+		case 'rect':
+			$field_value = strval($field_value);
+			if (strlen($field_value) > 32)
+				CinsImpError::malformed('_sql_type_verify: field "'.$field_name.'": exceeds 32 bytes');
+			$components = explode(',', $field_value);
+			if (count($components) != 4)
+				CinsImpError::malformed('_sql_type_verify: field "'.$field_name.'": illegal Rect');
+			$components[0] = intval($components[0]);
+			$components[1] = intval($components[1]);
+			$components[2] = intval($components[2]);
+			$components[3] = intval($components[3]);
 			$field_value = implode(',', $components);
 			break;
 		case 'image':
@@ -1179,10 +1190,10 @@ Eventually methods for icon deletion/rename:
 			CinsImpError::malformed('layer objects must be an array');
 		foreach ($objects as $object_def)
 		{
-			Util::keys_required($object_def, array('id', 'type', 'part_num', 'location', 'size'));
+			Util::keys_required($object_def, array('id', 'type', 'part_num', 'rect'));
 			$general_keys = array(
 				// required general:
-				'id:int', 'layer_id:int', 'part_num:uint16', 'location:point', 'size:point', 
+				'id:int', 'layer_id:int', 'part_num:uint16', 'rect:rect', 
 				
 				// optional general:
 				'name:str255', 'shared:bool', 'searchable:bool', 'visible:bool', 'disabled:bool',

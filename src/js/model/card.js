@@ -56,6 +56,7 @@ Model.Card = function(in_stack, in_ident, in_ready_handler)
 	
 	this._changes = {};
 	this._next_id = 1;
+	this._objects = [];
 	
 	/* check if the identifier is not a definition;
 	the definition will need to be fetched before the card can be loaded */
@@ -129,6 +130,25 @@ Card.prototype._load_def = function(in_def)
 }
 
 
+Card.prototype.get_def = function(in_changes)
+{
+	if (this._changes.length == 0) return this._def;
+	
+	if ('objects' in this._changes)
+	{
+		var objects = [];
+		for (var o = 0; o < this._objects.length; o++)
+		{
+			var obj = this._objects[o];
+			objects.push(obj.get_def());
+		}
+		this._changes['objects'] = objects;
+	}
+	
+	return this._changes;
+}
+
+
 
 Card.prototype.get_description = function()
 {
@@ -194,13 +214,19 @@ Card.prototype.save = function(in_onfinished, in_arg)
 	{
 		cmd: 'save_card',
 		ref: this._def.id,
-		card: this._changes
+		card: this.get_def()
 	}, 
 	function(in_reply) 
 	{
 		if (in_reply.cmd != 'error') card.apply_changes();
 		if (in_onfinished) in_onfinished(in_reply.cmd != 'error', in_arg);
 	});
+}
+
+
+Card.prototype.dirty_objects = function()
+{
+	this._changes['objects'] = null;
 }
 
 
@@ -212,13 +238,14 @@ Card.prototype.generate_object_id = function()
 
 Card.prototype.add_object = function(in_object)
 {
-	this._def.objects.push(in_object);
+	this._objects.push(in_object);
+	this.dirty_objects();
 }
 
 
 Card.prototype.get_objects = function()
 {
-	return this._def.objects;
+	return this._objects;
 }
 
 

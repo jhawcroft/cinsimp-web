@@ -61,6 +61,7 @@ Model.Field = function(in_def, in_layer)
 	{
 		Util.array_apply(this._def, 
 		{
+			'type': 'field',
 			'border': true,
 			'shadow': false,
 			'scroll': false,

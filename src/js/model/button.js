@@ -61,6 +61,7 @@ Model.Button = function(in_def, in_layer)
 	{
 		Util.array_apply(this._def, 
 		{
+			'type': 'button',
 			'name': 'New Button',
 			'script': 'on mouseup\n  \nend mouseup',
 			'txt_style': 'bold',
