@@ -152,15 +152,24 @@ Palette.prototype.show = function()
 {
 	this._div.style.visibility = 'visible';
 	this._root.style.visibility = 'visible';
+	this.bringToFront();
 }
 
 
 Palette.prototype.toggle = function()
 {
 	if (!this.getVisible())
+	{
 		this.show();
+	}
 	else
 		this.hide();
+}
+
+
+Palette.prototype.is_visible = function()
+{
+	return this.getVisible();
 }
 
 

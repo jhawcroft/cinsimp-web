@@ -106,7 +106,10 @@ PopupMenu.prototype._reconstruct = function()
 PopupMenu.prototype._select = function(in_item)
 {
 	this._close();
-	if (in_item.handler) in_item.handler(in_item.title, in_item.index);
+	if (in_item.handler) 
+		window.setTimeout(in_item.handler.bind(in_item.title, in_item.index), 50);
+	
+	//in_item.handler(in_item.title, in_item.index);
 }
 
 

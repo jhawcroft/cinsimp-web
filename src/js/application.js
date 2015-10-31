@@ -328,7 +328,7 @@ Application._init_app_menu = function()
 	var m = PopupMenu.ApplicationMenu;
 
 	m.appendItem('Navigator', Palette.Navigator.toggle.bind(Palette.Navigator));
-	m.appendItem('Message', Palette.MessageBox.toggle.bind(Palette.MessageBox));
+	m.appendItem('Message', Application.do_message.bind(Application));
 	m.appendItem('Tools', Palette.Tools.toggle.bind(Palette.Tools));
 	m.appendItem('Authoring', Palette.Authoring.toggle.bind(Palette.Authoring));
 	m.appendItem('Colours', Palette.Colours.toggle.bind(Palette.Colours));
