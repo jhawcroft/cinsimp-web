@@ -341,13 +341,46 @@ Card.make_new = function(in_stack, in_preceeding, in_onfinished)
 	{
 		if (in_reply.cmd != 'error')
 		{
-			if (in_onfinished) in_onfinished(new CinsImp.Model.Card(in_stack, in_reply.card, null));
+			if (in_onfinished) in_onfinished(new CinsImp.Model.Card(in_stack, in_reply.card));
 		}
 		else
 		{
 			if (in_onfinished) in_onfinished(null);
 		}
 	});
+}
+
+
+Card.destroy = function(in_stack, in_card, in_onfinished)
+{
+	if (typeof in_card == 'object')
+		in_card = in_card._def.id;
+	
+	in_stack.gateway(
+	{
+		cmd: 'delete_card',
+		card_id: in_card
+	},
+	function(in_reply)
+	{
+		if (in_reply.cmd != 'error')
+		{
+			if (in_onfinished) in_onfinished(
+				new CinsImp.Model.Card(in_stack, in_reply.card),
+				new CinsImp.Model.Bkgnd(in_stack, in_reply.bkgnd)
+			);
+		}
+		else
+		{
+			if (in_onfinished) in_onfinished(null);
+		}
+	});
+}
+
+
+Card.prototype.destroy = function(in_onfinished)
+{
+	Card.destroy(this._stack, this, in_onfinished);
 }
 
 

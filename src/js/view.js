@@ -1070,12 +1070,14 @@ View.prototype._load_card = function(in_card_id)
 View.prototype.do_new_card = function()
 {
 	var view = this;
+	Progress.operation_begun('Creating a new card...');
 	this._save_card(function()
 	{
 		Card.make_new(view._stack, view._card, function(in_new_card)
 		{
 			view._card = in_new_card;
 			view._rebuild_layers();
+			Progress.operation_finished();
 		});
 	});
 }
@@ -1084,61 +1086,32 @@ View.prototype.do_new_card = function()
 
 View.prototype.do_new_bkgnd = function()
 {
-	this._save_card( this._do_new_bkgnd.bind(this) );
-}
-
-
-View.prototype._do_new_bkgnd = function()
-{
-	msg = {
-		cmd: 'new_bkgnd',
-		stack_id: this._stack.stack_id,
-		card_id: this._card.card_id
-	};
-	
-	Progress.operation_begun();
-	var me = this;
-	Ajax.send(msg, function(msg, status) {
-		Progress.operation_finished();
-		if ((status != 'ok') || (msg.cmd != 'new_bkgnd'))
-			alert('New bkgnd error: '+status+"\n"+JSON.stringify(msg));
-		else
+	var view = this;
+	Progress.operation_begun('Creating a new background...');
+	this._save_card(function()
+	{
+		Bkgnd.make_new(view._stack, view._card, function(in_new_card, in_new_bkgnd)
 		{
-			me._card = msg.card;
-			me._stack.count_cards ++;
-			me._stack.count_bkgnds ++;
-			me._rebuild_card();
-		}
+			view._card = in_new_card;
+			view._bkgnd = in_new_bkgnd;
+			view._rebuild_layers();
+			Progress.operation_finished();
+		});
 	});
 }
 
 
 View.prototype.do_delete_card = function()
 {
-	this._save_card( this._do_delete_card.bind(this) );
-}
-
-
-View.prototype._do_delete_card = function()
-{
-	msg = {
-		cmd: 'delete_card',
-		stack_id: this._stack.stack_id,
-		card_id: this._card.card_id
-	};
-	
-	Progress.operation_begun();
-	var me = this;
-	Ajax.send(msg, function(msg, status) {
+	var view = this;
+	this._end_editing();
+	Progress.operation_begun('Deleting the card...');
+	this._card.destroy(function(in_new_card, in_new_bkgnd)
+	{
+		view._card = in_new_card;
+		view._bkgnd = in_new_bkgnd;
+		view._rebuild_layers();
 		Progress.operation_finished();
-		if ((status != 'ok') || (msg.cmd != 'delete_card'))
-			alert('Delete card error: '+status+"\n"+JSON.stringify(msg));
-		else
-		{
-			me._card = msg.card;
-			me._stack = msg.stack;
-			me._rebuild_card();
-		}
 	});
 }
 

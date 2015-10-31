@@ -235,6 +235,36 @@ Bkgnd.prototype.get_stack = function()
 }
 
 
+
+Bkgnd.make_new = function(in_stack, in_preceeding, in_onfinished)
+{
+	if (typeof in_preceeding == 'object')
+		in_preceeding = in_preceeding._def.id;
+	
+	in_stack.gateway(
+	{
+		cmd: 'new_bkgnd',
+		card_id: in_preceeding
+	},
+	function(in_reply)
+	{
+		if (in_reply.cmd != 'error')
+		{
+			if (in_onfinished) in_onfinished(
+				new CinsImp.Model.Card(in_stack, in_reply.card),
+				new CinsImp.Model.Bkgnd(in_stack, in_reply.bkgnd)
+			);
+		}
+		else
+		{
+			if (in_onfinished) in_onfinished(null);
+		}
+	});
+}
+
+
+
+
 CinsImp._script_loaded('Model.Bkgnd');
 
 
