@@ -43,6 +43,7 @@ function View(in_stack, in_bkgnd, in_card)
 	
 	this._stack = in_stack;
 	this._bkgnd = in_bkgnd;
+	in_bkgnd.set_view(this);
 	this._card = in_card;
 	
 	this._paint = null;
@@ -612,7 +613,10 @@ View.prototype._renumber_objects = function()
 }
 
 
-
+View.prototype.card = function()
+{
+	return View.current._card;
+}
 
 
 View.prototype.rebuild = function()

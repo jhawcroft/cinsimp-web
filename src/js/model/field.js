@@ -51,10 +51,7 @@ Model.Field = function(in_def, in_layer)
 {
 	/* create the object */
 	LayerObject.call(this, in_def, in_layer);
-	this._data = 
-	{
-		'content': ''
-	};
+	this._card_content_key = 'content';
 	
 	/* init defaults */
 	if (!in_def)
@@ -106,7 +103,7 @@ Field.prototype._dom_create = function(in_view)
 
 Field.prototype._handle_dirty = function()
 {
-	if (this._layer) this._layer.dirty_objects();
+	if (this._layer) this._layer.dirty_objects(); // really need to set an internal flag ** TODO
 }
 
 

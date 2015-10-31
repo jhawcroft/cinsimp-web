@@ -239,6 +239,24 @@ Card.prototype.dirty_objects = function()
 }
 
 
+/* set content for a specific bkgnd object */
+Card.prototype.set_content = function(in_content)
+{
+	this._changes['content'] = this._def['content'];
+	
+	var existing = this._def['content'];
+	for (var i = 0; i < existing.length; i++)
+	{
+		if (existing[i][0] == in_content[0])
+		{
+			existing[i][1] = in_content[1];
+			return;
+		}
+	}
+	existing.push(in_content);
+}
+
+
 Card.prototype.generate_object_id = function()
 {
 	return this._next_id ++;

@@ -51,10 +51,7 @@ Model.Button = function(in_def, in_layer)
 {
 	/* create the object */
 	LayerObject.call(this, in_def, in_layer);
-	this._data = 
-	{
-		'hilite': false
-	};
+	this._card_content_key = 'hilite';
 	
 	/* init defaults */
 	if (!in_def)

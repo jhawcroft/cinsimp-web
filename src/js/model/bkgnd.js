@@ -54,6 +54,7 @@ Model.Bkgnd = function(in_stack, in_def, in_ready_handler)
 	this._changes = {};
 	this._stack = in_stack;
 	this._next_id = 1;
+	this._objects = [];
 	
 	/* otherwise, just load the background from the definition */
 	this._load_def(in_def);
@@ -79,12 +80,40 @@ Bkgnd.prototype._load_def = function(in_def)
 {
 	this._def = in_def;
 	
+	for (var o = 0; o < in_def.objects.length; o++)
+	{
+		var obj_def = in_def.objects[o];
+		var obj = null;
+		if (obj_def.type == Button.TYPE)
+			var obj = new CinsImp.Model.Button(obj_def, this);
+		else if (obj_def.type == Field.TYPE)
+			var obj = new CinsImp.Model.Field(obj_def, this);
+	}
 	/* we should check the definition is valid here */ /// ** TODO **
 	
 	this._def.count_fields = 0;
 	this._def.count_buttons = 0;// ** TODO ** need to be calculated initially, and maintained during edits
 	
 	this._ready = true;
+}
+
+
+Bkgnd.prototype.get_def = function(in_changes)
+{
+	if (this._changes.length == 0) return this._def;
+	
+	if ('objects' in this._changes)
+	{
+		var objects = [];
+		for (var o = 0; o < this._objects.length; o++)
+		{
+			var obj = this._objects[o];
+			objects.push(obj.get_def());
+		}
+		this._changes['objects'] = objects;
+	}
+	
+	return this._changes;
 }
 
 
@@ -144,21 +173,47 @@ Bkgnd.prototype.apply_changes = function()
 }
 
 
+// possible option for scripting?
+// either this, or, a direct method on the relevant card to script the application of
+// content for a specific bkgnd field ID once looked up
+Bkgnd.prototype.changes_apply_to_card = function(in_card)
+{
+}
+
+
+Bkgnd.prototype.set_view = function(in_view)
+{
+	this._view = in_view;
+}
+
+
+Bkgnd.prototype.dirty_card_content = function(in_id, in_content_attrs)
+{
+	// see notes above
+	if (!this._view) return;
+	this._view.card().set_content(in_id, in_content_attrs);
+}
+
+
+Bkgnd.prototype.dirty_objects = function()
+{
+	this._changes['objects'] = null;
+}
+
+
 Bkgnd.prototype.save = function(in_onfinished, in_arg)
 {
-	
-
-	var card = this;
+	var bkgnd = this;
 	this._changes['id'] = this._def.id;
 	this._stack.gateway(
 	{
 		cmd: 'save_card',
 		ref: this._def.id,
-		bkgnd: this._changes
+		bkgnd: this.get_def()
 	}, 
 	function(in_reply) 
 	{
-		if (in_reply.cmd != 'error') card.apply_changes();
+		if (in_reply.cmd != 'error') bkgnd.apply_changes();
 		if (in_onfinished) in_onfinished(in_reply.cmd != 'error', in_arg);
 	});
 }
@@ -172,13 +227,26 @@ Bkgnd.prototype.generate_object_id = function()
 
 Bkgnd.prototype.add_object = function(in_object)
 {
-	this._def.objects.push(in_object);
+	this._objects.push(in_object);
+	this.dirty_objects();
+}
+
+
+Bkgnd.prototype.remove_object = function(in_object)
+{
+	var idx = this._objects.indexOf(in_object);
+	if (idx < 0) throw new Error('Can\'t remove object from layer, as it isn\'t on the layer');
+	
+	this._objects.splice(idx, 1);
+	in_object.kill();
+	
+	this.dirty_objects();
 }
 
 
 Bkgnd.prototype.get_objects = function()
 {
-	return this._def.objects;
+	return this._objects;
 }
 
 

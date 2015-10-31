@@ -53,6 +53,9 @@ Model.LayerObject = function(in_def, in_layer)
 	this._selected = null;
 	this._needs_rebuild = false;
 	
+	this._card_content_key = null;
+	this._data = null;
+	
 	/* init defaults */
 	this._def = 
 	{	
@@ -289,20 +292,23 @@ LayerObject.prototype._handle_resize_start = function(in_event)
 Attribute Mutation/Access
 */
 
-LayerObject.prototype.set_card_data = function(in_data)
+LayerObject.prototype.set_card_content = function(in_data)
 {
-	for (attr in this._data)
+	this._data = in_data[1];
+	/*for (attr in this._data)
 	{
 		if (in_data.hasOwnProperty(attr))
 			this._data[attr] = in_data[attr];
-	}
+	}*/
 }
 
 
-LayerObject.prototype.get_card_data = function()
+LayerObject.prototype.get_card_content = function()
 {
 	if (this._data === undefined) return null;
-	return this._data;
+	if (!this.is_bkgnd()) return null;
+	
+	return [this._def['id'], this._data];
 }
 
 
@@ -488,10 +494,16 @@ LayerObject.prototype.set_attr = function(in_attr, in_value)
 	if (!this._attribute_writable(in_attr))
 		throw new Error(this.get_type() + ' attribute "' + in_attr + '" is read-only');
 
-	if (this.is_bkgnd() && in_attr in this._data && (!this._def['shared']))
-		this._data[in_attr] = in_value;
+	if (this.is_bkgnd() && in_attr == this._card_content_key && (!this._def['shared']))
+	{
+		this._data = in_value;
+		if (this._layer) this._layer.dirty_card_content(this.get_card_content());
+	}
 	else
+	{
 		this._def[in_attr] = in_value;
+		if (this._layer) this._layer.dirty_objects();
+	}
 	
 	if (LayerObject._no_write_note !== true)
 		this._attribute_written(in_attr, in_value);
@@ -514,10 +526,14 @@ LayerObject.prototype.get_attr = function(in_attr, in_fmt)
 		throw new Error(this.get_type() + ' has no readable attribute "' + in_attr + '"');
 	
 	var value = null;
-	if (this.is_bkgnd() && in_attr in this._data && (!this._def['shared']))
-		value = this._data[in_attr];
+	if (this.is_bkgnd() && in_attr === this._card_content_key && (!this._def['shared']))
+	{
+		value = this._data;
+	}
 	else
+	{
 		value = this._def[in_attr];
+	}
 	
 	return value;
 }
