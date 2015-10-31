@@ -173,27 +173,6 @@ Bkgnd.prototype.apply_changes = function()
 }
 
 
-// possible option for scripting?
-// either this, or, a direct method on the relevant card to script the application of
-// content for a specific bkgnd field ID once looked up
-Bkgnd.prototype.changes_apply_to_card = function(in_card)
-{
-}
-
-
-Bkgnd.prototype.set_view = function(in_view)
-{
-	this._view = in_view;
-}
-
-
-Bkgnd.prototype.dirty_card_content = function(in_id, in_content_attrs)
-{
-	// see notes above
-	if (!this._view) return;
-	this._view.card().set_content(in_id, in_content_attrs);
-}
-
 
 Bkgnd.prototype.dirty_objects = function()
 {

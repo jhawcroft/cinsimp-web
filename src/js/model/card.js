@@ -130,6 +130,13 @@ Card.prototype._load_def = function(in_def)
 		else if (obj_def.type == Field.TYPE)
 			var obj = new CinsImp.Model.Field(obj_def, this);
 	}
+	
+	/*for (var c = 0; c < in_def.content.length; c++)
+	{
+		var content_def = in_def.content[c];
+		
+	}
+	*/
 	/* we should check the definition is valid here */ /// ** TODO **
 	
 	this._def.count_fields = 0;
@@ -239,21 +246,34 @@ Card.prototype.dirty_objects = function()
 }
 
 
-/* set content for a specific bkgnd object */
-Card.prototype.set_content = function(in_content)
+Card.prototype.get_card_content = function(in_id)
+{
+	var existing = this._def['content'];
+	for (var i = 0; i < existing.length; i++)
+	{
+		if (existing[i][0] == in_id)
+		{
+			return existing[i][1];
+		}
+	}
+	return null;
+}
+
+
+Card.prototype.set_card_content = function(in_id, in_content)
 {
 	this._changes['content'] = this._def['content'];
 	
 	var existing = this._def['content'];
 	for (var i = 0; i < existing.length; i++)
 	{
-		if (existing[i][0] == in_content[0])
+		if (existing[i][0] == in_id)
 		{
-			existing[i][1] = in_content[1];
+			existing[i][1] = in_content;
 			return;
 		}
 	}
-	existing.push(in_content);
+	existing.push([in_id, in_content]);
 }
 
 

@@ -43,7 +43,7 @@ function View(in_stack, in_bkgnd, in_card)
 	
 	this._stack = in_stack;
 	this._bkgnd = in_bkgnd;
-	in_bkgnd.set_view(this);
+	//in_bkgnd.set_view(this);
 	this._card = in_card;
 	
 	this._paint = null;

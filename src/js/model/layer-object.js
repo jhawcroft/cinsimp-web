@@ -54,7 +54,8 @@ Model.LayerObject = function(in_def, in_layer)
 	this._needs_rebuild = false;
 	
 	this._card_content_key = null;
-	this._data = null;
+	//this._data = null;
+	//this._dirty_nonshared = false;
 	
 	/* init defaults */
 	this._def = 
@@ -291,7 +292,7 @@ LayerObject.prototype._handle_resize_start = function(in_event)
 /*****************************************************************************************
 Attribute Mutation/Access
 */
-
+/*
 LayerObject.prototype.set_card_content = function(in_data)
 {
 	this._data = in_data[1];
@@ -299,7 +300,7 @@ LayerObject.prototype.set_card_content = function(in_data)
 	{
 		if (in_data.hasOwnProperty(attr))
 			this._data[attr] = in_data[attr];
-	}*/
+	}
 }
 
 
@@ -310,7 +311,7 @@ LayerObject.prototype.get_card_content = function()
 	
 	return [this._def['id'], this._data];
 }
-
+*/
 
 LayerObject.prototype._resized = function()
 {
@@ -481,6 +482,14 @@ LayerObject.prototype._attribute_writable = function(in_attr)
 }
 
 
+
+LayerObject.prototype.make_dirty = function()
+{
+	if (this._layer) this._layer.dirty_objects();
+}
+
+
+
 LayerObject.prototype.set_attr = function(in_attr, in_value)
 {
 	if (in_attr == 'loc') return this.set_loc(in_value.split(','));
@@ -496,13 +505,13 @@ LayerObject.prototype.set_attr = function(in_attr, in_value)
 
 	if (this.is_bkgnd() && in_attr == this._card_content_key && (!this._def['shared']))
 	{
-		this._data = in_value;
-		if (this._layer) this._layer.dirty_card_content(this.get_card_content());
+		if (this._view) this._view.card().set_card_content(this.get_attr('id'), in_value);
+		else throw new Error('Cannot mutate content of non-shared background object not attached to view');
 	}
 	else
 	{
 		this._def[in_attr] = in_value;
-		if (this._layer) this._layer.dirty_objects();
+		this.make_dirty();
 	}
 	
 	if (LayerObject._no_write_note !== true)
@@ -527,8 +536,9 @@ LayerObject.prototype.get_attr = function(in_attr, in_fmt)
 	
 	var value = null;
 	if (this.is_bkgnd() && in_attr === this._card_content_key && (!this._def['shared']))
-	{
-		value = this._data;
+	{	
+		if (this._view) value = this._view.card().get_card_content(this.get_attr('id'));
+		else throw new Error('Cannot access content of non-shared background object not attached to view');
 	}
 	else
 	{

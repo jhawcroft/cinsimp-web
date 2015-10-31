@@ -52,6 +52,7 @@ Model.Field = function(in_def, in_layer)
 	/* create the object */
 	LayerObject.call(this, in_def, in_layer);
 	this._card_content_key = 'content';
+	//this._dirty = false;
 	
 	/* init defaults */
 	if (!in_def)
@@ -101,12 +102,6 @@ Field.prototype._dom_create = function(in_view)
 }
 
 
-Field.prototype._handle_dirty = function()
-{
-	if (this._layer) this._layer.dirty_objects(); // really need to set an internal flag ** TODO
-}
-
-
 Field.prototype._dom_rebuild = function()
 {
 	this._div.style.border = (this.get_attr('border') ? '1px solid black' : '');
@@ -117,7 +112,7 @@ Field.prototype._dom_rebuild = function()
 	this._inner.style.padding = (this.get_attr('wide_margins') ? '10px' : '0px');
 	this._inner.style.whiteSpace = (this.get_attr('dont_wrap') ? 'nowrap' : 'normal');
 	
-	this._inner.addEventListener('input', this._handle_dirty.bind(this));
+	this._inner.addEventListener('input', this.make_dirty.bind(this));
 	this._inner.addEventListener('blur', this.make_consistent.bind(this));
 	
 	this._apply_text_attrs(this._inner);
