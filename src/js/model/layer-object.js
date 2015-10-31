@@ -125,6 +125,8 @@ LayerObject.prototype.is_bkgnd = function()
 LayerObject.prototype._load_def = function(in_def)
 {
 	Util.array_apply(this._def, in_def);
+	this.set_rect(in_def.rect.split(','));
+	
 	//this._def = in_def;
 	
 	// should probably be verified **TODO**
@@ -153,6 +155,8 @@ DOM View
 
 LayerObject.prototype.create_dom = function(in_view)
 {
+	if (this._div) return this._div;
+	
 	this._view = in_view;
 
 	this._div = document.createElement('div');

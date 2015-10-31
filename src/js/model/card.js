@@ -121,6 +121,15 @@ Card.prototype._load_def = function(in_def)
 {
 	this._def = in_def;
 	
+	for (var o = 0; o < in_def.objects.length; o++)
+	{
+		var obj_def = in_def.objects[o];
+		var obj = null;
+		if (obj_def.type == Button.TYPE)
+			var obj = new CinsImp.Model.Button(obj_def, this);
+		else if (obj_def.type == Field.TYPE)
+			var obj = new CinsImp.Model.Field(obj_def, this);
+	}
 	/* we should check the definition is valid here */ /// ** TODO **
 	
 	this._def.count_fields = 0;

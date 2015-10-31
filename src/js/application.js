@@ -412,7 +412,7 @@ Application._load_initial_stack = function()
 	
 	/* init the view of the first card */
 	Application._view = new View(stack, bkgnd, card);
-	Application._view.refresh();
+	//Application._view.refresh();
 }
 
 

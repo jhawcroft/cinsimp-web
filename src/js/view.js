@@ -181,6 +181,8 @@ View.prototype._init_view = function()
 	this._bkgnd_indicator.style.width = this._container.clientWidth + 8 + 'px';
 	this._bkgnd_indicator.style.height = this._container.clientHeight + 8 + 'px';
 	document.body.appendChild(this._bkgnd_indicator);
+	
+	this._rebuild_layers();
 }
 
 
@@ -610,6 +612,9 @@ View.prototype._renumber_objects = function()
 }
 
 
+
+
+
 View.prototype.rebuild = function()
 {
 	for (var i = 0; i < this._rebuild_list.length; i++)
@@ -622,6 +627,47 @@ View.prototype.needs_rebuild = function(in_object)
 {
 	this._rebuild_list.push(in_object);
 }
+
+
+
+View.prototype._rebuild_layers = function()
+{
+	/* remove all DOM objects from the layer */
+	while (this._layer_obj_card.children.length > 0)
+		this._layer_obj_card.removeChild( this._layer_obj_card.children[0] );
+	
+	/* add DOM objects to the layer, background first, card second */
+	var objects = this._bkgnd.get_objects();
+	for (var i = 0; i < objects.length; i++)
+		this._layer_obj_card.appendChild( objects[i].create_dom(this) );
+	var objects = this._card.get_objects();
+	for (var i = 0; i < objects.length; i++)
+		this._layer_obj_card.appendChild( objects[i].create_dom(this) );
+	
+	/* build the actual DOM objects as needed */
+	this.rebuild();
+}
+
+
+/*
+	** only rebuild the actual display of the layers
+*/
+/*View.prototype._rebuild_layers = function()
+{
+	while (this._layer_obj_card.children.length > 0)
+		this._layer_obj_card.removeChild( this._layer_obj_card.children[0] );
+
+	for (var o = 0; o < this._objects_bkgnd.length; o++)
+	{
+		var obj = this._objects_bkgnd[o];
+		this._layer_obj_card.appendChild(obj._div);
+	}
+	for (var o = 0; o < this._objects_card.length; o++)
+	{
+		var obj = this._objects_card[o];
+		this._layer_obj_card.appendChild(obj._div);
+	}
+}*/
 
 
 View.prototype._add_object = function(in_object)
@@ -843,25 +889,7 @@ View.prototype._resurect = function(in_def, in_bkgnd)
 }
 
 
-/*
-	** only rebuild the actual display of the layers
-*/
-View.prototype._rebuild_layers = function()
-{
-	while (this._layer_obj_card.children.length > 0)
-		this._layer_obj_card.removeChild( this._layer_obj_card.children[0] );
 
-	for (var o = 0; o < this._objects_bkgnd.length; o++)
-	{
-		var obj = this._objects_bkgnd[o];
-		this._layer_obj_card.appendChild(obj._div);
-	}
-	for (var o = 0; o < this._objects_card.length; o++)
-	{
-		var obj = this._objects_card[o];
-		this._layer_obj_card.appendChild(obj._div);
-	}
-}
 
 
 View.prototype._config_art_visibility = function()
