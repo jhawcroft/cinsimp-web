@@ -48,7 +48,7 @@ function Palette(in_div, in_flags)
 	this._div.appendChild(this._titlebar);
 	
 	this._closebtn = document.createElement('img');
-	this._closebtn.src = gBase+'gfx/closex.png';
+	this._closebtn.src = CinsImp._base + 'gfx/closex.png';
 	this._closebtn.style.width = '16px';
 	this._titlebar.appendChild(this._closebtn);
 	
@@ -152,15 +152,24 @@ Palette.prototype.show = function()
 {
 	this._div.style.visibility = 'visible';
 	this._root.style.visibility = 'visible';
+	this.bringToFront();
 }
 
 
 Palette.prototype.toggle = function()
 {
 	if (!this.getVisible())
+	{
 		this.show();
+	}
 	else
 		this.hide();
+}
+
+
+Palette.prototype.is_visible = function()
+{
+	return this.getVisible();
 }
 
 

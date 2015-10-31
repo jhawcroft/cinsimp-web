@@ -47,11 +47,12 @@ AppDialogs.init = function()
 	AppDialogs._icon_selected(0, '');
 	
 	var collection_selector = document.getElementById('SetIconCollection');
-	for (var i = 0; i < _g_icon_collections.length; i++)
+	var collections_data = CinsImp._params.icon_collections;
+	for (var i = 0; i < collections_data.length; i++)
 	{
 		var collection_option = document.createElement('option');
-		collection_option.value = _g_icon_collections[i];
-		collection_option.appendChild(document.createTextNode(_g_icon_collections[i]));
+		collection_option.value = collections_data[i];
+		collection_option.appendChild(document.createTextNode(collections_data[i]));
 		collection_selector.appendChild(collection_option);
 	}
 	collection_selector.value = 'CinsImp';
@@ -78,6 +79,17 @@ AppDialogs.init = function()
 	
 	
 	Dialog.TextInspect = new Dialog('', document.getElementById('DialogTextInspect'));
+	
+	
+	Dialog.CardSize = new Dialog('Card Size', document.getElementById('DialogCardSize'));
+	AppDialogs._csw = new CardSizeWidget(document.getElementById('CardSizeWidg'),
+		AppDialogs._card_size_changed);
+	var picklist = document.getElementById('CardSizeList');
+	picklist.addEventListener('change', AppDialogs._card_size_picked.bind(AppDialogs));
+
+
+	Dialog.ScriptEditor = new Dialog('Script Editor', document.getElementById('DialogScriptEditor'));
+	Dialog.ScriptEditor._codeeditor = new JCodeEdit(document.getElementById('ScriptEditorContainer'));
 }
 
 
@@ -112,12 +124,12 @@ AppDialogs._icon_selected = function(in_id, in_name)
 
 AppDialogs.choose_button_icon = function()
 {
-	AppDialogs._object = Application._objects[0];
-	Application.save_info();
+	AppDialogs._object = View.current.get_current_object(true);
+	Dialog.dismiss(true);
 	
 	document.getElementById('SetIconCollection').value = 'Stack';
 	AppDialogs.show_icon_collection();
-	Dialog.SetIcon._grid.set_icon_id( AppDialogs._object.get_attr(Button.ATTR_ICON) );
+	Dialog.SetIcon._grid.set_icon_id( AppDialogs._object.get_attr('icon') );
 	
 	Dialog.SetIcon.show();
 }
@@ -128,7 +140,7 @@ AppDialogs.show_icon_collection = function()
 	var collection_name = document.getElementById('SetIconCollection').value;
 	if (collection_name == 'Stack')
 	{
-		Dialog.SetIcon._grid.load_grid(View.get_stack_icons());
+		Dialog.SetIcon._grid.load_grid( View.current.get_stack().get_icons_table() );
 		return;
 	}
 	
@@ -136,25 +148,24 @@ AppDialogs.show_icon_collection = function()
 	// possibly in the grid itself, to show it's being refreshed
 	
 	Dialog.SetIcon._grid.load_grid([]);
-	var msg = {
+	View.current.get_stack().gateway(
+	{
 		cmd: 'list_icons',
 		pack: collection_name
-	};
-	Ajax.send(msg, function(in_msg, in_status) 
+	},
+	function (in_reply)
 	{
-		if (in_status == 'ok' && in_msg.cmd == 'list_icons')
+		if (in_reply.cmd != 'error')
 		{
-			Dialog.SetIcon._grid.load_grid(in_msg.list);
+			Dialog.SetIcon._grid.load_grid(in_reply.list);
 		}
-		else
-			Alert.network_error('Couldn\'t fetch icon list.');
 	});
 }
 
 
 AppDialogs.clear_icon = function()
 {
-	AppDialogs._object.set_attr(Button.ATTR_ICON, 0);
+	AppDialogs._object.set_attr('icon', 0);
 	Dialog.dismiss();
 }
 
@@ -166,58 +177,133 @@ AppDialogs.set_icon = function()
 	var collection_name = document.getElementById('SetIconCollection').value;
 	if (collection_name != 'Stack')
 	{
-		Progress.operation_begun('Importing icon into stack...');
-		AppDialogs._importing_icon_data = Dialog.SetIcon._grid.get_icon_data();
-		var msg = {
-			cmd: 'import_icon',
-			stack_id: Application._stack.stack_id,
-			id: Dialog.SetIcon._grid.get_icon_id(),
-			name: Dialog.SetIcon._grid.get_icon_name(),
-			data: AppDialogs._importing_icon_data
-		};
-		Ajax.send(msg, function(in_msg, in_status)
-		{
-			Progress.operation_finished();
-			if (in_status == 'ok' && in_msg.cmd == 'import_icon')
+		View.current.get_stack().import_icon(
+			Dialog.SetIcon._grid.get_icon_id(), 
+			Dialog.SetIcon._grid.get_icon_name(),
+			Dialog.SetIcon._grid.get_icon_data(),
+			function(in_id)
 			{
-				/* need to complete the import by manually adding the icon data
-				to the loaded stack registry of icons */
-				View.register_icon(in_msg.id, Dialog.SetIcon._grid.get_icon_name(), AppDialogs._importing_icon_data);
-				
-				AppDialogs._object.set_attr(Button.ATTR_ICON, in_msg.id);
-				Dialog.dismiss();
+				if (in_id != 0)
+				{
+					AppDialogs._object.set_attr('icon', in_id);
+					Dialog.dismiss();
+				}
 			}
-			else
-				Alert.network_error('Couldn\'t import icon.');
-		});
+		);
 		return;
 	}
 
 	/* finally, set the object icon ID */
-	AppDialogs._object.set_attr(Button.ATTR_ICON, Dialog.SetIcon._grid.get_icon_id());
+	AppDialogs._object.set_attr('icon', Dialog.SetIcon._grid.get_icon_id());
 	Dialog.dismiss();
 }
-
+//AppDialogs._importing_icon_data = Dialog.SetIcon._grid.get_icon_data();
 
 AppDialogs.edit_text_attr = function(in_attr_id, in_prior, in_title)
 {
 	this._text_attr_id = in_attr_id;
-	AppDialogs._object = Application._objects[0];
+	AppDialogs._object = View.current.get_current_object(true);
+	
 	if (in_prior) in_prior();
 	
-	document.getElementById('TextInspect').value = AppDialogs._object.get_attr(in_attr_id);
-	
+	Dialog.TextInspect.element('text').value = AppDialogs._object.get_attr(in_attr_id);
 	Dialog.TextInspect.set_title(in_title);
+	
+	Dialog.TextInspect.set_onclose(function(in_dialog, in_close_code)
+	{
+		if (in_close_code)
+		{
+			AppDialogs._object.set_attr(in_attr_id, in_dialog.element('text').value);
+		}
+	});
+	
 	Dialog.TextInspect.show();
 }
 
-
+/*
 AppDialogs.save_text_attr = function()
 {
 	Dialog.dismiss();
 	
 	AppDialogs._object.set_attr(this._text_attr_id, document.getElementById('TextInspect').value);
+}*/
+
+
+
+
+AppDialogs.do_card_size = function()
+{
+	AppDialogs._csw.set_card_size(View.current._stack.get_attr('card_size'));
+	Dialog.CardSize.show();
 }
+
+
+AppDialogs.save_card_size = function()
+{
+	Dialog.dismiss();
+	
+	Progress.operation_begun('Resizing card...');
+	View.current._stack.resize(AppDialogs._csw.get_card_size(), function(in_new_size) 
+	{
+		Progress.operation_finished();
+		if (in_new_size)
+		{
+			View.current._container.style.width = in_new_size[0] + 'px';
+			View.current._container.style.height = in_new_size[1] + 'px';
+		}
+	});
+	/*View.current.
+	this._stack.card_width = sz[0];
+	this._stack.card_height = sz[1];
+	this._view._container.style.width = sz[0] + 'px';
+	this._view._container.style.height = sz[1] + 'px';
+	
+	var msg = {
+		cmd: 'save_stack',
+		stack_id: this._stack.stack_id,
+		stack: this._stack
+	};
+	Ajax.send(msg, function(msg, status)
+	{
+		Progress.operation_finished();
+		if ((status != 'ok') || (msg.cmd != 'save_stack'))
+			alert('Saving stack changes, error: '+status+"\n"+JSON.stringify(msg));
+		else
+			this._stack = msg.stack;
+	});*/
+}
+
+
+AppDialogs._card_size_picked = function()
+{
+	var picklist = document.getElementById('CardSizeList');
+	var t_sz = picklist.value;
+	if (t_sz == '?,?') this._card_size_changed(this._csw.get_card_size());
+	else this._csw.set_card_size(t_sz.split(','));
+}
+
+
+AppDialogs._card_size_changed = function(in_new_size)
+{
+	if (Application._csc) return;
+	Application._csc = true;
+	document.getElementById('CardSizeSize').textContent = in_new_size[0] + ' x ' + in_new_size[1];
+	var t_sz = in_new_size[0] + ',' + in_new_size[1];
+	var picklist = document.getElementById('CardSizeList');
+	var found = false;
+	for (var i = 0; i < picklist.children.length; i++)
+	{
+		var item = picklist.children[i];
+		if (item.value == t_sz) { found = true; break; }
+	}
+	if (!found)
+		picklist.value = '?,?';
+	else
+		picklist.value = t_sz;
+	Application._csc = false;
+}
+
+
 
 
 

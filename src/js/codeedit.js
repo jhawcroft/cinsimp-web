@@ -75,6 +75,32 @@ function JCodeEdit(containerElement)
 }
 
 
+JCodeEdit.prototype.focus = function()
+{
+	this._jce_ta.focus();
+}
+
+
+JCodeEdit.prototype.set_script = function(in_script, in_selection)
+{
+	this._jce_ta.value = in_script;
+	if (in_selection !== undefined) this.set_selection(in_selection);
+}
+
+
+JCodeEdit.prototype.get_script = function()
+{
+	return this._jce_ta.value;
+}
+
+
+JCodeEdit.prototype.set_selection = function(in_selection)
+{
+	this._jce_ta.selectionStart = in_selection;
+	this._jce_ta.selectionEnd = in_selection;
+}
+
+
 JCodeEdit.prototype._jce_handleContainerResize = function()
 {
 	this._jce_div.style.width = this._jce_container.clientWidth + 'px';

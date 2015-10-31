@@ -37,11 +37,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 function Application() {}
 
-Application._stack = {"stack_name":"test","cant_peek":false,"cant_abort":false,"user_level":5,"card_width":600,"card_height":400,"script":{"content":"","selection":0},"cant_delete":false,"cant_modify":false,"private_access":false,"first_card_id":"1","stack_path":"test","stack_id":"test","count_cards":"2","count_bkgnds":"1","stack_size":4096,"stack_free":0}; 
-Application._card = {"card_id":1,"card_name":"First Card","card_seq":1,"card_cant_delete":false,"card_dont_search":false,"card_marked":false,"card_script":{"content":"","selection":0},"card_has_art":false,"card_object_data":"","bkgnd_id":"1","bkgnd_name":"Initial Bkgnd","bkgnd_cant_delete":false,"bkgnd_dont_search":true,"bkgnd_script":{"content":"","selection":0},"bkgnd_has_art":false,"bkgnd_object_data":"","stack_count":"2","bkgnd_count":"2"};
-Application._view = null;
-
-
 
 
 Application._handle_choose_colour = function(in_event)
@@ -125,66 +120,10 @@ Application.do_info = function()
 
 
 
-Application.compact = function()
-{
-	var msg = {
-		cmd: 'compact_stack',
-		stack_id: this._stack.stack_id
-	};
-	
-	Progress.operation_begun('Compacting this stack...', true);
-	Ajax.send(msg, function(msg, status) 
-	{
-		Progress.operation_finished();
-		
-		if ((status != 'ok') || (msg.cmd != 'compact_stack'))
-			alert('Compact error: '+status+"\n"+JSON.stringify(msg));
-		else
-		{
-			Application._stack = msg.stack;
-			if (Application._view) Application._view._stack = msg.stack;
-		}
-	});
-}
 
 
-Application.save_info = function()
-{
-	if (Application._view) Application._view.save_info();
-}
 
 
-Application.showStackInfo = function()
-{
-	//alert(JSON.stringify(Application._initialStackData));
-	
-	try
-	{
-		document.getElementById('StackInfoName').value = Application._stack.stack_name;
-		document.getElementById('StackInfoWhere').innerHTML = 'Where: '+Application._stack.stack_path;
-		
-		document.getElementById('StackInfoCardCount').innerHTML = 'Stack contains '+
-			(Application._stack.count_cards == 1 ? 
-			Application._stack.count_cards+' card.' :
-			Application._stack.count_cards+' cards.');
-		document.getElementById('StackInfoBkgndCount').innerHTML = 'Stack contains '+
-			(Application._stack.count_bkgnds == 1 ? 
-			Application._stack.count_bkgnds+' background.' :
-			Application._stack.count_bkgnds+' backgrounds.');
-		
-		document.getElementById('StackInfoSize').innerHTML = 'Size of stack: ' + 
-			Util.niceSize(Application._stack.stack_size);
-		document.getElementById('StackInfoFree').innerHTML = 'Free in stack: ' + 
-			Util.niceSize(Application._stack.stack_free);
-		
-		document.getElementById('StackInfoCardSize').innerHTML = 'Card size: ' +
-			Application._stack.card_width + ' x ' +
-			Application._stack.card_height;
-	}
-	catch (e) {}
-	
-	Dialog.StackInfo.show();
-}
 
 
 Application.do_find = function()
@@ -216,97 +155,6 @@ Application.do_message = function()
 
 
 
-Application.save_stack_info = function()
-{
-	var do_rename = false;
-	if (this._stack.stack_name != document.getElementById('StackInfoName').value)
-		do_rename = true;	
-	this._stack.stack_name = document.getElementById('StackInfoName').value;
-	Dialog.dismiss();
-	
-	if (do_rename)
-	{
-		Progress.operation_begun('Renaming Stack...');
-		var msg = {
-			cmd: 'rename_stack',
-			stack_id: this._stack.stack_id
-		};
-		Ajax.send(msg, function(msg, status)
-		{
-			Progress.operation_finished();
-			if ((status != 'ok') || (msg.cmd != 'load_card'))
-				alert('Rename stack error: '+status+"\n"+JSON.stringify(msg));
-			else
-				this._stack = msg.stack;
-		});
-	}
-}
-
-
-Application.do_card_size = function()
-{
-	Application._csw.set_card_size([this._stack.card_width, this._stack.card_height]);
-	Dialog.CardSize.show();
-}
-
-
-Application.save_card_size = function()
-{
-	Dialog.dismiss();
-	Progress.operation_begun('Resizing card...');
-	
-	var sz = Application._csw.get_card_size();
-	this._stack.card_width = sz[0];
-	this._stack.card_height = sz[1];
-	this._view._container.style.width = sz[0] + 'px';
-	this._view._container.style.height = sz[1] + 'px';
-	
-	var msg = {
-		cmd: 'save_stack',
-		stack_id: this._stack.stack_id,
-		stack: this._stack
-	};
-	Ajax.send(msg, function(msg, status)
-	{
-		Progress.operation_finished();
-		if ((status != 'ok') || (msg.cmd != 'save_stack'))
-			alert('Saving stack changes, error: '+status+"\n"+JSON.stringify(msg));
-		else
-			this._stack = msg.stack;
-	});
-}
-
-
-Application._card_size_picked = function()
-{
-	var picklist = document.getElementById('CardSizeList');
-	var t_sz = picklist.value;
-	if (t_sz == '?,?') this._card_size_changed(this._csw.get_card_size());
-	else this._csw.set_card_size(t_sz.split(','));
-}
-
-
-Application._card_size_changed = function(in_new_size)
-{
-	if (Application._csc) return;
-	Application._csc = true;
-	document.getElementById('CardSizeSize').textContent = in_new_size[0] + ' x ' + in_new_size[1];
-	var t_sz = in_new_size[0] + ',' + in_new_size[1];
-	var picklist = document.getElementById('CardSizeList');
-	var found = false;
-	for (var i = 0; i < picklist.children.length; i++)
-	{
-		var item = picklist.children[i];
-		if (item.value == t_sz) { found = true; break; }
-	}
-	if (!found)
-		picklist.value = '?,?';
-	else
-		picklist.value = t_sz;
-	Application._csc = false;
-}
-
-
 
 
 
@@ -336,16 +184,6 @@ Application.send_to_back = function()
 }
 
 
-Application.do_edit_script = function(in_subject, in_prior)
-{
-	if (Application._view) Application._view.do_edit_script(in_subject, in_prior);
-}
-
-
-Application.save_script = function()
-{
-	if (Application._view) Application._view.save_script();
-}
 
 
 Application.open_app_menu = function(el) //don't take an argument - do lookup
@@ -429,13 +267,7 @@ Application._init_palettes = function()
 }
 
 
-Application._init_card_size_widget = function()
-{
-	Application._csw = new CardSizeWidget(document.getElementById('CardSizeWidg'),
-		Application._card_size_changed);
-	var picklist = document.getElementById('CardSizeList');
-	picklist.addEventListener('change', Application._card_size_picked.bind(Application));
-}
+
 
 
 Application._init_dialogs = function()
@@ -450,8 +282,8 @@ Application._init_dialogs = function()
 
 	Dialog.AskPassword = new Dialog('', document.getElementById('DialogAskPassword'));
 	Dialog.StackInfo = new Dialog('Stack Info', document.getElementById('DialogStackInfo'));
-	Application._init_card_size_widget();
-	Dialog.CardSize = new Dialog('Card Size', document.getElementById('DialogCardSize'));
+	//Application._init_card_size_widget();
+	
 	
 	Dialog.SetPassword = new Dialog('Set Stack Password', document.getElementById('DialogSetPassword'));
 	Dialog.BkgndInfo = new Dialog('Bkgnd Info', document.getElementById('DialogBkgndInfo'));
@@ -466,9 +298,7 @@ Application._init_dialogs = function()
 		Application._objects = null; 
 		document.getElementById('ButtonInfoBkgndOnly').style.visibility = 'hidden'; });
 
-	Dialog.ScriptEditor = new Dialog('', document.getElementById('DialogScriptEditor'));
-	// temporarily disabled due to causing mammoth slowdown on mobile devices - suspect the ruler with line numbers is too large:
-	Dialog.ScriptEditor._codeeditor = new JCodeEdit(document.getElementById('ScriptEditorContainer'));
+	
 	
 	Dialog.Effect = new Dialog('Visual Effect', document.getElementById('DialogEffect'));
 	//Dialog.Effect.show();
@@ -498,7 +328,7 @@ Application._init_app_menu = function()
 	var m = PopupMenu.ApplicationMenu;
 
 	m.appendItem('Navigator', Palette.Navigator.toggle.bind(Palette.Navigator));
-	m.appendItem('Message', Palette.MessageBox.toggle.bind(Palette.MessageBox));
+	m.appendItem('Message', Application.do_message.bind(Application));
 	m.appendItem('Tools', Palette.Tools.toggle.bind(Palette.Tools));
 	m.appendItem('Authoring', Palette.Authoring.toggle.bind(Palette.Authoring));
 	m.appendItem('Colours', Palette.Colours.toggle.bind(Palette.Colours));
@@ -536,7 +366,7 @@ Application._init_app_bar = function()
 	app_bar.id = 'applicationBar';
 	
 	var btn_config = document.createElement('img');
-	btn_config.src = gBase+'gfx/cog.png';
+	btn_config.src = CinsImp._base + 'gfx/cog.png';
 	btn_config.classList.add('Clickable');
 	btn_config.style.width = '16px';
 	btn_config.alt = 'Configure';
@@ -560,23 +390,29 @@ Application._show_default_palettes = function()
 }
 
 
-Application._configure_initial_stack = function()
-{
-	Application._stack = _g_init_stack;
-	Application._card = _g_init_card;
-	
-	var stack_window = document.getElementById('stackWindow');
-	stack_window.style.width = Application._stack.card_width + 'px';
-	stack_window.style.height = Application._stack.card_height + 'px';
-	
-	Application._set_default_positions(stack_window.clientWidth, stack_window.clientHeight);
-}
 
-
+/*
+	Loads the stack from the definitions included in the static HTML
+	from whence this application is initially invoked.
+*/
 Application._load_initial_stack = function()
 {
-	Application._view = new View(Application._stack, Application._card);
-	Application._view.refresh();
+	/* load the model */
+	var stack = new CinsImp.Model.Stack(CinsImp._params.stack);
+	var bkgnd = new CinsImp.Model.Bkgnd(stack, CinsImp._params.bkgnd);
+	var card = new CinsImp.Model.Card(stack, CinsImp._params.card);
+	
+	/* define the single stack window;
+	!  In future there may be support for more than one stack to be open. */
+	var stack_window = document.getElementById('stackWindow');
+	Util.set_dom_size(stack_window, stack.get_attr('card_size'));
+	
+	/* arrange the palettes around the stack window */
+	Application._set_default_positions(stack_window.clientWidth, stack_window.clientHeight);
+	
+	/* init the view of the first card */
+	Application._view = new View(stack, bkgnd, card);
+	//Application._view.refresh();
 }
 
 
@@ -640,6 +476,11 @@ Application._init_xtalk = function()
 }
 
 
+Application._idle = function()
+{
+	if (View.current) View.current.do_idle();
+}
+
 
 Application.init = function()
 {
@@ -655,13 +496,15 @@ Application.init = function()
 	Application._init_xtalk();
 	
 	Progress.operation_begun('Loading stack...', true);
-	Application._configure_initial_stack();
 	Application._load_initial_stack();
 	
 	Progress.status('Configuring environment...');
 	Application._show_default_palettes();
 	
 	Progress.operation_finished();
+	
+	
+	Application._idle_timer = window.setInterval(Application._idle, 50);
 }
 
 

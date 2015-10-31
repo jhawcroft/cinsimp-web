@@ -38,12 +38,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* create the configuration object */
 $config = new stdClass();
 
+/* the default timezone */
+$config->timezone = 'UTC';
+
 /* set the base path to the CinsImp installation */
 $config->base = realpath(dirname(__FILE__).'/../').'/';
 $config->url = substr($config->base, strlen($_SERVER['DOCUMENT_ROOT']));
 
 /* set the default stacks directory */
+$config->host = '';
 $config->stacks = $config->base.'stacks/';
+$config->stacks_url = $config->url.'stacks/';
 
 /* set the default state of debugging, ie. OFF */
 $config->debug = false;
@@ -61,6 +66,9 @@ require($config->base.'config.php');
 /* fix urls and paths */
 $config->base = realpath($config->base).'/';
 $config->stacks = realpath($config->stacks).'/';
+
+/* apply the timezone */
+date_default_timezone_set($config->timezone);
 
 /* fix restrictions */
 $config->restrictions->max_stack_size = str_replace(' ', '', $config->restrictions->max_stack_size);

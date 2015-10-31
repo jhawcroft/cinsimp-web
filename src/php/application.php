@@ -52,6 +52,9 @@ class Application
 	{
 		global $config;
 		
+		// hack for now...
+		$_REQUEST['stack'] = $config->stacks_url . $_REQUEST['stack'];
+		
 		/* check request variables */
 		try
 		{
@@ -102,14 +105,16 @@ class Application
 		$stack_handle = null;
 		$stack = null;
 		$card = null;
+		$bkgnd = null;
 		try 
 		{
 			$stack_handle = new Stack($in_stack);
 			$stack = $stack_handle->stack_load();
-			if ($in_card === null) $in_card = $stack_handle->stack_get_first_card_id();
+			if ($in_card === null) $in_card = $stack_handle->stack_get_nth_card_id(1);
 			$card = $stack_handle->stack_load_card($in_card);
 			if ($card === null)
 				throw new Exception('Card Not Found', 404);
+			$bkgnd = $stack_handle->stack_load_bkgnd($card['bkgnd_id']);
 			if (!$stack_handle)
 				throw new Exception('Stack Not Found', 404);
 		}
@@ -151,15 +156,23 @@ class Application
 		$page = str_replace('<!-- INSERT STATIC CARD -->', Application::static_page($stack, $card), $page);
 		$page = str_replace('<!-- INSERT META -->', Application::meta($stack, $card), $page);
 		
+		/* compute the stack URL */
+		//$stack['url'] = substr($stack['path'], strlen($config->url . 'stacks/'));
+		
 		/* populate the template with stack and card data sufficient to start the
 		web application environment on the client */
 		$one = 1;
-		$page = str_replace('/* INSERT PRE-LOAD SCRIPT */',
-			'var gBase = \''.$config->url."';\n".
-			'var _g_init_stack = '.json_encode($stack).";\n".
-			'var _g_init_card = '.json_encode($card).";\n".
-			'var _g_icon_collections = '.json_encode(Application::list_icon_collections()).";", 
-			$page, $one);
+		$client_param_block = array(
+			'base'=>$config->url,
+			'icon_collections'=>Application::list_icon_collections(),
+			'stack'=>$stack,
+			'card'=>$card,
+			'bkgnd'=>$bkgnd
+		);
+		$page = str_replace('<!-- INSERT CLIENT LOAD SCRIPT -->',
+			'<script type="text/javascript">'.
+			'CinsImp.init('.json_encode($client_param_block, JSON_PRETTY_PRINT).');'.
+			'</script>', $page, $one);
 		
 		/* send the static response page */
 		print $page;
@@ -286,6 +299,8 @@ class Application
 	public static function static_page($stack, $card)
 	{
 		$content = '';
+		return '';
+		// **TODO ** sort this out later
 		
 		$content .= '<!-- card size: '.$stack['card_width'].'x'.$stack['card_height'].' -->'."\n";
 	

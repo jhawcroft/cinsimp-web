@@ -39,8 +39,12 @@ function Dialog(in_title, in_element, in_flags, in_cleanup)
 {
 	Dialog._list.push(this);
 	
+	this._dom_map = null;
+	this._dom_id_map = null;
+	
 	this._flags = in_flags;
 	this._cleanup = in_cleanup;
+	this._close_code = null;
 	
 	this._div = document.createElement('div');
 	this._div.className = 'Dialog';
@@ -52,7 +56,7 @@ function Dialog(in_title, in_element, in_flags, in_cleanup)
 	this._div.appendChild(this._titlebar);
 	
 	this._closebtn = document.createElement('img');
-	this._closebtn.src = gBase+'gfx/closex.png';
+	this._closebtn.src = CinsImp._base + 'gfx/closex.png';
 	this._closebtn.style.width = '16px';
 	if (this._flags & Dialog.FLAG_NOCLOSE)
 		this._closebtn.style.visibility = 'hidden';
@@ -120,6 +124,13 @@ Dialog.prototype._init_with_element = function(in_element)
 	this._div.style.height = in_element.clientHeight + this._titlebar.clientHeight + 6 + 'px';
 	
 	this._root.style.top = this._titlebar.clientHeight + 'px';
+	
+	if (this._dom_map === null) 
+	{
+		this._dom_map = {};
+		this._dom_id_map = {};
+		this._map(this._root);
+	}
 }
 
 
@@ -182,9 +193,147 @@ Dialog.prototype.getVisible = function()
 }
 
 
+Dialog.prototype.element = function(in_id)
+{
+	return this._dom_id_map[in_id];
+}
+
+
+Dialog.prototype._map = function(in_root)
+{
+	var children = in_root.children;
+	for (var i = 0; i < children.length; i++)
+	{
+		var child = children[i];
+		var attr_name = child.dataset.attr;
+		if (attr_name !== undefined)
+		{
+			if (this._dom_map[attr_name] === undefined)
+			{
+				this._dom_map[attr_name] = [ child ];
+				switch (child.nodeName.toLowerCase())
+				{
+				case 'div':
+					child.dataset.str_tmpl = child.textContent;
+					break;
+				}
+			}
+			else /* multiple elements; likely to be a radio group */
+			{
+				this._dom_map[attr_name].push( child );
+			}
+		}
+		
+		var attr_id = child.dataset.id;
+		if (attr_id !== undefined)
+			this._dom_id_map[attr_id] = child;
+		
+		this._map(child);
+	}
+}
+
+
+Dialog.prototype.get_object = function()
+{
+	return this._populate_object;
+}
+
+
+Dialog.prototype.apply = function()
+{
+	for (var attr_name in this._dom_map)
+	{
+		var attr_elements = this._dom_map[attr_name];
+		var attr_value = undefined;
+		
+		if (attr_elements.length == 1)
+		{
+			var attr_element = attr_elements[0];
+			switch (attr_element.nodeName.toLowerCase())
+			{
+			case 'input':
+				if (attr_element.type == 'checkbox')
+					attr_value = attr_element.checked;
+				else
+					attr_value = attr_element.value;
+				break;
+			case 'select':
+				attr_value = attr_element.value;
+				break;
+			default: 
+				continue;
+			}
+		}
+		else
+		{
+			for (var e = 0; e < attr_elements.length; e++)
+			{
+				var attr_element = attr_elements[e];
+				if (attr_element.checked)
+				{
+					attr_value = attr_element.value;
+					break;
+				}
+			}
+		}
+		
+		if (attr_value !== undefined)
+			this._populate_object.set_attr(attr_name, attr_value);
+	}
+}
+
+
+Dialog.prototype.populate_with = function(in_object)
+{
+	this._populate_object = in_object;
+	
+	for (var attr_name in this._dom_map)
+	{
+		var attr_elements = this._dom_map[attr_name];
+		var attr_value = in_object.get_attr(attr_name, 'ui');
+		
+		if (attr_elements.length == 1)
+		{
+			var attr_element = attr_elements[0];
+			switch (attr_element.nodeName.toLowerCase())
+			{
+				case 'div':
+					if (attr_element.dataset.str_tmpl)
+						attr_value = Util.string(attr_element.dataset.str_tmpl, attr_value);
+					attr_element.textContent = attr_value;
+					break;
+				case 'input':
+					if (attr_element.type == 'checkbox')
+						attr_element.checked = attr_value;
+					else
+						attr_element.value = attr_value;
+					break;
+				case 'select':
+					attr_element.value = attr_value;
+					break;
+			}
+		}
+		else
+		{
+			for (var e = 0; e < attr_elements.length; e++)
+			{
+				var attr_element = attr_elements[e];
+				if (attr_element.value == attr_value)
+				{
+					attr_element.checked = true;
+					break;
+				}
+			}
+		}
+	}
+}
+
+
 Dialog.prototype.show = function()
 {	
 	if (this.getVisible()) return;
+	
+	this._close_code = null;
 	
 	Dialog._installCover();
 	Dialog._cover.style.width = window.innerWidth + 'px';
@@ -205,6 +354,18 @@ Dialog.prototype.show = function()
 }
 
 
+Dialog.prototype.set_onclose = function(in_onclose)
+{
+	this._cleanup = in_onclose;
+}
+
+
+Dialog.prototype.get_close_code = function()
+{
+	return this._close_code;
+}
+
+
 Dialog.prototype.hide = function()
 {
 	if (!this.getVisible()) return;
@@ -222,7 +383,12 @@ Dialog.prototype.hide = function()
 	}
 	
 	if (this._cleanup)
-		this._cleanup();
+	{
+		this._cleanup(this, this._close_code);
+		this._cleanup = null;
+	}
+	
+	this._populate_object = null;
 }
 
 
@@ -237,10 +403,14 @@ Dialog.active = function()
 }
 
 
-Dialog.dismiss = function()
+Dialog.dismiss = function(in_code)
 {
 	var dlg = Dialog.active();
-	if (dlg) dlg.hide();
+	if (dlg) 
+	{
+		if (in_code !== undefined) dlg._close_code = in_code;
+		dlg.hide();
+	}
 }
 
 

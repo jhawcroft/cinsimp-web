@@ -57,6 +57,8 @@ Alert.ICON_WARNING = 1;
 
 Alert.prototype.show = function()
 {
+	Progress.operation_finished();
+
 	var d_prompt = document.getElementById('AlertPrompt');
 	
 	var d_btn1 = document.getElementById('AlertBtn1');
@@ -67,7 +69,7 @@ Alert.prototype.show = function()
 	if (this.icon == Alert.ICON_WARNING)
 	{
 		var d_icon = document.createElement('img');
-		d_icon.src = gBase+'gfx/caution-icon.png';
+		d_icon.src = CinsImp._base + 'gfx/caution-icon.png';
 		d_icon.style.width = '64px';
 		d_icon.style.verticalAlign = 'top';
 		d_icon.style.float = 'left';

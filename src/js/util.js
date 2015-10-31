@@ -38,9 +38,33 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 function Util() {}
 
 
-Util.niceSize = function(in_bytes)
+Util.url_path = function(in_url)
 {
-	return Math.round(in_bytes / 1024) + ' KB';
+	var link = document.createElement("a");
+    link.href = in_url;
+    return link.pathname;
+}
+
+
+Util.url_host = function(in_url)
+{
+	var link = document.createElement("a");
+    link.href = in_url;
+    return link.hostname;
+}
+
+
+
+Util.human_size = function(in_bytes)
+{
+	if (in_bytes >= 1024 * 1024 * 1024)
+		return Math.round(in_bytes / (1024 * 1024 * 1024)) + ' GB';
+	else if (in_bytes >= 1024 * 1024)
+		return Math.round(in_bytes / (1024 * 1024)) + ' MB';
+	else if (in_bytes >= 1024)
+		return Math.round(in_bytes / 1024) + ' KB';
+	else
+		return in_bytes + '';
 }
 
 
@@ -66,7 +90,9 @@ Util.classInheritsFrom = function( in_subclass, in_superclass )
 
 Util.color_to_css = function(in_color)
 {
-	var components = [in_color[0] * 255, in_color[1] * 255, in_color[2] * 255];
+	if (in_color === null || in_color == '') return 'transparent';
+	var components = in_color.split(',');
+	var components = [components[0] * 255, components[1] * 255, components[2] * 255];
 	return 'rgb(' + components.join(',') + ')';
 }
 
@@ -93,8 +119,8 @@ window.addEventListener('keyup', Util._update_modifiers, true);
 
 Util.plural = function(in_value, in_singular, in_plural)
 {
-	if (in_value == 1) return in_value + ' ' + in_singular;
-	else return in_value + ' ' + in_plural;
+	if (in_value == 1) return in_value + ' ' + Util.localised_string(in_singular);
+	else return in_value + ' ' + Util.localised_string(in_plural);
 }
 
 
@@ -146,6 +172,124 @@ Util.set_text_content = function(in_element, in_text)
     in_element.appendChild(document.createTextNode(in_text));
 }
 
+
+/*
+	Convenience method to set the size of a DOM element.
+*/
+Util.set_dom_size = function(in_element, in_size, in_height)
+{
+	var w = 0, h = 0;
+	if (in_height !== undefined)
+	{
+		w = in_size * 1;
+		h = in_height * 1;
+	}
+	else if (in_size.width)
+	{
+		w = in_size.width * 1;
+		h = in_size.height * 1;
+	}
+	else if (typeof in_size == 'object' && in_size.length && in_size.length == 2)
+	{
+		w = in_size[0] * 1;
+		h = in_size[1] * 1;
+	}
+	else if (typeof in_size == 'string')
+	{
+		in_size = in_size.split(',');
+		w = in_size[0] * 1;
+		h = in_size[1] * 1;
+	}
+	
+	if (in_element.tagName == 'CANVAS')
+	{
+		in_element.width = w;
+		in_element.height = h;
+	}
+	else
+	{
+		in_element.style.width = w + 'px';
+		in_element.style.height = h + 'px';
+	}
+}
+
+
+/*
+	Convenience method to set the location of a DOM element.
+*/
+Util.set_dom_loc = function(in_element, in_loc, in_top)
+{
+	var l = 0, t = 0;
+	if (in_top !== undefined && typeof in_top != 'object')
+	{
+		l = in_loc * 1;
+		t = in_top * 1;
+	}
+	else if (in_loc.left)
+	{
+		l = in_loc.left * 1;
+		t = in_loc.top * 1;
+	}
+	else if (typeof in_loc == 'object' && in_loc.length && in_loc.length == 2)
+	{
+		l = in_loc[0] * 1;
+		t = in_loc[1] * 1;
+	}
+	else if (typeof in_loc == 'string')
+	{
+		in_size = in_loc.split(',');
+		l = in_loc[0] * 1;
+		t = in_loc[1] * 1;
+	}
+	
+	if (in_top !== undefined && typeof in_top == 'object')
+	{
+		l += in_top[0];
+		t += in_top[1];
+	}
+	
+	in_element.style.left = l + 'px';
+	in_element.style.top = t + 'px';
+}
+
+
+Util.localised_string = function(in_template)
+{
+	return in_template;
+}
+
+
+Util.string = function(in_template)
+{
+	var localised = Util.localised_string(in_template);
+	for (var i = 1; i < arguments.length; i++)
+	{
+		localised = localised.replace('^'+(i-1), arguments[i]);
+	}
+	return localised;
+}
+
+
+
+Util.array_apply = function(in_dest, in_source) 
+{
+    for (var property in in_source) 
+    {
+    	in_dest[property] = in_source[property];
+        /*if (in_source.hasOwnProperty(property)) 
+        {
+            
+        }*/
+    }
+    return in_dest;
+};
+
+
+Util.null_or_empty = function(in_value)
+{
+	if (in_value === null || in_value == '') return true;
+	else return false;
+}
 
 
 

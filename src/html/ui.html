@@ -42,7 +42,7 @@
 	<div class="Spacer"></div>
 	<div title="Options"><img src="gfx/options.png" width="32"><div>Options</div></div>
 	<div class="Spacer"></div>
-	<div title="Stack Info" title="Stack Info" onclick="Application.showStackInfo()"><img src="gfx/stackinfo.png" width="32"><div>Stack Info</div></div>
+	<div title="Stack Info" title="Stack Info" onclick="View.do_stack_info()"><img src="gfx/stackinfo.png" width="32"><div>Stack Info</div></div>
 	<div title="Security" onclick="View.do_protect_stack();"><img src="gfx/locked.png" width="32"><div>Security</div></div>
 	<div title="Resources"><img src="gfx/resources.png" width="32"><div>Resources</div></div>
 	<!--<div title="Export"><img src="gfx/export.png" width="32"><div>Export</div></div>-->
@@ -131,19 +131,19 @@
 
 <div id="DialogStackInfo" class="DialogTemplate Inner" style="width: 450px; height: 300px;">
 	
-	<div class="Label">Stack Name: <input type="text" id="StackInfoName" style="width: 320px;"></div>
-	<div id="StackInfoWhere" class="Label VertGap selectable">Where: ^0</div>
-	<div id="StackInfoCardCount" class="Label VertGap">Stack contains ^0.</div>
-	<div id="StackInfoBkgndCount" class="Label VertGap">Stack contains ^0.</div>
+	<div class="Label">Stack Name: <input type="text" data-attr="name" id="StackInfoName" style="width: 320px;" readonly></div>
+	<div id="StackInfoWhere" data-attr="id" class="Label VertGap selectable">Where: ^0</div>
+	<div id="StackInfoCardCount" data-attr="count_cards" class="Label VertGap">Stack contains ^0.</div>
+	<div id="StackInfoBkgndCount" data-attr="count_bkgnds" class="Label VertGap">Stack contains ^0.</div>
 	
-	<div id="StackInfoSize" class="Label x2VertGap">Size of stack: ^0</div>
-	<div id="StackInfoFree" class="Label VertGap">Free in stack: ^0</div>
+	<div id="StackInfoSize" data-attr="size" class="Label x2VertGap">Size of stack: ^0</div>
+	<div id="StackInfoFree" data-attr="free" class="Label VertGap">Free in stack: ^0</div>
 	
-	<div id="StackInfoCardSize" class="Label x2VertGap">Card size: ^0</div>
+	<div id="StackInfoCardSize" data-attr="card_size" class="Label x2VertGap">Card size: ^0</div>
 	
-	<div class="Bottom"><input type="button" value="Resize..." onclick="Dialog.dismiss();Application.do_card_size();"> <input type="button" value="Script..." onclick="Application.do_edit_script(View.CURRENT_STACK, Application.save_stack_info());""></div>
+	<div class="Bottom"><input type="button" value="Resize..." onclick="Dialog.dismiss();AppDialogs.do_card_size();"> <input type="button" value="Script..." onclick="View.do_edit_script(View.save_stack_info());""></div>
 	
-	<div class="Bottom Right"><input type="button" value="Compact" class="SameSizeStacked" onclick="Dialog.dismiss(); Application.compact();"> <input type="button" value="Cancel" class="SameSizeStacked x2VertGap" onclick="Dialog.dismiss()"> <input type="button" value="OK" class="SameSizeStacked VertGap" onclick="Application.save_stack_info()"></div>
+	<div class="Bottom Right"><input type="button" value="Compact" class="SameSizeStacked" onclick="Dialog.dismiss(); View.compact();"> <input type="button" value="Cancel" class="SameSizeStacked x2VertGap" onclick="Dialog.dismiss()"> <input type="button" value="OK" class="SameSizeStacked VertGap" onclick="View.save_stack_info()"></div>
 	
 </div>
 
@@ -161,7 +161,7 @@
 	
 	<div class="VertGap" style="display: block; position: relative; border: 1px solid black; background-color: #333; width: 200px; height: 200px; overflow: hidden;" id="CardSizeWidg"></div>
 	
-	<div class="Bottom Right"><input type="button" class="SameSizeStacked" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" class="SameSizeStacked VertGap" value="OK" onclick="Application.save_card_size()"></div>
+	<div class="Bottom Right"><input type="button" class="SameSizeStacked" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" class="SameSizeStacked VertGap" value="OK" onclick="AppDialogs.save_card_size()"></div>
 	
 </div>
 
@@ -222,33 +222,33 @@ as dictated by the server, thus allowing for search nevigability -->
 
 
 <div id="DialogButtonInfo" class="DialogTemplate Inner" style=" width: 480px; height: 420px;">
-	<div class="Label">Button Name: <input type="text" id="ButtonInfoName" style="width: 300px;"></div>
-	<div class="Label x2VertGap" id="ButtonInfoNumber">Card button number: ^0</div>
-		<div class="Label VertGap" id="ButtonInfoID">Card button ID: ^0</div>
+	<div class="Label">Button Name: <input data-attr="name" type="text" id="ButtonInfoName" style="width: 300px;"></div>
+	<div class="Label x2VertGap" data-attr="klas_num" id="ButtonInfoNumber">Card button number: ^0</div>
+		<div class="Label VertGap" data-attr="id" id="ButtonInfoID">Card button ID: ^0</div>
 	
 	<div style="float: left; margin-right: 50px;">
 		<div class="Label x2VertGap">Style:</div>
-		<div class="VertGap"><input type="radio" id="ButtonInfoType1" name="ButtonInfoType" value="1" checked> <label for="ButtonInfoType1">Borderless</label></div>
-		<div class=""><input type="radio" id="ButtonInfoType2" name="ButtonInfoType" value="2"> <label for="ButtonInfoType2">Rectangle</label></div>
-		<div class=""><input type="radio" id="ButtonInfoType3" name="ButtonInfoType" value="3"> <label for="ButtonInfoType3">Rounded</label></div>
-		<div class=""><input type="radio" id="ButtonInfoType4" name="ButtonInfoType" value="4"> <label for="ButtonInfoType4">Checkbox</label></div>
-		<div class=""><input type="radio" id="ButtonInfoType5" name="ButtonInfoType" value="5"> <label for="ButtonInfoType5">Radio</label></div>
+		<div class="VertGap"><input type="radio" data-attr="style" id="ButtonInfoType1" name="ButtonInfoType" value="borderless" checked> <label for="ButtonInfoType1">Borderless</label></div>
+		<div class=""><input type="radio" data-attr="style" id="ButtonInfoType2" name="ButtonInfoType" value="rectangle"> <label for="ButtonInfoType2">Rectangle</label></div>
+		<div class=""><input type="radio" data-attr="style" id="ButtonInfoType3" name="ButtonInfoType" value="rounded"> <label for="ButtonInfoType3">Rounded</label></div>
+		<div class=""><input type="radio" data-attr="style" id="ButtonInfoType4" name="ButtonInfoType" value="check_box"> <label for="ButtonInfoType4">Checkbox</label></div>
+		<div class=""><input type="radio" data-attr="style" id="ButtonInfoType5" name="ButtonInfoType" value="radio"> <label for="ButtonInfoType5">Radio</label></div>
 		
 	</div>
 	<div style="float:left; margin-right: 50px;">
-			<div class="Label"><input type="checkbox" id="ButtonInfoShadow"> <label for="ButtonInfoShadow">Shadow</label></div>
-			<div class="Label"><input type="checkbox" id="ButtonInfoOpaque"> <label for="ButtonInfoOpaque">Opaque</label></div>
-			<div class="Label"><input type="checkbox" id="ButtonInfoShowName" checked> <label for="ButtonInfoShowName">Show name</label></div>
+			<div class="Label"><input type="checkbox" data-attr="shadow" id="ButtonInfoShadow"> <label for="ButtonInfoShadow">Shadow</label></div>
+			<div class="Label"><input type="checkbox" data-attr="opaque" id="ButtonInfoOpaque"> <label for="ButtonInfoOpaque">Opaque</label></div>
+			<div class="Label"><input type="checkbox" data-attr="show_name" id="ButtonInfoShowName" checked> <label for="ButtonInfoShowName">Show name</label></div>
 
-			<div class="Label x2VertGap"><input type="checkbox" id="ButtonInfoAutoHilite"> <label for="ButtonInfoAutoHilite">Auto hilite</label></div>
-			<div class="Label" id="ButtonInfoBkgndOnly"><input type="checkbox" id="ButtonInfoShared"> <label for="ButtonInfoShared">Shared hilite</label></div>
+			<div class="Label x2VertGap"><input type="checkbox" data-attr="auto_hilite" id="ButtonInfoAutoHilite"> <label for="ButtonInfoAutoHilite">Auto hilite</label></div>
+			<div class="Label" data-id="bkgnd-only" id="ButtonInfoBkgndOnly"><input type="checkbox" data-attr="shared" id="ButtonInfoShared"> <label for="ButtonInfoShared">Shared hilite</label></div>
 	
 	</div>
 	<div style="float: right;">
 		<input type="button" class="SameSizeStacked" value="Icon..." onclick="AppDialogs.choose_button_icon();">
-		<input type="button" class="SameSizeStacked" value="Text Style..." onclick="Text.edit_style(Application._objects, Application.save_info()); " style="margin-top: 25px;">
+		<input type="button" class="SameSizeStacked" value="Text Style..." onclick="Text.edit_style(View.current.get_current_objects(), Dialog.dismiss.bind(true)); " style="margin-top: 25px;">
 		
-		<input type="button" class="SameSizeStacked" value="Menu..." onclick="AppDialogs.edit_text_attr(Button.ATTR_MENU, Application.save_info, 'Button Menu Items');" style="margin-top: 90px;">
+		<input type="button" class="SameSizeStacked" value="Menu..." onclick="AppDialogs.edit_text_attr('menu', Dialog.dismiss.bind(true), 'Button Menu Items');" style="margin-top: 90px;">
 	
 	</div>
 	<div class="Bottom">
@@ -256,89 +256,89 @@ as dictated by the server, thus allowing for search nevigability -->
 		<input type="button" class="SameSizeStacked" value="Link To..." onclick="Application.save_info(); View.do_link_to();">
 	</div>
 	<div class="Right Bottom">
-		<input type="button" style="margin-right: 10px;" value="Script..." onclick="Application.do_edit_script(View.CURRENT_OBJECT, Application.save_info());">
-		<input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="Application.save_info();"> 
+		<input type="button" style="margin-right: 10px;" value="Script..." onclick="View.do_edit_script(Dialog.dismiss.bind(true));">
+		<input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="Dialog.dismiss(true)"> 
 	</div>
 </div>
 
 
 <div id="DialogFieldInfo" class="DialogTemplate Inner" style=" width: 620px; height: 410px;">
-	<div class="Label">Field Name: <input type="text" id="FieldInfoName" style="width: 350px;"></div>
-	<div class="Label x2VertGap" id="FieldInfoNumber">Card field number: ^0</div>
-	<div class="Label VertGap" id="FieldInfoID">Card field ID: ^0</div>
+	<div class="Label">Field Name: <input type="text" data-attr="name" id="FieldInfoName" style="width: 350px;"></div>
+	<div class="Label x2VertGap" data-attr="klas_num" id="FieldInfoNumber">Card field number: ^0</div>
+	<div class="Label VertGap" data-attr="id" id="FieldInfoID">Card field ID: ^0</div>
 	<div style="float: left; width: 28%;">
 		<div class="Label x2VertGap">Style:</div>
-		<div class=""><input type="checkbox" id="FieldInfoBorder"> <label for="FieldInfoBorder">Border</label></div>
-		<div class=""><input type="checkbox" id="FieldInfoShadow"> <label for="FieldInfoShadow">Shadow</label></div>
-		<div class=""><input type="checkbox" id="FieldInfoOpaque"> <label for="FieldInfoOpaque">Opaque</label></div>
-		<div class=""><input type="checkbox" id="FieldInfoScrolling"> <label for="FieldInfoScrolling">Scrolling</label></div>
+		<div class=""><input type="checkbox" data-attr="border" id="FieldInfoBorder"> <label for="FieldInfoBorder">Border</label></div>
+		<div class=""><input type="checkbox" data-attr="shadow" id="FieldInfoShadow"> <label for="FieldInfoShadow">Shadow</label></div>
+		<div class=""><input type="checkbox" data-attr="opaque" id="FieldInfoOpaque"> <label for="FieldInfoOpaque">Opaque</label></div>
+		<div class=""><input type="checkbox" data-attr="scroll" id="FieldInfoScrolling"> <label for="FieldInfoScrolling">Scrolling</label></div>
 	</div>
 	
 	<div style="float: left; width: 30%;">
 		
-		<div class="VertGap" style="display: none;"><input type="checkbox" id="FieldInfoShowLines"> <label for="FieldInfoShowLines">Show lines</label></div>
-		<div class=""><input type="checkbox" id="FieldInfoWideMargins"> <label for="FieldInfoWideMargins">Wide margins</label></div>
+		<!--<div class="VertGap" style="display: none;"><input type="checkbox" id="FieldInfoShowLines"> <label for="FieldInfoShowLines">Show lines</label></div>-->
+		<div class=""><input type="checkbox" data-attr="wide_margins" id="FieldInfoWideMargins"> <label for="FieldInfoWideMargins">Wide margins</label></div>
 		
-		<div class="VertGap"><input type="checkbox" id="FieldInfoLocked"> <label for="FieldInfoLocked">Lock text</label></div>
-		<div class=""><input type="checkbox" id="FieldInfoDontWrap"> <label for="FieldInfoDontWrap">Don't wrap</label></div>
-		<div class=""><input type="checkbox" id="FieldInfoAutoTab"> <label for="FieldInfoAutoTab">Auto tab</label></div>
+		<div class="VertGap"><input type="checkbox" data-attr="locked" id="FieldInfoLocked"> <label for="FieldInfoLocked">Lock text</label></div>
+		<div class=""><input type="checkbox" data-attr="dont_wrap" id="FieldInfoDontWrap"> <label for="FieldInfoDontWrap">Don't wrap</label></div>
+		<div class=""><input type="checkbox" data-attr="auto_tab" id="FieldInfoAutoTab"> <label for="FieldInfoAutoTab">Auto tab</label></div>
 		
 		<div class="Label" id="FieldInfoBkgndOnly">
-			<div class=""><input type="checkbox" id="FieldInfoShared"> <label for="FieldInfoShared">Shared text</label></div>
-			<div class=""><input type="checkbox" id="FieldInfoDontSearch"> <label for="FieldInfoDontSearch">Don't search</label></div>
+			<div data-id="bkgnd-only" class=""><input type="checkbox" data-attr="shared" id="FieldInfoShared"> <label for="FieldInfoShared">Shared text</label></div>
+			<div class=""><input type="checkbox" data-attr="dont_search" id="FieldInfoDontSearch"> <label for="FieldInfoDontSearch">Don't search</label></div>
 		</div>
 	
 	</div>
 	<div style="float: left;">
 		
-		<div class=""><input type="checkbox" id="FieldInfoAutoSelect"> <label for="FieldInfoAutoSelect">Auto select</label></div>
-		<div style="padding-left: 20px;"><input type="checkbox" id="FieldInfoMultipleLines"> <label for="FieldInfoMultipleLines">Multiple lines</label></div>
-		<div class="VertGap"><input type="checkbox" id="FieldInfoColumnar"> <label for="FieldInfoColumnar">Columnar</label> 
-			<input type="button" value="Columns..." style="display:inline-block; margin-left: 10px;" disabled></div>
-		<div style="padding-left: 20px;"><input type="checkbox" id="FieldInfoHasHeader"> <label for="FieldInfoHasHeader">Has header</label></div>
+		<div style="visibility: hidden;"><input type="checkbox" data-attr="auto_select" id="FieldInfoAutoSelect"> <label for="FieldInfoAutoSelect">Auto select</label></div>
+		<div style="visibility: hidden; padding-left: 20px;"><input type="checkbox" data-attr="multiple_lines" id="FieldInfoMultipleLines"> <label for="FieldInfoMultipleLines">Multiple lines</label></div>
+		<div style="visibility: hidden;" class="VertGap"><input type="checkbox" data-attr="columnar" id="FieldInfoColumnar"> <label for="FieldInfoColumnar">Columnar</label> 
+			<input type="button" value="Columns..." style="visibility: hidden; display:inline-block; margin-left: 10px;" disabled></div>
+		<div style="visibility: hidden; padding-left: 20px;"><input type="checkbox" data-attr="has_header" id="FieldInfoHasHeader"> <label for="FieldInfoHasHeader">Has header</label></div>
 		
-		<input type="button" value="Picklist..." onclick="AppDialogs.edit_text_attr(Field.ATTR_PICKLIST, Application.save_info, 'Field Picklist Items');" style="margin-top: 20px;">
+		<input type="button" value="Picklist..." onclick="AppDialogs.edit_text_attr('picklist', Dialog.dismiss.bind(true), 'Field Picklist Items');" style="margin-top: 20px;">
 	</div>
 	
 	<div class="Bottom" style="display: block; position: absolute;">
 			
-			<input type="button" class="SameSizeStacked VertGap" value="Text Style..." onclick="Text.edit_style(Application._objects, Application.save_info()); ">
+			<input type="button" class="SameSizeStacked VertGap" value="Text Style..." onclick="Text.edit_style(View.current.get_current_objects(), Dialog.dismiss.bind(true)); ">
 	</div>
 	<div class="Right Bottom">
-		<input type="button" style="margin-right: 10px;" value="Script..." onclick="Application.do_edit_script(View.CURRENT_OBJECT, Application.save_info());"> <input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="Application.save_info();"> 
+		<input type="button" style="margin-right: 10px;" value="Script..." onclick="View.do_edit_script(Dialog.dismiss.bind(true));"> <input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="Dialog.dismiss(true)"> 
 	</div>
 </div>
 
 
 <div id="DialogBkgndInfo" class="DialogTemplate Inner" style="width: 450px; height: 300px;">
-	<div class="Label">Background Name: <input type="text" id="BkgndInfoName" style="width: 260px;"></div>
-	<div id="BkgndInfoID" class="Label VertGap selectable">Background ID: ^0</div>
-	<div id="BkgndInfoCardCount" class="Label VertGap">Background shared by ^0.</div>
-	<div id="BkgndInfoFieldCount" class="Label VertGap">Contains ^0.</div>
-	<div id="BkgndInfoButtonCount" class="Label VertGap">Contains ^0.</div>
+	<div class="Label">Background Name: <input type="text" data-attr="name" id="BkgndInfoName" style="width: 260px;"></div>
+	<div data-attr="id" id="BkgndInfoID" class="Label VertGap selectable">Background ID: ^0</div>
+	<div data-attr="count_cards" id="BkgndInfoCardCount" class="Label VertGap">Background shared by ^0.</div>
+	<div data-attr="count_fields" id="BkgndInfoFieldCount" class="Label VertGap">Contains ^0.</div>
+	<div data-attr="count_buttons" id="BkgndInfoButtonCount" class="Label VertGap">Contains ^0.</div>
 	
-	<div class="x2VertGap"><input type="checkbox" id="BkgndInfoCantDelete"> <label for="BkgndInfoCantDelete">Can't delete background</label></div>
-	<div class=""><input type="checkbox" id="BkgndInfoDontSearch"> <label for="BkgndInfoDontSearch">Don't search background</label></div>
+	<div class="x2VertGap"><input type="checkbox" data-attr="cant_delete" id="BkgndInfoCantDelete"> <label for="BkgndInfoCantDelete">Can't delete background</label></div>
+	<div class=""><input type="checkbox" data-attr="dont_search" id="BkgndInfoDontSearch"> <label for="BkgndInfoDontSearch">Don't search background</label></div>
 	
-	<div class="Bottom"><input type="button" value="Script..." onclick="Application.do_edit_script(View.CURRENT_BKGND, Application.save_info());"></div>
-	<div class="Bottom Right"><input type="button" value="Cancel" class="" onclick="Dialog.dismiss()"> <input type="button" value="OK" class="" onclick="Application.save_info()"></div>
+	<div class="Bottom"><input type="button" value="Script..." onclick="View.do_edit_script(Dialog.dismiss);"></div>
+	<div class="Bottom Right"><input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="Dialog.dismiss(true);"></div>
 </div>
 
 
 <div id="DialogCardInfo" class="DialogTemplate Inner" style="width: 450px; height: 330px;">
 	
-	<div class="Label">Card Name: <input type="text" id="CardInfoName" style="width: 310px;"></div>
-	<div id="CardInfoNumber" class="Label VertGap">Card Number: ^0 out of ^1</div>
-	<div id="CardInfoID" class="Label VertGap selectable">Card ID: ^0</div>
-	<div id="CardInfoFieldCount" class="Label VertGap">Contains ^0.</div>
-	<div id="CardInfoButtonCount" class="Label VertGap">Contains ^0.</div>
+	<div class="Label">Card Name: <input type="text" data-attr="name" id="CardInfoName" style="width: 310px;"></div>
+	<div data-attr="seq" id="CardInfoNumber" class="Label VertGap">Card Number: ^0</div>
+	<div data-attr="id" id="CardInfoID" class="Label VertGap selectable">Card ID: ^0</div>
+	<div data-attr="count_fields" id="CardInfoFieldCount" class="Label VertGap">Contains ^0.</div>
+	<div data-attr="count_buttons" id="CardInfoButtonCount" class="Label VertGap">Contains ^0.</div>
 	
-	<div class="x2VertGap"><input type="checkbox" id="CardInfoMarked"> <label for="CardInfoMarked">Marked</label></div>
-	<div class=""><input type="checkbox" id="CardInfoDontSearch"> <label for="CardInfoDontSearch">Don't search card</label></div>
-	<div class=""><input type="checkbox" id="CardInfoCantDelete"> <label for="CardInfoCantDelete">Can't delete card</label></div>
+	<div class="x2VertGap"><input type="checkbox" data-attr="marked" id="CardInfoMarked"> <label for="CardInfoMarked">Marked</label></div>
+	<div class=""><input type="checkbox" data-attr="dont_search" id="CardInfoDontSearch"> <label for="CardInfoDontSearch">Don't search card</label></div>
+	<div class=""><input type="checkbox" data-attr="cant_delete" id="CardInfoCantDelete"> <label for="CardInfoCantDelete">Can't delete card</label></div>
 	
-	<div class="Bottom"><input type="button" value="Script..." onclick="Application.do_edit_script(View.CURRENT_CARD, Application.save_info());"></div>
-	<div class="Bottom Right"><input type="button" value="Cancel" class="" onclick="Dialog.dismiss()"> <input type="button" value="OK" class="" onclick="Application.save_info()"></div>
+	<div class="Bottom"><input type="button" value="Script..." onclick="View.do_edit_script(Dialog.dismiss);"></div>
+	<div class="Bottom Right"><input type="button" value="Cancel" class="" onclick="Dialog.dismiss()"> <input type="button" value="OK" class="" onclick="Dialog.dismiss()"></div>
 </div>
 
 
@@ -375,7 +375,7 @@ call stack and debug buttons ? -->
 		a handler jump list at least and maybe also a find option ? -->
 	</div>
 	<div class="Bottom Right">
-		<input type="button" value="Cancel" class="" onclick="Dialog.dismiss()"> <input type="button" value="OK" class="" onclick="Dialog.dismiss(); Application.save_script();">
+		<input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="Dialog.dismiss(true);">
 	</div>
 </div>
 
@@ -388,7 +388,7 @@ call stack and debug buttons ? -->
 
 <div id="DialogTextStyle" class="DialogTemplate Inner" style=" width: 620px; height: 380px;">
 	<div style="float: left; margin-right: 30px;" class="">
-		<select id="TextFont" size="8" class="multipleLine" style="height: 240px; width: 260px;" onchange="Text._update_sample();">
+		<select data-attr="txt_font" id="TextFont" size="8" class="multipleLine" style="height: 240px; width: 260px;" onchange="Text._update_sample();">
 			<option value="sans-serif">Sans-Serif (Headings)</option>
 			<option value="serif">Serif (Substantial Text)</option>
 			<option value="monospace">Fixed Width (Data/Code)</option>
@@ -400,22 +400,22 @@ call stack and debug buttons ? -->
 		</select>
 	</div>
 	<div style="float: left; width: 26%;">
-		<div class="Label">Size: <input type="text" id="TextSize" value="12pt" style="width: 70px;" onchange="Text._update_sample();" oninput="Text._update_sample();"></div>
+		<div class="Label">Size: <input type="text" data-attr="txt_size" id="TextSize" value="12pt" style="width: 70px;" onchange="Text._update_sample();" oninput="Text._update_sample();"></div>
 		
 		<div class="Label x2VertGap">Align:</div>
-		<div class="VertGap"><input type="radio" id="TextAlign1" name="TextAlign" value="left" checked onchange="Text._update_sample();"> <label for="TextAlign1">Left</label></div>
-		<div class=""><input type="radio" id="TextAlign2" name="TextAlign" value="center" onchange="Text._update_sample();"> <label for="TextAlign2">Center</label></div>
-		<div class=""><input type="radio" id="TextAlign3" name="TextAlign" value="right" onchange="Text._update_sample();"> <label for="TextAlign3">Right</label></div>
-		<div class=""><input type="radio" id="TextAlign4" name="TextAlign" value="justify" onchange="Text._update_sample();"> <label for="TextAlign4">Justify</label></div>
+		<div class="VertGap"><input type="radio" data-attr="txt_align" id="TextAlign1" name="TextAlign" value="left" checked onchange="Text._update_sample();"> <label for="TextAlign1">Left</label></div>
+		<div class=""><input type="radio" data-attr="txt_align" id="TextAlign2" name="TextAlign" value="center" onchange="Text._update_sample();"> <label for="TextAlign2">Center</label></div>
+		<div class=""><input type="radio" data-attr="txt_align" id="TextAlign3" name="TextAlign" value="right" onchange="Text._update_sample();"> <label for="TextAlign3">Right</label></div>
+		<div class=""><input type="radio" data-attr="txt_align" id="TextAlign4" name="TextAlign" value="justify" onchange="Text._update_sample();"> <label for="TextAlign4">Justify</label></div>
 	</div>
 	
 	<div style="float: left; ">
 		<div class="Label">Style:</div>
-		<div class="VertGap"><input type="checkbox" id="TextStyle1" onchange="Text._update_sample();"> <label for="TextStyle1">Bold</label></div>
-		<div class=""><input type="checkbox" id="TextStyle2" onchange="Text._update_sample();"> <label for="TextStyle2">Italic</label></div>
-		<div class=""><input type="checkbox" id="TextStyle3" onchange="Text._update_sample();"> <label for="TextStyle3">Shadow</label></div>
-		<div class=""><input type="checkbox" id="TextStyle4" onchange="Text._update_sample();"> <label for="TextStyle4">Condense</label></div>
-		<div class=""><input type="checkbox" id="TextStyle5" onchange="Text._update_sample();"> <label for="TextStyle5">Extend</label></div>
+		<div class="VertGap"><input type="checkbox" data-id="bold" id="TextStyle1" onchange="Text._update_sample();"> <label for="TextStyle1">Bold</label></div>
+		<div class=""><input type="checkbox" data-id="italic" id="TextStyle2" onchange="Text._update_sample();"> <label for="TextStyle2">Italic</label></div>
+		<div class=""><input type="checkbox" data-id="shadow" id="TextStyle3" onchange="Text._update_sample();"> <label for="TextStyle3">Shadow</label></div>
+		<div class=""><input type="checkbox" data-id="condense" id="TextStyle4" onchange="Text._update_sample();"> <label for="TextStyle4">Condense</label></div>
+		<div class=""><input type="checkbox" data-id="extend" id="TextStyle5" onchange="Text._update_sample();"> <label for="TextStyle5">Extend</label></div>
 		
 	</div>
 	
@@ -425,7 +425,7 @@ call stack and debug buttons ? -->
 	
 	
 	<div class="Right Bottom">
-		<input type="button" class="SameSizeStacked" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" class="SameSizeStacked VertGap" value="OK" onclick="Text._save_style();"> 
+		<input type="button" class="SameSizeStacked" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" class="SameSizeStacked VertGap" value="OK" onclick="Dialog.dismiss(true)"> 
 	</div>
 </div>
 
@@ -433,7 +433,7 @@ call stack and debug buttons ? -->
 
 <div id="DialogProgress" class="DialogTemplate Inner" style=" width: 400px; height: 80px; cursor: progress;">
 	<div class="Label" id="ProgressMessage">Accessing server...</div>
-	<div class="Progress Indeterminate VertGap" style="width: 370px;"><div style="width: 100%"></div></div>
+	<div id="ProgressBarBox" class="Progress VertGap" style="width: 370px;"><div id="ProgressBarFill" style="width: 100%"></div></div>
 </div>
 
 
@@ -601,9 +601,9 @@ call stack and debug buttons ? -->
 
 
 <div id="DialogTextInspect" class="DialogTemplate Inner selectable" style="width: 496px; height: 400px; overflow-y: scroll;">
-	<div class="Label"><textarea id="TextInspect" style="width: 450px; height: 320px;"></textarea></div>
+	<div class="Label"><textarea id="TextInspect" data-id="text" style="width: 450px; height: 320px;"></textarea></div>
 	<div class="Bottom Right">
-		<input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="AppDialogs.save_text_attr();">
+		<input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="Dialog.dismiss(true);">
 	</div>
 </div>
 

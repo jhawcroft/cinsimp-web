@@ -40,7 +40,22 @@ require(dirname(__FILE__).'/config.php');
 
 
 /* include essential utility code */
+require($config->base.'php/error.php');
 require($config->base.'php/util.php');
+
+
+/*
+	Returns the base URL of the CinsImp installation;
+	used to enable finding the CinsImp installation for remote copies of CinsImp
+	to get read/write access to this server via the Gateway.
+*/
+if (isset($_REQUEST['cinsimp-gateway']))
+{
+	Util::response_is_ajax_only();
+	$gateway_url = $config->url;
+	print json_encode($gateway_url);
+	exit;
+}
 
 
 /*

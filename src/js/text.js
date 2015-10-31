@@ -51,12 +51,71 @@ Text.STYLE_CONDENSE = 0x10;
 Text.STYLE_EXTEND = 0x20;
 
 
+Text.is_attribute = function(in_style, in_attribute)
+{
+	var attrs = in_style.split(',');
+	return (attrs.indexOf(in_attribute) != -1);
+}
+
+
+Text.apply_attributes_to_dom = function(in_element, in_attributes)
+{
+	if ('txt_font' in in_attributes)
+		in_element.style.fontFamily = in_attributes['txt_font'];
+	if ('txt_size' in in_attributes)
+		in_element.style.fontSize = in_attributes['txt_size'] +'pt';
+	if ('txt_style' in in_attributes)
+	{
+		var style = in_attributes['txt_style'];
+		in_element.style.fontWeight = (Text.is_attribute(style, 'bold') ? 'bold' : 'normal');
+		in_element.style.fontStyle = (Text.is_attribute(style, 'italic') ? 'italic' : 'normal');
+		in_element.style.textShadow = (Text.is_attribute(style, 'shadow') ? '2px 2px 1px #AAA' : 'none');
+		if (Text.is_attribute(style, 'extend')) in_element.style.letterSpacing = '1px';
+		else in_element.style.letterSpacing = (Text.is_attribute(style, 'condense') ? '-1px' : 'normal');
+	}
+	if ('txt_align' in in_attributes)
+		in_element.style.textAlign = in_attributes['txt_align'];
+}
+
+
 Text.edit_style = function(in_objects, in_prior)
 {
 	Text._objects = in_objects;
-	var obj = Text._objects[0];
+	var obj = Text._objects[0]; // hack ** in future this should handle multiple objects
 	
 	if (in_prior) in_prior();
+
+	Dialog.TextStyle.populate_with(obj);
+	
+	var style = obj.get_attr('txt_style');
+	Dialog.TextStyle.element('bold').checked = Text.is_attribute(style, 'bold');
+	Dialog.TextStyle.element('italic').checked = Text.is_attribute(style, 'italic');
+	Dialog.TextStyle.element('shadow').checked = Text.is_attribute(style, 'shadow');
+	Dialog.TextStyle.element('extend').checked = Text.is_attribute(style, 'extend');
+	Dialog.TextStyle.element('condense').checked = Text.is_attribute(style, 'condense');
+	
+	Text._update_sample();
+	
+	Dialog.TextStyle.set_onclose(function(in_dialog, in_save)
+	{
+		if (in_save) 
+		{
+			in_dialog.apply();
+			
+			var style = [];
+			if (in_dialog.element('bold').checked) style.push('bold');
+			if (in_dialog.element('italic').checked) style.push('italic');
+			if (in_dialog.element('shadow').checked) style.push('shadow');
+			if (in_dialog.element('extend').checked) style.push('extend');
+			if (in_dialog.element('condense').checked) style.push('condense');
+			in_dialog.get_object().set_attr('txt_style', style.join(','));
+			
+			View.current.rebuild(); // this should happen automatically in future **TODO**
+		}
+	});
+	Dialog.TextStyle.show();
+	/*
+	
 	
 	document.getElementById('TextFont').value = obj.get_attr(ViewObject.ATTR_TFONT);
 	document.getElementById('TextSize').value = obj.get_attr(ViewObject.ATTR_TSIZE);
@@ -83,7 +142,7 @@ Text.edit_style = function(in_objects, in_prior)
 	document.getElementById('TextStyle5').checked = (style & Text.STYLE_EXTEND);
 	
 	Text._update_sample();
-	Dialog.TextStyle.show();
+	Dialog.TextStyle.show();*/
 }
 
 

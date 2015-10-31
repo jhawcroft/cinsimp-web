@@ -70,6 +70,7 @@ Progress._show = function()
 {
 	if (!Progress._in_progress) return;
 	Dialog.Progress.show();
+	document.getElementById('ProgressBarBox').classList.add('Indeterminate');
 	
 	if (Progress._can_hide_timer)
 		window.clearTimeout(Progress._can_hide_timer);
@@ -81,14 +82,20 @@ Progress._set_can_hide = function()
 {
 	Progress._can_hide = true;
 	if (Progress._should_hide)
+	{
 		Progress._hide();
+		document.getElementById('ProgressBarBox').classList.remove('Indeterminate');
+	}
 }
 
 
 Progress._hide = function()
 {
 	if (Progress._can_hide)
+	{
 		Dialog.Progress.hide();
+		document.getElementById('ProgressBarBox').classList.remove('Indeterminate');
+	}
 	else
 		Progress._should_hide = true;
 }

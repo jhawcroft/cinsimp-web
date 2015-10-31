@@ -35,12 +35,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-function View(in_stack, in_card) 
+function View(in_stack, in_bkgnd, in_card) 
 {
 	View.current = this;
 	
+	this._current_object = null;
+	
 	this._stack = in_stack;
+	this._bkgnd = in_bkgnd;
+	//in_bkgnd.set_view(this);
 	this._card = in_card;
+	
 	this._paint = null;
 	this._icon_index = {};
 	
@@ -115,7 +120,8 @@ View.prototype._init_view = function()
 	this._tool = View.TOOL_BROWSE;
 	this._container = Application._stack_window;
 	
-	this._next_id = 1;
+	this._rebuild_list = [];  /* can be processed at idle, if anything in it *** TODO potentially */
+	//this._next_id = 1;
 	
 	var me = this;
 	this._container.addEventListener('mousedown', 
@@ -176,6 +182,8 @@ View.prototype._init_view = function()
 	this._bkgnd_indicator.style.width = this._container.clientWidth + 8 + 'px';
 	this._bkgnd_indicator.style.height = this._container.clientHeight + 8 + 'px';
 	document.body.appendChild(this._bkgnd_indicator);
+	
+	this._rebuild_layers();
 }
 
 
@@ -253,24 +261,27 @@ View.prototype._configure_obj_display = function()
 	this._text_editable = true; // TODO: user-level, user-modify and cant-modify
 	if (this._mode != View.MODE_BROWSE)
 		this._text_editable = false;
+	
+	var objects = this._card.get_objects();
+	for (var o = 0; o < objects.length; o++)
+	{
+		var obj = objects[o];
+		obj.set_dom_visiblity(!this._edit_bkgnd);
+		obj.set_dom_editability(this._text_editable, !this._edit_bkgnd);
 		
-	for (var o = 0; o < this._objects_card.length; o++)
-	{
-		var obj = this._objects_card[o];
-		obj._layer_visibility(!this._edit_bkgnd);
-		if (obj.get_type() == Field.TYPE)
-			obj._display_changed(this._author_fields, this._text_editable);
-		else
-			obj._display_changed(this._author_buttons, this._text_editable);
 	}
-	for (var o = 0; o < this._objects_bkgnd.length; o++)
+	
+	var objects = this._bkgnd.get_objects();
+	for (var o = 0; o < objects.length; o++)
 	{
-		var obj = this._objects_bkgnd[o];
-		obj._layer_visibility(true);
-		if (obj.get_type() == Field.TYPE)
-			obj._display_changed(this._author_fields, this._text_editable);
-		else
-			obj._display_changed(this._author_buttons, this._text_editable);
+		var obj = objects[o];
+		var te = this._text_editable;
+		var shared = obj.get_attr('shared');
+		if (this._edit_bkgnd && !shared) te = false;
+		if (!this._edit_bkgnd && shared) te = false;
+		var tv = te || !this._edit_bkgnd;
+		obj.set_dom_visiblity(true);
+		obj.set_dom_editability(te, tv);
 	}
 }
 
@@ -308,6 +319,8 @@ View.prototype.select_object = function(in_object, in_selected)
 
 View.prototype.select_none = function()
 {
+	this._current_object = null;
+	
 	for (var o = this._selected_objects.length - 1; o >= 0; o--)
 	{
 		var obj = this._selected_objects[o];
@@ -332,72 +345,72 @@ View.prototype._guide_drag_layer = function(in_context, in_object, in_rect, in_l
 		var obj = in_layer[o];
 		if (obj == in_object) continue;
 		
-		var deltaT = Math.abs(obj._loc[1] - in_rect[1]);
-		var deltaB = Math.abs(obj._rb[1] - in_rect[1]);
-		var deltaL = Math.abs(obj._loc[0] - in_rect[0]);
-		var deltaR = Math.abs(obj._rb[0] - in_rect[0]);
+		var deltaT = Math.abs(obj._position[1] - in_rect[1]);
+		var deltaB = Math.abs(obj._position[3] - in_rect[1]);
+		var deltaL = Math.abs(obj._position[0] - in_rect[0]);
+		var deltaR = Math.abs(obj._position[2] - in_rect[0]);
 		
 		if (deltaT < in_context.objYDelta)
 		{
 			in_context.objYDelta = deltaT;
 			in_context.objY = obj;
-			in_context.objYCoord = obj._loc[1];
+			in_context.objYCoord = obj._position[1];
 			in_context.alignY = 0;
 		}
 		if (deltaB < in_context.objYDelta)
 		{
 			in_context.objYDelta = deltaB;
 			in_context.objY = obj;
-			in_context.objYCoord = obj._rb[1];
+			in_context.objYCoord = obj._position[3];
 			in_context.alignY = 0;
 		}
 		if (deltaL < in_context.objXDelta)
 		{
 			in_context.objXDelta = deltaL;
 			in_context.objX = obj;
-			in_context.objXCoord = obj._loc[0];
+			in_context.objXCoord = obj._position[0];
 			in_context.alignX = 0;
 		}
 		if (deltaR < in_context.objXDelta)
 		{
 			in_context.objXDelta = deltaR;
 			in_context.objX = obj;
-			in_context.objXCoord = obj._rb[0];
+			in_context.objXCoord = obj._position[2];
 			in_context.alignX = 0;
 		}
 		
 		if (no_size) continue;
-		var deltaT = Math.abs(obj._loc[1] - in_rect[3]);
-		var deltaB = Math.abs(obj._rb[1] - in_rect[3]);
-		var deltaL = Math.abs(obj._loc[0] - in_rect[2]);
-		var deltaR = Math.abs(obj._rb[0] - in_rect[2]);
+		var deltaT = Math.abs(obj._position[1] - in_rect[3]);
+		var deltaB = Math.abs(obj._position[3] - in_rect[3]);
+		var deltaL = Math.abs(obj._position[0] - in_rect[2]);
+		var deltaR = Math.abs(obj._position[2] - in_rect[2]);
 		
 		if (deltaT < in_context.objYDelta)
 		{
 			in_context.objYDelta = deltaT;
 			in_context.objY = obj;
-			in_context.objYCoord = obj._loc[1];
+			in_context.objYCoord = obj._position[1];
 			in_context.alignY = 1;
 		}
 		if (deltaB < in_context.objYDelta)
 		{
 			in_context.objYDelta = deltaB;
 			in_context.objY = obj;
-			in_context.objYCoord = obj._rb[1];
+			in_context.objYCoord = obj._position[3];
 			in_context.alignY = 1;
 		}
 		if (deltaL < in_context.objXDelta)
 		{
 			in_context.objXDelta = deltaL;
 			in_context.objX = obj;
-			in_context.objXCoord = obj._loc[0];
+			in_context.objXCoord = obj._position[0];
 			in_context.alignX = 1;
 		}
 		if (deltaR < in_context.objXDelta)
 		{
 			in_context.objXDelta = deltaR;
 			in_context.objX = obj;
-			in_context.objXCoord = obj._rb[0];
+			in_context.objXCoord = obj._position[2];
 			in_context.alignX = 1;
 		}
 	}
@@ -421,22 +434,22 @@ View.prototype._guide_drag = function(in_object, in_loc, no_size, out_snapped)
 	};
 	
 	var proposed_rect = [in_loc[0], in_loc[1], 
-		in_loc[0] + in_object._size[0], in_loc[1] + in_object._size[1]];
+		in_loc[0] + in_object._position[4], in_loc[1] + in_object._position[5]];
 	
-	this._guide_drag_layer(context, in_object, proposed_rect, this._objects_card, no_size);
-	this._guide_drag_layer(context, in_object, proposed_rect, this._objects_bkgnd, no_size);
+	this._guide_drag_layer(context, in_object, proposed_rect, this._card.get_objects(), no_size);
+	this._guide_drag_layer(context, in_object, proposed_rect, this._bkgnd.get_objects(), no_size);
 	
 	if (context.objY != null && context.objYDelta <= THRESHOLD)
 	{
 		in_loc[1] = context.objYCoord;
-		if (context.alignY != 0) in_loc[1] -= in_object._size[1];
+		if (context.alignY != 0) in_loc[1] -= in_object._position[5];
 		out_snapped[1] = (context.alignY == 0 ? -1 : 1);
 	}
 	else out_snapped[1] = 0;
 	if (context.objX != null && context.objXDelta <= THRESHOLD)
 	{
 		in_loc[0] = context.objXCoord;
-		if (context.alignX != 0) in_loc[0] -= in_object._size[0];
+		if (context.alignX != 0) in_loc[0] -= in_object._position[4];
 		out_snapped[0] = (context.alignX == 0 ? -1 : 1);
 	}
 	else out_snapped[0] = 0;
@@ -580,51 +593,154 @@ View.prototype._renumber_objects = function()
 	for (var o = 0; o < this._objects_bkgnd.length; o++)
 	{
 		var obj = this._objects_bkgnd[o];
-		obj.set_attr(ViewObject.ATTR_PART_NUM, o + 1);
+		obj.set_attr(LayerObject.ATTR_PART_NUM, o + 1);
 		if (obj.get_type() == Button.TYPE)
-			obj.set_attr(ViewObject.ATTR_KLAS_NUM, btn_num ++);
+			obj.set_attr(LayerObject.ATTR_KLAS_NUM, btn_num ++);
 		else
-			obj.set_attr(ViewObject.ATTR_KLAS_NUM, fld_num ++);
+			obj.set_attr(LayerObject.ATTR_KLAS_NUM, fld_num ++);
 	}
 	var btn_num = 1;
 	var fld_num = 1;
 	for (var o = 0; o < this._objects_card.length; o++)
 	{
 		var obj = this._objects_card[o];
-		obj.set_attr(ViewObject.ATTR_PART_NUM, o + 1);
+		obj.set_attr(LayerObject.ATTR_PART_NUM, o + 1);
 		if (obj.get_type() == Button.TYPE)
-			obj.set_attr(ViewObject.ATTR_KLAS_NUM, btn_num ++);
+			obj.set_attr(LayerObject.ATTR_KLAS_NUM, btn_num ++);
 		else
-			obj.set_attr(ViewObject.ATTR_KLAS_NUM, fld_num ++);
+			obj.set_attr(LayerObject.ATTR_KLAS_NUM, fld_num ++);
 	}
 }
 
 
+View.prototype.card = function()
+{
+	return View.current._card;
+}
+
+
+View.prototype.rebuild = function()
+{
+	for (var i = 0; i < this._rebuild_list.length; i++)
+		this._rebuild_list[i].rebuild_dom();
+	this._rebuild_list.length = 0;
+}
+
+
+View.prototype.do_idle = function()
+{
+	this.rebuild();
+}
+
+
+View.prototype.needs_rebuild = function(in_object)
+{
+	this._rebuild_list.push(in_object);
+}
+
+
+
+View.prototype._rebuild_art = function()
+{
+	this._layer_bkgnd_art.innerHTML = '';
+	this._layer_card_art.innerHTML = '';
+	
+	var art = this._card.get_attr('art');
+	if (art)
+	{
+		var img = new Image();
+		img.src = art;
+		this._layer_card_art.appendChild(img);
+	}
+	var art = this._bkgnd.get_attr('art');
+	if (art)
+	{
+		var img = new Image();
+		img.src = art;
+		this._layer_bkgnd_art.appendChild(img);
+	}
+	
+	this._config_art_visibility();
+}
+
+
+// THIS IS THE NEW METHOD FOR REBUILD
+// THE OLD METHODS NEED TO BE CLEANED UP    ***TODO
+
+View.prototype._rebuild_layers = function()
+{
+	/* remove all DOM objects from the layer */
+	while (this._layer_obj_card.children.length > 0)
+		this._layer_obj_card.removeChild( this._layer_obj_card.children[0] );
+	
+	/* add DOM objects to the layer, background first, card second */
+	var objects = this._bkgnd.get_objects();
+	for (var i = 0; i < objects.length; i++)
+		this._layer_obj_card.appendChild( objects[i].create_dom(this) );
+	var objects = this._card.get_objects();
+	for (var i = 0; i < objects.length; i++)
+		this._layer_obj_card.appendChild( objects[i].create_dom(this) );
+	
+	/* build the actual DOM objects as needed */
+	this.rebuild();
+	
+	/* rebuild the art */
+	this._rebuild_art();
+	
+	/* configure the objects appropriately to the current edit mode */
+	this._configure_obj_display();
+}
+
+
+/*
+	** only rebuild the actual display of the layers
+*/
+/*View.prototype._rebuild_layers = function()
+{
+	while (this._layer_obj_card.children.length > 0)
+		this._layer_obj_card.removeChild( this._layer_obj_card.children[0] );
+
+	for (var o = 0; o < this._objects_bkgnd.length; o++)
+	{
+		var obj = this._objects_bkgnd[o];
+		this._layer_obj_card.appendChild(obj._div);
+	}
+	for (var o = 0; o < this._objects_card.length; o++)
+	{
+		var obj = this._objects_card[o];
+		this._layer_obj_card.appendChild(obj._div);
+	}
+}*/
+
+
 View.prototype._add_object = function(in_object)
 {
-	var existing_id = in_object.get_attr(ViewObject.ATTR_ID);
+	/*var existing_id = in_object.get_attr(LayerObject.ATTR_ID);
 	if (existing_id >= this._next_id)
-		this._next_id = existing_id + 1;
+		this._next_id = existing_id + 1;*/
+		
+	
 		
 	if (!this._edit_bkgnd) 
 	{
-		in_object.set_attr(ViewObject.ATTR_PART_NUM, this._objects_card.length + 1);
-		in_object._is_bkgnd = false;
-		this._objects_card.push(in_object);
-		this._layer_obj_card.appendChild(in_object._div);
+		//in_object.set_attr(LayerObject.ATTR_PART_NUM, this._objects_card.length + 1);
+		//in_object._is_bkgnd = false;
+		//this._objects_card.push(in_object);
+		this._layer_obj_card.appendChild( in_object.create_dom(this) );
 	}
 	else 
 	{
-		in_object.set_attr(ViewObject.ATTR_PART_NUM, this._objects_bkgnd.length + 1);
-		in_object._is_bkgnd = true;
-		this._objects_bkgnd.push(in_object);
-		this._layer_obj_card.appendChild(in_object._div);
+		//in_object.set_attr(LayerObject.ATTR_PART_NUM, this._objects_bkgnd.length + 1);
+		//in_object._is_bkgnd = true;
+		//this._objects_bkgnd.push(in_object);
+		this._layer_obj_card.appendChild( in_object.create_dom(this) );
 	}
 	
 	this._renumber_objects();
 	
-	this._layer_obj_card.style.visibility = 'hidden';
-	this._layer_obj_card.style.visibility = 'visible';
+	this.rebuild();
+	//this._layer_obj_card.style.visibility = 'hidden';
+	//this._layer_obj_card.style.visibility = 'visible';
 }
 
 
@@ -633,7 +749,7 @@ View.prototype.do_new_field = function()
 	this.select_none();
 	this.choose_tool(View.TOOL_FIELD);
 	
-	var field = new Field(this, null, this._edit_bkgnd);
+	var field = new CinsImp.Model.Field(null, (this._edit_bkgnd ? this._bkgnd : this._card));
 	this._centre_object(field);
 	this._add_object(field);
 	
@@ -646,7 +762,7 @@ View.prototype.do_new_button = function()
 	this.select_none();
 	this.choose_tool(View.TOOL_BUTTON);
 	
-	var button = new Button(this, null, this._edit_bkgnd);
+	var button = new CinsImp.Model.Button(null, (this._edit_bkgnd ? this._bkgnd : this._card));
 	this._centre_object(button);
 	this._add_object(button);
 	
@@ -659,17 +775,18 @@ View.prototype.do_delete_objects = function()
 	for (var o = 0; o < this._selected_objects.length; o++)
 	{
 		var obj = this._selected_objects[o];
-		var idx = this._objects_card.indexOf(obj);
+		obj.get_layer().remove_object(obj);
+		/*var idx = this._objects_card.indexOf(obj);
 		if (idx >= 0)
 			this._objects_card.splice(idx, 1);
 		idx = this._objects_bkgnd.indexOf(obj);
 		if (idx >= 0)
 			this._objects_bkgnd.splice(idx, 1);
-		obj.kill();
+		obj.kill();*/
 	}
 	this._selected_objects.length = 0;
 	
-	this._renumber_objects();
+	//this._renumber_objects();
 }
 
 
@@ -688,12 +805,12 @@ View.prototype._keep_content = function() // need to replace this for resequenci
 	/* dump the card content */
 	/*var card_data = new Array(this._objects_card.length + this._objects_bkgnd.length);
 	for (var o = 0; o < this._objects_card.length; o++)
-		card_data[o] = [this._objects_card[o]._attrs[ViewObject.ATTR_ID],
-						this._objects_card[o].get_attr(ViewObject.ATTR_CONTENT)];
+		card_data[o] = [this._objects_card[o]._attrs[LayerObject.ATTR_ID],
+						this._objects_card[o].get_attr(LayerObject.ATTR_CONTENT)];
 	var offset = this._objects_card.length;
 	for (var o = 0; o < this._objects_bkgnd.length; o++)
-		card_data[o + offset] = [this._objects_bkgnd[o]._attrs[ViewObject.ATTR_ID], 
-								this._objects_bkgnd[o].get_attr(ViewObject.ATTR_CONTENT)];
+		card_data[o + offset] = [this._objects_bkgnd[o]._attrs[LayerObject.ATTR_ID], 
+								this._objects_bkgnd[o].get_attr(LayerObject.ATTR_CONTENT)];
 	this._card.content = card_data;*/
 	
 	
@@ -704,15 +821,15 @@ View.prototype._keep_content = function() // need to replace this for resequenci
 	for (var o = 0; o < this._objects_bkgnd.length; o++)
 	{
 		var obj = this._objects_bkgnd[o];
-		if (obj.get_attr(ViewObject.ATTR_SHARED)) continue;
+		if (obj.get_attr(LayerObject.ATTR_SHARED)) continue;
 		
 		if (obj.get_type() == Button.TYPE)
-			var data = [obj.get_attr(ViewObject.ATTR_ID),
-				obj.get_attr(ViewObject.ATTR_CONTENT),
+			var data = [obj.get_attr(LayerObject.ATTR_ID),
+				obj.get_attr(LayerObject.ATTR_CONTENT),
 				obj.get_attr(Button.ATTR_HILITE)];
 		else
-			var data = [obj.get_attr(ViewObject.ATTR_ID),
-				obj.get_attr(ViewObject.ATTR_CONTENT)];
+			var data = [obj.get_attr(LayerObject.ATTR_ID),
+				obj.get_attr(LayerObject.ATTR_CONTENT)];
 			
 		objects.push(data);
 	}
@@ -738,15 +855,15 @@ View.prototype._save_defs_n_content = function()
 	for (var o = 0; o < this._objects_bkgnd.length; o++)
 	{
 		var obj = this._objects_bkgnd[o];
-		if (obj.get_attr(ViewObject.ATTR_SHARED)) continue;
+		if (obj.get_attr(LayerObject.ATTR_SHARED)) continue;
 		
 		if (obj.get_type() == Button.TYPE)
-			var data = [obj.get_attr(ViewObject.ATTR_ID),
-				obj.get_attr(ViewObject.ATTR_CONTENT),
+			var data = [obj.get_attr(LayerObject.ATTR_ID),
+				obj.get_attr(LayerObject.ATTR_CONTENT),
 				obj.get_attr(Button.ATTR_HILITE)];
 		else
-			var data = [obj.get_attr(ViewObject.ATTR_ID),
-				obj.get_attr(ViewObject.ATTR_CONTENT)];
+			var data = [obj.get_attr(LayerObject.ATTR_ID),
+				obj.get_attr(LayerObject.ATTR_CONTENT)];
 			
 		objects.push(data);
 	}
@@ -754,25 +871,42 @@ View.prototype._save_defs_n_content = function()
 }
 
 
-View.prototype._save_card = function(in_handler)
+View.prototype._end_editing = function()
 {
-	/* end editing and selections */
 	if (document.activeElement)
 		document.activeElement.blur();
 	this.select_none();
 	this.paint_keep();
+}
 
-	this._save_defs_n_content();
+
+View.prototype._save_card = function(in_handler)
+{
+	this._end_editing();
+	
+	this._card.save(function(in_success, in_view)
+	{
+		if (in_success)
+			in_view._bkgnd.save(function(in_success, in_view)
+			{
+				if (in_success && in_handler) in_handler.call(in_view);
+			},
+			in_view);
+	},
+	this);
+
+
+	//this._save_defs_n_content();
 	
 	/* submit ajax request to save the card */
-	var msg = {
+	/*var msg = {
 		cmd: 'save_card',
 		stack_id: this._stack.stack_id,
 		card: this._card
-	};
+	};*/
 	//alert(JSON.stringify(msg));
 	
-	Progress.operation_begun('Saving card...');
+	/*Progress.operation_begun('Saving card...');
 	Ajax.send(msg, function(msg, status) {
 		var handler = in_handler;
 		Progress.operation_finished();
@@ -780,17 +914,17 @@ View.prototype._save_card = function(in_handler)
 			Alert.network_error("Couldn't save card.\n(" + status + JSON.stringify(msg) + ")");
 			//alert('Save card error: '+status+"\n"+JSON.stringify(msg));
 		else if (handler) handler();
-	});
+	});*/
 }
 
 
 View.prototype._resurect = function(in_def, in_bkgnd)
 {
-	var id = in_def[ViewObject.ATTR_ID] * 1;
+	var id = in_def[LayerObject.ATTR_ID] * 1;
 	if (id >= this._next_id) this._next_id = id + 1;
 		
 	var obj = null;
-	if (in_def[ViewObject.ATTR_TYPE] == ViewObject.TYPE_BUTTON)
+	if (in_def[LayerObject.ATTR_TYPE] == LayerObject.TYPE_BUTTON)
 		obj = new Button(this, in_def, in_bkgnd);
 	else
 		obj = new Field(this, in_def, in_bkgnd);
@@ -799,25 +933,7 @@ View.prototype._resurect = function(in_def, in_bkgnd)
 }
 
 
-/*
-	** only rebuild the actual display of the layers
-*/
-View.prototype._rebuild_layers = function()
-{
-	while (this._layer_obj_card.children.length > 0)
-		this._layer_obj_card.removeChild( this._layer_obj_card.children[0] );
 
-	for (var o = 0; o < this._objects_bkgnd.length; o++)
-	{
-		var obj = this._objects_bkgnd[o];
-		this._layer_obj_card.appendChild(obj._div);
-	}
-	for (var o = 0; o < this._objects_card.length; o++)
-	{
-		var obj = this._objects_card[o];
-		this._layer_obj_card.appendChild(obj._div);
-	}
-}
 
 
 View.prototype._config_art_visibility = function()
@@ -837,26 +953,6 @@ View.prototype._config_art_visibility = function()
 }
 
 
-View.prototype._rebuild_art = function()
-{
-	this._layer_bkgnd_art.innerHTML = '';
-	this._layer_card_art.innerHTML = '';
-	
-	if (this._card.card_art)
-	{
-		var img = new Image();
-		img.src = this._card.card_art;
-		this._layer_card_art.appendChild(img);
-	}
-	if (this._card.bkgnd_art)
-	{
-		var img = new Image();
-		img.src = this._card.bkgnd_art;
-		this._layer_bkgnd_art.appendChild(img);
-	}
-	
-	this._config_art_visibility();
-}
 
 
 View.prototype._rebuild_card = function() // will have to do separate load object data & separate reload from object lists
@@ -909,9 +1005,9 @@ View.prototype._rebuild_card = function() // will have to do separate load objec
 		{
 			var data = this._card.content[o];
 			if (o >= offset)
-				this._objects_bkgnd[o - offset].set_attr(ViewObject.ATTR_CONTENT, data[1]);
+				this._objects_bkgnd[o - offset].set_attr(LayerObject.ATTR_CONTENT, data[1]);
 			else
-				this._objects_card[o].set_attr(ViewObject.ATTR_CONTENT, data[1]);
+				this._objects_card[o].set_attr(LayerObject.ATTR_CONTENT, data[1]);
 		}
 	}
 	catch (e) {}*/
@@ -926,7 +1022,7 @@ View.prototype._rebuild_card = function() // will have to do separate load objec
 			var obj = this._lookup_bkgnd_part_by_id(data[0]);
 			if (obj) 
 			{
-				obj.set_attr(ViewObject.ATTR_CONTENT, data[1]);
+				obj.set_attr(LayerObject.ATTR_CONTENT, data[1]);
 				if (data.length == 3)
 					obj.set_attr(Button.ATTR_HILITE, data[2]);
 			}
@@ -953,7 +1049,7 @@ View.prototype._lookup_bkgnd_part_by_id = function(in_part_id)
 	for (var o = 0; o < this._objects_bkgnd.length; o++)
 	{
 		var obj = this._objects_bkgnd[o];
-		if (obj.get_attr(ViewObject.ATTR_ID) == in_part_id)
+		if (obj.get_attr(LayerObject.ATTR_ID) == in_part_id)
 			return obj;
 	}
 	return null;
@@ -962,6 +1058,7 @@ View.prototype._lookup_bkgnd_part_by_id = function(in_part_id)
 
 View.prototype._load_card = function(in_card_id)
 {
+
 	/* submit ajax request to load the card */
 	msg = {
 		cmd: 'load_card',
@@ -988,143 +1085,92 @@ View.prototype._load_card = function(in_card_id)
 
 View.prototype.do_new_card = function()
 {
-	this._save_card( this._do_new_card.bind(this) );
-}
-
-
-View.prototype._do_new_card = function()
-{
-	msg = {
-		cmd: 'new_card',
-		stack_id: this._stack.stack_id,
-		card_id: this._card.card_id
-	};
-	
-	Progress.operation_begun();
-	var me = this;
-	Ajax.send(msg, function(msg, status) {
-		Progress.operation_finished();
-		if ((status != 'ok') || (msg.cmd != 'new_card'))
-			alert('New card error: '+status+"\n"+JSON.stringify(msg));
-		else
+	var view = this;
+	Progress.operation_begun('Creating a new card...');
+	this._save_card(function()
+	{
+		Card.make_new(view._stack, view._card, function(in_new_card)
 		{
-			me._card = msg.card;
-			me._stack.count_cards ++;
-			me._rebuild_card();
-		}
+			view._card = in_new_card;
+			view._rebuild_layers();
+			Progress.operation_finished();
+		});
 	});
 }
 
 
+
 View.prototype.do_new_bkgnd = function()
 {
-	this._save_card( this._do_new_bkgnd.bind(this) );
-}
-
-
-View.prototype._do_new_bkgnd = function()
-{
-	msg = {
-		cmd: 'new_bkgnd',
-		stack_id: this._stack.stack_id,
-		card_id: this._card.card_id
-	};
-	
-	Progress.operation_begun();
-	var me = this;
-	Ajax.send(msg, function(msg, status) {
-		Progress.operation_finished();
-		if ((status != 'ok') || (msg.cmd != 'new_bkgnd'))
-			alert('New bkgnd error: '+status+"\n"+JSON.stringify(msg));
-		else
+	var view = this;
+	Progress.operation_begun('Creating a new background...');
+	this._save_card(function()
+	{
+		Bkgnd.make_new(view._stack, view._card, function(in_new_card, in_new_bkgnd)
 		{
-			me._card = msg.card;
-			me._stack.count_cards ++;
-			me._stack.count_bkgnds ++;
-			me._rebuild_card();
-		}
+			view._card = in_new_card;
+			view._bkgnd = in_new_bkgnd;
+			view._rebuild_layers();
+			Progress.operation_finished();
+		});
 	});
 }
 
 
 View.prototype.do_delete_card = function()
 {
-	this._save_card( this._do_delete_card.bind(this) );
-}
-
-
-View.prototype._do_delete_card = function()
-{
-	msg = {
-		cmd: 'delete_card',
-		stack_id: this._stack.stack_id,
-		card_id: this._card.card_id
-	};
-	
-	Progress.operation_begun();
-	var me = this;
-	Ajax.send(msg, function(msg, status) {
+	var view = this;
+	this._end_editing();
+	Progress.operation_begun('Deleting the card...');
+	this._card.destroy(function(in_new_card, in_new_bkgnd)
+	{
+		view._card = in_new_card;
+		view._bkgnd = in_new_bkgnd;
+		view._rebuild_layers();
 		Progress.operation_finished();
-		if ((status != 'ok') || (msg.cmd != 'delete_card'))
-			alert('Delete card error: '+status+"\n"+JSON.stringify(msg));
-		else
-		{
-			me._card = msg.card;
-			me._stack = msg.stack;
-			me._rebuild_card();
-		}
 	});
 }
 
 
-View.prototype._go_nth_card = function(in_num, in_bkgnd)
+View.prototype._go_nth_card = function(in_ref, in_bkgnd)
 {
-	/* submit ajax request to load the card */
-	msg = {
-		cmd: 'load_card',
-		stack_id: this._stack.stack_id,
-		stack_num: in_num
-	};
-	
-	Progress.operation_begun();
-	var me = this;
-	Ajax.send(msg, function(msg, status) {
-		Progress.operation_finished();
-		if ((status != 'ok') || (msg.cmd != 'load_card'))
-			alert('Save card error: '+status+"\n"+JSON.stringify(msg));
-		else
+	var view = this;
+	Progress.operation_begun('Saving the current card...');
+	this._save_card(function()
+	{
+		Progress.status('Loading the card...');
+		view._card.load_nth(in_ref, in_bkgnd, function(in_new_card, in_new_bkgnd)
 		{
-			me._card = msg.card;
-			me._rebuild_card();
-		}
+			if (in_new_card)
+			{
+				view._card = in_new_card;
+				if (in_new_bkgnd) view._bkgnd = in_new_bkgnd;
+				view._rebuild_layers();
+			}
+			Progress.operation_finished();
+		});
 	});
 }
 
 
 View.prototype.go_first = function()
 {
-	this._save_card( this._go_nth_card.bind(this, 1) );
+	this._go_nth_card('#1');
 }
 
 View.prototype.go_prev = function()
 {
-	if (this._card.card_seq == 1)
-		this.go_last();
-	else
-		this._save_card( this._go_nth_card.bind(this, this._card.card_seq - 1) );
+	this._go_nth_card('#previous');
 }
 
 View.prototype.go_next = function()
 {
-	if (this._card.card_seq == this._stack.count_cards)
-		this.go_first();
-	else
-		this._save_card( this._go_nth_card.bind(this, this._card.card_seq + 1) );
+	this._go_nth_card('#next');
 }
 
 View.prototype.go_last = function()
 {
-	this._save_card( this._go_nth_card.bind(this, this._stack.count_cards) );
+	this._go_nth_card('#last');
 }
 
 
@@ -1140,90 +1186,55 @@ View.prototype.refresh = function()
 
 View.prototype._do_button_info = function()
 {
-	var obj = this._selected_objects[0];
-	Application._objects = this._selected_objects;
+	var button = View.current.get_current_object(true);
+
+	Dialog.ButtonInfo.populate_with(button);
+	Dialog.ButtonInfo.element('bkgnd-only').style.visibility = (button.is_bkgnd() ? 'visible' : 'hidden');
 	
-	document.getElementById('ButtonInfoName').value = obj.get_attr(ViewObject.ATTR_NAME);
-	document.getElementById('ButtonInfoNumber').textContent = 
-		(obj._is_bkgnd ? 'Bkgnd' : 'Card') + ' button number: ' + obj.get_attr(ViewObject.ATTR_KLAS_NUM);
-	document.getElementById('ButtonInfoID').textContent = 
-		(obj._is_bkgnd ? 'Bkgnd' : 'Card') + ' button ID: ' + obj.get_attr(ViewObject.ATTR_ID);
-		
-	switch (obj.get_attr(Button.ATTR_STYLE))
+	Dialog.ButtonInfo.set_onclose(function(in_dialog, in_save)
 	{
-	case Button.STYLE_RECTANGLE:
-		document.getElementById('ButtonInfoType2').checked = true;
-		break;
-	case Button.STYLE_ROUNDED:
-		document.getElementById('ButtonInfoType3').checked = true;
-		break;
-	case Button.STYLE_CHECK_BOX:
-		document.getElementById('ButtonInfoType4').checked = true;
-		break;
-	case Button.STYLE_RADIO:
-		document.getElementById('ButtonInfoType5').checked = true;
-		break;
-	case Button.STYLE_BORDERLESS:
-	default:
-		document.getElementById('ButtonInfoType1').checked = true;
-		break;
-	}
-	
-	document.getElementById('ButtonInfoShadow').checked = obj.get_attr(ViewObject.ATTR_SHADOW);
-	document.getElementById('ButtonInfoOpaque').checked = (obj.get_attr(ViewObject.ATTR_COLOR) != null);
-	document.getElementById('ButtonInfoShowName').checked = obj.get_attr(Button.ATTR_SHOW_NAME);
-	
-	document.getElementById('ButtonInfoAutoHilite').checked = obj.get_attr(Button.ATTR_AUTO_HILITE);
-	
-	document.getElementById('ButtonInfoBkgndOnly').style.visibility = (obj._is_bkgnd ? 'visible' : 'hidden');
-	document.getElementById('ButtonInfoShared').checked = obj.get_attr(ViewObject.ATTR_SHARED);	
-		
+		in_dialog.element('bkgnd-only').style.visibility = 'hidden';
+		if (in_save) 
+		{
+			in_dialog.apply();
+			View.current.rebuild(); // this should happen automatically in future **TODO**
+		}
+	});
 	Dialog.ButtonInfo.show();
-}
-
-
-View.prototype._save_button_info = function()
-{
-	var obj = this._selected_objects[0];
-	
-	obj.set_attr(ViewObject.ATTR_NAME, document.getElementById('ButtonInfoName').value);
-	
-	obj.set_attr(ViewObject.ATTR_SHADOW, document.getElementById('ButtonInfoShadow').checked);
-	obj.set_attr(ViewObject.ATTR_COLOR, (document.getElementById('ButtonInfoOpaque').checked ? [1,1,1] : null));
-	obj.set_attr(Button.ATTR_SHOW_NAME, document.getElementById('ButtonInfoShowName').checked);
-	
-	obj.set_attr(Button.ATTR_AUTO_HILITE, document.getElementById('ButtonInfoAutoHilite').checked);
-	obj.set_attr(ViewObject.ATTR_SHARED, document.getElementById('ButtonInfoShared').checked);
-	
-	if (document.getElementById('ButtonInfoType1').checked)
-		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_BORDERLESS);
-	else if (document.getElementById('ButtonInfoType2').checked)
-		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_RECTANGLE);
-	else if (document.getElementById('ButtonInfoType3').checked)
-		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_ROUNDED);
-	else if (document.getElementById('ButtonInfoType4').checked)
-		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_CHECK_BOX);
-	else if (document.getElementById('ButtonInfoType5').checked)
-		obj.set_attr(Button.ATTR_STYLE, Button.STYLE_RADIO);
-
-	Dialog.dismiss();
 }
 
 
 View.prototype._do_field_info = function()
 {
+	var field = View.current.get_current_object(true);
+
+	Dialog.FieldInfo.populate_with(field);
+	Dialog.FieldInfo.element('bkgnd-only').style.visibility = (field.is_bkgnd() ? 'visible' : 'hidden');
+	
+	Dialog.FieldInfo.set_onclose(function(in_dialog, in_save)
+	{
+		in_dialog.element('bkgnd-only').style.visibility = 'hidden';
+		if (in_save) 
+		{
+			in_dialog.apply();
+			View.current.rebuild(); // this should happen automatically in future **TODO**
+		}
+	});
+	Dialog.FieldInfo.show();
+	
+	/*
 	var obj = this._selected_objects[0];
 	Application._objects = this._selected_objects;
 	
-	document.getElementById('FieldInfoName').value = obj.get_attr(ViewObject.ATTR_NAME);
+	document.getElementById('FieldInfoName').value = obj.get_attr(LayerObject.ATTR_NAME);
 	document.getElementById('FieldInfoNumber').textContent = 
-		(obj._is_bkgnd ? 'Bkgnd' : 'Card') + ' field number: ' + obj.get_attr(ViewObject.ATTR_KLAS_NUM);
+		(obj._is_bkgnd ? 'Bkgnd' : 'Card') + ' field number: ' + obj.get_attr(LayerObject.ATTR_KLAS_NUM);
 	document.getElementById('FieldInfoID').textContent = 
-		(obj._is_bkgnd ? 'Bkgnd' : 'Card') + ' field ID: ' + obj.get_attr(ViewObject.ATTR_ID);
+		(obj._is_bkgnd ? 'Bkgnd' : 'Card') + ' field ID: ' + obj.get_attr(LayerObject.ATTR_ID);
 	
 	document.getElementById('FieldInfoBorder').checked = obj.get_attr(Field.ATTR_BORDER);
-	document.getElementById('FieldInfoShadow').checked = obj.get_attr(ViewObject.ATTR_SHADOW);
-	document.getElementById('FieldInfoOpaque').checked = (obj.get_attr(ViewObject.ATTR_COLOR) != null);
+	document.getElementById('FieldInfoShadow').checked = obj.get_attr(LayerObject.ATTR_SHADOW);
+	document.getElementById('FieldInfoOpaque').checked = (obj.get_attr(LayerObject.ATTR_COLOR) != null);
 	document.getElementById('FieldInfoScrolling').checked = obj.get_attr(Field.ATTR_SCROLL);
 	
 	document.getElementById('FieldInfoShowLines').checked = obj.get_attr(Field.ATTR_SHOW_LINES);
@@ -1233,13 +1244,13 @@ View.prototype._do_field_info = function()
 	document.getElementById('FieldInfoAutoTab').checked = obj.get_attr(Field.ATTR_AUTO_TAB);
 
 	document.getElementById('FieldInfoBkgndOnly').style.visibility = (obj._is_bkgnd ? 'visible' : 'hidden');
-	document.getElementById('FieldInfoShared').checked = obj.get_attr(ViewObject.ATTR_SHARED);
-	document.getElementById('FieldInfoDontSearch').checked = ! obj.get_attr(ViewObject.ATTR_SEARCHABLE);
+	document.getElementById('FieldInfoShared').checked = obj.get_attr(LayerObject.ATTR_SHARED);
+	document.getElementById('FieldInfoDontSearch').checked = ! obj.get_attr(LayerObject.ATTR_SEARCHABLE);
 	
 	document.getElementById('FieldInfoAutoSelect').checked = obj.get_attr(Field.ATTR_AUTO_SELECT);
 	document.getElementById('FieldInfoMultipleLines').checked = obj.get_attr(Field.ATTR_MULTIPLE_LINES);
 	
-	Dialog.FieldInfo.show();
+	Dialog.FieldInfo.show();*/
 }
 
 
@@ -1247,11 +1258,11 @@ View.prototype._save_field_info = function()
 {
 	var obj = this._selected_objects[0];
 	
-	obj.set_attr(ViewObject.ATTR_NAME, document.getElementById('FieldInfoName').value);
+	obj.set_attr(LayerObject.ATTR_NAME, document.getElementById('FieldInfoName').value);
 	
 	obj.set_attr(Field.ATTR_BORDER, document.getElementById('FieldInfoBorder').checked);
-	obj.set_attr(ViewObject.ATTR_SHADOW, document.getElementById('FieldInfoShadow').checked);
-	obj.set_attr(ViewObject.ATTR_COLOR, (document.getElementById('FieldInfoOpaque').checked ? [1,1,1] : null));
+	obj.set_attr(LayerObject.ATTR_SHADOW, document.getElementById('FieldInfoShadow').checked);
+	obj.set_attr(LayerObject.ATTR_COLOR, (document.getElementById('FieldInfoOpaque').checked ? [1,1,1] : null));
 	obj.set_attr(Field.ATTR_SCROLL, document.getElementById('FieldInfoScrolling').checked);
 	
 	obj.set_attr(Field.ATTR_SHOW_LINES, document.getElementById('FieldInfoShowLines').checked);
@@ -1260,44 +1271,12 @@ View.prototype._save_field_info = function()
 	obj.set_attr(Field.ATTR_DONT_WRAP, document.getElementById('FieldInfoDontWrap').checked);
 	obj.set_attr(Field.ATTR_AUTO_TAB, document.getElementById('FieldInfoAutoTab').checked);
 
-	obj.set_attr(ViewObject.ATTR_SHARED, document.getElementById('FieldInfoShared').checked);
-	obj.set_attr(ViewObject.ATTR_SEARCHABLE, ! document.getElementById('FieldInfoDontSearch').checked);
+	obj.set_attr(LayerObject.ATTR_SHARED, document.getElementById('FieldInfoShared').checked);
+	obj.set_attr(LayerObject.ATTR_SEARCHABLE, ! document.getElementById('FieldInfoDontSearch').checked);
 	
 	obj.set_attr(Field.ATTR_AUTO_SELECT, document.getElementById('FieldInfoAutoSelect').checked);
 	obj.set_attr(Field.ATTR_MULTIPLE_LINES, document.getElementById('FieldInfoMultipleLines').checked);
 	
-	Dialog.dismiss();
-}
-
-
-View.prototype._do_card_info = function()
-{
-	document.getElementById('CardInfoName').value = this._card.card_name;
-	
-	document.getElementById('CardInfoNumber').textContent = 'Card '+this._card.card_seq+' out of '+this._stack.count_cards;
-	document.getElementById('CardInfoID').textContent = 'Card ID: '+this._card.card_id;
-	document.getElementById('CardInfoFieldCount').textContent = 'Contains '+Util.plural(this._count_klass(this._objects_card, Field.TYPE),'field','fields');
-	document.getElementById('CardInfoButtonCount').textContent = 'Contains '+Util.plural(this._count_klass(this._objects_card, Button.TYPE),'button','buttons');
-	
-	document.getElementById('CardInfoCantDelete').checked = this._card.card_cant_delete;
-	document.getElementById('CardInfoDontSearch').checked = this._card.card_dont_search;
-	document.getElementById('CardInfoMarked').checked = this._card.card_marked;
-	
-	Dialog.CardInfo.show();
-}
-
-
-
-
-
-View.prototype._save_card_info = function()
-{
-	this._card.card_name = document.getElementById('CardInfoName').value;
-	
-	this._card.card_cant_delete = document.getElementById('CardInfoCantDelete').checked;
-	this._card.card_dont_search = document.getElementById('CardInfoDontSearch').checked;
-	this._card.card_marked = document.getElementById('CardInfoMarked').checked;
-
 	Dialog.dismiss();
 }
 
@@ -1311,36 +1290,33 @@ View.prototype._count_klass = function(in_table, in_klass)
 }
 
 
+View.prototype._do_card_info = function()
+{
+	Dialog.CardInfo.populate_with(this._card);
+	Dialog.CardInfo.set_onclose(function(in_save)
+	{
+		if (in_save) Dialog.CardInfo.apply();
+	});
+	Dialog.CardInfo.show();
+}
+
+
 View.prototype._do_bkgnd_info = function()
 {
-	document.getElementById('BkgndInfoName').value = this._card.bkgnd_name;
-	
-	document.getElementById('BkgndInfoID').textContent = 'Background ID: '+this._card.bkgnd_id;
-	document.getElementById('BkgndInfoCardCount').textContent = 'Background shared by '+
-		this._card.bkgnd_count+' '+(this._card.bkgnd_count == 1 ? 'card' : 'cards')+'.';
-	document.getElementById('BkgndInfoFieldCount').textContent = 'Contains '+Util.plural(this._count_klass(this._objects_bkgnd, Field.TYPE),'field','fields');
-	document.getElementById('BkgndInfoButtonCount').textContent = 'Contains '+Util.plural(this._count_klass(this._objects_bkgnd, Button.TYPE),'button','buttons');
-	
-	document.getElementById('BkgndInfoCantDelete').checked = this._card.bkgnd_cant_delete;
-	document.getElementById('BkgndInfoDontSearch').checked = this._card.bkgnd_dont_search;
-
+	Dialog.BkgndInfo.populate_with(this._bkgnd);
+	Dialog.BkgndInfo.set_onclose(function(in_save)
+	{
+		if (in_save) Dialog.BkgndInfo.apply();
+	});
 	Dialog.BkgndInfo.show();
 }
 
 
-View.prototype._save_bkgnd_info = function()
-{
-	this._card.bkgnd_name = document.getElementById('BkgndInfoName').value;
-	
-	this._card.bkgnd_cant_delete = document.getElementById('BkgndInfoCantDelete').checked;
-	this._card.bkgnd_dont_search = document.getElementById('BkgndInfoDontSearch').checked;
-	
-	Dialog.dismiss();
-}
-
 
 View.prototype.do_info = function()
 {
+	this.set_current_object(null);
+
 	if (this._selected_objects.length == 1)
 	{
 		if (this._selected_objects[0].get_type() == Button.TYPE)
@@ -1355,19 +1331,20 @@ View.prototype.do_info = function()
 }
 
 
-View.prototype.save_info = function()
+View.save_info = function()
 {
-	if (this._selected_objects.length == 1)
+	var view = View.current;
+	if (view._selected_objects.length == 1)
 	{
-		if (this._selected_objects[0].get_type() == Button.TYPE)
-			this._save_button_info();
+		if (view._selected_objects[0].get_type() == Button.TYPE)
+			view._save_button_info();
 		else
-			this._save_field_info();
+			view._save_field_info();
 	}
-	else if (!this._edit_bkgnd)
-		this._save_card_info();
+	/*else if (!view._edit_bkgnd)
+		view._save_card_info();
 	else
-		this._save_bkgnd_info();
+		view._save_bkgnd_info();*/
 }
 
 
@@ -1383,14 +1360,14 @@ View.prototype._enumerate_in_sequence = function()
 	{
 		var obj = this._objects_bkgnd[o];
 		if (obj._selected)
-			bkgnd_list.push({ obj: obj, num: obj.get_attr(ViewObject.ATTR_PART_NUM), idx: o });
+			bkgnd_list.push({ obj: obj, num: obj.get_attr(LayerObject.ATTR_PART_NUM), idx: o });
 	}
 	var card_list = [];
 	for (var o = 0; o < this._objects_card.length; o++)
 	{
 		var obj = this._objects_card[o];
 		if (obj._selected)
-			card_list.push({ obj: obj, num: obj.get_attr(ViewObject.ATTR_PART_NUM), idx: o });
+			card_list.push({ obj: obj, num: obj.get_attr(LayerObject.ATTR_PART_NUM), idx: o });
 	}
 	return { card: card_list, bkgnd: bkgnd_list };
 }
@@ -1479,74 +1456,6 @@ View.prototype.send_to_back = function()
 }
 ///ScriptEditorObject
 
-View.prototype.do_edit_script = function(in_subject, in_prior)
-{
-	var desc_label = document.getElementById('ScriptEditorObject');
-	var curr_script = null;
-	
-	if (in_subject == View.CURRENT_OBJECT)
-	{
-		Dialog.ScriptEditor._object = this._selected_objects[0];
-		var obj = Dialog.ScriptEditor._object;
-		var id = obj.get_attr(ViewObject.ATTR_ID);
-		var name = obj.get_attr(ViewObject.ATTR_NAME);
-		var layer = (obj._is_bkgnd ? 'background' : 'card');
-		
-		if (obj.get_type() == Button.TYPE)
-		{
-			Dialog.ScriptEditor._type = View.CURRENT_BUTTON;
-			desc_label.textContent = 'Script of '+layer+' button ID '+id+
-				(name != '' ? ' "'+name+'"' : '');
-		}
-		else
-		{
-			Dialog.ScriptEditor._type = View.CURRENT_FIELD;
-			desc_label.textContent = 'Script of '+layer+' field ID '+id+
-				(name != '' ? ' "'+name+'"' : '');
-		}
-		
-		curr_script = obj.get_attr(ViewObject.ATTR_SCRIPT);
-		Dialog.ScriptEditor._edit_type = 'object';
-	}
-	else if (in_subject == View.CURRENT_STACK)
-	{
-		Dialog.ScriptEditor._object = this._stack;
-		Dialog.ScriptEditor._type = View.CURRENT_STACK;
-		desc_label.textContent = 'Script of stack '+this._stack.stack_name;
-		
-		curr_script = this._stack.stack_script;
-		Dialog.ScriptEditor._edit_type = 'stack';
-	}
-	else if (in_subject == View.CURRENT_BKGND)
-	{
-		Dialog.ScriptEditor._object = this._card;
-		Dialog.ScriptEditor._type = View.CURRENT_BKGND;
-		desc_label.textContent = 'Script of background ID '+this._card.bkgnd_id+
-			(this._card.bkgnd_name != '' ? ' "'+this._card.bkgnd_name+'"' : '');
-			
-		curr_script = this._card.bkgnd_script;
-		Dialog.ScriptEditor._edit_type = 'bkgnd';
-	}
-	else
-	{
-		Dialog.ScriptEditor._object = this._card;
-		Dialog.ScriptEditor._type = View.CURRENT_CARD;
-		desc_label.textContent = 'Script of card ID '+this._card.card_id+
-			(this._card.card_name != '' ? ' "'+this._card.card_name+'"' : '');
-		
-		curr_script = this._card.card_script;
-		Dialog.ScriptEditor._edit_type = 'card';
-	}
-	
-	if (!curr_script) curr_script = {'content':'', 'selection':0};
-	Dialog.ScriptEditor._codeeditor._jce_ta.value = curr_script['content'];
-	Dialog.ScriptEditor._codeeditor._jce_ta.selectionStart = curr_script['selection'];
-	Dialog.ScriptEditor._codeeditor._jce_ta.selectionEnd = curr_script['selection'];
-
-	if (in_prior) in_prior();
-	Dialog.ScriptEditor.show();
-	Dialog.ScriptEditor._codeeditor._jce_ta.focus();
-}
 
 
 View.prototype._save_stack = function()
@@ -1568,31 +1477,6 @@ View.prototype._save_stack = function()
 }
 
 
-View.prototype.save_script = function()
-{
-	var script_code = Dialog.ScriptEditor._codeeditor._jce_ta.value;
-	var script_sel = Dialog.ScriptEditor._codeeditor._jce_ta.selectionStart;
-	var new_script = {'content': script_code, 'selection': script_sel};
-	
-	switch (Dialog.ScriptEditor._edit_type)
-	{
-	case 'object':
-		Dialog.ScriptEditor._object.set_attr(ViewObject.ATTR_SCRIPT, new_script);
-		break;
-	case 'stack':
-		this._stack.stack_script = new_script;
-		this._save_stack();
-		break;
-	case 'bkgnd':
-		this._card.bkgnd_script = new_script;
-		break;
-	case 'card':
-		this._card.card_script = new_script;
-		break;
-	}
-	
-}
-
 
 
 View.prototype.paint_keep = function()
@@ -1601,9 +1485,9 @@ View.prototype.paint_keep = function()
 	if (!this._paint.is_active()) return;
 	
 	if (!this._edit_bkgnd)
-		this._card.card_art = this._paint.get_data_png();
+		this._card.set_attr('art', this._paint.get_data_png());
 	else
-		this._card.bkgnd_art = this._paint.get_data_png();
+		this._bkgnd.set_attr('art', this._paint.get_data_png());
 }
 
 
@@ -1613,9 +1497,9 @@ View.prototype.paint_revert = function()
 	if (!this._paint.is_active()) return;
 	
 	if (!this._edit_bkgnd)
-		this._paint.set_data_png(this._card.card_art);
+		this._paint.set_data_png(this._card.get_attr('art'));
 	else
-		this._paint.set_data_png(this._card.bkgnd_art);
+		this._paint.set_data_png(this._bkgnd.get_attr('art'));
 }
 
 
@@ -1667,6 +1551,8 @@ View.register_icon = function(in_id, in_name, in_data)
 
 View.prototype._index_icons = function()
 {
+return;
+// **TO REVISE **
 	this._icon_index = {};
 	for (var i = 0; i < this._stack.stack_icons.length; i++)
 	{
@@ -1697,16 +1583,14 @@ View.do_save = function()
 
 View.do_protect_stack = function()
 {
+	var stack = View.current._stack;
 	
-	document.getElementById('ProtectStackCantModify').checked = View.current._stack.stack_cant_modify;
-	document.getElementById('ProtectStackCantDelete').checked = View.current._stack.stack_cant_delete;
-	document.getElementById('ProtectStackCantAbort').checked = View.current._stack.stack_cant_abort;
-	document.getElementById('ProtectStackCantPeek').checked = View.current._stack.stack_cant_peek;
-	document.getElementById('ProtectStackPrivateAccess').checked = View.current._stack.stack_private_access;
-	
-	var ul = View.current._stack.stack_user_level * 1;
-	if ((!Number.isInteger(ul)) || ul < 1 || ul > 5) ul = 5;
-	document.getElementById('ProtectStackUserLevel' + ul).checked = true;
+	document.getElementById('ProtectStackCantModify').checked = stack.get_attr('cant_modify');
+	document.getElementById('ProtectStackCantDelete').checked = stack.get_attr('cant_delete');
+	document.getElementById('ProtectStackCantAbort').checked = stack.get_attr('cant_abort');
+	document.getElementById('ProtectStackCantPeek').checked = stack.get_attr('cant_peek');
+	document.getElementById('ProtectStackPrivateAccess').checked = stack.get_attr('private_access');
+	document.getElementById('ProtectStackUserLevel' + stack.get_attr('user_level')).checked = true;
 
 	Dialog.ProtectStack.show();
 }
@@ -1719,22 +1603,25 @@ View.do_protect_stack = function()
 
 View.save_protect_stack = function()
 {
+	var stack = View.current._stack;
+
 	Dialog.dismiss();
 	
-	View.current._stack.stack_cant_modify = document.getElementById('ProtectStackCantModify').checked;
-	View.current._stack.stack_cant_delete = document.getElementById('ProtectStackCantDelete').checked;
-	View.current._stack.stack_cant_abort = document.getElementById('ProtectStackCantAbort').checked;
-	View.current._stack.stack_cant_peek = document.getElementById('ProtectStackCantPeek').checked;
-	View.current._stack.stack_private_access = document.getElementById('ProtectStackPrivateAccess').checked;
+	stack.set_attr('cant_modify', document.getElementById('ProtectStackCantModify').checked);
+	stack.set_attr('cant_delete', document.getElementById('ProtectStackCantDelete').checked);
+	stack.set_attr('cant_abort', document.getElementById('ProtectStackCantAbort').checked);
+	stack.set_attr('cant_peek', document.getElementById('ProtectStackCantPeek').checked);
+	stack.set_attr('private_access', document.getElementById('ProtectStackPrivateAccess').checked);
 	
 	var ul = 5;
 	if (document.getElementById('ProtectStackUserLevel1').checked) ul = 1;
 	else if (document.getElementById('ProtectStackUserLevel2').checked) ul = 2;
 	else if (document.getElementById('ProtectStackUserLevel3').checked) ul = 3;
 	else if (document.getElementById('ProtectStackUserLevel4').checked) ul = 4;
-	View.current._stack.stack_user_level = ul;
+	stack.set_attr('user_level', ul);
 	
-	View.current._save_stack();
+	Progress.operation_begun('Applying stack protection options...');
+	stack.save(Progress.operation_finished);
 }
 
 
@@ -1767,17 +1654,241 @@ View._do_set_password = function()
 	else
 	{
 		Dialog.dismiss();
-		View.current._stack.stack_password = pw1;
-		View.current._save_stack();
+		Progress.operation_begun('Setting stack password...');
+		View.current._stack.set_password(pw1, Progress.operation_finished);
 	}
 }
 
 
 View.clear_password = function()
 {
-	View.current._stack.stack_password = null;
-	View.current._save_stack();
+	Progress.operation_begun('Removing stack password...');
+	View.current._stack.set_password(null, Progress.operation_finished);
 }
+
+
+
+
+View.do_stack_info = function()
+{
+	var stack = View.current._stack;
+	View.current.set_current_object(stack);
+	
+	document.getElementById('StackInfoName').value = stack.get_attr('name');
+	document.getElementById('StackInfoWhere').innerHTML = 'Where: '+stack.get_attr('path');
+	
+	document.getElementById('StackInfoCardCount').innerHTML = 'Stack contains '+
+		Util.plural(stack.get_attr('count_cards'), 'card', 'cards')+'.';
+	document.getElementById('StackInfoBkgndCount').innerHTML = 'Stack contains '+
+		Util.plural(stack.get_attr('count_bkgnds'), 'background', 'backgrounds')+'.';
+	
+	document.getElementById('StackInfoSize').innerHTML = 'Size of stack: ' + 
+		Util.human_size(stack.get_attr('size'));
+	document.getElementById('StackInfoFree').innerHTML = 'Free in stack: ' + 
+		Util.human_size(stack.get_attr('free'));
+	
+	document.getElementById('StackInfoCardSize').innerHTML = 'Card size: ' +
+		stack.get_card_size_text();
+
+	
+	Dialog.StackInfo.show();
+}
+
+
+// not currently particularly relevant **
+View.save_stack_info = function()
+{
+	Dialog.dismiss();
+	/*var do_rename = false;
+	if (this._stack.stack_name != document.getElementById('StackInfoName').value)
+		do_rename = true;	
+	this._stack.stack_name = document.getElementById('StackInfoName').value;
+	Dialog.dismiss();
+	
+	if (do_rename)
+	{
+		Progress.operation_begun('Renaming Stack...');
+		var msg = {
+			cmd: 'rename_stack',
+			stack_id: this._stack.stack_id
+		};
+		Ajax.send(msg, function(msg, status)
+		{
+			Progress.operation_finished();
+			if ((status != 'ok') || (msg.cmd != 'load_card'))
+				alert('Rename stack error: '+status+"\n"+JSON.stringify(msg));
+			else
+				this._stack = msg.stack;
+		});
+	}*/
+}
+
+
+
+View.compact = function()
+{
+	Progress.operation_begun('Compacting this stack...', true);
+	View.current._stack.compact( Progress.operation_finished );
+}
+
+
+
+View.prototype.get_stack = function()
+{
+	return this._stack;
+}
+
+
+
+View.prototype.get_current_object = function(in_multiple_error)
+{
+	if (this._current_object)
+		return this._current_object;
+	else if (this._selected_objects.length > 1)
+	{
+		if (in_multiple_error)
+		{
+			var alert = new Alert();
+			alert.title = 'Multiple Objects Selected';
+			alert.prompt = 'That operation cannot be performed with multiple objects selected.';
+			alert.button1_label = 'OK';
+			alert.show();
+		}
+		return null;
+	}
+	else if (this._selected_objects.length == 1)
+		return this._selected_objects[0];
+	else if (!this._edit_bkgnd)
+		return this._card;
+	else
+		return this._bkgnd;
+}
+
+
+View.prototype.get_current_objects = function()
+{
+	if (this._current_object)
+		return  [ this._current_object ];
+	else if (this._selected_objects.length > 0)
+		return this._selected_objects;
+	else if (!this._edit_bkgnd)
+		return this._card;
+	else
+		return this._bkgnd;
+}
+
+
+/*
+	Temporarily overrides whatever the selection is within the view.
+	Enables editing of objects beyond the view which is usually responsible for
+	the editing process.
+	
+	Specifying null allows the selection (if any) to preside again.
+	When card is reloaded, selection changed or edit background mode is changed,
+	any override is cleared automatically.
+*/
+View.prototype.set_current_object = function(in_another_object)
+{
+	if (in_another_object)
+		this.select_none();
+	this._current_object = in_another_object;
+}
+
+
+
+View.do_edit_script = function(in_prior)
+{
+	var object = View.current.get_current_object(true);
+	if (!object) return;
+	
+	document.getElementById('ScriptEditorObject').textContent = object.get_description();
+	var script = object.get_attr('script');
+	
+	var sel_pos = 0;
+	if (object.get_type() == Button.TYPE && script == 'on mouseup\n  \nend mouseup')
+		sel_pos = 13;
+		
+	Dialog.ScriptEditor._codeeditor.set_script(script, sel_pos);
+	
+	if (in_prior) in_prior();
+	Dialog.ScriptEditor.show();
+	Dialog.ScriptEditor._codeeditor.focus();
+	
+	Dialog.ScriptEditor.set_onclose(function(in_dialog, in_save) 
+	{
+		if (!in_save) return;
+		var object = View.current.get_current_object(false);
+		object.set_attr('script', in_dialog._codeeditor.get_script());
+	});
+}
+
+
+
+
+/*
+
+	var view = View.current;
+	
+	var desc_label = document.getElementById('ScriptEditorObject');
+	var curr_script = null;
+	
+	var is_btn = false;
+	
+	if (in_subject == View.CURRENT_OBJECT) 
+	{
+		Dialog.ScriptEditor._object = view._selected_objects[0];
+		var obj = Dialog.ScriptEditor._object;
+		var id = obj.get_attr(LayerObject.ATTR_ID);
+		var name = obj.get_attr(LayerObject.ATTR_NAME);
+		var layer = (obj._is_bkgnd ? 'background' : 'card');
+		
+		if (obj.get_type() == Button.TYPE)
+		{
+			Dialog.ScriptEditor._type = View.CURRENT_BUTTON;
+			desc_label.textContent = 'Script of '+layer+' button ID '+id+
+				(name != '' ? ' "'+name+'"' : '');
+			is_btn = true;
+		}
+		else
+		{
+			Dialog.ScriptEditor._type = View.CURRENT_FIELD;
+			desc_label.textContent = 'Script of '+layer+' field ID '+id+
+				(name != '' ? ' "'+name+'"' : '');
+		}
+		
+		curr_script = obj.get_attr(LayerObject.ATTR_SCRIPT);
+		Dialog.ScriptEditor._edit_type = 'object';
+	}
+	else if (in_subject == View.CURRENT_STACK)
+	{
+		Dialog.ScriptEditor._object = view._stack;
+		Dialog.ScriptEditor._type = View.CURRENT_STACK;
+		desc_label.textContent = 'Script of '+view._stack.get_text_desc();
+		
+		curr_script = view._stack.get_attr('script');
+		Dialog.ScriptEditor._edit_type = 'stack';
+	}
+	else if (in_subject == View.CURRENT_BKGND) 
+	{
+		Dialog.ScriptEditor._object = view._card;
+		Dialog.ScriptEditor._type = View.CURRENT_BKGND;
+		desc_label.textContent = 'Script of background ID '+view._card.bkgnd_id+
+			(view._card.bkgnd_name != '' ? ' "'+view._card.bkgnd_name+'"' : '');
+			
+		curr_script = view._card.bkgnd_script;
+		Dialog.ScriptEditor._edit_type = 'bkgnd';
+	}
+	else if (in_subject == View.CURRENT_CARD)
+	{
+		Dialog.ScriptEditor._object = view._card;
+		Dialog.ScriptEditor._type = View.CURRENT_CARD;
+		desc_label.textContent = 'Script of '+view._card.get_text_desc();
+		
+		curr_script = view._card.card_script;
+		Dialog.ScriptEditor._edit_type = 'card';
+	}
+	*/
+
 
 
 

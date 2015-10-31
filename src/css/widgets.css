@@ -234,7 +234,7 @@ div.Progress.Indeterminate div
     animation-timing-function: linear;
 }
 
-/* The animation code */
+/* The animation code  - causing high CPU */
 @keyframes progress-barber-pole {
     from {background-position: 0px;}
     to {background-position: 45px;}
