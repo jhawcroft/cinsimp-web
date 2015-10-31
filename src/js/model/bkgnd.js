@@ -157,6 +157,7 @@ Bkgnd.prototype.set_attr = function(in_attr, in_value)
 	case 'cant_delete':
 	case 'dont_search':
 	case 'name':
+	case 'art':
 		this._changes[in_attr] = in_value;
 		break;
 	default:

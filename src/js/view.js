@@ -634,6 +634,33 @@ View.prototype.needs_rebuild = function(in_object)
 
 
 
+View.prototype._rebuild_art = function()
+{
+	this._layer_bkgnd_art.innerHTML = '';
+	this._layer_card_art.innerHTML = '';
+	
+	var art = this._card.get_attr('art');
+	if (art)
+	{
+		var img = new Image();
+		img.src = art;
+		this._layer_card_art.appendChild(img);
+	}
+	var art = this._bkgnd.get_attr('art');
+	if (art)
+	{
+		var img = new Image();
+		img.src = art;
+		this._layer_bkgnd_art.appendChild(img);
+	}
+	
+	this._config_art_visibility();
+}
+
+
+// THIS IS THE NEW METHOD FOR REBUILD
+// THE OLD METHODS NEED TO BE CLEANED UP    ***TODO
+
 View.prototype._rebuild_layers = function()
 {
 	/* remove all DOM objects from the layer */
@@ -650,6 +677,9 @@ View.prototype._rebuild_layers = function()
 	
 	/* build the actual DOM objects as needed */
 	this.rebuild();
+	
+	/* rebuild the art */
+	this._rebuild_art();
 	
 	/* configure the objects appropriately to the current edit mode */
 	this._configure_obj_display();
@@ -917,26 +947,6 @@ View.prototype._config_art_visibility = function()
 }
 
 
-View.prototype._rebuild_art = function()
-{
-	this._layer_bkgnd_art.innerHTML = '';
-	this._layer_card_art.innerHTML = '';
-	
-	if (this._card.card_art)
-	{
-		var img = new Image();
-		img.src = this._card.card_art;
-		this._layer_card_art.appendChild(img);
-	}
-	if (this._card.bkgnd_art)
-	{
-		var img = new Image();
-		img.src = this._card.bkgnd_art;
-		this._layer_bkgnd_art.appendChild(img);
-	}
-	
-	this._config_art_visibility();
-}
 
 
 View.prototype._rebuild_card = function() // will have to do separate load object data & separate reload from object lists
@@ -1463,18 +1473,15 @@ View.prototype._save_stack = function()
 
 
 
-
-
-
 View.prototype.paint_keep = function()
 {
 	if (!this._paint) return;
 	if (!this._paint.is_active()) return;
 	
 	if (!this._edit_bkgnd)
-		this._card.card_art = this._paint.get_data_png();
+		this._card.set_attr('art', this._paint.get_data_png());
 	else
-		this._card.bkgnd_art = this._paint.get_data_png();
+		this._bkgnd.set_attr('art', this._paint.get_data_png());
 }
 
 
@@ -1484,9 +1491,9 @@ View.prototype.paint_revert = function()
 	if (!this._paint.is_active()) return;
 	
 	if (!this._edit_bkgnd)
-		this._paint.set_data_png(this._card.card_art);
+		this._paint.set_data_png(this._card.get_attr('art'));
 	else
-		this._paint.set_data_png(this._card.bkgnd_art);
+		this._paint.set_data_png(this._bkgnd.get_attr('art'));
 }
 
 

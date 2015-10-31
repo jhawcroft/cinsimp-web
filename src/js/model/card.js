@@ -206,6 +206,7 @@ Card.prototype.set_attr = function(in_attr, in_value)
 	case 'dont_search':
 	case 'marked':
 	case 'name':
+	case 'art':
 		this._changes[in_attr] = in_value;
 		break;
 	default:
