@@ -627,6 +627,12 @@ View.prototype.rebuild = function()
 }
 
 
+View.prototype.do_idle = function()
+{
+	this.rebuild();
+}
+
+
 View.prototype.needs_rebuild = function(in_object)
 {
 	this._rebuild_list.push(in_object);

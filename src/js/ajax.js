@@ -66,6 +66,8 @@ Ajax._do_error_msg = function(in_title, in_message, in_handler)
 
 Ajax.request = function(in_msg, in_handler, in_timeout)
 {
+//alert('r');
+
 	if (Ajax._ajaxRequest)
 		return Ajax._do_error_msg('Internal Error', 'Ajax adapter already in use.', in_handler);
 	
@@ -152,6 +154,7 @@ Old Handler - Deprecated - Use .request in future
 
 Ajax.send = function(msg, responseHandler, in_timeout)
 {
+//alert('s');
 	if (Ajax._ajaxRequest)
 	{
 		responseHandler('Internal error (Ajax adapter already in-use)', 'in-use');

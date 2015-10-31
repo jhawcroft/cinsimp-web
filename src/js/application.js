@@ -476,6 +476,11 @@ Application._init_xtalk = function()
 }
 
 
+Application._idle = function()
+{
+	if (View.current) View.current.do_idle();
+}
+
 
 Application.init = function()
 {
@@ -497,6 +502,9 @@ Application.init = function()
 	Application._show_default_palettes();
 	
 	Progress.operation_finished();
+	
+	
+	Application._idle_timer = window.setInterval(Application._idle, 50);
 }
 
 

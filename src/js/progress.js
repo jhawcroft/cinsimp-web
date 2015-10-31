@@ -50,6 +50,7 @@ Progress.operation_begun = function(in_status, in_immediate)
 	if (!in_status)
 		in_status = 'Accessing server...';
 	document.getElementById('ProgressMessage').textContent = in_status;
+	document.getElementById('ProgressBarBox').classList.add('Indeterminate');
 
 	Progress._in_progress = true;
 	Progress._can_hide = false;
@@ -69,6 +70,7 @@ Progress.operation_begun = function(in_status, in_immediate)
 Progress._show = function()
 {
 	if (!Progress._in_progress) return;
+	document.getElementById('ProgressBarBox').style.animationName = 'progress-barber-pole';
 	Dialog.Progress.show();
 	
 	if (Progress._can_hide_timer)
@@ -81,14 +83,20 @@ Progress._set_can_hide = function()
 {
 	Progress._can_hide = true;
 	if (Progress._should_hide)
+	{
 		Progress._hide();
+		document.getElementById('ProgressBarBox').classList.remove('Indeterminate');
+	}
 }
 
 
 Progress._hide = function()
 {
 	if (Progress._can_hide)
+	{
 		Dialog.Progress.hide();
+		document.getElementById('ProgressBarBox').classList.remove('Indeterminate');
+	}
 	else
 		Progress._should_hide = true;
 }
