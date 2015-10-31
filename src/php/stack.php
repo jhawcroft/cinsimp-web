@@ -1039,19 +1039,21 @@ Eventually methods for icon deletion/rename:
 	Looks up the card sequence for the card that is either immediately following or prior
 	to the supplied sequence within the specified background. 
 */
-	public function stack_get_bkgnd_rel_seq($bkgnd_id, $card_seq, $direction)//.($card_seq*10);
+	public function stack_get_bkgnd_rel_seq($bkgnd_id, $card_seq, $direction)
 	{
-		$card_seq *= 10;
 		if ($direction > 0)
-			$sql = 'SELECT MIN(card_seq) FROM card WHERE bkgnd_id = ? AND card_seq > ?';
+			$sql = 'SELECT MIN(seq) FROM card WHERE seq > ?';
 		else
-			$sql = 'SELECT MAX(card_seq) FROM card WHERE bkgnd_id = ? AND card_seq < ?';
+			$sql = 'SELECT MAX(seq) FROM card WHERE seq < ?';
+		if ($bkgnd_id !== null) $sql .= ' AND bkgnd_id = ?';
 		$stmt = $this->file_db->prepare($sql);
-		Stack::sl_ok($stmt, $this->file_db, 'Getting Bkgnd Relative Sequence (1)');
-		Stack::sl_ok($stmt->execute(array(intval($bkgnd_id), intval($card_seq))), $this->file_db, 'Getting Bkgnd Relative Sequence (2)');
+		$params = array( intval($card_seq) );
+		if ($bkgnd_id !== null) $params[] = intval($bkgnd_id);
+		
+		$stmt->execute($params);
 		$row = $stmt->fetch(PDO::FETCH_NUM);
 		if ($row === false) return null;
-		return $row[0];
+		return intval($row[0]);
 	}
 
 
@@ -1059,21 +1061,24 @@ Eventually methods for icon deletion/rename:
 	Looks up the card ID for the card that is either immediately following or prior to the
 	supplied sequence within the specified background.
 */
-	public function stack_get_bkgnd_rel_card_id($bkgnd_count, $bkgnd_id, $card_seq, $direction)
+	public function stack_get_bkgnd_rel_card_id($bkgnd_id, $card_seq, $direction)
 	{
 		$rel_seq = $this->stack_get_bkgnd_rel_seq($bkgnd_id, $card_seq, $direction);
-		if ($rel_seq === null)
+		if ($rel_seq === null || $rel_seq == 0)
 		{
 			if ($direction > 0) return $this->stack_get_nth_card_id(1, $bkgnd_id);
-			else return $this->stack_get_nth_card_id($bkgnd_count, $bkgnd_id);
+			else return $this->stack_get_nth_card_id($this->stack_get_count_cards($bkgnd_id), $bkgnd_id);
 		}
 	
-		$stmt = $this->file_db->prepare('SELECT card_id FROM card WHERE bkgnd_id=? AND card_seq=?');
-		Stack::sl_ok($stmt, $this->file_db, 'Getting Relative Card (1)');
-		Stack::sl_ok($stmt->execute(array(intval($bkgnd_id), $rel_seq)), $this->file_db, 'Getting Relative Card (2)');
+		$sql = 'SELECT id FROM card WHERE seq=?';
+		if ($bkgnd_id !== null) $sql .= ' AND bkgnd_id=?';
+		$stmt = $this->file_db->prepare($sql);
+		$params = array( intval($rel_seq) );
+		if ($bkgnd_id !== null) $params[] = $bkgnd_id;
+		
+		$stmt->execute($params);
 		$row = $stmt->fetch(PDO::FETCH_NUM);
-		Stack::sl_ok($row, $this->file_db, 'Getting Relative Card(3)');
-		return $row[0];
+		return intval($row[0]);
 	}
 
 
@@ -1227,6 +1232,11 @@ Eventually methods for icon deletion/rename:
 			$stmt->execute($sql['params']);
 		}
 	}
+	
+	
+	
+	// ** TODO ought to consider use of transactions for consistent reads in more depth
+	
 
 
 /*
@@ -1258,6 +1268,17 @@ Eventually methods for icon deletion/rename:
 	}
 	
 	
+	
+	private function _seq_for_card($in_card_id)
+	{
+		$stmt = $this->file_db->prepare('SELECT seq FROM card WHERE id=?');
+		$stmt->execute(array( $in_card_id ));
+		$row = $stmt->fetch(PDO::FETCH_NUM);
+		return intval($row[0]);
+	}
+
+	
+	
 /*
 	Accepts a card reference and converts to a card ID.
 	A reference can be either:
@@ -1267,7 +1288,7 @@ Eventually methods for icon deletion/rename:
 	-	a name, relative to the stack or supplied background ID
 		Any non-numeric string
 */
-	private function _card_ref_to_id($in_ref, $in_bkgnd_id = null)
+	private function _card_ref_to_id($in_ref, $in_bkgnd_id = null, $in_current_id = null)
 	{
 		if ($in_ref === null || strlen($in_ref) > 256)
 			CinsImpError::malformed('Invalid card reference');
@@ -1288,22 +1309,28 @@ Eventually methods for icon deletion/rename:
 			switch ($in_ref)
 			{
 			case 'next':
-				
-				CinsImpError::unimplemented('ordinal card access');
-				break;
+				if ($in_current_id === null)
+					CinsImpError::malformed('Invalid relative card access; missing current');
+				return $this->stack_get_bkgnd_rel_card_id($in_bkgnd_id, $this->_seq_for_card($in_current_id), 1);
 			case 'prev':
 			case 'previous':
-				CinsImpError::unimplemented('ordinal card access');
-				break;
+				if ($in_current_id === null)
+					CinsImpError::malformed('Invalid relative card access; missing current');
+				return $this->stack_get_bkgnd_rel_card_id($in_bkgnd_id, $this->_seq_for_card($in_current_id), -1);
 			case 'last':
-				CinsImpError::unimplemented('ordinal card access');
-				break;
+				$number = $this->stack_get_count_cards($in_bkgnd_id);
+				return $this->stack_get_nth_card_id($number, $in_bkgnd_id);
 			case 'middle':
-				CinsImpError::unimplemented('ordinal card access');
-				break;
+				$number = $this->stack_get_count_cards($in_bkgnd_id);
+				if ($number <= 2) $number = 1;
+				else if ($number > 2) $number = intval(round($number/2));
+				return $this->stack_get_nth_card_id($number, $in_bkgnd_id);
 			case 'any':
-				CinsImpError::unimplemented('ordinal card access');
-				break;
+				$count = $this->stack_get_count_cards($in_bkgnd_id);
+				$number = mt_rand(1, $count);
+				return $this->stack_get_nth_card_id($number, $in_bkgnd_id);
+			case 'first':
+				return $this->stack_get_nth_card_id(1, $in_bkgnd_id);
 			default:
 				$number = intval($in_ref);
 				return $this->stack_get_nth_card_id($number, $in_bkgnd_id);
@@ -1323,7 +1350,9 @@ Eventually methods for icon deletion/rename:
 */
 	public function stack_load_card($card_id, $bkgnd_id = null, $in_current = null)
 	{
-		$card_id = $this->_card_ref_to_id($card_id, $bkgnd_id);
+		$this->file_db->beginTransaction(); /* used to ensure consistent reads */
+	
+		$card_id = $this->_card_ref_to_id($card_id, $bkgnd_id, $in_current);
 		
 		// **TODO eventually we can optimise to not send the same background
 		// as that on which the current card sits
@@ -1363,6 +1392,8 @@ Eventually methods for icon deletion/rename:
 		$card['content'] = $content;
 		
 		$card['objects'] = Stack::_layer_parts( - intval($card['id']) );
+		
+		$this->file_db->commit();
 		
 		return $card;		
 	}
