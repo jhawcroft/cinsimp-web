@@ -646,6 +646,9 @@ View.prototype._rebuild_layers = function()
 	
 	/* build the actual DOM objects as needed */
 	this.rebuild();
+	
+	/* configure the objects appropriately to the current edit mode */
+	this._configure_obj_display();
 }
 
 
