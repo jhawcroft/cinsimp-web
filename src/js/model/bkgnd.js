@@ -144,8 +144,10 @@ Bkgnd.prototype.apply_changes = function()
 }
 
 
-Bkgnd.prototype.save = function(in_onfinished)
+Bkgnd.prototype.save = function(in_onfinished, in_arg)
 {
+	
+
 	var card = this;
 	this._changes['id'] = this._def.id;
 	this._stack.gateway(
@@ -157,7 +159,7 @@ Bkgnd.prototype.save = function(in_onfinished)
 	function(in_reply) 
 	{
 		if (in_reply.cmd != 'error') card.apply_changes();
-		if (in_onfinished) in_onfinished(in_reply.cmd != 'error');
+		if (in_onfinished) in_onfinished(in_reply.cmd != 'error', in_arg);
 	});
 }
 

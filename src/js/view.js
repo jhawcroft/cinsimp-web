@@ -781,25 +781,42 @@ View.prototype._save_defs_n_content = function()
 }
 
 
-View.prototype._save_card = function(in_handler)
+View.prototype._end_editing = function()
 {
-	/* end editing and selections */
 	if (document.activeElement)
 		document.activeElement.blur();
 	this.select_none();
 	this.paint_keep();
+}
 
-	this._save_defs_n_content();
+
+View.prototype._save_card = function(in_handler)
+{
+	this._end_editing();
+	
+	this._card.save(function(in_success, in_view)
+	{
+		if (in_success)
+			in_view._bkgnd.save(function(in_success, in_view)
+			{
+				if (in_success) in_handler.bind(in_view);
+			},
+			in_view);
+	},
+	this);
+
+
+	//this._save_defs_n_content();
 	
 	/* submit ajax request to save the card */
-	var msg = {
+	/*var msg = {
 		cmd: 'save_card',
 		stack_id: this._stack.stack_id,
 		card: this._card
-	};
+	};*/
 	//alert(JSON.stringify(msg));
 	
-	Progress.operation_begun('Saving card...');
+	/*Progress.operation_begun('Saving card...');
 	Ajax.send(msg, function(msg, status) {
 		var handler = in_handler;
 		Progress.operation_finished();
@@ -807,7 +824,7 @@ View.prototype._save_card = function(in_handler)
 			Alert.network_error("Couldn't save card.\n(" + status + JSON.stringify(msg) + ")");
 			//alert('Save card error: '+status+"\n"+JSON.stringify(msg));
 		else if (handler) handler();
-	});
+	});*/
 }
 
 

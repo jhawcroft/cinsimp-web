@@ -299,13 +299,12 @@ Regular Command Handlers
 */
 	public static function save_card($inbound, $outbound)
 	{
-		Util::keys_required($inbound, array('id','card'));
+		Util::keys_required($inbound, array('id'));
 		$stack = new Stack(Util::safe_stack_id($inbound['id']), Util::optional($inbound, 'auth_hash'));
-		$stack->stack_save_card($inbound['card']);
+		if (array_key_exists('card', $inbound))
+			$stack->stack_save_card($inbound['card']);
 		if (array_key_exists('bkgnd', $inbound))
-		{
 			$stack->stack_save_bkgnd($inbound['bkgnd']);
-		}
 		return $outbound;
 	}
 	
