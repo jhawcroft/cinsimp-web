@@ -41,7 +41,7 @@ var Model = CinsImp.Model;
 
 
 
-Model.Layer = function(in_stack, in_def, in_ready_handler)
+Model.Layer = function(in_stack, in_def, in_ready_handler, in_view)
 {
 	/* initialise the class internals */
 	this._ready = false;
@@ -51,6 +51,7 @@ Model.Layer = function(in_stack, in_def, in_ready_handler)
 	this._stack = in_stack;
 	this._next_id = 1;
 	this._objects = [];
+	this._view = in_view;
 	
 	/* if the definition is an ID,
 	then the definition must be fetched before it can be loaded */
@@ -177,7 +178,27 @@ Layer.prototype.set_attr = function(in_attr, in_value)
 		throw new Error('Cannot write "'+in_attr+'" attribute of ' + this.get_type());
 	
 	this._changes[in_attr] = in_value;
+	this._make_dirty();
+}
+
+
+Layer.prototype._make_dirty = function()
+{
+	if (this._is_dirty) return;
 	this._is_dirty = true;
+	
+	if (this._view) this._view._notify_dirty_changed();
+}
+
+
+Layer.prototype._clear_dirty = function()
+{
+	if (!this._is_dirty) return;
+
+	this._changes = {};
+	this._is_dirty = false;
+	
+	if (this._view) this._view._notify_dirty_changed();
 }
 
 
@@ -185,22 +206,20 @@ Layer.prototype._changes_apply = function()
 {
 	for (var key in this._changes)
 		this._def[key] = this._changes[key];
-	this._changes = {};
-	this._is_dirty = false;
+	this._clear_dirty();
 }
 
 
 Layer.prototype._changes_discard = function()
 {
-	this._changes = {};
-	this._is_dirty = false;
+	this._clear_dirty();
 }
 
 
 Layer.prototype._make_dirty_objects = function()
 {
 	this._changes['objects'] = null;
-	this._is_dirty = true;
+	this._make_dirty();
 }
 
 
@@ -277,6 +296,12 @@ Layer.prototype.get_stack = function()
 Layer.prototype.is_dirty = function()
 {
 	return this._is_dirty;
+}
+
+
+Layer.prototype.set_view = function(in_view)
+{
+	this._view = in_view;
 }
 
 

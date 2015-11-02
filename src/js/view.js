@@ -124,6 +124,12 @@ View.prototype._activated = function()
 }
 
 
+View.prototype._notify_dirty_changed = function()
+{
+	this._activated();
+}
+
+
 View.prototype._init_view = function()
 {
 	this._edit_bkgnd = false;
@@ -701,6 +707,12 @@ View.prototype._rebuild_layers = function()
 	
 	/* configure the objects appropriately to the current edit mode */
 	this._configure_obj_display();
+	
+	/* notify the model of the view to which it is presently attached
+	so we get dirty notifications from the model */
+	this._card.set_view(this);
+	this._bkgnd.set_view(this);
+	this._notify_dirty_changed();
 }
 
 

@@ -47,9 +47,9 @@ var Model = CinsImp.Model;
 	Card expects either a card ID, a card number, an ordinal, a name, or a card 
 	definition object as the second argument.  Number should be prefixed with #.
 */
-Model.Card = function(in_stack, in_def, in_ready_handler)
+Model.Card = function(in_stack, in_def, in_ready_handler, in_view)
 {
-	Layer.call(this, in_stack, in_def, in_ready_handler);
+	Layer.call(this, in_stack, in_def, in_ready_handler, in_view);
 };
 var Card = Model.Card;
 Card.TYPE = 'card';
@@ -130,7 +130,7 @@ Card.prototype.get_card_content = function(in_id)
 Card.prototype.set_card_content = function(in_id, in_content)
 {
 	this._changes['content'] = this._def['content'];
-	this._is_dirty = true;
+	this._make_dirty();
 	
 	var existing = this._def['content'];
 	for (var i = 0; i < existing.length; i++)

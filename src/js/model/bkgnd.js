@@ -47,9 +47,9 @@ var Model = CinsImp.Model;
 	Background always takes a definition object, since it is always obtained by accessing
 	a specific card, and returned within the same request.
 */
-Model.Bkgnd = function(in_stack, in_def, in_ready_handler)
+Model.Bkgnd = function(in_stack, in_def, in_ready_handler, in_view)
 {
-	Layer.call(this, in_stack, in_def, in_ready_handler);
+	Layer.call(this, in_stack, in_def, in_ready_handler, in_view);
 };
 var Bkgnd = Model.Bkgnd;
 Bkgnd.TYPE = 'bkgnd';
