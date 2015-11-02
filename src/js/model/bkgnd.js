@@ -57,16 +57,17 @@ Util.classInheritsFrom(Bkgnd, Model.Layer);
 
 
 Bkgnd.prototype.get_type = function() { return Bkgnd.TYPE; }
+Bkgnd.prototype.get_name = function() { return 'Background'; }
 
 
-Bkgnd.prototype._get_attr = function(in_attr, in_fmt)
+Bkgnd.prototype._get_attr = function(in_attr, in_value, in_fmt)
 {
 	if (in_attr == 'count_cards' && in_fmt == 'ui')
-		return Util.plural(value, 'card', 'cards');
+		return Util.plural(in_value, 'card', 'cards');
 	else if (in_attr == 'count_buttons' && in_fmt == 'ui')
-		return Util.plural(value, 'button', 'buttons');
+		return Util.plural(in_value, 'button', 'buttons');
 	else if (in_attr == 'count_fields' && in_fmt == 'ui')
-		return Util.plural(value, 'field', 'fields');
+		return Util.plural(in_value, 'field', 'fields');
 	
 	return undefined;
 }

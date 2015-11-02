@@ -604,32 +604,6 @@ View.prototype._centre_object = function(in_object)
 }
 
 
-View.prototype._renumber_objects = function()
-{
-	var btn_num = 1;
-	var fld_num = 1;
-	for (var o = 0; o < this._objects_bkgnd.length; o++)
-	{
-		var obj = this._objects_bkgnd[o];
-		obj.set_attr(LayerObject.ATTR_PART_NUM, o + 1);
-		if (obj.get_type() == Button.TYPE)
-			obj.set_attr(LayerObject.ATTR_KLAS_NUM, btn_num ++);
-		else
-			obj.set_attr(LayerObject.ATTR_KLAS_NUM, fld_num ++);
-	}
-	var btn_num = 1;
-	var fld_num = 1;
-	for (var o = 0; o < this._objects_card.length; o++)
-	{
-		var obj = this._objects_card[o];
-		obj.set_attr(LayerObject.ATTR_PART_NUM, o + 1);
-		if (obj.get_type() == Button.TYPE)
-			obj.set_attr(LayerObject.ATTR_KLAS_NUM, btn_num ++);
-		else
-			obj.set_attr(LayerObject.ATTR_KLAS_NUM, fld_num ++);
-	}
-}
-
 
 View.prototype.card = function()
 {
@@ -760,7 +734,7 @@ View.prototype._add_object = function(in_object)
 		this._layer_obj_card.appendChild( in_object.create_dom(this) );
 	}
 	
-	this._renumber_objects();
+	
 	
 	this.rebuild();
 	//this._layer_obj_card.style.visibility = 'hidden';
@@ -800,17 +774,10 @@ View.prototype.do_delete_objects = function()
 	{
 		var obj = this._selected_objects[o];
 		obj.get_layer().remove_object(obj);
-		/*var idx = this._objects_card.indexOf(obj);
-		if (idx >= 0)
-			this._objects_card.splice(idx, 1);
-		idx = this._objects_bkgnd.indexOf(obj);
-		if (idx >= 0)
-			this._objects_bkgnd.splice(idx, 1);
-		obj.kill();*/
 	}
 	this._selected_objects.length = 0;
 	
-	//this._renumber_objects();
+	
 }
 
 
@@ -977,7 +944,8 @@ View.prototype._config_art_visibility = function()
 }
 
 
-
+// THIS IS TO BE REMOVED?
+// ** TODO 
 
 View.prototype._rebuild_card = function() // will have to do separate load object data & separate reload from object lists
 {
@@ -1054,7 +1022,7 @@ View.prototype._rebuild_card = function() // will have to do separate load objec
 	}
 	catch (e) {}
 	
-	this._renumber_objects();
+	//this._renumber_objects();
 	
 	/* pull out the art work (if any) */
 	//alert('card art: '+this._card.card_art);
@@ -1372,112 +1340,7 @@ View.save_info = function()
 }
 
 
-// ie. go through and build a list of the selection in the actual current relative number order,
-// as well as the current index within their respective layer table,
-// then can remove one at a time from the top down, and put in the new location,
-// and offset the remaining indexes as appropriate
 
-View.prototype._enumerate_in_sequence = function()
-{
-	var bkgnd_list = [];
-	for (var o = 0; o < this._objects_bkgnd.length; o++)
-	{
-		var obj = this._objects_bkgnd[o];
-		if (obj._selected)
-			bkgnd_list.push({ obj: obj, num: obj.get_attr(LayerObject.ATTR_PART_NUM), idx: o });
-	}
-	var card_list = [];
-	for (var o = 0; o < this._objects_card.length; o++)
-	{
-		var obj = this._objects_card[o];
-		if (obj._selected)
-			card_list.push({ obj: obj, num: obj.get_attr(LayerObject.ATTR_PART_NUM), idx: o });
-	}
-	return { card: card_list, bkgnd: bkgnd_list };
-}
-
-
-View.prototype.send_to_front = function()
-{
-	if (this._selected_objects.length == 0) return;
-	
-	var lists = this._enumerate_in_sequence();
-	
-	for (var o = lists.card.length - 1; o >= 0; o--)
-	{
-		var item = lists.card[o];
-		var obj = this._objects_card.splice(item.idx, 1)[0];
-		this._objects_card.push(obj);
-	}
-	
-	this._renumber_objects();
-	
-	this._save_defs_n_content();
-	this._rebuild_layers();
-}
-
-
-View.prototype.send_forward = function()
-{
-	if (this._selected_objects.length == 0) return;
-	
-	var lists = this._enumerate_in_sequence();
-	
-	for (var o = lists.card.length - 1; o >= 0; o--)
-	{
-		var item = lists.card[o];
-		if (item.idx >= this._objects_card.length - 1) return;
-		var obj = this._objects_card.splice(item.idx, 1)[0];
-		this._objects_card.splice(item.idx + 1, 0, obj);
-	}
-	
-	this._renumber_objects();
-	
-	this._save_defs_n_content();
-	this._rebuild_layers();
-}
-
-
-View.prototype.send_backward = function()
-{
-	if (this._selected_objects.length == 0) return;
-	
-	var lists = this._enumerate_in_sequence();
-	
-	for (var o = 0; o < lists.card.length; o++)
-	{
-		var item = lists.card[o];
-		if (item.idx < 1) return;
-		var obj = this._objects_card.splice(item.idx, 1)[0];
-		this._objects_card.splice(item.idx - 1, 0, obj);
-	}
-	
-	this._renumber_objects();
-	
-	this._save_defs_n_content();
-	this._rebuild_layers();
-}
-
-
-View.prototype.send_to_back = function()
-{
-	if (this._selected_objects.length == 0) return;
-	
-	var lists = this._enumerate_in_sequence();
-	
-	var nidx = 0;
-	for (var o = 0; o < lists.card.length; o++)
-	{
-		var item = lists.card[o];
-		var obj = this._objects_card.splice(item.idx, 1)[0];
-		this._objects_card.splice(nidx ++, 0, obj);
-	}
-	
-	this._renumber_objects();
-	
-	this._save_defs_n_content();
-	this._rebuild_layers();
-}
 ///ScriptEditorObject
 
 

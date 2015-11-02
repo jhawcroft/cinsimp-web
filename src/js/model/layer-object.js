@@ -542,6 +542,13 @@ LayerObject.prototype.get_attr = function(in_attr, in_fmt)
 		value = this._def[in_attr];
 	}
 	
+	if (in_attr == 'part_num' && in_fmt == 'ui')
+		value = Util.string(this._layer.get_name() + ' part number: ' + value);
+	else if (in_attr == 'klas_num' && in_fmt == 'ui')
+		value = Util.string(this._layer.get_name() + ' ' + this.get_type() + ' number: ' + value);
+	else if (in_attr == 'id' && in_fmt == 'ui')
+		value = Util.string(this._layer.get_name() + ' ' + this.get_type() + ' ID: ' + value);
+	
 	return value;
 }
 

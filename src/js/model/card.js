@@ -57,6 +57,7 @@ Util.classInheritsFrom(Card, Model.Layer);
 
 
 Card.prototype.get_type = function() { return Card.TYPE; }
+Card.prototype.get_name = function() { return 'Card'; }
 
 
 
@@ -83,14 +84,14 @@ Card.prototype._fetch_def = function(in_ident)
 }
 
 
-Card.prototype._get_attr = function(in_attr, in_fmt)
+Card.prototype._get_attr = function(in_attr, in_value, in_fmt)
 {
 	if (in_attr == 'seq' && in_fmt == 'ui')
-		return Util.string('^0 out of ^1', value, this._stack.get_attr('count_cards'));
+		return Util.string('^0 out of ^1', in_value, this._stack.get_attr('count_cards'));
 	else if (in_attr == 'count_buttons' && in_fmt == 'ui')
-		return Util.plural(value, 'button', 'buttons');
+		return Util.plural(in_value, 'button', 'buttons');
 	else if (in_attr == 'count_fields' && in_fmt == 'ui')
-		return Util.plural(value, 'field', 'fields');
+		return Util.plural(in_value, 'field', 'fields');
 	
 	return undefined;
 }

@@ -92,12 +92,10 @@ Layer.prototype._load_layer_def = function(in_def)
 	}
 	/* we should check the definition is valid here */ /// ** TODO **
 
-	
-	this._def.count_fields = 0;
-	this._def.count_buttons = 0;// ** TODO ** need to be calculated initially, and maintained during edits
-	
+
 	this._load_def();
 	
+	this._renumber_count_objects();
 	this._make_ready(true);
 }
 
@@ -151,7 +149,7 @@ Layer.prototype.get_description = function()
 }
 
 
-Layer.prototype._get_attr = function(in_attr, in_fmt) { return undefined; }
+Layer.prototype._get_attr = function(in_attr, in_value, in_fmt) { return undefined; }
 
 Layer.prototype.get_attr = function(in_attr, in_fmt)
 {
@@ -162,7 +160,7 @@ Layer.prototype.get_attr = function(in_attr, in_fmt)
 	if (in_attr in this._changes) value = this._changes[in_attr];
 	else value = this._def[in_attr];
 	
-	var override_value = this._get_attr(in_attr, in_fmt);
+	var override_value = this._get_attr(in_attr, value, in_fmt);
 	if (override_value !== undefined) value = override_value;
 	
 	return value;
@@ -252,6 +250,7 @@ Layer.prototype.add_object = function(in_object)
 {
 	this._objects.push(in_object);
 	this._make_dirty_objects();
+	this._renumber_count_objects();
 }
 
 
@@ -264,22 +263,9 @@ Layer.prototype.remove_object = function(in_object)
 	in_object.kill();
 	
 	this._make_dirty_objects();
+	this._renumber_count_objects();
 }
 
-
-/*var idx = this._objects_card.indexOf(obj);
-		if (idx >= 0)
-			this._objects_card.splice(idx, 1);
-		idx = this._objects_bkgnd.indexOf(obj);
-		if (idx >= 0)
-			this._objects_bkgnd.splice(idx, 1);
-		obj.kill();
-		
-		
-		this._selected_objects.length = 0;
-	
-	//this._renumber_objects();
-	*/
 
 Layer.prototype.get_objects = function()
 {
@@ -303,6 +289,135 @@ Layer.prototype.set_view = function(in_view)
 {
 	this._view = in_view;
 }
+
+
+Layer.prototype._renumber_count_objects = function()
+{
+	var btn_count = 0;
+	var fld_count = 0;
+	for (var o = 0; o < this._objects.length; o++)
+	{
+		var obj = this._objects[o];
+		obj.set_attr('part_num', o + 1);
+		if (obj.get_type() == Button.TYPE)
+			obj.set_attr('klas_num', ++btn_count);
+		else
+			obj.set_attr('klas_num', ++fld_count);
+	}
+	
+	this._def.count_fields = fld_count;
+	this._def.count_buttons = btn_count;
+}
+
+
+
+// ie. go through and build a list of the selection in the actual current relative number order,
+// as well as the current index within their respective layer table,
+// then can remove one at a time from the top down, and put in the new location,
+// and offset the remaining indexes as appropriate
+/*
+View.prototype._enumerate_in_sequence = function()
+{
+	var bkgnd_list = [];
+	for (var o = 0; o < this._objects_bkgnd.length; o++)
+	{
+		var obj = this._objects_bkgnd[o];
+		if (obj._selected)
+			bkgnd_list.push({ obj: obj, num: obj.get_attr(LayerObject.ATTR_PART_NUM), idx: o });
+	}
+	var card_list = [];
+	for (var o = 0; o < this._objects_card.length; o++)
+	{
+		var obj = this._objects_card[o];
+		if (obj._selected)
+			card_list.push({ obj: obj, num: obj.get_attr(LayerObject.ATTR_PART_NUM), idx: o });
+	}
+	return { card: card_list, bkgnd: bkgnd_list };
+}
+
+
+View.prototype.send_to_front = function()
+{
+	if (this._selected_objects.length == 0) return;
+	
+	var lists = this._enumerate_in_sequence();
+	
+	for (var o = lists.card.length - 1; o >= 0; o--)
+	{
+		var item = lists.card[o];
+		var obj = this._objects_card.splice(item.idx, 1)[0];
+		this._objects_card.push(obj);
+	}
+	
+	this._renumber_objects();
+	
+	this._save_defs_n_content();
+	this._rebuild_layers();
+}
+
+
+View.prototype.send_forward = function()
+{
+	if (this._selected_objects.length == 0) return;
+	
+	var lists = this._enumerate_in_sequence();
+	
+	for (var o = lists.card.length - 1; o >= 0; o--)
+	{
+		var item = lists.card[o];
+		if (item.idx >= this._objects_card.length - 1) return;
+		var obj = this._objects_card.splice(item.idx, 1)[0];
+		this._objects_card.splice(item.idx + 1, 0, obj);
+	}
+	
+	this._renumber_objects();
+	
+	this._save_defs_n_content();
+	this._rebuild_layers();
+}
+
+
+View.prototype.send_backward = function()
+{
+	if (this._selected_objects.length == 0) return;
+	
+	var lists = this._enumerate_in_sequence();
+	
+	for (var o = 0; o < lists.card.length; o++)
+	{
+		var item = lists.card[o];
+		if (item.idx < 1) return;
+		var obj = this._objects_card.splice(item.idx, 1)[0];
+		this._objects_card.splice(item.idx - 1, 0, obj);
+	}
+	
+	this._renumber_objects();
+	
+	this._save_defs_n_content();
+	this._rebuild_layers();
+}
+
+
+View.prototype.send_to_back = function()
+{
+	if (this._selected_objects.length == 0) return;
+	
+	var lists = this._enumerate_in_sequence();
+	
+	var nidx = 0;
+	for (var o = 0; o < lists.card.length; o++)
+	{
+		var item = lists.card[o];
+		var obj = this._objects_card.splice(item.idx, 1)[0];
+		this._objects_card.splice(nidx ++, 0, obj);
+	}
+	
+	this._renumber_objects();
+	
+	this._save_defs_n_content();
+	this._rebuild_layers();
+}
+*/
 
 
 
