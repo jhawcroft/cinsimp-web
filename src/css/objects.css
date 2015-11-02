@@ -35,28 +35,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-
-/*****************************************************************************************
-OLD PROTOTYPE DECLARATIONS
-** WILL BE REFACTORED IN FUTURE BUILD **
-*/
-
-div.Object
-{
-	display: block;
-	position: absolute;
-	box-sizing: border-box;
-	
-}
-
-
-div.Field
-{
-	/*outline: none;*/
-	overflow-x: hidden;
-}
-
-
 /*****************************************************************************************
 Authoring Assistants
 */

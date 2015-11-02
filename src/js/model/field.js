@@ -97,8 +97,9 @@ Field.prototype._dom_create = function(in_view)
 	this._div.classList.add('fld');
 	
 	this._inner = document.createElement('div');
-	this._div.appendChild(this._inner);
 	this._inner.style.boxSizing = 'border-box';
+	
+	this._div.appendChild(this._inner);
 }
 
 

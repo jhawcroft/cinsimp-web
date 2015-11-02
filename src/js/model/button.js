@@ -96,19 +96,19 @@ Button.prototype._dom_create = function(in_view)
 	this._div.classList.add('btn');
 	
 	this._inner = document.createElement('div');
-	this._div.appendChild(this._inner);
 	this._inner.classList.add('zy');
 	this._inner.classList.add('zx');
+	this._div.appendChild(this._inner);
 	
 	this._icon = document.createElement('div');
-	this._inner.appendChild(this._icon);
 	this._icon.style.display = 'none';
-	//this._icon.classList.add('zi');
 	this._icon.style.marginBottom = '4px';
+	this._inner.appendChild(this._icon);
 	
 	this._caption = document.createElement('div');
-	this._inner.appendChild(this._caption);
 	this._caption.classList.add('zc');
+	
+	this._inner.appendChild(this._caption);
 	
 	this._drop_arrow = null;
 }

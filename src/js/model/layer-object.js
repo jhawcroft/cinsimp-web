@@ -183,12 +183,9 @@ LayerObject.prototype.create_dom = function(in_view)
 	this._view = in_view;
 
 	this._div = document.createElement('div');
-	
 	this._div.classList.add('o');
+	
 	this._inner = null;
-	
-	
-	
 	
 	this._div.addEventListener('mousedown', this.__handle_point_start.bind(this));
 	this._div.addEventListener('touchstart', this.__handle_point_start.bind(this));
