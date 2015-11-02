@@ -277,6 +277,8 @@ View.prototype._configure_obj_display = function()
 	this._text_editable = true; // TODO: user-level, user-modify and cant-modify
 	if (this._mode != View.MODE_BROWSE)
 		this._text_editable = false;
+		
+	var show_num_tags = (this._mode == View.MODE_AUTHORING);
 	
 	var objects = this._card.get_objects();
 	for (var o = 0; o < objects.length; o++)
@@ -284,7 +286,7 @@ View.prototype._configure_obj_display = function()
 		var obj = objects[o];
 		obj.set_dom_visiblity(!this._edit_bkgnd);
 		obj.set_dom_editability(this._text_editable, !this._edit_bkgnd);
-		
+		obj.set_num_tag(show_num_tags && !this._edit_bkgnd);
 	}
 	
 	var objects = this._bkgnd.get_objects();
@@ -298,6 +300,7 @@ View.prototype._configure_obj_display = function()
 		var tv = te || !this._edit_bkgnd;
 		obj.set_dom_visiblity(true);
 		obj.set_dom_editability(te, tv);
+		obj.set_num_tag(show_num_tags && this._edit_bkgnd);
 	}
 }
 
@@ -714,6 +717,7 @@ View.prototype.do_new_field = function()
 	this._add_object(field);
 	
 	this.select_object(field, true);
+	field.set_num_tag(true);
 }
 
 
@@ -727,6 +731,7 @@ View.prototype.do_new_button = function()
 	this._add_object(button);
 	
 	this.select_object(button, true);
+	button.set_num_tag(true);
 }
 
 
@@ -738,6 +743,8 @@ View.prototype.do_delete_objects = function()
 		obj.get_layer().remove_object(obj);
 	}
 	this._selected_objects.length = 0;
+	
+	this._configure_obj_display();
 }
 
 

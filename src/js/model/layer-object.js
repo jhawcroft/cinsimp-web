@@ -230,6 +230,9 @@ LayerObject.prototype.set_dom_visiblity = function(in_visible)
 		this._div.style.visibility = (visible ? 'visible' : 'hidden');
 		if (this._inner) this._inner.style.visibility = (visible ? 'visible' : 'hidden');
 	}
+	
+	if (this._num_tag)
+		this._num_tag.style.visibility = (visible ? 'visible' : 'hidden');
 }
 
 
@@ -238,9 +241,8 @@ LayerObject.prototype.set_dom_editability = function(in_edit, in_show_content) {
 
 LayerObject.prototype.kill = function()
 {
-	if (this._selection) 
-		this._selection.parentElement.removeChild(this._selection);
-	this._selection = null;
+	this._set_selected(false);
+	this.set_num_tag(false);
 	if (this._div !== undefined && this._div !== null)
 		this._div.parentElement.removeChild(this._div);
 	this._div = null;
@@ -324,6 +326,11 @@ LayerObject.prototype._resized = function()
 		}
 	}
 	
+	if (this._num_tag)
+	{
+		Util.set_dom_loc(this._num_tag, this.get_loc());
+	}
+	
 	if (this._selection)
 	{
 		Util.set_dom_loc(this._selection, this.get_loc(), [-3, -3]);
@@ -362,11 +369,13 @@ LayerObject.prototype._set_selected = function(in_selected)
 {
 	if (!in_selected && this._selection) 
 	{
+		/* remove the selection rectangle and resize handle */
 		this._selection.parentElement.removeChild(this._selection);
 		this._selection = null;
 	}
 	else if (in_selected && !this._selection)
 	{
+		/* install the selection rectangle and resize handle */
 		this._selection = document.createElement('div');
 		this._selection.style.display = 'block';
 		this._selection.style.position = 'absolute';
@@ -391,6 +400,41 @@ LayerObject.prototype._set_selected = function(in_selected)
 		
 		this._div.parentElement.appendChild(this._selection);
 	}
+}
+
+
+LayerObject.prototype.set_num_tag = function(in_visible)
+{
+	if (!in_visible && this._num_tag)
+	{
+		/* remove the num tag */
+		this._num_tag.parentElement.removeChild(this._num_tag);
+		this._num_tag = null;
+	}
+	else if (in_visible && !this._num_tag)
+	{
+		/* install the num tag */
+		this._num_tag = document.createElement('div');
+		this._num_tag.className = 'NumTag';
+		/*this._num_tag.style.display = 'block';
+		this._num_tag.style.position = 'absolute';
+		this._num_tag.style.backgroundColor = 'black';
+		this._num_tag.style.color = 'white';
+		this._num_tag.style.fontSize = '9pt';
+		this._num_tag.style.fontFamily = 'sans-serif';*/
+		this._update_num_tag();
+		
+		this._resized();
+		
+		this._div.parentElement.appendChild(this._num_tag);
+	}
+}
+
+
+LayerObject.prototype._update_num_tag = function()
+{
+	if (!this._num_tag) return;
+	this._num_tag.innerHTML = this.get_attr('part_num');
 }
 
 
@@ -513,6 +557,8 @@ LayerObject.prototype.set_attr = function(in_attr, in_value)
 		this._def[in_attr] = in_value;
 		this.make_dirty();
 	}
+	
+	if (in_attr == 'part_num') this._update_num_tag();
 	
 	if (LayerObject._no_write_note !== true)
 		this._attribute_written(in_attr, in_value);
