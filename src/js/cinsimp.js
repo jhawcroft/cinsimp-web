@@ -185,6 +185,8 @@ var CinsImp = {
 */
 	_init4: function()
 	{
+		this.load_script('model/bkgnd.js');
+		this.load_script('model/card.js');
 		this.load_script('model/field.js');//
 		this.load_script('model/button.js');//
 		
@@ -219,8 +221,7 @@ var CinsImp = {
 		this.load_script('text.js');//
 		
 		this.load_script('model/stack.js');
-		this.load_script('model/bkgnd.js');
-		this.load_script('model/card.js');
+		this.load_script('model/layer.js');
 		
 		/* the stack view and authoring: */
 		this.load_stylesheet('objects.css');

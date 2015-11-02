@@ -292,6 +292,17 @@ Util.null_or_empty = function(in_value)
 }
 
 
+Util.assoc_array_length = function(in_array) 
+{
+    var length = 0;
+    var key;
+    for (key in in_array) {
+        if (obj.hasOwnProperty(key)) length++;
+    }
+    return length;
+};
+
+
 
 CinsImp._script_loaded('util');
 
