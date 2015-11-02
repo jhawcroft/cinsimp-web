@@ -56,6 +56,8 @@ Model.Stack = function(in_url_or_def, in_ready_handler)
 	
 	this._host = null;
 	this._url = null;
+	
+	//this._icon_index = {}; // **TODO ** consider reimplementing this for performance later
 
 	/* the input is a URL, we need first to fetch the stack definition object via AJAX */
 	if (typeof in_url_or_def == 'string')

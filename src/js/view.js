@@ -48,9 +48,6 @@ function View(in_stack, in_bkgnd, in_card)
 
 	
 	this._paint = null;
-	this._icon_index = {};
-	
-	this._index_icons();
 	
 	this._init_view();
 }
@@ -201,6 +198,7 @@ View.prototype._init_view = function()
 	document.body.appendChild(this._bkgnd_indicator);
 	
 	this._rebuild_layers();
+	this._rebuild_art();
 	this._activated();
 }
 
@@ -604,18 +602,9 @@ View.prototype._centre_object = function(in_object)
 }
 
 
-
 View.prototype.card = function()
 {
 	return View.current._card;
-}
-
-
-View.prototype.rebuild = function()
-{
-	for (var i = 0; i < this._rebuild_list.length; i++)
-		this._rebuild_list[i].rebuild_dom();
-	this._rebuild_list.length = 0;
 }
 
 
@@ -629,7 +618,6 @@ View.prototype.needs_rebuild = function(in_object)
 {
 	this._rebuild_list.push(in_object);
 }
-
 
 
 View.prototype._rebuild_art = function()
@@ -656,8 +644,30 @@ View.prototype._rebuild_art = function()
 }
 
 
-// THIS IS THE NEW METHOD FOR REBUILD
-// THE OLD METHODS NEED TO BE CLEANED UP    ***TODO
+View.prototype._config_art_visibility = function()
+{
+	if ( this._mode == View.MODE_PAINTING || (this._paint && this._paint.is_active()) )
+	{
+		this._layer_card_art.style.visibility = 'hidden';
+		this._layer_bkgnd_art.style.visibility = (!this._edit_bkgnd ? 'visible' : 'hidden');
+		this._layer_paint.style.visibility = 'visible';
+	}
+	else
+	{
+		this._layer_paint.style.visibility = 'hidden';
+		this._layer_card_art.style.visibility = (this._edit_bkgnd ? 'hidden' : 'visible');
+		this._layer_bkgnd_art.style.visibility = 'visible';
+	}
+}
+
+
+View.prototype.rebuild = function()
+{
+	for (var i = 0; i < this._rebuild_list.length; i++)
+		this._rebuild_list[i].rebuild_dom();
+	this._rebuild_list.length = 0;
+}
+
 
 View.prototype._rebuild_layers = function()
 {
@@ -676,9 +686,6 @@ View.prototype._rebuild_layers = function()
 	/* build the actual DOM objects as needed */
 	this.rebuild();
 	
-	/* rebuild the art */
-	this._rebuild_art();
-	
 	/* configure the objects appropriately to the current edit mode */
 	this._configure_obj_display();
 	
@@ -690,55 +697,10 @@ View.prototype._rebuild_layers = function()
 }
 
 
-/*
-	** only rebuild the actual display of the layers
-*/
-/*View.prototype._rebuild_layers = function()
-{
-	while (this._layer_obj_card.children.length > 0)
-		this._layer_obj_card.removeChild( this._layer_obj_card.children[0] );
-
-	for (var o = 0; o < this._objects_bkgnd.length; o++)
-	{
-		var obj = this._objects_bkgnd[o];
-		this._layer_obj_card.appendChild(obj._div);
-	}
-	for (var o = 0; o < this._objects_card.length; o++)
-	{
-		var obj = this._objects_card[o];
-		this._layer_obj_card.appendChild(obj._div);
-	}
-}*/
-
-
 View.prototype._add_object = function(in_object)
-{
-	/*var existing_id = in_object.get_attr(LayerObject.ATTR_ID);
-	if (existing_id >= this._next_id)
-		this._next_id = existing_id + 1;*/
-		
-	
-		
-	if (!this._edit_bkgnd) 
-	{
-		//in_object.set_attr(LayerObject.ATTR_PART_NUM, this._objects_card.length + 1);
-		//in_object._is_bkgnd = false;
-		//this._objects_card.push(in_object);
-		this._layer_obj_card.appendChild( in_object.create_dom(this) );
-	}
-	else 
-	{
-		//in_object.set_attr(LayerObject.ATTR_PART_NUM, this._objects_bkgnd.length + 1);
-		//in_object._is_bkgnd = true;
-		//this._objects_bkgnd.push(in_object);
-		this._layer_obj_card.appendChild( in_object.create_dom(this) );
-	}
-	
-	
-	
+{	
+	this._layer_obj_card.appendChild( in_object.create_dom(this) );
 	this.rebuild();
-	//this._layer_obj_card.style.visibility = 'hidden';
-	//this._layer_obj_card.style.visibility = 'visible';
 }
 
 
@@ -776,8 +738,6 @@ View.prototype.do_delete_objects = function()
 		obj.get_layer().remove_object(obj);
 	}
 	this._selected_objects.length = 0;
-	
-	
 }
 
 
@@ -787,78 +747,6 @@ View.prototype.do_delete = function()
 		this.do_delete_card();
 	else if (this._mode == View.MODE_AUTHORING)
 		this.do_delete_objects();
-}
-
-
-View.prototype._keep_content = function() // need to replace this for resequencing with something that will ensure object content is saved
-// probably duplicate content within object - store a buffer TOO, which doubles as a mechanism for dirty flagging?
-{
-	/* dump the card content */
-	/*var card_data = new Array(this._objects_card.length + this._objects_bkgnd.length);
-	for (var o = 0; o < this._objects_card.length; o++)
-		card_data[o] = [this._objects_card[o]._attrs[LayerObject.ATTR_ID],
-						this._objects_card[o].get_attr(LayerObject.ATTR_CONTENT)];
-	var offset = this._objects_card.length;
-	for (var o = 0; o < this._objects_bkgnd.length; o++)
-		card_data[o + offset] = [this._objects_bkgnd[o]._attrs[LayerObject.ATTR_ID], 
-								this._objects_bkgnd[o].get_attr(LayerObject.ATTR_CONTENT)];
-	this._card.content = card_data;*/
-	
-	
-	/*
-	
-	
-	var objects = [];
-	for (var o = 0; o < this._objects_bkgnd.length; o++)
-	{
-		var obj = this._objects_bkgnd[o];
-		if (obj.get_attr(LayerObject.ATTR_SHARED)) continue;
-		
-		if (obj.get_type() == Button.TYPE)
-			var data = [obj.get_attr(LayerObject.ATTR_ID),
-				obj.get_attr(LayerObject.ATTR_CONTENT),
-				obj.get_attr(Button.ATTR_HILITE)];
-		else
-			var data = [obj.get_attr(LayerObject.ATTR_ID),
-				obj.get_attr(LayerObject.ATTR_CONTENT)];
-			
-		objects.push(data);
-	}
-	this._card.data = JSON.stringify(objects);*/
-}
-
-
-View.prototype._save_defs_n_content = function()
-{
-	/* dump the object definitions to the card data block */
-	var objects = new Array(this._objects_card.length);
-	for (var o = 0; o < this._objects_card.length; o++)
-		objects[o] = this._objects_card[o].get_def();
-	this._card.card_object_data = JSON.stringify(objects);
-	
-	objects = new Array(this._objects_bkgnd.length);
-	for (var o = 0; o < this._objects_bkgnd.length; o++)
-		objects[o] = this._objects_bkgnd[o].get_def();
-	this._card.bkgnd_object_data = JSON.stringify(objects);
-	
-	/* get non-shared background content */
-	var objects = [];
-	for (var o = 0; o < this._objects_bkgnd.length; o++)
-	{
-		var obj = this._objects_bkgnd[o];
-		if (obj.get_attr(LayerObject.ATTR_SHARED)) continue;
-		
-		if (obj.get_type() == Button.TYPE)
-			var data = [obj.get_attr(LayerObject.ATTR_ID),
-				obj.get_attr(LayerObject.ATTR_CONTENT),
-				obj.get_attr(Button.ATTR_HILITE)];
-		else
-			var data = [obj.get_attr(LayerObject.ATTR_ID),
-				obj.get_attr(LayerObject.ATTR_CONTENT)];
-			
-		objects.push(data);
-	}
-	this._card.data = JSON.stringify(objects);
 }
 
 
@@ -885,166 +773,6 @@ View.prototype._save_card = function(in_handler)
 			in_view);
 	},
 	this);
-
-
-	//this._save_defs_n_content();
-	
-	/* submit ajax request to save the card */
-	/*var msg = {
-		cmd: 'save_card',
-		stack_id: this._stack.stack_id,
-		card: this._card
-	};*/
-	//alert(JSON.stringify(msg));
-	
-	/*Progress.operation_begun('Saving card...');
-	Ajax.send(msg, function(msg, status) {
-		var handler = in_handler;
-		Progress.operation_finished();
-		if ((status != 'ok') || (msg.cmd != 'save_card'))
-			Alert.network_error("Couldn't save card.\n(" + status + JSON.stringify(msg) + ")");
-			//alert('Save card error: '+status+"\n"+JSON.stringify(msg));
-		else if (handler) handler();
-	});*/
-}
-
-
-View.prototype._resurect = function(in_def, in_bkgnd)
-{
-	var id = in_def[LayerObject.ATTR_ID] * 1;
-	if (id >= this._next_id) this._next_id = id + 1;
-		
-	var obj = null;
-	if (in_def[LayerObject.ATTR_TYPE] == LayerObject.TYPE_BUTTON)
-		obj = new Button(this, in_def, in_bkgnd);
-	else
-		obj = new Field(this, in_def, in_bkgnd);
-		
-	return obj;
-}
-
-
-
-
-
-View.prototype._config_art_visibility = function()
-{
-	if ( this._mode == View.MODE_PAINTING || (this._paint && this._paint.is_active()) )
-	{
-		this._layer_card_art.style.visibility = 'hidden';
-		this._layer_bkgnd_art.style.visibility = (!this._edit_bkgnd ? 'visible' : 'hidden');
-		this._layer_paint.style.visibility = 'visible';
-	}
-	else
-	{
-		this._layer_paint.style.visibility = 'hidden';
-		this._layer_card_art.style.visibility = (this._edit_bkgnd ? 'hidden' : 'visible');
-		this._layer_bkgnd_art.style.visibility = 'visible';
-	}
-}
-
-
-// THIS IS TO BE REMOVED?
-// ** TODO 
-
-View.prototype._rebuild_card = function() // will have to do separate load object data & separate reload from object lists
-{
-	/* dump the current card */
-	this._next_id = 1;
-	this._selected_objects = [];
-	for (o = 0; o < this._objects_card.length; o++)
-		this._objects_card[o].kill();
-	this._objects_card = [];
-	for (o = 0; o < this._objects_bkgnd.length; o++)
-		this._objects_bkgnd[o].kill();
-	this._objects_bkgnd = [];
-
-	/* load the object definitions from the card data block */
-	try
-	{
-		var objects = JSON.parse(this._card.bkgnd_object_data);
-		this._objects_bkgnd = new Array(objects.length);
-		for (var o = 0; o < objects.length; o++)
-		{
-			var obj = this._resurect(objects[o], true);
-			//obj._is_bkgnd = true;
-			this._objects_bkgnd[o] = obj;
-			//this._layer_obj_card.appendChild(obj._div);
-		}
-	}
-	catch (e) {}
-	
-	try {
-		var objects = JSON.parse(this._card.card_object_data);
-		this._objects_card = new Array(objects.length);
-		for (var o = 0; o < objects.length; o++)
-		{
-			var obj = this._resurect(objects[o], false);
-			//obj._is_bkgnd = false;
-			this._objects_card[o] = obj;
-			//this._layer_obj_card.appendChild(obj._div);
-		}
-	}
-	catch (e) {}
-	
-	this._rebuild_layers();
-	
-	/* load the object content */
-	/*try
-	{
-		var offset = this._objects_card.length;
-		for (var o = 0; o < this._card.content.length; o++)
-		{
-			var data = this._card.content[o];
-			if (o >= offset)
-				this._objects_bkgnd[o - offset].set_attr(LayerObject.ATTR_CONTENT, data[1]);
-			else
-				this._objects_card[o].set_attr(LayerObject.ATTR_CONTENT, data[1]);
-		}
-	}
-	catch (e) {}*/
-	
-	/* new content mechanism? CAN only use for card content in bkgnd fields */
-	try
-	{
-		var objects = JSON.parse(this._card.data);
-		for (var o = 0; o < objects.length; o++)
-		{
-			var data = objects[o];
-			var obj = this._lookup_bkgnd_part_by_id(data[0]);
-			if (obj) 
-			{
-				obj.set_attr(LayerObject.ATTR_CONTENT, data[1]);
-				if (data.length == 3)
-					obj.set_attr(Button.ATTR_HILITE, data[2]);
-			}
-		}
-	}
-	catch (e) {}
-	
-	//this._renumber_objects();
-	
-	/* pull out the art work (if any) */
-	//alert('card art: '+this._card.card_art);
-	//alert('bkgnd art: '+this._card.bkgnd_art);
-	
-	this._rebuild_art();
-	this.paint_revert();
-	
-	/* cause fields to be editable where appropriate */
-	this._mode_changed();
-}
-
-
-View.prototype._lookup_bkgnd_part_by_id = function(in_part_id)
-{
-	for (var o = 0; o < this._objects_bkgnd.length; o++)
-	{
-		var obj = this._objects_bkgnd[o];
-		if (obj.get_attr(LayerObject.ATTR_ID) == in_part_id)
-			return obj;
-	}
-	return null;
 }
 
 
@@ -1085,6 +813,7 @@ View.prototype.do_new_card = function()
 		{
 			view._card = in_new_card;
 			view._rebuild_layers();
+			view._rebuild_art();
 			Progress.operation_finished();
 		});
 	});
@@ -1103,6 +832,7 @@ View.prototype.do_new_bkgnd = function()
 			view._card = in_new_card;
 			view._bkgnd = in_new_bkgnd;
 			view._rebuild_layers();
+			view._rebuild_art();
 			Progress.operation_finished();
 		});
 	});
@@ -1119,6 +849,7 @@ View.prototype.do_delete_card = function()
 		view._card = in_new_card;
 		view._bkgnd = in_new_bkgnd;
 		view._rebuild_layers();
+		view._rebuild_art();
 		Progress.operation_finished();
 	});
 }
@@ -1138,6 +869,7 @@ View.prototype._go_nth_card = function(in_ref, in_bkgnd)
 				view._card = in_new_card;
 				if (in_new_bkgnd) view._bkgnd = in_new_bkgnd;
 				view._rebuild_layers();
+				view._rebuild_art();
 			}
 			Progress.operation_finished();
 		});
@@ -1169,10 +901,6 @@ View.prototype.go_last = function()
 View.prototype.refresh = function()
 {
 	this._rebuild_card();
-	
-	
-
-	//alert(JSON.stringify(this._card));
 }
 
 
@@ -1213,72 +941,6 @@ View.prototype._do_field_info = function()
 		}
 	});
 	Dialog.FieldInfo.show();
-	
-	/*
-	var obj = this._selected_objects[0];
-	Application._objects = this._selected_objects;
-	
-	document.getElementById('FieldInfoName').value = obj.get_attr(LayerObject.ATTR_NAME);
-	document.getElementById('FieldInfoNumber').textContent = 
-		(obj._is_bkgnd ? 'Bkgnd' : 'Card') + ' field number: ' + obj.get_attr(LayerObject.ATTR_KLAS_NUM);
-	document.getElementById('FieldInfoID').textContent = 
-		(obj._is_bkgnd ? 'Bkgnd' : 'Card') + ' field ID: ' + obj.get_attr(LayerObject.ATTR_ID);
-	
-	document.getElementById('FieldInfoBorder').checked = obj.get_attr(Field.ATTR_BORDER);
-	document.getElementById('FieldInfoShadow').checked = obj.get_attr(LayerObject.ATTR_SHADOW);
-	document.getElementById('FieldInfoOpaque').checked = (obj.get_attr(LayerObject.ATTR_COLOR) != null);
-	document.getElementById('FieldInfoScrolling').checked = obj.get_attr(Field.ATTR_SCROLL);
-	
-	document.getElementById('FieldInfoShowLines').checked = obj.get_attr(Field.ATTR_SHOW_LINES);
-	document.getElementById('FieldInfoWideMargins').checked = obj.get_attr(Field.ATTR_WIDE_MARGINS);
-	document.getElementById('FieldInfoLocked').checked = obj.get_attr(Field.ATTR_LOCKED);
-	document.getElementById('FieldInfoDontWrap').checked = obj.get_attr(Field.ATTR_DONT_WRAP);
-	document.getElementById('FieldInfoAutoTab').checked = obj.get_attr(Field.ATTR_AUTO_TAB);
-
-	document.getElementById('FieldInfoBkgndOnly').style.visibility = (obj._is_bkgnd ? 'visible' : 'hidden');
-	document.getElementById('FieldInfoShared').checked = obj.get_attr(LayerObject.ATTR_SHARED);
-	document.getElementById('FieldInfoDontSearch').checked = ! obj.get_attr(LayerObject.ATTR_SEARCHABLE);
-	
-	document.getElementById('FieldInfoAutoSelect').checked = obj.get_attr(Field.ATTR_AUTO_SELECT);
-	document.getElementById('FieldInfoMultipleLines').checked = obj.get_attr(Field.ATTR_MULTIPLE_LINES);
-	
-	Dialog.FieldInfo.show();*/
-}
-
-
-View.prototype._save_field_info = function()
-{
-	var obj = this._selected_objects[0];
-	
-	obj.set_attr(LayerObject.ATTR_NAME, document.getElementById('FieldInfoName').value);
-	
-	obj.set_attr(Field.ATTR_BORDER, document.getElementById('FieldInfoBorder').checked);
-	obj.set_attr(LayerObject.ATTR_SHADOW, document.getElementById('FieldInfoShadow').checked);
-	obj.set_attr(LayerObject.ATTR_COLOR, (document.getElementById('FieldInfoOpaque').checked ? [1,1,1] : null));
-	obj.set_attr(Field.ATTR_SCROLL, document.getElementById('FieldInfoScrolling').checked);
-	
-	obj.set_attr(Field.ATTR_SHOW_LINES, document.getElementById('FieldInfoShowLines').checked);
-	obj.set_attr(Field.ATTR_WIDE_MARGINS, document.getElementById('FieldInfoWideMargins').checked);
-	obj.set_attr(Field.ATTR_LOCKED, document.getElementById('FieldInfoLocked').checked);
-	obj.set_attr(Field.ATTR_DONT_WRAP, document.getElementById('FieldInfoDontWrap').checked);
-	obj.set_attr(Field.ATTR_AUTO_TAB, document.getElementById('FieldInfoAutoTab').checked);
-
-	obj.set_attr(LayerObject.ATTR_SHARED, document.getElementById('FieldInfoShared').checked);
-	obj.set_attr(LayerObject.ATTR_SEARCHABLE, ! document.getElementById('FieldInfoDontSearch').checked);
-	
-	obj.set_attr(Field.ATTR_AUTO_SELECT, document.getElementById('FieldInfoAutoSelect').checked);
-	obj.set_attr(Field.ATTR_MULTIPLE_LINES, document.getElementById('FieldInfoMultipleLines').checked);
-	
-	Dialog.dismiss();
-}
-
-
-View.prototype._count_klass = function(in_table, in_klass)
-{
-	var count = 0;
-	for (var o = 0; o < in_table.length; o++)
-		if (in_table[o].get_type() == in_klass) count++;
-	return count;
 }
 
 
@@ -1304,7 +966,6 @@ View.prototype._do_bkgnd_info = function()
 }
 
 
-
 View.prototype.do_info = function()
 {
 	this.set_current_object(null);
@@ -1322,29 +983,7 @@ View.prototype.do_info = function()
 		this._do_bkgnd_info();
 }
 
-
-View.save_info = function()
-{
-	var view = View.current;
-	if (view._selected_objects.length == 1)
-	{
-		if (view._selected_objects[0].get_type() == Button.TYPE)
-			view._save_button_info();
-		else
-			view._save_field_info();
-	}
-	/*else if (!view._edit_bkgnd)
-		view._save_card_info();
-	else
-		view._save_bkgnd_info();*/
-}
-
-
-
-///ScriptEditorObject
-
-
-
+/*
 View.prototype._save_stack = function()
 {
 	Progress.operation_begun('Saving stack...');
@@ -1362,8 +1001,7 @@ View.prototype._save_stack = function()
 			this._stack = msg.stack;
 	});
 }
-
-
+*/
 
 
 View.prototype.paint_keep = function()
@@ -1421,7 +1059,7 @@ View.apply_effect = function()
 }
 
 
-
+/*
 View.get_stack_icons = function()
 {
 	return View.current._stack.stack_icons;
@@ -1433,9 +1071,9 @@ View.register_icon = function(in_id, in_name, in_data)
 	var icon_def = [in_id, in_name, in_data];
 	View.current._stack.stack_icons.push(icon_def);
 	View.current._icon_index[in_id] = icon_def;
-}
+}*/
 
-
+/*
 View.prototype._index_icons = function()
 {
 return;
@@ -1446,7 +1084,7 @@ return;
 		this._icon_index[this._stack.stack_icons[i][0]] = this._stack.stack_icons[i];
 	}
 }
-
+*/
 
 View.do_share = function()
 {
@@ -1709,72 +1347,6 @@ View.do_edit_script = function(in_prior)
 	});
 }
 
-
-
-
-/*
-
-	var view = View.current;
-	
-	var desc_label = document.getElementById('ScriptEditorObject');
-	var curr_script = null;
-	
-	var is_btn = false;
-	
-	if (in_subject == View.CURRENT_OBJECT) 
-	{
-		Dialog.ScriptEditor._object = view._selected_objects[0];
-		var obj = Dialog.ScriptEditor._object;
-		var id = obj.get_attr(LayerObject.ATTR_ID);
-		var name = obj.get_attr(LayerObject.ATTR_NAME);
-		var layer = (obj._is_bkgnd ? 'background' : 'card');
-		
-		if (obj.get_type() == Button.TYPE)
-		{
-			Dialog.ScriptEditor._type = View.CURRENT_BUTTON;
-			desc_label.textContent = 'Script of '+layer+' button ID '+id+
-				(name != '' ? ' "'+name+'"' : '');
-			is_btn = true;
-		}
-		else
-		{
-			Dialog.ScriptEditor._type = View.CURRENT_FIELD;
-			desc_label.textContent = 'Script of '+layer+' field ID '+id+
-				(name != '' ? ' "'+name+'"' : '');
-		}
-		
-		curr_script = obj.get_attr(LayerObject.ATTR_SCRIPT);
-		Dialog.ScriptEditor._edit_type = 'object';
-	}
-	else if (in_subject == View.CURRENT_STACK)
-	{
-		Dialog.ScriptEditor._object = view._stack;
-		Dialog.ScriptEditor._type = View.CURRENT_STACK;
-		desc_label.textContent = 'Script of '+view._stack.get_text_desc();
-		
-		curr_script = view._stack.get_attr('script');
-		Dialog.ScriptEditor._edit_type = 'stack';
-	}
-	else if (in_subject == View.CURRENT_BKGND) 
-	{
-		Dialog.ScriptEditor._object = view._card;
-		Dialog.ScriptEditor._type = View.CURRENT_BKGND;
-		desc_label.textContent = 'Script of background ID '+view._card.bkgnd_id+
-			(view._card.bkgnd_name != '' ? ' "'+view._card.bkgnd_name+'"' : '');
-			
-		curr_script = view._card.bkgnd_script;
-		Dialog.ScriptEditor._edit_type = 'bkgnd';
-	}
-	else if (in_subject == View.CURRENT_CARD)
-	{
-		Dialog.ScriptEditor._object = view._card;
-		Dialog.ScriptEditor._type = View.CURRENT_CARD;
-		desc_label.textContent = 'Script of '+view._card.get_text_desc();
-		
-		curr_script = view._card.card_script;
-		Dialog.ScriptEditor._edit_type = 'card';
-	}
-	*/
 
 
 
