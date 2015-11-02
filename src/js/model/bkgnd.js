@@ -264,6 +264,11 @@ Bkgnd.make_new = function(in_stack, in_preceeding, in_onfinished)
 }
 
 
+Bkgnd.prototype.is_dirty = function()
+{
+	return false;
+}
+
 
 
 CinsImp._script_loaded('Model.Bkgnd');

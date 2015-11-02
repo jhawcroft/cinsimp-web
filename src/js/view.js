@@ -45,6 +45,7 @@ function View(in_stack, in_bkgnd, in_card)
 	this._bkgnd = in_bkgnd;
 	//in_bkgnd.set_view(this);
 	this._card = in_card;
+
 	
 	this._paint = null;
 	this._icon_index = {};
@@ -112,6 +113,16 @@ View.prototype._redirect_event = function(in_event)
 	return false;
 }
 */
+
+
+View.prototype._activated = function()
+{
+	var flags = 0;
+	flags |= (this._stack.is_readonly() ? Application.FILE_STATUS_READONLY : 0);
+	flags |= (this._card.is_dirty() || this._bkgnd.is_dirty() ? Application.FILE_STATUS_DIRTY : 0);
+	Application.file_status(flags);
+}
+
 
 View.prototype._init_view = function()
 {
@@ -184,6 +195,7 @@ View.prototype._init_view = function()
 	document.body.appendChild(this._bkgnd_indicator);
 	
 	this._rebuild_layers();
+	this._activated();
 }
 
 

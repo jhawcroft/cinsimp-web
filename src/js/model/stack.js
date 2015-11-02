@@ -323,6 +323,12 @@ Stack.prototype.import_icon = function(in_id, in_name, in_data, in_onfinished)
 }
 
 
+Stack.prototype.is_readonly = function()
+{
+	return (this._def.file_locked || this._def.cant_modify);
+}
+
+
 CinsImp._script_loaded('Model.Stack');
 
 

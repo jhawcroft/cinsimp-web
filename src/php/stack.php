@@ -900,7 +900,7 @@ Accessors and Mutators
 */
 	public function stack_save($data)
 	{
-		$this->_check_mutability();
+		$this->_check_access();
 	
 		/* do the rename before any other changes */
 		if (array_key_exists('name', $data))
@@ -926,6 +926,8 @@ Accessors and Mutators
 			array('card_width:uint16', 'card_height:uint16', 'script:text16'));
 		if ($sql !== null)
 		{
+			$this->_check_mutability();
+			
 			$stmt = $this->file_db->prepare($sql['sql']);
 			$stmt->execute($sql['params']);
 			$did_update_something = true;

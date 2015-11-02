@@ -424,6 +424,11 @@ Card.prototype.load_nth = function(in_ref, in_bkgnd, in_onfinished)
 }
 
 
+Card.prototype.is_dirty = function()
+{
+	return false;
+}
+
 
 CinsImp._script_loaded('Model.Card');
 
