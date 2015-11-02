@@ -485,7 +485,7 @@ LayerObject.prototype._attribute_writable = function(in_attr)
 
 LayerObject.prototype.make_dirty = function()
 {
-	if (this._layer) this._layer.dirty_objects();
+	if (this._layer) this._layer._make_dirty_objects();
 }
 
 

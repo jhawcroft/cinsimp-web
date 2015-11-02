@@ -45,21 +45,28 @@ Model.Layer = function(in_stack, in_def, in_ready_handler)
 {
 	/* initialise the class internals */
 	this._ready = false;
+	this._ready_handler = in_ready_handler;
 	this._changes = {};
 	this._is_dirty = false;
 	this._stack = in_stack;
 	this._next_id = 1;
 	this._objects = [];
 	
-	/* otherwise, just load the layer from the definition */
+	/* if the definition is an ID,
+	then the definition must be fetched before it can be loaded */
+	if (typeof in_def != 'object')
+	{
+		this._fetch_def(in_def);
+		return;
+	}
+	
+	/* load the layer from the definition */
 	this._load_layer_def(in_def);
-	if (this._ready_handler)
-		this._ready_handler(this, this._ready);
 };
 var Layer = Model.Layer;
 
 
-Layer.prototype.get_type = function() { throw new Error('Abstract Layer instance not permitted'); }
+Layer.prototype._fetch_def = function(in_ident) {}
 
 
 Layer.prototype._check_def = function(in_def) {}
@@ -90,7 +97,17 @@ Layer.prototype._load_layer_def = function(in_def)
 	
 	this._load_def();
 	
-	this._ready = true;
+	this._make_ready(true);
+}
+
+
+Layer.prototype._make_ready = function(in_ready)
+{
+	this._ready = in_ready;
+	if (this._ready_handler) this._ready_handler(this, in_ready);
+	this._ready_handler = null;
+	
+	this._changes_discard();
 }
 
 
@@ -123,6 +140,16 @@ Layer.prototype.get_def = function(in_changes)
 }
 
 
+Layer.prototype.get_description = function()
+{
+	var desc = this.get_type() + ' ID ' + this.get_attr('id');
+	var name = this.get_attr('name');
+	if (name != '')
+		desc += ' "' + name + '"';
+	return desc;
+}
+
+
 Layer.prototype._get_attr = function(in_attr, in_fmt) { return undefined; }
 
 Layer.prototype.get_attr = function(in_attr, in_fmt)
@@ -148,8 +175,9 @@ Layer.prototype.set_attr = function(in_attr, in_value)
 {
 	if (!this._attr_writable(in_attr))
 		throw new Error('Cannot write "'+in_attr+'" attribute of ' + this.get_type());
-	else
-		this._changes[in_attr] = in_value;
+	
+	this._changes[in_attr] = in_value;
+	this._is_dirty = true;
 }
 
 
@@ -158,24 +186,27 @@ Layer.prototype._changes_apply = function()
 	for (var key in this._changes)
 		this._def[key] = this._changes[key];
 	this._changes = {};
+	this._is_dirty = false;
 }
 
 
 Layer.prototype._changes_discard = function()
 {
 	this._changes = {};
+	this._is_dirty = false;
 }
 
 
 Layer.prototype._make_dirty_objects = function()
 {
 	this._changes['objects'] = null;
+	this._is_dirty = true;
 }
 
 
 Layer.prototype.save = function(in_onfinished, in_arg)
 {
-	if (!this._dirty)
+	if (!this._is_dirty)
 	{
 		if (in_onfinished) in_onfinished(true, in_arg);
 		return;
@@ -184,10 +215,11 @@ Layer.prototype.save = function(in_onfinished, in_arg)
 	var layer = this;
 	this._changes['id'] = this._def.id;
 	var msg = {
-		cmd: 'save_' + this.get_type(),
+		cmd: 'save_card',
 		ref: this._def.id
 	};
 	msg[this.get_type()] = this.get_def();
+	
 	this._stack.gateway(msg, 
 	function(in_reply) 
 	{
@@ -215,6 +247,20 @@ Layer.prototype.remove_object = function(in_object)
 	this._make_dirty_objects();
 }
 
+
+/*var idx = this._objects_card.indexOf(obj);
+		if (idx >= 0)
+			this._objects_card.splice(idx, 1);
+		idx = this._objects_bkgnd.indexOf(obj);
+		if (idx >= 0)
+			this._objects_bkgnd.splice(idx, 1);
+		obj.kill();
+		
+		
+		this._selected_objects.length = 0;
+	
+	//this._renumber_objects();
+	*/
 
 Layer.prototype.get_objects = function()
 {

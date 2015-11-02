@@ -47,37 +47,17 @@ var Model = CinsImp.Model;
 	Card expects either a card ID, a card number, an ordinal, a name, or a card 
 	definition object as the second argument.  Number should be prefixed with #.
 */
-Model.Card = function(in_stack, in_ident, in_ready_handler)
+Model.Card = function(in_stack, in_def, in_ready_handler)
 {
-	/* initialise the class internals */
-	this._ready = false;
-	this._ready_handler = in_ready_handler;
-	this._stack = in_stack;
-	
-	this._changes = {};
-	this._next_id = 1;
-	this._objects = [];
-	
-	/* check if the identifier is not a definition;
-	the definition will need to be fetched before the card can be loaded */
-	if (typeof in_ident != 'object')
-	{
-		this._fetch_def(in_ident);
-		return;
-	}
-	
-	/* otherwise, just load the background from the definition */
-	this._load_def(in_ident);
+	Layer.call(this, in_stack, in_def, in_ready_handler);
 };
 var Card = Model.Card;
-
 Card.TYPE = 'card';
+Util.classInheritsFrom(Card, Model.Layer);
 
 
-Card.prototype.get_type = function()
-{
-	return Card.TYPE;
-}
+Card.prototype.get_type = function() { return Card.TYPE; }
+
 
 
 /*
@@ -98,106 +78,25 @@ Card.prototype._fetch_def = function(in_ident)
 			card._load_def(in_reply.card);
 			card._bkgnd = new Model.Bkgnd(in_reply.bkgnd);
 		}
-		else card._notify_set_ready(false);
+		else card._make_ready(false);
 	});
 }
 
 
-/*
-	Flags the Card object as ready to service local application requests.
-*/
-Card.prototype._notify_set_ready = function(in_ready)
+Card.prototype._get_attr = function(in_attr, in_fmt)
 {
-	this._ready = in_ready;
-	if (this._ready_handler) this._ready_handler(this, in_ready);
-	this._ready_handler = null;
-}
-
-
-/*
-	Loads the Bkgnd definition obtained from a gateway server.
-*/
-Card.prototype._load_def = function(in_def)
-{
-	this._def = in_def;
-	
-	for (var o = 0; o < in_def.objects.length; o++)
-	{
-		var obj_def = in_def.objects[o];
-		var obj = null;
-		if (obj_def.type == Button.TYPE)
-			var obj = new CinsImp.Model.Button(obj_def, this);
-		else if (obj_def.type == Field.TYPE)
-			var obj = new CinsImp.Model.Field(obj_def, this);
-	}
-	
-	/*for (var c = 0; c < in_def.content.length; c++)
-	{
-		var content_def = in_def.content[c];
-		
-	}
-	*/
-	/* we should check the definition is valid here */ /// ** TODO **
-	
-	this._def.count_fields = 0;
-	this._def.count_buttons = 0;// ** TODO ** need to be calculated initially, and maintained during edits
-	
-	this._notify_set_ready(true);
-}
-
-
-Card.prototype.get_def = function(in_changes)
-{
-	if (this._changes.length == 0) return this._def;
-	
-	if ('objects' in this._changes)
-	{
-		var objects = [];
-		for (var o = 0; o < this._objects.length; o++)
-		{
-			var obj = this._objects[o];
-			objects.push(obj.get_def());
-		}
-		this._changes['objects'] = objects;
-	}
-	
-	return this._changes;
-}
-
-
-
-Card.prototype.get_description = function()
-{
-	var desc = 'card ID ' + this.get_attr('id');
-	var name = this.get_attr('name');
-	if (name != '')
-		desc += ' "' + name + '"';
-	return desc;
-}
-
-
-
-Card.prototype.get_attr = function(in_attr, in_fmt)
-{
-	if (!(in_attr in this._def))
-		throw Error('Card doesn\'t have an '+in_attr+' attribute.');
-
-	var value = null;
-	if (in_attr in this._changes) value = this._changes[in_attr];
-	else value = this._def[in_attr];
-	
 	if (in_attr == 'seq' && in_fmt == 'ui')
-		value = Util.string('^0 out of ^1', value, this._stack.get_attr('count_cards'));
+		return Util.string('^0 out of ^1', value, this._stack.get_attr('count_cards'));
 	else if (in_attr == 'count_buttons' && in_fmt == 'ui')
-		value = Util.plural(value, 'button', 'buttons');
+		return Util.plural(value, 'button', 'buttons');
 	else if (in_attr == 'count_fields' && in_fmt == 'ui')
-		value = Util.plural(value, 'field', 'fields');
+		return Util.plural(value, 'field', 'fields');
 	
-	return value;
+	return undefined;
 }
 
 
-Card.prototype.set_attr = function(in_attr, in_value)
+Card.prototype._attr_writable = function(in_attr)
 {
 	switch (in_attr)
 	{
@@ -207,43 +106,10 @@ Card.prototype.set_attr = function(in_attr, in_value)
 	case 'marked':
 	case 'name':
 	case 'art':
-		this._changes[in_attr] = in_value;
-		break;
+		return true;
 	default:
-		throw new Error('Cannot set '+in_attr+' attribute of card');
+		return false;
 	}
-}
-
-
-Card.prototype.apply_changes = function()
-{
-	for (var key in this._changes)
-		this._def[key] = this._changes[key];
-	this._changes = {};
-}
-
-
-Card.prototype.save = function(in_onfinished, in_arg)
-{
-	var card = this;
-	this._changes['id'] = this._def.id;
-	this._stack.gateway(
-	{
-		cmd: 'save_card',
-		ref: this._def.id,
-		card: this.get_def()
-	}, 
-	function(in_reply) 
-	{
-		if (in_reply.cmd != 'error') card.apply_changes();
-		if (in_onfinished) in_onfinished(in_reply.cmd != 'error', in_arg);
-	});
-}
-
-
-Card.prototype.dirty_objects = function()
-{
-	this._changes['objects'] = null;
 }
 
 
@@ -275,56 +141,6 @@ Card.prototype.set_card_content = function(in_id, in_content)
 		}
 	}
 	existing.push([in_id, in_content]);
-}
-
-
-Card.prototype.generate_object_id = function()
-{
-	return this._next_id ++;
-}
-
-
-Card.prototype.add_object = function(in_object)
-{
-	this._objects.push(in_object);
-	this.dirty_objects();
-}
-
-
-Card.prototype.remove_object = function(in_object)
-{
-	var idx = this._objects.indexOf(in_object);
-	if (idx < 0) throw new Error('Can\'t remove object from layer, as it isn\'t on the layer');
-	
-	this._objects.splice(idx, 1);
-	in_object.kill();
-	
-	this.dirty_objects();
-}
-/*var idx = this._objects_card.indexOf(obj);
-		if (idx >= 0)
-			this._objects_card.splice(idx, 1);
-		idx = this._objects_bkgnd.indexOf(obj);
-		if (idx >= 0)
-			this._objects_bkgnd.splice(idx, 1);
-		obj.kill();
-		
-		
-		this._selected_objects.length = 0;
-	
-	//this._renumber_objects();
-	*/
-
-
-Card.prototype.get_objects = function()
-{
-	return this._objects;
-}
-
-
-Card.prototype.get_stack = function()
-{
-	return this._stack;
 }
 
 
@@ -423,11 +239,6 @@ Card.prototype.load_nth = function(in_ref, in_bkgnd, in_onfinished)
 	Card.load_nth(this._stack, in_ref, in_bkgnd, in_onfinished, this);
 }
 
-
-Card.prototype.is_dirty = function()
-{
-	return false;
-}
 
 
 CinsImp._script_loaded('Model.Card');
