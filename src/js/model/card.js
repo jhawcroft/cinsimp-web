@@ -130,6 +130,7 @@ Card.prototype.get_card_content = function(in_id)
 Card.prototype.set_card_content = function(in_id, in_content)
 {
 	this._changes['content'] = this._def['content'];
+	this._is_dirty = true;
 	
 	var existing = this._def['content'];
 	for (var i = 0; i < existing.length; i++)
