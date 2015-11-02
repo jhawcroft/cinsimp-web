@@ -110,7 +110,7 @@ Field.prototype._dom_rebuild = function()
 	this._div.style.boxShadow = (this.get_attr('shadow') ? '2px 2px 2px 2px rgba(0,0,0,0.75)' : '');
 	
 	this._inner.style.overflowY = (this.get_attr('scroll') ? 'scroll' : 'hidden');
-	this._inner.style.padding = (this.get_attr('wide_margins') ? '10px' : '0px');
+	this._inner.style.padding = (this.get_attr('wide_margins') ? '10px' : '3px');
 	this._inner.style.whiteSpace = (this.get_attr('dont_wrap') ? 'nowrap' : 'normal');
 	
 	this._inner.addEventListener('input', this.make_dirty.bind(this));
