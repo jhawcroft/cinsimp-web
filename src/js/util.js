@@ -179,7 +179,7 @@ Util.set_text_content = function(in_element, in_text)
 Util.set_dom_size = function(in_element, in_size, in_height)
 {
 	var w = 0, h = 0;
-	if (in_height !== undefined)
+	if (in_height !== undefined && typeof in_height != 'object')
 	{
 		w = in_size * 1;
 		h = in_height * 1;
@@ -199,6 +199,12 @@ Util.set_dom_size = function(in_element, in_size, in_height)
 		in_size = in_size.split(',');
 		w = in_size[0] * 1;
 		h = in_size[1] * 1;
+	}
+	
+	if (in_height !== undefined && typeof in_height == 'object')
+	{
+		w += in_height[0];
+		h += in_height[1];
 	}
 	
 	if (in_element.tagName == 'CANVAS')

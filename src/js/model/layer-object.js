@@ -206,9 +206,7 @@ LayerObject.prototype.rebuild_dom = function()
 	this._dom_rebuild();
 	this._needs_rebuild = false;
 	
-	Util.set_dom_loc(this._div, this.get_loc());
-	Util.set_dom_size(this._div, this.get_size());
-	if (this._inner) Util.set_dom_size(this._inner, this.get_size());
+	this._resized();
 }
 
 
@@ -318,7 +316,12 @@ LayerObject.prototype._resized = function()
 	{
 		Util.set_dom_loc(this._div, this.get_loc());
 		Util.set_dom_size(this._div, this.get_size());
-		if (this._inner) Util.set_dom_size(this._inner, this.get_size());
+		
+		if (this._inner) 
+		{
+			Util.set_dom_loc(this._inner, [1, 1]);
+			Util.set_dom_size(this._inner, this.get_size(), [-2, -2]);
+		}
 	}
 	
 	if (this._selection)
