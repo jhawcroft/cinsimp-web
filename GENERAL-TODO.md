@@ -1,7 +1,7 @@
 TODO: CinsImp -> Toward 1.0
 ===========================
 
-* fixing checkboxes and auto-hilite after above refactoring
+* fixing checkboxes and auto-hilite after above refactoring [DONE]
 
 * object reference internals for xTalk, Link To
   and inter-stack resolution
