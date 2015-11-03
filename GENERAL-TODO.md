@@ -7,6 +7,10 @@ TODO: CinsImp -> Toward 1.0
   and inter-stack resolution
   (delayed reference evaluation, application mechanism to 
   resolve reference path/chain to actual model object)
+	Probably cache references within the evaluation module,
+	have a limit of stacks, layers, objects to cache,
+	and a method that is invoked at completion of the current
+	system event to purge any cached objects (save and unload).
 
 * general cleanup
 
@@ -27,8 +31,8 @@ TODO: CinsImp -> Toward 1.0
 * multi-column fields
 
 * security:
-  * server-side password restrictions, set & clear
-  * server-side private access and denial of search engine access to raw content
+  * server-side password restrictions, set & clear [DONE]
+  * server-side private access and denial of search engine access to raw content [DONE]
   * user-levels
   * authenticate feature; temporarily authenticate for duration of session
     to get user-level 5 equivalent access to an otherwise protected stack
@@ -37,6 +41,7 @@ TODO: CinsImp -> Toward 1.0
   * line sizes
   * text?
   * disabled buttons on main palettes
+  * textures?
 
 * printing:
   * print field
@@ -60,6 +65,8 @@ TODO: CinsImp -> Toward 1.0
   
 * type manager
   * use bundled fonts within stacks
+
+* static pages for Google searchability/indexing
 
 * HyperCard import completion
 
