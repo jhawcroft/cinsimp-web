@@ -84,6 +84,7 @@ JCodeEdit.prototype.focus = function()
 JCodeEdit.prototype.set_script = function(in_script, in_selection)
 {
 	this._jce_ta.value = in_script;
+	this._jce_buildLineNumbers();
 	if (in_selection !== undefined) this.set_selection(in_selection);
 }
 
@@ -147,7 +148,7 @@ JCodeEdit.prototype._jce_marginClick = function(evt)
 	if (!evt.target.classList.contains('breakpoint'))
 	{
 		evt.target.classList.add('breakpoint');
-		evt.target.style.backgroundImage = 'url(\''+gBase+'gfx/bp-tick.png\')';
+		evt.target.style.backgroundImage = 'url(\''+CinsImp._base+'gfx/bp-tick.png\')';
 		if (this._jce_breakpointList.indexOf(lineNum) < 0)
 			this._jce_breakpointList.push(lineNum);
 	}
