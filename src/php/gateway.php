@@ -278,9 +278,13 @@ Regular Command Handlers
 		$outbound['card'] = $stack->stack_load_card(
 			$inbound['ref'], 
 			Util::optional($inbound, 'bkgnd_id'), 
-			Util::optional($inbound, 'current')
+			Util::optional($inbound, 'curr_card_id')
 		);
-		$outbound['bkgnd'] = $stack->stack_load_bkgnd($outbound['card']['bkgnd_id']);
+		$bkgnd = $stack->stack_load_bkgnd(
+			$outbound['card']['bkgnd_id'],
+			Util::optional($inbound, 'curr_card_id')
+		);
+		if ($bkgnd !== null) $outbound['bkgnd'] = $bkgnd;
 		return $outbound;
 	}
 	

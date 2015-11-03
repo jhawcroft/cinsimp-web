@@ -1239,13 +1239,24 @@ Eventually methods for icon deletion/rename:
 	
 	// ** TODO ought to consider use of transactions for consistent reads in more depth
 	
+	private function cards_bkgnd($in_card_id)
+	{
+		$stmt = $this->file_db->prepare('SELECT bkgnd_id FROM card WHERE id=?');
+		$stmt->execute(array( $in_card_id ));
+		$row = $stmt->fetch(PDO::FETCH_NUM);
+		return $row[0];
+	}
+	
 
 
 /*
 	Retrieves the bkgnd data for the supplied bkgnd ID.
 */
-	public function stack_load_bkgnd($bkgnd_id)
+	public function stack_load_bkgnd($bkgnd_id, $in_current_card_id = null)
 	{
+		if ($in_current_card_id !== null && $this->cards_bkgnd($in_current_card_id) == $bkgnd_id)
+			return null;
+	
 		$stmt = $this->file_db->prepare(
 'SELECT id,name,cant_delete,dont_search,script,art,art_hidden FROM bkgnd WHERE id=?'
 		);

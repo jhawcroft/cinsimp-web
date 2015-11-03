@@ -1,19 +1,6 @@
 TODO: CinsImp -> Toward 1.0
 ===========================
 
-* proper client-side model objects for Stack, Bkgnd and Card  [Almost complete 85%]
-  * card dirty flag including visible pencil icon [DONE]
-  * only transmit dirty information for:
-    * separate layer info blocks [DONE]
-    * separate layer object definitions and content [DONE]
-    * card content for bkgnd objects [DONE]
-    * separate layer artwork [DONE]
-  * model object references so objects are unloaded when ref count == 0
-  * methods to provoke persistence (automatically taking the required action(s)) [DONE]
-  * methods to provoke loading [DONE?]
-  * don't download bkgnds repeatedly whilst navigating within bkgnd
-  
-* reimplementing tab-order tags after major refactoring (above)
 * fixing checkboxes and auto-hilite after above refactoring
 
 * object reference internals for xTalk, Link To

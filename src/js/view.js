@@ -837,7 +837,7 @@ View.prototype.do_new_bkgnd = function()
 		Bkgnd.make_new(view._stack, view._card, function(in_new_card, in_new_bkgnd)
 		{
 			view._card = in_new_card;
-			view._bkgnd = in_new_bkgnd;
+			if (in_new_bkgnd) view._bkgnd = in_new_bkgnd;
 			view._rebuild_layers();
 			view._rebuild_art();
 			Progress.operation_finished();
@@ -854,7 +854,7 @@ View.prototype.do_delete_card = function()
 	this._card.destroy(function(in_new_card, in_new_bkgnd)
 	{
 		view._card = in_new_card;
-		view._bkgnd = in_new_bkgnd;
+		if (in_new_bkgnd) view._bkgnd = in_new_bkgnd;
 		view._rebuild_layers();
 		view._rebuild_art();
 		Progress.operation_finished();

@@ -215,7 +215,7 @@ Card.load_nth = function(in_stack, in_ref, in_bkgnd, in_onfinished, in_existing_
 		cmd: 'load_card',
 		ref: in_ref
 	};
-	if (in_existing_card !== null) msg.current = in_existing_card;
+	if (in_existing_card !== null) msg.curr_card_id = in_existing_card;
 	if (in_bkgnd !== null) msg.bkgnd_id = in_bkgnd;
 	
 	in_stack.gateway(msg,
