@@ -681,10 +681,15 @@ View.prototype._rebuild_layers = function()
 	/* add DOM objects to the layer, background first, card second */
 	var objects = this._bkgnd.get_objects();
 	for (var i = 0; i < objects.length; i++)
+	{
 		this._layer_obj_card.appendChild( objects[i].create_dom(this) );
+		objects[i].non_shared_refresh();  /* <  necessary to have non-shared fields refresh content */
+	}
 	var objects = this._card.get_objects();
 	for (var i = 0; i < objects.length; i++)
+	{
 		this._layer_obj_card.appendChild( objects[i].create_dom(this) );
+	}
 	
 	/* build the actual DOM objects as needed */
 	this.rebuild();

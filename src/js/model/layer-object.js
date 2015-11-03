@@ -204,6 +204,7 @@ LayerObject.prototype.rebuild_dom = function()
 {
 	if (!this._needs_rebuild) return;
 	this._dom_rebuild();
+	this._refresh_content_display();
 	this._needs_rebuild = false;
 	
 	this._resized();
@@ -218,6 +219,15 @@ LayerObject.prototype.needs_dom_rebuild = function()
 		this._needs_rebuild = true;
 		this._view.needs_rebuild(this);
 	}
+}
+
+
+LayerObject.prototype._refresh_content_display = function() {}
+
+
+LayerObject.prototype.non_shared_refresh = function()
+{
+	this._refresh_content_display();
 }
 
 
@@ -418,12 +428,6 @@ LayerObject.prototype.set_num_tag = function(in_visible)
 		/* install the num tag */
 		this._num_tag = document.createElement('div');
 		this._num_tag.className = 'NumTag';
-		/*this._num_tag.style.display = 'block';
-		this._num_tag.style.position = 'absolute';
-		this._num_tag.style.backgroundColor = 'black';
-		this._num_tag.style.color = 'white';
-		this._num_tag.style.fontSize = '9pt';
-		this._num_tag.style.fontFamily = 'sans-serif';*/
 		this._update_num_tag();
 		
 		this._resized();

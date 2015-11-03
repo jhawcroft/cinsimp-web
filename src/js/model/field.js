@@ -103,6 +103,13 @@ Field.prototype._dom_create = function(in_view)
 }
 
 
+Field.prototype._refresh_content_display = function()
+{
+	if (this._inner)
+		this._inner.innerHTML = this.get_attr('content');
+}
+
+
 Field.prototype._dom_rebuild = function()
 {
 	this._div.style.border = (this.get_attr('border') ? '1px solid black' : '');
@@ -117,8 +124,6 @@ Field.prototype._dom_rebuild = function()
 	this._inner.addEventListener('blur', this.make_consistent.bind(this));
 	
 	this._apply_text_attrs(this._inner);
-	
-	this._inner.innerHTML = this.get_attr('content');
 }
 
 
@@ -127,7 +132,7 @@ Field.prototype._attribute_written = function(in_attr, in_value)
 	switch (in_attr)
 	{
 	case 'content':
-		if (this._div) this._inner.innerHTML = in_value;
+		if (this._inner) this._inner.innerHTML = in_value;
 		break;
 	}
 }

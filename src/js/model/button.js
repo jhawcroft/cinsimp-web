@@ -110,7 +110,41 @@ Button.prototype._dom_create = function(in_view)
 	
 	this._inner.appendChild(this._caption);
 	
+	this._div.addEventListener('mouseup', this._handle_mouseup.bind(this));
+	this._div.addEventListener('mousedown', this._handle_mousedown.bind(this));
+	
 	this._drop_arrow = null;
+}
+
+
+Button.prototype._refresh_content_display = function()
+{
+	var style = this.get_attr('style');
+	if (style == 'check_box' || style == 'radio')
+	{
+		if (style == 'check_box')
+			this._icon.style.backgroundImage = (this.get_attr('hilite') ? 
+				'url('+CinsImp._base + 'gfx/chk-tick.png)' : '');
+		else if (style == 'radio')
+			this._icon.style.backgroundImage = (this.get_attr('hilite') ? 
+				'url('+CinsImp._base + 'gfx/rbn-dot.png)' : '');
+	}
+	else
+	{
+		this._icon.style.backgroundImage = '';
+	}
+}
+
+
+Button.prototype._dom_rebuild_push = function()
+{
+
+}
+
+
+Button.prototype._dom_rebuild_item = function()
+{
+
 }
 
 
@@ -119,6 +153,8 @@ Button.prototype._dom_rebuild = function()
 {
 	/* cache some properties */
 	var style = this.get_attr('style');
+	
+	
 	
 	/* border */
 	switch (style)
@@ -173,12 +209,13 @@ Button.prototype._dom_rebuild = function()
 	}
 	
 	/* checked */
-	if (style == 'check_box')
+	//this._refresh_content_display();
+	/*if (style == 'check_box')
 		this._icon.style.backgroundImage = (this.get_attr('hilite') ? 'url('+CinsImp._base + 'gfx/chk-tick.png)' : '');
 	else if (style == 'radio')
 		this._icon.style.backgroundImage = (this.get_attr('hilite') ? 'url('+CinsImp._base + 'gfx/rbn-dot.png)' : '');
 	else 
-		this._icon.style.backgroundImage = '';
+		this._icon.style.backgroundImage = '';*/
 	
 	/* shadow */
 	if (style == 'borderless')
