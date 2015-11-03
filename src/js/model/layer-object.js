@@ -370,7 +370,8 @@ LayerObject.prototype._set_selected = function(in_selected)
 	if (!in_selected && this._selection) 
 	{
 		/* remove the selection rectangle and resize handle */
-		this._selection.parentElement.removeChild(this._selection);
+		if (this._selection.parentElement)
+			this._selection.parentElement.removeChild(this._selection);
 		this._selection = null;
 	}
 	else if (in_selected && !this._selection)
@@ -408,7 +409,8 @@ LayerObject.prototype.set_num_tag = function(in_visible)
 	if (!in_visible && this._num_tag)
 	{
 		/* remove the num tag */
-		this._num_tag.parentElement.removeChild(this._num_tag);
+		if (this._num_tag.parentElement)
+			this._num_tag.parentElement.removeChild(this._num_tag);
 		this._num_tag = null;
 	}
 	else if (in_visible && !this._num_tag)

@@ -905,6 +905,53 @@ View.prototype.go_last = function()
 }
 
 
+View.prototype._rebuild_selection = function()
+{
+	for (var o = 0; o < this._selected_objects.length; o++)
+	{
+		var obj = this._selected_objects[o];
+		obj._set_selected(false);
+		obj._set_selected(true);
+	}
+}
+
+
+View.prototype.send_to_front = function()
+{
+	this._bkgnd.send_to_front();
+	this._card.send_to_front();
+	this._rebuild_layers();
+	this._rebuild_selection();
+}
+
+
+View.prototype.send_forward = function()
+{
+	this._bkgnd.send_forward();
+	this._card.send_forward();
+	this._rebuild_layers();
+	this._rebuild_selection();
+}
+
+
+View.prototype.send_backward = function()
+{
+	this._bkgnd.send_backward();
+	this._card.send_backward();
+	this._rebuild_layers();
+	this._rebuild_selection();
+}
+
+
+View.prototype.send_to_back = function()
+{
+	this._bkgnd.send_to_back();
+	this._card.send_to_back();
+	this._rebuild_layers();
+	this._rebuild_selection();
+}
+
+
 View.prototype.refresh = function()
 {
 	this._rebuild_card();

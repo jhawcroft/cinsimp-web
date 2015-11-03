@@ -315,109 +315,82 @@ Layer.prototype._renumber_count_objects = function()
 // as well as the current index within their respective layer table,
 // then can remove one at a time from the top down, and put in the new location,
 // and offset the remaining indexes as appropriate
-/*
-View.prototype._enumerate_in_sequence = function()
+Layer.prototype._enumerate_in_sequence = function()
 {
-	var bkgnd_list = [];
-	for (var o = 0; o < this._objects_bkgnd.length; o++)
+	var list = [];
+	for (var o = 0; o < this._objects.length; o++)
 	{
-		var obj = this._objects_bkgnd[o];
-		if (obj._selected)
-			bkgnd_list.push({ obj: obj, num: obj.get_attr(LayerObject.ATTR_PART_NUM), idx: o });
+		var obj = this._objects[o];
+		if (obj._selection)
+			list.push({ obj: obj, num: obj.get_attr('part_num'), idx: o });
+		obj.set_num_tag(false);
 	}
-	var card_list = [];
-	for (var o = 0; o < this._objects_card.length; o++)
-	{
-		var obj = this._objects_card[o];
-		if (obj._selected)
-			card_list.push({ obj: obj, num: obj.get_attr(LayerObject.ATTR_PART_NUM), idx: o });
-	}
-	return { card: card_list, bkgnd: bkgnd_list };
+	return list;
 }
 
 
-View.prototype.send_to_front = function()
+Layer.prototype.send_to_front = function()
 {
-	if (this._selected_objects.length == 0) return;
+	var list = this._enumerate_in_sequence();
 	
-	var lists = this._enumerate_in_sequence();
-	
-	for (var o = lists.card.length - 1; o >= 0; o--)
+	for (var o = list.length - 1; o >= 0; o--)
 	{
-		var item = lists.card[o];
-		var obj = this._objects_card.splice(item.idx, 1)[0];
-		this._objects_card.push(obj);
+		var item = list[o];
+		var obj = this._objects.splice(item.idx, 1)[0];
+		this._objects.push(obj);
 	}
 	
-	this._renumber_objects();
-	
-	this._save_defs_n_content();
-	this._rebuild_layers();
+	this._renumber_count_objects();
 }
 
 
-View.prototype.send_forward = function()
+Layer.prototype.send_forward = function()
 {
-	if (this._selected_objects.length == 0) return;
+	var list = this._enumerate_in_sequence();
 	
-	var lists = this._enumerate_in_sequence();
-	
-	for (var o = lists.card.length - 1; o >= 0; o--)
+	for (var o = list.length - 1; o >= 0; o--)
 	{
-		var item = lists.card[o];
-		if (item.idx >= this._objects_card.length - 1) return;
-		var obj = this._objects_card.splice(item.idx, 1)[0];
-		this._objects_card.splice(item.idx + 1, 0, obj);
+		var item = list[o];
+		if (item.idx >= this._objects.length - 1) return;
+		var obj = this._objects.splice(item.idx, 1)[0];
+		this._objects.splice(item.idx + 1, 0, obj);
 	}
 	
-	this._renumber_objects();
-	
-	this._save_defs_n_content();
-	this._rebuild_layers();
+	this._renumber_count_objects();
 }
 
 
-View.prototype.send_backward = function()
+Layer.prototype.send_backward = function()
 {
-	if (this._selected_objects.length == 0) return;
+	var list = this._enumerate_in_sequence();
 	
-	var lists = this._enumerate_in_sequence();
-	
-	for (var o = 0; o < lists.card.length; o++)
+	for (var o = 0; o < list.length; o++)
 	{
-		var item = lists.card[o];
+		var item = list[o];
 		if (item.idx < 1) return;
-		var obj = this._objects_card.splice(item.idx, 1)[0];
-		this._objects_card.splice(item.idx - 1, 0, obj);
+		var obj = this._objects.splice(item.idx, 1)[0];
+		this._objects.splice(item.idx - 1, 0, obj);
 	}
 	
-	this._renumber_objects();
-	
-	this._save_defs_n_content();
-	this._rebuild_layers();
+	this._renumber_count_objects();
 }
 
 
-View.prototype.send_to_back = function()
+Layer.prototype.send_to_back = function()
 {
-	if (this._selected_objects.length == 0) return;
-	
-	var lists = this._enumerate_in_sequence();
+	var list = this._enumerate_in_sequence();
 	
 	var nidx = 0;
-	for (var o = 0; o < lists.card.length; o++)
+	for (var o = 0; o < list.length; o++)
 	{
-		var item = lists.card[o];
-		var obj = this._objects_card.splice(item.idx, 1)[0];
-		this._objects_card.splice(nidx ++, 0, obj);
+		var item = list[o];
+		var obj = this._objects.splice(item.idx, 1)[0];
+		this._objects.splice(nidx ++, 0, obj);
 	}
 	
-	this._renumber_objects();
-	
-	this._save_defs_n_content();
-	this._rebuild_layers();
+	this._renumber_count_objects();
 }
-*/
+
 
 
 
