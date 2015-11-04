@@ -65,6 +65,7 @@ Model.Layer = function(in_stack, in_def, in_ready_handler, in_view)
 	this._load_layer_def(in_def);
 };
 var Layer = Model.Layer;
+Util.classInheritsFrom(Layer, Model.Scriptable);
 
 
 Layer.prototype._fetch_def = function(in_ident) {}

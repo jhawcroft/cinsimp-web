@@ -101,6 +101,7 @@ Model.LayerObject = function(in_def, in_layer)
 }
 var LayerObject = Model.LayerObject;
 LayerObject.TYPE = 'layer-object';
+Util.classInheritsFrom(LayerObject, Model.Scriptable);
 
 
 LayerObject.prototype.get_type = function()
@@ -616,55 +617,7 @@ LayerObject.prototype.get_layer = function()
 
 
 
-/*
 
-OLD STUFF FOR REFERENCE (during refactoring)
-=======================
-
-
-LayerObject.prototype._set_selected = function(in_selected)
-{
-	//this._div.classList.toggle('Selected', in_selected);
-	
-	this._selected = in_selected;
-	if (in_selected)
-		this._div.style.border = '3px solid blue';
-	else
-		this._reconfigure();
-	
-	if (in_selected && (!this._drag_handle))
-	{
-		this._drag_handle = document.createElement('div');
-		this._drag_handle.className = 'ResizeHandle';
-		this._div.appendChild(this._drag_handle);
-		
-		this._drag_handle.addEventListener('mousedown', this._handle_resize_start.bind(this));
-		this._drag_handle.addEventListener('touchstart', this._handle_resize_start.bind(this));
-	}
-	else if ((!in_selected) && this._drag_handle)
-	{
-		this._div.removeChild(this._drag_handle);
-		this._drag_handle = null;
-	}
-	
-	
-	
-	
-	if ((in_attr == LayerObject.ATTR_KLAS_NUM) && (this._num_tag != null))
-		this._num_tag.innerHTML = in_value * 1;
-	
-	
-	
-	 re-apply the selection styling if this object 
-	is selected within the authoring environment 
-	if (this._selected)
-		this._div.style.border = '3px solid blue';
-		
-		
-		if (this._selected)
-		this._div.style.border = '3px solid blue';
-}
-*/
 
 
 

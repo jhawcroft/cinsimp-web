@@ -263,6 +263,8 @@ var CinsImp = {
 		this.load_script('cardsize-widg.js');//
 		this.load_script('icon-grid-widg.js');//
 		
+		this.load_script('model/scriptable.js');
+		
 		/* bring up a progress box for the remainder of the loading process: */
 		this._when_loaded(function() {
 			//Progress.operation_begun('Loading CinsImp application...', true);
