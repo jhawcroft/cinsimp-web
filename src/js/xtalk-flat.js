@@ -445,7 +445,7 @@ Core
 */
 	_generate_return: function(in_subtree)
 	{
-		this._generate_expr(in_subtree.expr);
+		this._generate_expr(in_subtree.value);
 		this._result.push({
 			id: Xtalk.ID_RETURN
 		});
