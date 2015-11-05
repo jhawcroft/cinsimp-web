@@ -108,12 +108,12 @@ Utilities
 /*
 	Creates a new execution local context.
 */
-	_new_context: function(in_plan, in_target, in_handler, in_completion)
+	_new_context: function(in_plan, in_target, in_handler, in_completion) // take 'me' directly?
 	{
 		return {
 			target: in_target,
 			me: (in_handler ? in_handler.owner: null),
-			handler: in_handler,
+			handler: in_handler, // what is the point of this?  debugging information?
 			plan: in_plan,
 			next_step: 0,
 			locals: {},
@@ -207,6 +207,12 @@ Utilities
 /*****************************************************************************************
 Message Hierarchy
 */
+
+	/* safely handle and ignore a system event message */
+	_ignore_system_event: function(in_message)
+	{
+	},
+	
 
 /*
 	Returns a handler if the specified object responds to the supplied message,
@@ -1051,7 +1057,13 @@ Environment Entry
  */
 	handle_system_event: function(in_event, in_target)
 	{
-	
+		//alert('VM should handle system event: '+in_event.name);
+		
+		var plan = in_target.get_execution_plan();
+		// handler (1st null in below arguments) probably needs to be defined and supplied
+		
+		this._context_stack = [ this._new_context(plan, this._current_card, null, null) ];
+		this._run();
 	},
 
 };

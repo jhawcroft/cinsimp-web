@@ -96,6 +96,7 @@ Scriptable.prototype._compile_handler = function(in_script_handler)
 	If a cached execution plan doesn't currently exist, an attempt will be made to 
 	compile a matching script handler.
 	Returns null if no matching execution plan can be obtained.
+	The returned plan shall include handler information for debugging/trace purposes.
 */
 Scriptable.prototype.get_execution_plan = function(in_message_name, in_require_function)
 {

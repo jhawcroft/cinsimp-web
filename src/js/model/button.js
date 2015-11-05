@@ -366,6 +366,10 @@ Button.prototype._handle_mousedown = function(in_event)
 Button.prototype._handle_mouseup = function(in_event)
 {
 	this._auto_hilite(false);
+	
+	var event = new Xtalk.VM.Message('mouseup', false, null, Xtalk.VM._ignore_system_event);
+	Xtalk.VM.handle_system_event(event, this);
+	
 	//this._view._browse_point_start(this, [in_event.pageX, in_event.pageY]); 
 }
 
