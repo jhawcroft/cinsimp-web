@@ -46,12 +46,49 @@ var Model = CinsImp.Model;
 Construction, Defaults and Serialisation
 */
 
-Model.Scriptable = function() {}
+Model.Scriptable = function() 
+{
+	this._script_index = null;
+	this._handlers = {};
+}
 var Scriptable = Model.Scriptable;
 
 
 /* all objects shall implement a readable script attribute */
 Scriptable.prototype.get_attr = function(in_attr) {}
+
+
+/*
+	Quickly produce an index of the handlers within a script.
+*/
+Scriptable.prototype._index_script = function()
+{
+	var script = this.get_attr('script');
+	this._script_index = Xtalk.Script.index(script);
+}
+
+
+/*
+	Accepts an entry from the script handler index, compiles the script,
+	caches the execution plan and returns the plan.
+	If compilation fails, returns an invalid plan and associated error information
+	so the error can be reported whenever that message is passed to this object.
+*/
+Scriptable.prototype._compile_handler = function(in_script_handler)
+{
+	try
+	{
+		var stream = Xtalk.Lexer.lex(in_script_handler);
+		var tree = Xtalk.Parser.Expression.parse(stream);
+		var plan = Xtalk.Flat.flatten(tree);
+		return plan;
+	}
+	catch (err)
+	{
+		// need to store the message here ** todo
+		return null;
+	}
+}
 
 
 /*
@@ -62,7 +99,22 @@ Scriptable.prototype.get_attr = function(in_attr) {}
 */
 Scriptable.prototype.get_execution_plan = function(in_message_name, in_require_function)
 {
-
+	/* index the object's script if it isn't already */
+	if (!this._script_index) this._index_script();
+	
+	/* look-up the handler; is there one for this message? */
+	var script_handler = this._script_index[in_message_name];
+	if (!script_handler) return null;
+	
+	/* compile the handler if it isn't already */
+	var handler_plan = this._handlers[in_message_name];
+	if (!handler_plan) handler_plan = this._compile_handler(script_handler);
+	
+	/* check if there were syntax errors during handler compilation */
+	
+	
+	/* return the plan */
+	return handler_plan;
 }
 
 
