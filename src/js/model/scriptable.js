@@ -76,11 +76,15 @@ Scriptable.prototype._index_script = function()
 */
 Scriptable.prototype._compile_handler = function(in_script_handler)
 {
+	/* extract the handler script lines */
+	var script_lines = this.get_attr('script');
+	script_lines = script_lines.substr(in_script_handler.offset, in_script_handler.length);
+	
+	/* attempt to compile the handler script lines */
 	try
 	{
-		var stream = Xtalk.Lexer.lex(in_script_handler);
-		var tree = Xtalk.Parser.Expression.parse(stream);
-		var plan = Xtalk.Flat.flatten(tree);
+		in_script_handler = Xtalk.Parser.Handler.parse(in_script_handler, script_lines);
+		var plan = Xtalk.Flat.flatten(in_script_handler.block);
 		return plan;
 	}
 	catch (err)

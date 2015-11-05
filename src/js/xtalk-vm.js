@@ -1059,7 +1059,7 @@ Environment Entry
 	{
 		//alert('VM should handle system event: '+in_event.name);
 		
-		var plan = in_target.get_execution_plan();
+		var plan = in_target.get_execution_plan(in_event.name, in_event.type == Xtalk.Script.HANDLER_FUNCTION);
 		// handler (1st null in below arguments) probably needs to be defined and supplied
 		
 		this._context_stack = [ this._new_context(plan, this._current_card, null, null) ];

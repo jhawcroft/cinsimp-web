@@ -100,7 +100,7 @@ Entry
 			else continue;
 			
 			var tokens = Xtalk.Lexer.lex(line);
-			if (tokens) tokens = tokens.items;
+			if (tokens) tokens = tokens.children;
 			
 			if ((tokens.length < 2) ||
 				(tokens[1].id != Xtalk.ID_WORD)) continue;
