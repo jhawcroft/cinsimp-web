@@ -258,7 +258,8 @@ Message Hierarchy
 			if (!in_responder) return null;
 			
 			/* look for a handler for the supplied message */
-			var handler = onLookupHandler(responder, in_message.name, in_message.type);
+			var handler = in_responder.get_execution_plan(in_message.name, in_message.type == Xtalk.Script.HANDLER_FUNCTION)
+			//var handler = onLookupHandler(responder, in_message.name, in_message.type);
 			if (handler) return handler;
 		}
 		return null;
@@ -292,6 +293,7 @@ Message Hierarchy
  		if ((!handler) && in_message.builtin)
  		{
  			in_message.builtin(in_message); // ** could set this up as a sub-context as below so that long commands can reply in time?
+ 			// possibly provide method to setup subcontext for this purpose exposed to the actual implementation
  			return;
  		}
  		
