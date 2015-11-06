@@ -160,7 +160,7 @@ Utilities
 /*
 	Automatically converts a Javascript value to an appropriate VM object.
 */
-	newValue: function(in_value)
+	new_value: function(in_value)
 	{
 		if (typeof in_value == 'string')
 			return new Xtalk.VM.TString(in_value);
@@ -640,9 +640,9 @@ Execution
 		case Xtalk.ID_CONSTANT:
 		{
 			if (step.handler)
-				this._push( this.newValue(step.handler(step.param)) );
+				this._push( this.new_value(step.handler(step.param)) );
 			else
-				this._push( this.newValue(step.value) );
+				this._push( this.new_value(step.value) );
 			break;
 		}
 			
@@ -676,7 +676,7 @@ Execution
 			else
 				prop = step.map[context.type];
 				
-			if (prop) this._push(  this.newValue(prop.handler(context, prop.param, prop.variant)) );
+			if (prop) this._push(  this.new_value(prop.handler(context, prop.param, prop.variant)) );
 			else this._error("Can't understand arguments of \"^0\".", step.name);
 			
 			// can't actually execute the handler, although we can create an object of TProperty
@@ -710,7 +710,7 @@ Execution
 				else mode = Xtalk.REF_RANGE;
 			}
 			
-			if (ref) this._push( this.newValue(ref.handler(context, ref.param, mode, ident1.toValue(), ident2)) );
+			if (ref) this._push( this.new_value(ref.handler(context, ref.param, mode, ident1.toValue(), ident2)) );
 			else throw 'Problems'; // ** TODO as above - can't get that thing/can't understand
 			
 			// can't actually execute the handler, although we can create an object of TReference
@@ -974,7 +974,6 @@ Control
 	_run: function()
 	{
 		if (this._state == this._STATE_RUNNING || 
-			this._state == this._STATE_ABORTED || 
 			this._state == this._STATE_WAITING) return;
 			
 		/*var me = this;
@@ -1002,9 +1001,13 @@ Control
 	Resume the VM execution after an external event has occurred for which the VM was
 	waiting after a call to _wait().
 */
-	unwait: function()
+	unwait: function(in_result)
 	{
 		if (this._state != this._STATE_WAITING) return;
+		
+		if (!in_result) in_result = new Xtalk.VM.TString('');
+		this._push(in_result);
+		this._result = in_result;
 		
 		this._state = this._STATE_RUNNING;
 		this._start_exec_timer();
