@@ -79,6 +79,12 @@ Constants
 	_STATE_RUNNING: 1,
 	_STATE_ABORTED: 2,
 	_STATE_PAUSED: 3,
+	_STATE_WAITING: 4,
+	
+	/* define the type of execution currently being performed by the VM: */
+	_CONTEXT_ANONYMOUS: 0,
+	_CONTEXT_HANDLER: 1,
+	_CONTEXT_WAIT: 2,
 
 
 /*****************************************************************************************
@@ -111,6 +117,7 @@ Utilities
 	_new_context: function(in_plan, in_target, in_handler, in_completion) // take 'me' directly?
 	{
 		return {
+			type: (in_handler ? Xtalk.VM._CONTEXT_HANDLER : Xtalk.VM._CONTEXT_ANONYMOUS),
 			target: in_target,
 			me: (in_handler ? in_handler.owner: null),
 			handler: in_handler, // what is the point of this?  debugging information?
@@ -120,6 +127,22 @@ Utilities
 			imported_globals: {},
 			operand_stack: [],
 			completion: in_completion,
+		};
+	},
+	
+	
+/*
+	Creates a special temporary execution context whose entire purpose is to wait
+	until an outside mechanism has completed.  This effectively blocks execution whilst
+	asynchronous processing is in progress.
+	
+	Might be able to use states for this?  ** TODO consider
+*/
+	_new_wait: function(in_timeout)
+	{
+		return {
+			type: Xtalk.VM._CONTEXT_WAIT,
+			timeout: (in_timeout ? in_timeout : 0)
 		};
 	},
 	
@@ -915,6 +938,34 @@ Execution
 		}
 		}
 	},
+	
+
+/*****************************************************************************************
+Control
+*/
+	
+/*
+	Starts the timer that will advance the instruction pointer and cause each step of 
+	the execution plan to be executed consecutively.
+*/
+	_start_exec_timer: function()
+	{
+		if (!this._quick_interval)
+			this._quick_interval = window.setInterval(this._step_safe.bind(this), 0 );
+	},
+	
+
+/*
+	Stops the execution step() timer.
+*/
+	_stop_exec_timer: function()
+	{
+		if (this._quick_interval)
+		{
+			window.clearInterval(this._quick_interval);
+			this._quick_interval = null;
+		}
+	},
 
 
 /*
@@ -922,11 +973,41 @@ Execution
 */
 	_run: function()
 	{
-		var me = this;
+		if (this._state == this._STATE_RUNNING || 
+			this._state == this._STATE_ABORTED || 
+			this._state == this._STATE_WAITING) return;
+			
+		/*var me = this;
 		if (!this._quick_interval)
-			this._quick_interval = window.setInterval(function() { me._step_safe(); }, 0 );
+			this._quick_interval = window.setInterval(function() { me._step_safe(); }, 0 );*/
 		this._state = this._STATE_RUNNING;
 		this._last_error = null;
+		this._start_exec_timer();
+	},
+	
+	
+/*
+	Pause the VM execution until an external event occurs which calls unwait().
+*/
+	wait: function()
+	{
+		if (this._state != this._STATE_RUNNING) return;
+			
+		this._stop_exec_timer();
+		this._state = this._STATE_WAITING;
+	},
+	
+	
+/*
+	Resume the VM execution after an external event has occurred for which the VM was
+	waiting after a call to _wait().
+*/
+	unwait: function()
+	{
+		if (this._state != this._STATE_WAITING) return;
+		
+		this._state = this._STATE_RUNNING;
+		this._start_exec_timer();
 	},
 	
 
@@ -935,18 +1016,19 @@ Execution
 */
 	_abort: function(in_state)
 	{
-		if (this._state != this._STATE_RUNNING)
-			return;
+		if (this._state == this._STATE_READY || 
+			this._state == this._STATE_ABORTED) return;
 	
 		if (!in_state)
 			in_state = this._STATE_ABORTED;
 		this._state = in_state;
 		
-		if (this._quick_interval)
+		this._stop_exec_timer();
+		/*if (this._quick_interval)
 		{
 			window.clearInterval(this._quick_interval);
 			this._quick_interval = null;
-		}
+		}*/
 		
 		if (this.onError && this._last_error)
 			this.onError(this._last_error);
