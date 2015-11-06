@@ -74,8 +74,12 @@ Xtalk.Builtins = {
 			return days[now.getDay()] + ', ' + months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear();
 		}
 		}
-	}
+	},
 	
+	command_answer: function(in_message)
+	{
+		alert('ANSWER!');
+	}
 
 };
 

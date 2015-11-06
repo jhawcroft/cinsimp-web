@@ -244,6 +244,12 @@ Registration
 			'mode,text,field', 
 			function(n) { alert('FIND! ' + JSON.stringify(n)); }
 		);
+		
+		this.register_command(
+			'answer <prompt> [with <button1> [or <button2> [or <button3>]]]',
+			'prompt,button1,button2,button3',
+			Xtalk.Builtins.command_answer
+		);
 	
 	
 		this.register_constant('one', 1);
