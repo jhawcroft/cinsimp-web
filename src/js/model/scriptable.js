@@ -127,6 +127,17 @@ Scriptable.prototype.get_execution_plan = function(in_message_name, in_require_f
 }
 
 
+/*
+	If the script of the object is changed, the handler index and cached execution plans
+	must all be invalidated.
+*/
+Scriptable.prototype.invalidate_executables = function()
+{
+	this._script_index = null;
+	this._handlers = {};
+}
+
+
 
 
 CinsImp._script_loaded('Model.Scriptable');

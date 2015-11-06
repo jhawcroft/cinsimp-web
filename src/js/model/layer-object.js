@@ -543,6 +543,8 @@ LayerObject.prototype.make_dirty = function()
 
 LayerObject.prototype.set_attr = function(in_attr, in_value)
 {
+	if (in_attr == 'script') this.invalidate_executables();
+
 	if (in_attr == 'loc') return this.set_loc(in_value.split(','));
 	else if (in_attr == 'size') return this.set_size(in_value.split(','));
 	else if (in_attr == 'rect') return this.set_rect(in_value.split(','));

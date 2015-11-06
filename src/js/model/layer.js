@@ -173,6 +173,8 @@ Layer.prototype._attr_writable = function(in_attr) { return false; }
 
 Layer.prototype.set_attr = function(in_attr, in_value)
 {
+	if (in_attr == 'script') this.invalidate_executables();
+
 	if (!this._attr_writable(in_attr))
 		throw new Error('Cannot write "'+in_attr+'" attribute of ' + this.get_type());
 	
