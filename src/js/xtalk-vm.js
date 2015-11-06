@@ -354,7 +354,7 @@ Access/Mutation
 		if (context.imported_globals[in_name])
 			return this._globals[in_name];
 		else
-			return context.variables[in_name];
+			return context.locals[in_name];
 	},
 	
 	
@@ -511,11 +511,17 @@ Execution
 	Executes a return from handler, placing the result into 'the result' and 
 	if the handler was a function, also places the result on the operand stack of
 	the caller (if any).
+	
+	If auto is true, the return is automatically generated at the end of a routine
+	and thus the return expression is implicit - an empty string.
  */
-	_return: function()
+	_return: function(in_auto)
 	{
 		/* store the result */
-		var val = this._pop().resolve();
+		if (in_auto)
+			var val = new Xtalk.VM.TString('');
+		else
+			var val = this._pop().resolve();
 		var context = this._context();
 		if (context.handler && context.handler.type == Xtalk.Script.HANDLER_FUNCTION
 				&& this._context_stack.length > 1)
@@ -542,11 +548,11 @@ Execution
 */	
 	_step_safe: function()
 	{
-		try { this._step(); }
+		try { Xtalk.VM._step(); }
 		catch (err)
 		{
-			this._last_error = err;
-			this._abort();
+			Xtalk.VM._last_error = err;
+			Xtalk.VM._abort();
 		}
 	},
 	
@@ -566,7 +572,7 @@ Execution
 		var step = context.plan[context.next_step ++];
 		if (!step)
 		{
-			this._return();
+			this._return(true);
 			return;
 		}
 		
@@ -603,7 +609,7 @@ Execution
 		/* return from the current message handler */
 		case Xtalk.ID_RETURN:
 		{
-			this._return();
+			this._return(false);
 			break;
 		}
 		
@@ -731,6 +737,11 @@ Execution
 		case Xtalk.ID_LITERAL_BOOLEAN:
 		{
 			this._push( new Xtalk.VM.TBoolean(step.value) );
+			break;
+		}
+		case Xtalk.ID_INVALID:
+		{
+			this._push( new Xtalk.VM.TNothing() );
 			break;
 		}
 			
