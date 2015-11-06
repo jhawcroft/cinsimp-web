@@ -84,8 +84,12 @@ Scriptable.prototype._compile_handler = function(in_script_handler)
 	try
 	{
 		in_script_handler = Xtalk.Parser.Handler.parse(in_script_handler, script_lines);
-		var plan = Xtalk.Flat.flatten(in_script_handler.block);
-		return plan;
+		in_script_handler.plan = Xtalk.Flat.flatten(in_script_handler.block);
+		in_script_handler.owner = this;
+		
+		this._handlers[in_script_handler.name] = in_script_handler;
+		
+		return in_script_handler;
 	}
 	catch (err)
 	{

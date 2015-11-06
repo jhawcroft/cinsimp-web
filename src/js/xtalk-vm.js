@@ -277,7 +277,8 @@ Message Hierarchy
  	{
  		/* find an appropriate handler in the message hierarchy;
  		first in the target itself and then beyond */
- 		var handler = onLookupHandler(in_target, in_message.name, in_message.type);
+ 		var handler = in_target.get_execution_plan(in_message.name, in_message.type == Xtalk.Script.HANDLER_FUNCTION);
+ 		//var handler = onLookupHandler(in_target, in_message.name, in_message.type);
  		if (!handler)
  			handler = this._next_message_handler(in_target, in_message);
  		
@@ -1059,10 +1060,10 @@ Environment Entry
 	{
 		//alert('VM should handle system event: '+in_event.name);
 		
-		var plan = in_target.get_execution_plan(in_event.name, in_event.type == Xtalk.Script.HANDLER_FUNCTION);
+		var handler_plan = in_target.get_execution_plan(in_event.name, in_event.type == Xtalk.Script.HANDLER_FUNCTION);
 		// handler (1st null in below arguments) probably needs to be defined and supplied
 		
-		this._context_stack = [ this._new_context(plan, this._current_card, null, null) ];
+		this._context_stack = [ this._new_context(handler_plan.plan, this._current_card, handler_plan, null) ];
 		this._run();
 	},
 
