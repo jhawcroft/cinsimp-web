@@ -474,7 +474,7 @@ Application._xtalk_error_alert = function(in_message, in_object, in_line, in_can
 	if (in_can_script)
 	{
 		alert.button2_label = 'Script';
-		alert.button2_handler = null; // **TODO**
+		alert.button2_handler = null; // **TODO** will need to modify the edit script routine to be more general and maybe move elsewhere
 		
 		if (in_can_debug)
 		{
@@ -509,7 +509,7 @@ Application._init_xtalk = function()
 		// would do user-level checks here if we actually were running within the authoring environment
 	
 		/* display an appropriate alert */
-		Application._xtalk_error_alert(in_error.message, null, in_error.line, canScript, canDebug);
+		Application._xtalk_error_alert(in_error.message, in_error.owner, in_error.line, canScript, canDebug);
 	};
 	
 	

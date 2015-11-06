@@ -253,7 +253,8 @@ Message Hierarchy
 		while (in_responder)
 		{
 			/* lookup the next object in the message hierarchy */
-			in_responder = onNextResponder(in_responder);
+			in_responder = View.current.get_next_responder(in_responder);
+			//in_responder = onNextResponder(in_responder);
 			if (!in_responder) return null;
 			
 			/* look for a handler for the supplied message */

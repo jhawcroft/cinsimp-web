@@ -1412,6 +1412,12 @@ View.do_edit_script = function(in_prior)
 
 
 
+View.prototype.get_next_responder = function(in_current_responder)
+{
+	//alert('view get responder');
+	return null;
+}
+
 
 
 
