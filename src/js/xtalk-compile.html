@@ -86,6 +86,17 @@ function doTest(in_only_parse)
 }
 
 
+function doParseExpr()
+{
+	var scriptContainer = document.getElementById('script');
+	var outputContainer = document.getElementById('output');
+	
+	stream = Xtalk.Lexer.lex(scriptContainer.value);
+	tree = Xtalk.Parser.Expression.parse(stream);
+	outputContainer.value = Xtalk.Debug.debug_subtree(tree);
+}
+
+
 </script>
 </head>
 <body>
@@ -194,7 +205,7 @@ repeat 3 times
   next repeat
 end repeat</textarea>
 
-<p><input type="button" value="TOKENIZE" onclick="doTokenize();"> <input type="button" value="PARSE" onclick="doTest(true);"> <input type="button" value="COMPILE" onclick="doTest(false);"></p>
+<p><input type="button" value="TOKENIZE" onclick="doTokenize();"> <input type="button" value="PARSE (BLOCK)" onclick="doTest(true);"> <input type="button" value="PARSE (EXPRESSION)" onclick="doParseExpr();"> <input type="button" value="COMPILE" onclick="doTest(false);"></p>
 </div>
 
 <div style="float: left;"><textarea id="output" style="width: 900px; height:750px;"></textarea></div>
