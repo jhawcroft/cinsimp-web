@@ -119,7 +119,7 @@ Utilities
 		return {
 			type: (in_handler ? Xtalk.VM._CONTEXT_HANDLER : Xtalk.VM._CONTEXT_ANONYMOUS),
 			target: in_target,
-			me: (in_handler ? in_handler.owner: null),
+			me: (in_handler ? in_handler.owner: in_target),
 			handler: in_handler, // what is the point of this?  debugging information?
 			plan: in_plan,
 			next_step: 0,
