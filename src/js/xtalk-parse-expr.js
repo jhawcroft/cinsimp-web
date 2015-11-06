@@ -726,6 +726,26 @@ Subexpressions
 
 		return true;
 	},
+	
+	
+/*
+	Returns true if the subtree is an empty expression.
+*/
+	_is_empty: function(in_subtree)
+	{
+		if (!in_subtree) return true;
+		if (in_subtree.id == Xtalk.ID_EXPRESSION)
+		{
+			var children = in_subtree.children;
+			if (children.length == 0) return true;
+			for (var i = 0; i < children; i++)
+			{
+				var child = children[i];
+				if (this._is_empty(child)) return true;
+			}
+		}
+		return false;
+	},
 
 
 /*
@@ -747,15 +767,12 @@ Subexpressions
 					Xtalk._error_syntax("Expected operator but found something else.");
 					return false;
 				}
-				if (in_tree.children.length == 1)
+				if (this._is_empty(in_tree))
 				{
-					if (!in_tree.children[0])
-					{
-						Xtalk._error_syntax("Can't understand \"( )\".");
-						return false;
-					}
-					this._validate(in_tree.children[0]);
+					Xtalk._error_syntax("Can't understand \"( )\".");
+					return false;
 				}
+				this._validate(in_tree.children[0]);
 				return true;
 		
 			case Xtalk.ID_WORD:
@@ -896,7 +913,7 @@ Entry
 		this._identify_negation(in_subtree);
 		this._parentheses(in_subtree);
 		this._subexpression(in_subtree);
-		//this._validate(in_subtree);
+		this._validate(in_subtree);
 		
 		return in_subtree;
 	}

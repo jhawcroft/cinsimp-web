@@ -91,9 +91,17 @@ function doParseExpr()
 	var scriptContainer = document.getElementById('script');
 	var outputContainer = document.getElementById('output');
 	
-	stream = Xtalk.Lexer.lex(scriptContainer.value);
-	tree = Xtalk.Parser.Expression.parse(stream);
-	outputContainer.value = Xtalk.Debug.debug_subtree(tree);
+	try
+	{
+		stream = Xtalk.Lexer.lex(scriptContainer.value);
+		tree = Xtalk.Parser.Expression.parse(stream);
+		outputContainer.value = Xtalk.Debug.debug_subtree(tree);
+	}
+	catch (err)
+	{
+		alert(err.message);
+	}
+	
 }
 
 
