@@ -67,6 +67,49 @@ Xtalk.VM.Message = function(in_name, in_is_function, in_params, in_builtin)
 
 
 
+Xtalk.VM.TNothing = function()
+{
+	this.type = 'Nothing';
+};
+
+
+Xtalk.VM.TNothing.prototype.resolve = function()
+{
+	return this;
+}
+
+
+Xtalk.VM.TNothing.prototype.toText = function()
+{
+	throw new Error(""); // ** TO FIX for type mismatch error
+}
+
+
+Xtalk.VM.TNothing.prototype.toInteger = function()
+{
+	throw new Error(""); // ** TO FIX for type mismatch error
+}
+
+
+Xtalk.VM.TNothing.prototype.toString = function()
+{
+	throw new Error(""); // ** TO FIX for type mismatch error
+}
+
+
+Xtalk.VM.TNothing.prototype.toBoolean = function()
+{
+	throw new Error(""); // ** TO FIX for type mismatch error
+}
+
+Xtalk.VM.TNothing.prototype.toValue = function()
+{
+	return null;
+}
+
+
+
+
 Xtalk.VM.TString = function(in_string) 
 {
 	this._value = in_string + '';

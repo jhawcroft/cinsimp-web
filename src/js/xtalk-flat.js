@@ -316,6 +316,17 @@ Core
 			this._result[end_patches[p]].step = this._result.length;
 	},
 	
+	
+/*
+	Generates a null expression suitable for passing a missing argument in a message send.
+*/
+	_generate_null()
+	{
+		this._result.push({
+			"id": Xtalk.ID_INVALID
+		});
+	},
+	
 
 /*
 	Generates an expression by flattening the evaluation into a linear sequence of 
@@ -430,7 +441,11 @@ Core
 	_generate_message_send: function(in_subtree)
 	{
 		for (var p = 0; p < in_subtree.parameters.length; p++)
-			this._generate_expr(in_subtree.parameters[p]);
+		{
+			var param_expr = in_subtree.parameters[p];
+			if (!param_expr) this._generate_null();
+			else this._generate_expr(param_expr);
+		}
 		this._result.push({
 			id: Xtalk.ID_MESSAGE_SEND,
 			name: in_subtree.name,
