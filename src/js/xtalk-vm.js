@@ -541,11 +541,11 @@ Execution
 	_return: function(in_auto)
 	{
 		/* store the result */
-		if (in_auto)
+		var context = this._context();
+		if (in_auto && (context == null || context.operand_stack.length == 0))
 			var val = new Xtalk.VM.TString('');
 		else
-			var val = this._pop().resolve();
-		var context = this._context();
+			var val = Xtalk.VM._pop().resolve();
 		if (context.handler && context.handler.type == Xtalk.Script.HANDLER_FUNCTION
 				&& this._context_stack.length > 1)
 		{
@@ -571,11 +571,11 @@ Execution
 */	
 	_step_safe: function()
 	{
-		try { Xtalk.VM._step(); }
+		try { Xtalk.VM._step.call(Xtalk.VM); }
 		catch (err)
 		{
 			Xtalk.VM._last_error = err;
-			Xtalk.VM._abort();
+			Xtalk.VM._abort.call(Xtalk.VM);
 		}
 	},
 	
