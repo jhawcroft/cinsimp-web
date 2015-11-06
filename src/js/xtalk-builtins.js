@@ -51,6 +51,10 @@ xtalk.js
 
 Xtalk.Builtins = {
 
+/*****************************************************************************************
+Generic to CinsTalk Implementation
+*/
+
 	the_date: function(in_context, in_id, in_variant)
 	{
 		var now = new Date(); 
@@ -75,10 +79,45 @@ Xtalk.Builtins = {
 		}
 		}
 	},
-	
+
+
+
+/*****************************************************************************************
+Specific to CinsImp Environment
+*/
+
 	command_answer: function(in_message)
 	{
-		alert('ANSWER!');
+		Xtalk.VM.wait();
+		
+		var alert = new Alert();
+		alert.prompt = in_message.params[0].toString()._value;
+		if (in_message.params[1].type == 'Nothing')
+		{
+			alert.button1_label = 'OK';
+			alert.button1_handler = Xtalk.Builtins._command_answer_end.bind(this, new Xtalk.VM.TString(alert.button1_label));
+		}
+		else
+		{
+			alert.button1_label = in_message.params[1].toString()._value;
+			alert.button1_handler = Xtalk.Builtins._command_answer_end.bind(this, in_message.params[1].toString());
+			if (in_message.params[2].type != 'Nothing')
+			{
+				alert.button2_label = in_message.params[2].toString()._value;
+				alert.button2_handler = Xtalk.Builtins._command_answer_end.bind(this, in_message.params[2].toString());
+				if (in_message.params[3].type != 'Nothing')
+				{
+					alert.button3_label = in_message.params[3].toString()._value;
+					alert.button3_handler = Xtalk.Builtins._command_answer_end.bind(this, in_message.params[3].toString());
+				}
+			}
+		}
+		alert.show();
+	},
+	
+	_command_answer_end: function(in_response)
+	{
+		Xtalk.VM.unwait( in_response );
 	}
 
 };
