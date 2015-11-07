@@ -106,6 +106,8 @@ Module Globals
 								   
 	_result: null,				/* 'the result' of any prior command */
 	
+	_completion_handler: null,	/* the routine to invoke when the current execution ends */
+	
 	
 /*****************************************************************************************
 Utilities
@@ -114,7 +116,7 @@ Utilities
 /*
 	Creates a new execution local context.
 */
-	_new_context: function(in_plan, in_target, in_handler, in_completion) // take 'me' directly?
+	_new_context: function(in_plan, in_target, in_handler) // take 'me' directly?
 	{
 		return {
 			type: (in_handler ? Xtalk.VM._CONTEXT_HANDLER : Xtalk.VM._CONTEXT_ANONYMOUS),
@@ -125,8 +127,7 @@ Utilities
 			next_step: 0,
 			locals: {},
 			imported_globals: {},
-			operand_stack: [],
-			completion: in_completion,
+			operand_stack: []
 		};
 	},
 	
@@ -322,7 +323,7 @@ Message Hierarchy
  		
  		/* if a handler was found, create a sub-context and configure execution */
  		me = this;
- 		this._context_stack.push( this._new_context(handler.plan, handler.owner, handler, null) );
+ 		this._context_stack.push( this._new_context(handler.plan, handler.owner, handler) );
  	},
  	
  
@@ -353,7 +354,7 @@ Message Hierarchy
  		execution */
  		me = this;
  		this._context_stack[this._context_stack.length - 1] = 
- 			this._new_context(handler.plan, handler.owner, handler, null);
+ 			this._new_context(handler.plan, handler.owner, handler);
  	},
 
 
@@ -539,28 +540,32 @@ Execution
  */
 	_return: function(in_auto)
 	{
+		/* get the result */
+		if (in_auto) var val = new Xtalk.VM.TString('');
+		else var val = Xtalk.VM._pop().resolve();
+	
 		/* store the result */
+		this._result = val;
+		
+		/* if the handler is a function handler, return the result to the caller */
 		var context = this._context();
-		if (in_auto && (context == null || context.operand_stack.length == 0))
-			var val = new Xtalk.VM.TString('');
-		else
-			var val = Xtalk.VM._pop().resolve();
 		if (context.handler && context.handler.type == Xtalk.Script.HANDLER_FUNCTION
 				&& this._context_stack.length > 1)
 		{
 			var caller_context = this._context_stack[this._context_stack.length - 2];
 			caller_context.operand_stack.push(val);
 		}
-		this._result = val;
-		
-		/* save completion handler */
-		var completion = context.completion;
 		
 		/* remove the current context */
 		this._context_stack.pop();
 		
-		/* run the completion handler (if any) */  // may be able to do something else with this for message box results ****
-		if (completion) completion();
+		/* run the completion handler (if any) */
+		if (this._context_stack.length == 0 && this._completion_handler)
+		{
+			var handler = this._completion_handler;
+			this._completion_handler = null;
+			handler();
+		}
 	},
 	
 	
@@ -1107,14 +1112,17 @@ Environment Entry
 					Xtalk._error_syntax("Can't understand ^0.", tree.children[0].text);
 			}
 			var plan = Xtalk.Flat.flatten(tree);
+			plan.push({ id: Xtalk.ID_RETURN }); /* explicitly return the result of the expression */
 			
 			/* setup a fresh context for the input to be executed */
-			this._context_stack = [ this._new_context(plan, this._current_card, null, 
-				function() { 
-					var result = Xtalk.VM._result;
-					if (!result) result = new Xtalk.VM.TString('');
-					Xtalk.VM._put(result); 
-				}) ];
+			this._context_stack = [ this._new_context(plan, this._current_card, null) ];
+				
+			this._completion_handler = function() 
+			{ 
+				var result = Xtalk.VM._result;
+				if (!result) result = new Xtalk.VM.TString('');
+				Xtalk.VM._put(result); 
+			};
 			
 			this._run();
 			return;
@@ -1161,7 +1169,7 @@ Environment Entry
 		var handler_plan = in_target.get_execution_plan(in_event.name, in_event.type == Xtalk.Script.HANDLER_FUNCTION);
 		// handler (1st null in below arguments) probably needs to be defined and supplied
 		
-		this._context_stack = [ this._new_context(handler_plan.plan, this._current_card, handler_plan, null) ];
+		this._context_stack = [ this._new_context(handler_plan.plan, this._current_card, handler_plan) ];
 		this._run();
 	},
 
