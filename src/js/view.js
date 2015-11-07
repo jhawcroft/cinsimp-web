@@ -1396,6 +1396,8 @@ Scripting
 View.do_edit_script = function(in_prior)
 {
 	var object = View.current.get_current_object(true);
+	if (in_prior) in_prior();
+	
 	if (!object) return;
 	
 	document.getElementById('ScriptEditorObject').textContent = object.get_description();
@@ -1406,8 +1408,6 @@ View.do_edit_script = function(in_prior)
 		sel_pos = 13;
 		
 	Dialog.ScriptEditor._codeeditor.set_script(script, sel_pos);
-	
-	if (in_prior) in_prior();
 	Dialog.ScriptEditor.show();
 	Dialog.ScriptEditor._codeeditor.focus();
 	

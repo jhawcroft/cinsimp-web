@@ -258,7 +258,7 @@ as dictated by the server, thus allowing for search nevigability -->
 		<input type="button" class="SameSizeStacked" value="Link To..." onclick="Application.save_info(); View.do_link_to();">
 	</div>
 	<div class="Right Bottom">
-		<input type="button" style="margin-right: 10px;" value="Script..." onclick="View.do_edit_script(Dialog.dismiss.bind(true));">
+		<input type="button" style="margin-right: 10px;" value="Script..." onclick="View.do_edit_script(Dialog.dismiss.bind(Dialog, true));">
 		<input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="Dialog.dismiss(true)"> 
 	</div>
 </div>
@@ -299,7 +299,7 @@ as dictated by the server, thus allowing for search nevigability -->
 			<input type="button" value="Columns..." style="visibility: hidden; display:inline-block; margin-left: 10px;" disabled></div>
 		<div style="visibility: hidden; padding-left: 20px;"><input type="checkbox" data-attr="has_header" id="FieldInfoHasHeader"> <label for="FieldInfoHasHeader">Has header</label></div>
 		
-		<input type="button" value="Picklist..." onclick="AppDialogs.edit_text_attr('picklist', Dialog.dismiss.bind(true), 'Field Picklist Items');" style="margin-top: 20px;">
+		<input type="button" value="Picklist..." onclick="AppDialogs.edit_text_attr('picklist', Dialog.dismiss.bind(Dialog, true), 'Field Picklist Items');" style="margin-top: 20px;">
 	</div>
 	
 	<div class="Bottom" style="display: block; position: absolute;">
@@ -307,7 +307,7 @@ as dictated by the server, thus allowing for search nevigability -->
 			<input type="button" class="SameSizeStacked VertGap" value="Text Style..." onclick="Text.edit_style(View.current.get_current_objects(), Dialog.dismiss.bind(true)); ">
 	</div>
 	<div class="Right Bottom">
-		<input type="button" style="margin-right: 10px;" value="Script..." onclick="View.do_edit_script(Dialog.dismiss.bind(true));"> <input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="Dialog.dismiss(true)"> 
+		<input type="button" style="margin-right: 10px;" value="Script..." onclick="View.do_edit_script(Dialog.dismiss.bind(Dialog, true));"> <input type="button" value="Cancel" onclick="Dialog.dismiss()"> <input type="button" value="OK" onclick="Dialog.dismiss(true)"> 
 	</div>
 </div>
 
