@@ -47,6 +47,8 @@ Construction, Defaults and Serialisation
 
 Model.LayerObject = function(in_def, in_layer) 
 {
+	Scriptable.call(this);
+	
 	/* init core performance properties */
 	this._position = [0,0,0,0,0,0]; /* l, t, r, b, w, h */
 	this._layer = in_layer;
@@ -195,6 +197,14 @@ LayerObject.prototype.create_dom = function(in_view)
 	this.needs_dom_rebuild();
 	
 	return this._div;
+}
+
+
+// use domElement.cloneNode() ?
+LayerObject.prototype.get_static_copy = function()
+{
+	this.rebuild_dom();
+	return this._div.cloneNode(true);
 }
 
 

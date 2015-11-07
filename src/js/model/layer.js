@@ -43,6 +43,8 @@ var Model = CinsImp.Model;
 
 Model.Layer = function(in_stack, in_def, in_ready_handler, in_view)
 {
+	Scriptable.call(this);
+	
 	/* initialise the class internals */
 	this._ready = false;
 	this._ready_handler = in_ready_handler;
