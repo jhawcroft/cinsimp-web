@@ -43,8 +43,10 @@ function Dialog(in_title, in_element, in_flags, in_cleanup)
 	this._dom_id_map = null;
 	
 	this._flags = in_flags;
-	this._cleanup = in_cleanup;
+	this.oncleanup = in_cleanup;
 	this._close_code = null;
+	
+	this._user = null;
 	
 	this._div = document.createElement('div');
 	this._div.className = 'Dialog';
@@ -79,6 +81,8 @@ function Dialog(in_title, in_element, in_flags, in_cleanup)
 	this._init_with_element(in_element);
 	
 	Dialog._resequence();
+	
+	this.__keyup_handler = this._handle_keyup.bind(this);
 }
 
 Dialog.FLAG_NOCLOSE = 1;
@@ -130,6 +134,20 @@ Dialog.prototype._init_with_element = function(in_element)
 		this._dom_map = {};
 		this._dom_id_map = {};
 		this._map(this._root);
+	}
+}
+
+
+Dialog.prototype._handle_keyup = function(in_event)
+{
+	if (in_event.keyCode == 13)
+	{
+		if (this.onreturn) 
+		{
+			in_event.preventDefault();
+			in_event.stopPropagation();
+			this.onreturn();
+		}
 	}
 }
 
@@ -329,6 +347,12 @@ Dialog.prototype.populate_with = function(in_object)
 }
 
 
+Dialog.prototype.set_user = function(in_user)
+{
+	this._user = in_user;
+}
+
+
 Dialog.prototype.show = function()
 {	
 	if (this.getVisible()) return;
@@ -350,13 +374,19 @@ Dialog.prototype.show = function()
 	Dialog._cover.style.zIndex = Dialog.active()._div.style.zIndex - 1;
 	Dialog._visibleCount++;
 	
+	if (document.activeElement) document.activeElement.blur();
 	Util.auto_focus(this._div);
+	
+	document.addEventListener('keydown', this.__keyup_handler);
 }
 
 
+// really should be set oncleanup - do onclose separately **TODO
+// cleanup is only valid for one showing
+// close is always valid
 Dialog.prototype.set_onclose = function(in_onclose)
 {
-	this._cleanup = in_onclose;
+	this.oncleanup = in_onclose;
 }
 
 
@@ -370,6 +400,8 @@ Dialog.prototype.hide = function()
 {
 	if (!this.getVisible()) return;
 	
+	document.removeEventListener('keydown', this.__keyup_handler);
+	
 	this._root.style.visibility = 'hidden';
 	this._div.style.visibility = 'hidden';
 	
@@ -382,10 +414,10 @@ Dialog.prototype.hide = function()
 			Dialog._cover.style.zIndex = Dialog.active()._div.style.zIndex - 1;
 	}
 	
-	if (this._cleanup)
+	if (this.oncleanup)
 	{
-		this._cleanup(this, this._close_code);
-		this._cleanup = null;
+		this.oncleanup(this, this._close_code, this._user);
+		this.oncleanup = null;
 	}
 	
 	this._populate_object = null;

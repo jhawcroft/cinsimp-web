@@ -93,20 +93,19 @@ Alert.prototype.show = function()
 	
 	Alert._current = this;
 	Dialog.Alert.set_title(this.title);
+	
+	Dialog.Alert.set_user(this);
+	Dialog.Alert.onreturn = Dialog.dismiss.bind(1);
+	Dialog.Alert.oncleanup = function(in_dialog, in_button, in_alert)
+	{
+		if ((in_button === null || in_button === 1) && in_alert.button1_handler)
+			in_alert.button1_handler();
+		else if (in_button == 2 && in_alert.button2_handler)
+			in_alert.button2_handler();
+		else if (in_button == 3 && in_alert.button3_handler)
+			in_alert.button3_handler();
+	};
 	Dialog.Alert.show();
-}
-
-
-Alert.do_button = function(in_button)
-{
-	Dialog.dismiss();
-	if (!Alert._current) return;
-	if (in_button == 1 && Alert._current.button1_handler)
-		Alert._current.button1_handler();
-	else if (in_button == 2 && Alert._current.button2_handler)
-		Alert._current.button2_handler();
-	else if (in_button == 3 && Alert._current.button3_handler)
-		Alert._current.button3_handler();
 }
 
 
