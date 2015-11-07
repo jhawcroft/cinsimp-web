@@ -332,8 +332,8 @@ Core
 			match path) is the parameter value */
 			if ((context.param_list[i].offset < 0) && (context.param_list[i].length < 0))
 				param.children.push({
-					id: 		Xtalk.ID_WORD,
-					text:		context.param_list[i].text
+					id: 		Xtalk.ID_LITERAL_STRING,
+					value:		context.param_list[i].text
 				});
 		
 			/* check for a reference to a range of the input token stream, ie.
