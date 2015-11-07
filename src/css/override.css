@@ -20,6 +20,11 @@
 }
 
 
+
+/*****************************************************************************************
+Lock Screen and Visual Effect Static Overlays
+*/
+
 .LayerVisual
 {
 	display: block;
@@ -34,7 +39,26 @@
 }
 
 
+.LayerVisualInner
+{
+	display: block;
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	background-color: white;
+	animation-iteration-count: 1;
+    animation-timing-function: linear;
+}
 
+
+
+/*****************************************************************************************
+Visual Effect Animations
+*/
+
+/* Dissolve */
 
 @keyframes visual-dissolve 
 {
@@ -48,6 +72,8 @@
 }
 
 
+/* Wipe Left */
+
 @keyframes visual-wipe-left 
 {
     0% { width: 100%;}
@@ -60,7 +86,46 @@
 }
 
 
-/* can use inner and outer classes & inner div to hopefully get more control */
+/* Wipe Right */
+
+@keyframes visual-wipe-right-outer
+{
+	0% { left: 0%; }
+    100% { left: 100%;  }
+}
+
+@keyframes visual-wipe-right-inner
+{
+    0% { left: 0%;  }
+    100% { left: -100%; }
+}
+
+.VisualWipeRight
+{
+	animation-name: visual-wipe-right-outer;
+}
+
+.VisualWipeRight .LayerVisualInner
+{
+	animation-name: visual-wipe-right-inner;
+}
+
+
+/* Slide Left */
+
+@keyframes visual-slide-left
+{
+    0% { left: 0%; }
+    100% { left: -100%;  }
+}
+
+.VisualSlideLeft
+{
+	animation-name: visual-slide-left;
+}
+
+
+/* Slide Right */
 
 @keyframes visual-slide-right 
 {

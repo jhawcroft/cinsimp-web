@@ -96,7 +96,12 @@ View.prototype._init_view = function()
 	this._layer_paint.style.height = this._size[1] + 'px';
 	this._layer_paint.style.visibility = 'hidden';
 	
-	this._layer_visual = [null, null];
+	/*this._layer_overlay = {
+		front: { outer: null, inner: null },
+		back: { outer: null, inner: null }
+	};*/
+	
+	this._layer_visual = [null,null];
 	
 	this._layer_visual[0] = document.createElement('div');
 	this._layer_visual[0].className = 'LayerVisual';
@@ -1506,6 +1511,15 @@ View.prototype._begin_visual = function()
 		src.style.animationDuration = speed + 's';
 		src.classList.add('VisualWipeLeft');
 		break;
+	case 'wipe-right':
+		src.style.animationDuration = speed + 's';
+		src.children[0].style.animationDuration = speed + 's';
+		src.classList.add('VisualWipeRight');
+		break;
+	case 'slide-left':
+		src.style.animationDuration = speed + 's';
+		src.classList.add('VisualSlideLeft');
+		break;
 	case 'slide-right':
 		src.style.animationDuration = speed + 's';
 		src.classList.add('VisualSlideRight');
@@ -1573,7 +1587,7 @@ View.prototype.unlock_screen = function(in_after_handler)
 //console.log('unlock screen()');
 	this._screen_lock_depth--;
 	if (this._screen_lock_depth != 0) return;
-console.log('  unlocking NOW');
+//console.log('  unlocking NOW');
 
 	/* ensure the current card is completely built */
 	this.refresh();
@@ -1650,7 +1664,11 @@ View.prototype._make_overlay = function(in_index, in_what)
 		this._snapshot_to(in_index);
 	else if (in_what == 'white' || in_what == 'gray' || in_what == 'black')
 	{
-		layer.style.backgroundColor = in_what;
+		var inner = document.createElement('div');
+		inner.className = 'LayerVisualInner';
+		layer.appendChild(inner);
+		
+		inner.style.backgroundColor = in_what;
 	}
 }
 
@@ -1668,16 +1686,25 @@ View.prototype._snapshot_to = function(in_layer_index)
 	var layer = this._layer_visual[in_layer_index];
 	layer.innerHTML = '';
 	layer.style.backgroundColor = 'white';
-	layer.appendChild( this._layer_bkgnd_art.cloneNode(true) );
-	layer.appendChild( this._layer_card_art.cloneNode(true) );
-	layer.appendChild( this._layer_obj_card.cloneNode(true) );
+	
+	var inner = document.createElement('div');
+	inner.className = 'LayerVisualInner';
+	layer.appendChild(inner);
+	
+	inner.appendChild( this._layer_bkgnd_art.cloneNode(true) );
+	inner.appendChild( this._layer_card_art.cloneNode(true) );
+	inner.appendChild( this._layer_obj_card.cloneNode(true) );
 }
+
 
 
 View.do_debug = function()
 {
-	View.current.queue_visual_effect('slide-right', 'normal', 'card');
-	//View.current.queue_visual_effect('wipe-left', 'normal', 'card');
+	//View.current.queue_visual_effect('dissolve', 'fast', 'black');
+	//View.current.queue_visual_effect('wipe-right', 'slow', 'black');
+	View.current.queue_visual_effect('slide-left', 'slow', 'card');
+	//View.current.queue_visual_effect('wipe-right', 'slow', 'card');
+	
 	View.current.go_next();
 	//View.current.test_static_snapshot();
 }
