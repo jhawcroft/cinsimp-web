@@ -218,6 +218,9 @@ end repeat</textarea>
 
 <div style="float: left;"><textarea id="output" style="width: 900px; height:750px;"></textarea></div>
 
-
+<script>
+var def = Xtalk.Dict._commands['|visual'][0];
+document.getElementById('output').value = JSON.stringify(def, Xtalk.Debug._bnf_replacer, 4);
+</script>
 </body>
 </html>
