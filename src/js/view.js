@@ -151,12 +151,40 @@ View.TOOL_EYEDROPPER = 19;
 
 
 
+/*****************************************************************************************
+Event Handlers
+*/
+
 View.prototype._handle_mouse_down = function(in_event)
 {
 	this._author_point_start(null, [in_event.pageX, in_event.pageY]);
 }
 
 
+View.prototype._notify_dirty_changed = function()
+{
+	this._activated();
+}
+
+
+View.prototype._browse_point_start = function(in_object, in_coords)
+{
+	if (this._mode != View.MODE_BROWSE) return;
+	
+	alert('Click on object '+ in_object);
+}
+
+
+View.prototype.do_idle = function()
+{
+	this.rebuild();
+}
+
+
+
+/*****************************************************************************************
+State Indications and Event Generation
+*/
 
 View.prototype._activated = function()
 {
@@ -167,19 +195,6 @@ View.prototype._activated = function()
 	flags |= (this._card.is_dirty() || this._bkgnd.is_dirty() ? Application.FILE_STATUS_DIRTY : 0);
 	Application.file_status(flags);
 }
-
-
-View.prototype._notify_dirty_changed = function()
-{
-	this._activated();
-}
-
-//var me = this;
-	//this._container.addEventListener('mousedown', 
-	//	function (in_event) { me._author_point_start(null, [in_event.pageX, in_event.pageY]); });
-	
-
-
 
 
 View.prototype._indicate_tool = function(in_tool)
@@ -217,12 +232,97 @@ View.prototype._indicate_tool = function(in_tool)
 }
 
 
-View.prototype.choose_color = function(in_color)
+View.prototype._mode_changed = function()
 {
-	if (this._paint)
-		this._paint.choose_color(in_color);
+	this._configure_obj_display();
 }
 
+
+View.prototype.is_browsing = function()
+{
+	return (View.MODE_BROWSE == this._mode);
+}
+
+
+View.prototype.is_edit_bkgnd = function()
+{
+	return this._edit_bkgnd;
+}
+
+
+View.prototype.card = function()
+{
+	return View.current._card;
+}
+
+
+
+View.prototype.get_stack = function()
+{
+	return this._stack;
+}
+
+
+
+View.prototype.get_current_object = function(in_multiple_error)
+{
+	if (this._current_object)
+		return this._current_object;
+	else if (this._selected_objects.length > 1)
+	{
+		if (in_multiple_error)
+		{
+			var alert = new Alert();
+			alert.title = 'Multiple Objects Selected';
+			alert.prompt = 'That operation cannot be performed with multiple objects selected.';
+			alert.button1_label = 'OK';
+			alert.show();
+		}
+		return null;
+	}
+	else if (this._selected_objects.length == 1)
+		return this._selected_objects[0];
+	else if (!this._edit_bkgnd)
+		return this._card;
+	else
+		return this._bkgnd;
+}
+
+
+View.prototype.get_current_objects = function()
+{
+	if (this._current_object)
+		return  [ this._current_object ];
+	else if (this._selected_objects.length > 0)
+		return this._selected_objects;
+	else if (!this._edit_bkgnd)
+		return this._card;
+	else
+		return this._bkgnd;
+}
+
+
+/*
+	Temporarily overrides whatever the selection is within the view.
+	Enables editing of objects beyond the view which is usually responsible for
+	the editing process.
+	
+	Specifying null allows the selection (if any) to preside again.
+	When card is reloaded, selection changed or edit background mode is changed,
+	any override is cleared automatically.
+*/
+View.prototype.set_current_object = function(in_another_object)
+{
+	if (in_another_object)
+		this.select_none();
+	this._current_object = in_another_object;
+}
+
+
+
+/*****************************************************************************************
+Authoring
+*/
 
 View.prototype._show_object_outlines = function()
 {
@@ -284,14 +384,6 @@ View.prototype._configure_obj_display = function()
 }
 
 
-View.prototype._mode_changed = function()
-{
-	
-	
-	this._configure_obj_display();
-}
-
-
 View.prototype.object_is_selected = function(in_object)
 {
 	var idx = this._selected_objects.indexOf(in_object);
@@ -325,14 +417,6 @@ View.prototype.select_none = function()
 		obj._set_selected(false);
 	}
 	this._selected_objects.length = 0;
-}
-
-
-View.prototype._browse_point_start = function(in_object, in_coords)
-{
-	if (this._mode != View.MODE_BROWSE) return;
-	
-	alert('Click on object '+ in_object);
 }
 
 
@@ -491,6 +575,13 @@ View.prototype._author_point_start = function(in_object, in_coords)
 }
 
 
+View.prototype.choose_color = function(in_color)
+{
+	if (this._paint)
+		this._paint.choose_color(in_color);
+}
+
+
 View.prototype.choose_tool = function(in_tool)
 {
 	this.select_none();
@@ -534,12 +625,6 @@ View.prototype.choose_tool = function(in_tool)
 }
 
 
-View.prototype.is_browsing = function()
-{
-	return (View.MODE_BROWSE == this._mode);
-}
-
-
 View.prototype.edit_bkgnd = function(in_edit_bkgnd)
 {
 	this.select_none();
@@ -552,12 +637,6 @@ View.prototype.edit_bkgnd = function(in_edit_bkgnd)
 	this._configure_obj_display();
 	this._config_art_visibility();
 	this.paint_revert();
-}
-
-
-View.prototype.is_edit_bkgnd = function()
-{
-	return this._edit_bkgnd;
 }
 
 
@@ -584,23 +663,261 @@ View.prototype._centre_object = function(in_object)
 }
 
 
-View.prototype.card = function()
-{
-	return View.current._card;
-}
-
-
-View.prototype.do_idle = function()
-{
-	this.rebuild();
-}
-
-
 View.prototype.needs_rebuild = function(in_object)
 {
 	this._rebuild_list.push(in_object);
 }
 
+
+View.prototype._add_object = function(in_object)
+{	
+	this._layer_obj_card.appendChild( in_object.create_dom(this) );
+	this.rebuild();
+}
+
+
+View.prototype.do_new_field = function()
+{
+	this.select_none();
+	this.choose_tool(View.TOOL_FIELD);
+	
+	var field = new CinsImp.Model.Field(null, (this._edit_bkgnd ? this._bkgnd : this._card));
+	this._centre_object(field);
+	this._add_object(field);
+	
+	this.select_object(field, true);
+	field.set_num_tag(true);
+}
+
+
+View.prototype.do_new_button = function()
+{
+	this.select_none();
+	this.choose_tool(View.TOOL_BUTTON);
+	
+	var button = new CinsImp.Model.Button(null, (this._edit_bkgnd ? this._bkgnd : this._card));
+	this._centre_object(button);
+	this._add_object(button);
+	
+	this.select_object(button, true);
+	button.set_num_tag(true);
+}
+
+
+View.prototype.do_delete_objects = function()
+{
+	for (var o = 0; o < this._selected_objects.length; o++)
+	{
+		var obj = this._selected_objects[o];
+		obj.get_layer().remove_object(obj);
+	}
+	this._selected_objects.length = 0;
+	
+	this._configure_obj_display();
+}
+
+
+View.prototype.do_delete = function()
+{
+	if (this._mode == View.MODE_BROWSE)
+		this.do_delete_card();
+	else if (this._mode == View.MODE_AUTHORING)
+		this.do_delete_objects();
+}
+
+
+View.prototype._rebuild_selection = function()
+{
+	for (var o = 0; o < this._selected_objects.length; o++)
+	{
+		var obj = this._selected_objects[o];
+		obj._set_selected(false);
+		obj._set_selected(true);
+	}
+}
+
+
+View.prototype.send_to_front = function()
+{
+	this._bkgnd.send_to_front();
+	this._card.send_to_front();
+	this._rebuild_layers();
+	this._rebuild_selection();
+}
+
+
+View.prototype.send_forward = function()
+{
+	this._bkgnd.send_forward();
+	this._card.send_forward();
+	this._rebuild_layers();
+	this._rebuild_selection();
+}
+
+
+View.prototype.send_backward = function()
+{
+	this._bkgnd.send_backward();
+	this._card.send_backward();
+	this._rebuild_layers();
+	this._rebuild_selection();
+}
+
+
+View.prototype.send_to_back = function()
+{
+	this._bkgnd.send_to_back();
+	this._card.send_to_back();
+	this._rebuild_layers();
+	this._rebuild_selection();
+}
+
+
+View.prototype._do_button_info = function()
+{
+	var button = View.current.get_current_object(true);
+
+	Dialog.ButtonInfo.populate_with(button);
+	Dialog.ButtonInfo.element('bkgnd-only').style.visibility = (button.is_bkgnd() ? 'visible' : 'hidden');
+	
+	Dialog.ButtonInfo.set_onclose(function(in_dialog, in_save)
+	{
+		in_dialog.element('bkgnd-only').style.visibility = 'hidden';
+		if (in_save) 
+		{
+			in_dialog.apply();
+			View.current.rebuild(); // this should happen automatically in future **TODO**
+		}
+	});
+	Dialog.ButtonInfo.show();
+}
+
+
+View.prototype._do_field_info = function()
+{
+	var field = View.current.get_current_object(true);
+
+	Dialog.FieldInfo.populate_with(field);
+	Dialog.FieldInfo.element('bkgnd-only').style.visibility = (field.is_bkgnd() ? 'visible' : 'hidden');
+	
+	Dialog.FieldInfo.set_onclose(function(in_dialog, in_save)
+	{
+		in_dialog.element('bkgnd-only').style.visibility = 'hidden';
+		if (in_save) 
+		{
+			in_dialog.apply();
+			View.current.rebuild(); // this should happen automatically in future **TODO**
+		}
+	});
+	Dialog.FieldInfo.show();
+}
+
+
+View.prototype._do_card_info = function()
+{
+	Dialog.CardInfo.populate_with(this._card);
+	Dialog.CardInfo.set_onclose(function(in_save)
+	{
+		if (in_save) Dialog.CardInfo.apply();
+	});
+	Dialog.CardInfo.show();
+}
+
+
+View.prototype._do_bkgnd_info = function()
+{
+	Dialog.BkgndInfo.populate_with(this._bkgnd);
+	Dialog.BkgndInfo.set_onclose(function(in_save)
+	{
+		if (in_save) Dialog.BkgndInfo.apply();
+	});
+	Dialog.BkgndInfo.show();
+}
+
+
+View.prototype.do_info = function()
+{
+	this.set_current_object(null);
+
+	if (this._selected_objects.length == 1)
+	{
+		if (this._selected_objects[0].get_type() == Button.TYPE)
+			this._do_button_info();
+		else
+			this._do_field_info();
+	}
+	else if (!this._edit_bkgnd)
+		this._do_card_info();
+	else
+		this._do_bkgnd_info();
+}
+
+
+View.do_link_to = function()
+{
+	// really need an expression here, because can't save the runtime object ***
+	// will need xTalk integrated to do this properly
+	//this._link_from_object = this._selected_objects[0]; 
+	
+	Palette.LinkTo.show();
+}
+
+
+View.do_effect = function()
+{
+	
+	Dialog.Effect.show();
+}
+
+
+View.apply_link_to = function(in_subject)
+{
+	Palette.LinkTo.hide();
+	
+}
+
+
+View.apply_effect = function()
+{
+	Dialog.dismiss();
+}
+
+
+
+/*****************************************************************************************
+Painting
+*/
+
+
+View.prototype.paint_keep = function()
+{
+	if (!this._paint) return;
+	if (!this._paint.is_active()) return;
+	
+	if (!this._edit_bkgnd)
+		this._card.set_attr('art', this._paint.get_data_png());
+	else
+		this._bkgnd.set_attr('art', this._paint.get_data_png());
+}
+
+
+View.prototype.paint_revert = function()
+{
+	if (!this._paint) return;
+	if (!this._paint.is_active()) return;
+	
+	if (!this._edit_bkgnd)
+		this._paint.set_data_png(this._card.get_attr('art'));
+	else
+		this._paint.set_data_png(this._bkgnd.get_attr('art'));
+}
+
+
+
+
+/*****************************************************************************************
+Display and Screen Configuration
+*/
 
 View.prototype._rebuild_art = function()
 {
@@ -688,63 +1005,6 @@ View.prototype._rebuild_layers = function()
 }
 
 
-View.prototype._add_object = function(in_object)
-{	
-	this._layer_obj_card.appendChild( in_object.create_dom(this) );
-	this.rebuild();
-}
-
-
-View.prototype.do_new_field = function()
-{
-	this.select_none();
-	this.choose_tool(View.TOOL_FIELD);
-	
-	var field = new CinsImp.Model.Field(null, (this._edit_bkgnd ? this._bkgnd : this._card));
-	this._centre_object(field);
-	this._add_object(field);
-	
-	this.select_object(field, true);
-	field.set_num_tag(true);
-}
-
-
-View.prototype.do_new_button = function()
-{
-	this.select_none();
-	this.choose_tool(View.TOOL_BUTTON);
-	
-	var button = new CinsImp.Model.Button(null, (this._edit_bkgnd ? this._bkgnd : this._card));
-	this._centre_object(button);
-	this._add_object(button);
-	
-	this.select_object(button, true);
-	button.set_num_tag(true);
-}
-
-
-View.prototype.do_delete_objects = function()
-{
-	for (var o = 0; o < this._selected_objects.length; o++)
-	{
-		var obj = this._selected_objects[o];
-		obj.get_layer().remove_object(obj);
-	}
-	this._selected_objects.length = 0;
-	
-	this._configure_obj_display();
-}
-
-
-View.prototype.do_delete = function()
-{
-	if (this._mode == View.MODE_BROWSE)
-		this.do_delete_card();
-	else if (this._mode == View.MODE_AUTHORING)
-		this.do_delete_objects();
-}
-
-
 View.prototype._end_editing = function()
 {
 	if (document.activeElement)
@@ -793,10 +1053,25 @@ View.prototype._load_card = function(in_card_id)
 			me._rebuild_card();
 		}
 	});
-	
-	
 }
 
+
+View.prototype.refresh = function()
+{
+	this._rebuild_card();
+}
+
+
+View.do_save = function()
+{
+	View.current._save_card(null);
+}
+
+
+
+/*****************************************************************************************
+Card Creation and Deletion
+*/
 
 View.prototype.do_new_card = function()
 {
@@ -813,7 +1088,6 @@ View.prototype.do_new_card = function()
 		});
 	});
 }
-
 
 
 View.prototype.do_new_bkgnd = function()
@@ -849,6 +1123,11 @@ View.prototype.do_delete_card = function()
 	});
 }
 
+
+
+/*****************************************************************************************
+Navigation
+*/
 
 View.prototype._go_nth_card = function(in_ref, in_bkgnd)
 {
@@ -893,239 +1172,9 @@ View.prototype.go_last = function()
 }
 
 
-View.prototype._rebuild_selection = function()
-{
-	for (var o = 0; o < this._selected_objects.length; o++)
-	{
-		var obj = this._selected_objects[o];
-		obj._set_selected(false);
-		obj._set_selected(true);
-	}
-}
 
-
-View.prototype.send_to_front = function()
-{
-	this._bkgnd.send_to_front();
-	this._card.send_to_front();
-	this._rebuild_layers();
-	this._rebuild_selection();
-}
-
-
-View.prototype.send_forward = function()
-{
-	this._bkgnd.send_forward();
-	this._card.send_forward();
-	this._rebuild_layers();
-	this._rebuild_selection();
-}
-
-
-View.prototype.send_backward = function()
-{
-	this._bkgnd.send_backward();
-	this._card.send_backward();
-	this._rebuild_layers();
-	this._rebuild_selection();
-}
-
-
-View.prototype.send_to_back = function()
-{
-	this._bkgnd.send_to_back();
-	this._card.send_to_back();
-	this._rebuild_layers();
-	this._rebuild_selection();
-}
-
-
-View.prototype.refresh = function()
-{
-	this._rebuild_card();
-}
-
-
-View.prototype._do_button_info = function()
-{
-	var button = View.current.get_current_object(true);
-
-	Dialog.ButtonInfo.populate_with(button);
-	Dialog.ButtonInfo.element('bkgnd-only').style.visibility = (button.is_bkgnd() ? 'visible' : 'hidden');
-	
-	Dialog.ButtonInfo.set_onclose(function(in_dialog, in_save)
-	{
-		in_dialog.element('bkgnd-only').style.visibility = 'hidden';
-		if (in_save) 
-		{
-			in_dialog.apply();
-			View.current.rebuild(); // this should happen automatically in future **TODO**
-		}
-	});
-	Dialog.ButtonInfo.show();
-}
-
-
-View.prototype._do_field_info = function()
-{
-	var field = View.current.get_current_object(true);
-
-	Dialog.FieldInfo.populate_with(field);
-	Dialog.FieldInfo.element('bkgnd-only').style.visibility = (field.is_bkgnd() ? 'visible' : 'hidden');
-	
-	Dialog.FieldInfo.set_onclose(function(in_dialog, in_save)
-	{
-		in_dialog.element('bkgnd-only').style.visibility = 'hidden';
-		if (in_save) 
-		{
-			in_dialog.apply();
-			View.current.rebuild(); // this should happen automatically in future **TODO**
-		}
-	});
-	Dialog.FieldInfo.show();
-}
-
-
-View.prototype._do_card_info = function()
-{
-	Dialog.CardInfo.populate_with(this._card);
-	Dialog.CardInfo.set_onclose(function(in_save)
-	{
-		if (in_save) Dialog.CardInfo.apply();
-	});
-	Dialog.CardInfo.show();
-}
-
-
-View.prototype._do_bkgnd_info = function()
-{
-	Dialog.BkgndInfo.populate_with(this._bkgnd);
-	Dialog.BkgndInfo.set_onclose(function(in_save)
-	{
-		if (in_save) Dialog.BkgndInfo.apply();
-	});
-	Dialog.BkgndInfo.show();
-}
-
-
-View.prototype.do_info = function()
-{
-	this.set_current_object(null);
-
-	if (this._selected_objects.length == 1)
-	{
-		if (this._selected_objects[0].get_type() == Button.TYPE)
-			this._do_button_info();
-		else
-			this._do_field_info();
-	}
-	else if (!this._edit_bkgnd)
-		this._do_card_info();
-	else
-		this._do_bkgnd_info();
-}
-
-/*
-View.prototype._save_stack = function()
-{
-	Progress.operation_begun('Saving stack...');
-	var msg = {
-		cmd: 'save_stack',
-		stack_id: this._stack.stack_id,
-		stack: this._stack
-	};
-	Ajax.send(msg, function(msg, status)
-	{
-		Progress.operation_finished();
-		if ((status != 'ok') || (msg.cmd != 'save_stack'))
-			Alert.network_error("Couldn't save stack. \n" + status + "; " + JSON.stringify(msg));
-		else
-			this._stack = msg.stack;
-	});
-}
-*/
-
-
-View.prototype.paint_keep = function()
-{
-	if (!this._paint) return;
-	if (!this._paint.is_active()) return;
-	
-	if (!this._edit_bkgnd)
-		this._card.set_attr('art', this._paint.get_data_png());
-	else
-		this._bkgnd.set_attr('art', this._paint.get_data_png());
-}
-
-
-View.prototype.paint_revert = function()
-{
-	if (!this._paint) return;
-	if (!this._paint.is_active()) return;
-	
-	if (!this._edit_bkgnd)
-		this._paint.set_data_png(this._card.get_attr('art'));
-	else
-		this._paint.set_data_png(this._bkgnd.get_attr('art'));
-}
-
-
-
-View.do_link_to = function()
-{
-	// really need an expression here, because can't save the runtime object ***
-	// will need xTalk integrated to do this properly
-	//this._link_from_object = this._selected_objects[0]; 
-	
-	Palette.LinkTo.show();
-}
-
-
-View.do_effect = function()
-{
-	
-	Dialog.Effect.show();
-}
-
-
-View.apply_link_to = function(in_subject)
-{
-	Palette.LinkTo.hide();
-	
-}
-
-
-View.apply_effect = function()
-{
-	Dialog.dismiss();
-}
-
-
-/*
-View.get_stack_icons = function()
-{
-	return View.current._stack.stack_icons;
-}
-
-
-View.register_icon = function(in_id, in_name, in_data)
-{
-	var icon_def = [in_id, in_name, in_data];
-	View.current._stack.stack_icons.push(icon_def);
-	View.current._icon_index[in_id] = icon_def;
-}*/
-
-/*
-View.prototype._index_icons = function()
-{
-return;
-// **TO REVISE **
-	this._icon_index = {};
-	for (var i = 0; i < this._stack.stack_icons.length; i++)
-	{
-		this._icon_index[this._stack.stack_icons[i][0]] = this._stack.stack_icons[i];
-	}
-}
+/*****************************************************************************************
+Printing and Export
 */
 
 View.do_share = function()
@@ -1141,12 +1190,10 @@ View.do_print_card = function()
 }
 
 
-View.do_save = function()
-{
-	View.current._save_card(null);
-}
 
-
+/*****************************************************************************************
+Stack Configuration
+*/
 
 View.do_protect_stack = function()
 {
@@ -1234,8 +1281,6 @@ View.clear_password = function()
 }
 
 
-
-
 View.do_stack_info = function()
 {
 	var stack = View.current._stack;
@@ -1291,7 +1336,6 @@ View.save_stack_info = function()
 }
 
 
-
 View.compact = function()
 {
 	Progress.operation_begun('Compacting this stack...', true);
@@ -1300,68 +1344,9 @@ View.compact = function()
 
 
 
-View.prototype.get_stack = function()
-{
-	return this._stack;
-}
-
-
-
-View.prototype.get_current_object = function(in_multiple_error)
-{
-	if (this._current_object)
-		return this._current_object;
-	else if (this._selected_objects.length > 1)
-	{
-		if (in_multiple_error)
-		{
-			var alert = new Alert();
-			alert.title = 'Multiple Objects Selected';
-			alert.prompt = 'That operation cannot be performed with multiple objects selected.';
-			alert.button1_label = 'OK';
-			alert.show();
-		}
-		return null;
-	}
-	else if (this._selected_objects.length == 1)
-		return this._selected_objects[0];
-	else if (!this._edit_bkgnd)
-		return this._card;
-	else
-		return this._bkgnd;
-}
-
-
-View.prototype.get_current_objects = function()
-{
-	if (this._current_object)
-		return  [ this._current_object ];
-	else if (this._selected_objects.length > 0)
-		return this._selected_objects;
-	else if (!this._edit_bkgnd)
-		return this._card;
-	else
-		return this._bkgnd;
-}
-
-
-/*
-	Temporarily overrides whatever the selection is within the view.
-	Enables editing of objects beyond the view which is usually responsible for
-	the editing process.
-	
-	Specifying null allows the selection (if any) to preside again.
-	When card is reloaded, selection changed or edit background mode is changed,
-	any override is cleared automatically.
+/*****************************************************************************************
+Scripting
 */
-View.prototype.set_current_object = function(in_another_object)
-{
-	if (in_another_object)
-		this.select_none();
-	this._current_object = in_another_object;
-}
-
-
 
 View.do_edit_script = function(in_prior)
 {
@@ -1390,7 +1375,6 @@ View.do_edit_script = function(in_prior)
 }
 
 
-
 View.prototype.get_next_responder = function(in_current_responder)
 {
 	//alert('view get responder');
@@ -1398,11 +1382,21 @@ View.prototype.get_next_responder = function(in_current_responder)
 }
 
 
+
+/*****************************************************************************************
+Lock Screen and Visual Effects
+*/
+
 View.prototype.test_static_snapshot = function()
 {
 	
 }
 
+
+
+/*****************************************************************************************
+Old Crap and Notes for Reference
+*/
 
 /*
 
