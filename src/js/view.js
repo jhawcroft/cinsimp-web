@@ -1506,7 +1506,12 @@ View.prototype._begin_visual = function()
 		src.style.animationDuration = speed + 's';
 		src.classList.add('VisualWipeLeft');
 		break;
+	case 'slide-right':
+		src.style.animationDuration = speed + 's';
+		src.classList.add('VisualSlideRight');
+		break;
 	case 'cut':
+	default:
 		window.setTimeout(this._finish_visual.bind(this), speed * 1000.0);
 		break;
 	}
@@ -1527,9 +1532,6 @@ View.prototype._finish_visual = function()
 	this._layer_visual[1] = tmp;
 	this._layer_visual[0].style.zIndex = 8;
 	this._layer_visual[1].style.zIndex = 7;
-	/*var tmp = this._visual_src_idx;
-	this._visual_src_idx = this._visual_dest_idx;
-	this._visual_dest_idx = tmp;*/
 	
 	/* begin the next effect in the queue */
 	this._begin_visual();
@@ -1576,8 +1578,6 @@ console.log('  unlocking NOW');
 	/* ensure the current card is completely built */
 	this.refresh();
 	this.rebuild();
-	
-	// should really be waiting until we're sure the card is completely built here ** TODO fix
 	
 	/* play visual effects (if any) */
 	if (this._visual_queue.length > 0)
@@ -1649,7 +1649,9 @@ View.prototype._make_overlay = function(in_index, in_what)
 	if (in_what == 'card')
 		this._snapshot_to(in_index);
 	else if (in_what == 'white' || in_what == 'gray' || in_what == 'black')
+	{
 		layer.style.backgroundColor = in_what;
+	}
 }
 
 
@@ -1674,7 +1676,7 @@ View.prototype._snapshot_to = function(in_layer_index)
 
 View.do_debug = function()
 {
-	View.current.queue_visual_effect('wipe-left', 'normal', 'card');
+	View.current.queue_visual_effect('slide-right', 'normal', 'card');
 	//View.current.queue_visual_effect('wipe-left', 'normal', 'card');
 	View.current.go_next();
 	//View.current.test_static_snapshot();

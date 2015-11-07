@@ -60,5 +60,19 @@
 }
 
 
+/* can use inner and outer classes & inner div to hopefully get more control */
+
+@keyframes visual-slide-right 
+{
+    0% { left: 0%; width: 100%;}
+    100% { left: 100%; width: 0%; }
+}
+
+.VisualSlideRight
+{
+	animation-name: visual-slide-right;
+}
+
+
 
 
