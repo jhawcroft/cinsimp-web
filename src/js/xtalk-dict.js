@@ -183,7 +183,7 @@ Registration
 /*
 	Registers a command syntax, argument sequence, argument evaluation and handler.
  */
-	register_command: function(in_syntax, in_arguments, in_handler)
+	register_command_syntax: function(in_syntax, in_arguments, in_handler)
 	{
 		in_syntax = in_syntax.toLowerCase();
 		var first_word = in_syntax.split(' ', 1)[0].trim().toLowerCase();
@@ -210,6 +210,7 @@ Registration
 			delayed: delayed,
 			handler: in_handler
 		};
+		
 		if (this._commands['|'+first_word] === undefined)
 			this._commands['|'+first_word] = [];
 		this._commands['|'+first_word].push( def );
@@ -221,34 +222,41 @@ Registration
  */
 	init_builtins: function()
 	{
-		this.register_command(
+		this.register_command_syntax(
 			'beep <number> [time | times]', 
 			'number', 
 			function(n) { alert('BEEP! ' + JSON.stringify(n)); }
 		);
 		
-		this.register_command(
+		this.register_command_syntax(
 			'ask [`password``1`password] <prompt> [with <response>]', 
 			'password,prompt,response', 
 			function(n) { alert('ASK PASSWORD! ' + JSON.stringify(n)); }
 		);
 		
-		this.register_command(
+		this.register_command_syntax(
 			'sort [[the] cards] [`dir``asc`ascending|`des`descending] by <sortKey>', 
 			'dir,sortKey', 
 			function(n) { alert('SORT! ' + JSON.stringify(n)); }
 		);
 		
-		this.register_command(
+		this.register_command_syntax(
 			'find [`mode``b`normal|`c`chars|`c`characters|`w`word|`w`words|`s`string|`p`whole] <text> [in <field>]', 
 			'mode,text,field', 
 			function(n) { alert('FIND! ' + JSON.stringify(n)); }
 		);
 		
-		this.register_command(
+		this.register_command_syntax(
 			'answer <prompt> [with <button1> [or <button2> [or <button3>]]]',
 			'prompt,button1,button2,button3',
 			Xtalk.Builtins.command_answer
+		);
+		
+		
+		this.register_command_syntax(
+			'visual [effect] {`effect``cut`cut|`dissolve`dissolve|`wipe-left`wipe left|`wipe-right`wipe right|`slide-left`slide left|`slide-right`slide right} [`speed``very-slow`very slowly|`very-slow`very slow|`slow`slowly|`slow`slow|`normal`normal|`very-fast`very fast|`fast`fast] [to {`dest``card`card|`black`black|`white`white|`gray`gray|`gray`grey}]',
+			'effect,speed,dest',
+			Xtalk.Builtins.command_visual
 		);
 	
 	
