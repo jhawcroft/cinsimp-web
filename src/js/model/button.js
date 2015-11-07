@@ -53,6 +53,8 @@ Model.Button = function(in_def, in_layer)
 	LayerObject.call(this, in_def, in_layer);
 	this._card_content_key = 'hilite';
 	
+	this._false_hilite = false;
+	
 	/* init defaults */
 	if (!in_def)
 	{
@@ -187,7 +189,7 @@ Button.prototype._dom_rebuild = function()
 	if (style != 'check_box' && style != 'radio')
 	{
 		/* push button color */
-		if (this.get_attr('hilite'))  
+		if (this.get_attr('hilite') || this._false_hilite)  
 		{
 			// ought to find an appropriate hilite & text color *** TODO ****
 			this._div.style.backgroundColor = 'black';
@@ -393,7 +395,9 @@ Button.prototype._auto_hilite = function(in_down)
 	else 
 	{
 		/* hilite push button */
-		this.set_attr('hilite', in_down);
+		this._false_hilite = in_down;
+		this.needs_dom_rebuild();
+		//this.set_attr('hilite', in_down);
 	}
 }
 
