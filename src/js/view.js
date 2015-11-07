@@ -62,6 +62,9 @@ View.prototype._init_view = function()
 	this._size = [this._container.clientWidth, this._container.clientHeight];
 	this._rebuild_list = [];
 	this._selected_objects = [];
+	this._visual_queue = [];
+	this._screen_lock_depth = 0;
+	this._enable_idle = true;
 	
 	/* add event handlers */
 	this._container.addEventListener('mousedown', this._handle_mouse_down.bind(this));
@@ -93,18 +96,28 @@ View.prototype._init_view = function()
 	this._layer_paint.style.height = this._size[1] + 'px';
 	this._layer_paint.style.visibility = 'hidden';
 	
-	this._layer_visual = document.createElement('div');
-	this._layer_visual.className = 'LayerVisual';
-	this._layer_visual.style.zIndex = 7;
-	this._layer_visual.style.width = this._size[0] + 'px';
-	this._layer_visual.style.height = this._size[1] + 'px';
-	this._layer_visual.style.visibility = 'hidden';
+	this._layer_visual = [null, null];
+	
+	this._layer_visual[0] = document.createElement('div');
+	this._layer_visual[0].className = 'LayerVisual';
+	this._layer_visual[0].style.zIndex = 8;
+	this._layer_visual[0].style.width = this._size[0] + 'px';
+	this._layer_visual[0].style.height = this._size[1] + 'px';
+	this._layer_visual[0].style.visibility = 'hidden';
+	
+	this._layer_visual[1] = document.createElement('div');
+	this._layer_visual[1].className = 'LayerVisual';
+	this._layer_visual[1].style.zIndex = 7;
+	this._layer_visual[1].style.width = this._size[0] + 'px';
+	this._layer_visual[1].style.height = this._size[1] + 'px';
+	this._layer_visual[1].style.visibility = 'hidden';
 	
 	this._container.appendChild(this._layer_bkgnd_art);
 	this._container.appendChild(this._layer_card_art);
 	this._container.appendChild(this._layer_paint);
 	this._container.appendChild(this._layer_obj_card);
-	this._container.appendChild(this._layer_visual);
+	this._container.appendChild(this._layer_visual[0]);
+	this._container.appendChild(this._layer_visual[1]);
 	
 	this._bkgnd_indicator = document.createElement('div');
 	this._bkgnd_indicator.className = 'BkgndIndicator';
@@ -185,7 +198,16 @@ View.prototype._browse_point_start = function(in_object, in_coords)
 
 View.prototype.do_idle = function()
 {
+	if (!this._enable_idle) return;
 	this.rebuild();
+	this.unlock_screen();
+	this._visual_queue.length = 0;
+}
+
+
+View.prototype._set_enable_idle = function(in_enable)
+{
+	this._enable_idle = in_enable;
 }
 
 
@@ -1064,6 +1086,13 @@ View.prototype._load_card = function(in_card_id)
 }
 
 
+View.prototype._rebuild_card = function()
+{
+	this._rebuild_layers();
+	this._rebuild_art();
+}
+
+
 View.prototype.refresh = function()
 {
 	this._rebuild_card();
@@ -1141,9 +1170,12 @@ View.prototype._go_nth_card = function(in_ref, in_bkgnd)
 {
 	var view = this;
 	Progress.operation_begun('Saving the current card...');
+	this._set_enable_idle(false);
+	Progress.set_completion_handler( this._set_enable_idle.bind(this, true) );
 	this._save_card(function()
 	{
 		Progress.status('Loading the card...');
+		if (view._visual_queue.length > 0) view.lock_screen();
 		view._card.load_nth(in_ref, in_bkgnd, function(in_new_card, in_new_bkgnd)
 		{
 			if (in_new_card)
@@ -1395,24 +1427,235 @@ View.prototype.get_next_responder = function(in_current_responder)
 Lock Screen and Visual Effects
 */
 
-View.prototype.test_static_snapshot = function()
+/*
+	Adds a visual effect to the queue to be played at the time of a screen transition,
+	or upon the next "unlock screen with visual ..." command.
+	
+	Destination defaults to 'card', but can also be a shade: 'black', 'white' or 'gray'.
+*/
+View.prototype.queue_visual_effect = function(in_effect, in_speed, in_dest)
 {
+	this._visual_queue.push([in_effect, in_speed, in_dest]);
+}
+
+
+View.prototype._begin_visual = function()
+{
+	/* check if there are any more effects */
+	if (this._visual_queue.length == 0)
+	{
+		/* finish by ensuring all overlays are invisible and destroyed */
+		this._overlay_kill(0);
+		this._overlay_kill(1);
+		
+		/* invoke the completion handler (if any) */
+		if (this._visual_completion)
+			this._visual_completion();
+		return;
+	}
+	
+	/* grab the effect details */
+console.log('visual queue size = ' + this._visual_queue.length);
+	var effect = this._visual_queue.splice(0, 1)[0];
+	
+	/* prepare the destination overlay */
+	this._make_overlay(this._visual_dest_idx, effect[2]);
+	
+	/* install the end event listener */
+	document.addEventListener('animationend', this._visual_finish);
+	
+	/* set the effect speed */
+	var speed = 0;
+	switch (effect[1])
+	{
+	case 'fast':
+		speed = 0.4;
+		break;
+	case 'slow':
+		speed = 1.5;
+		break;
+	case 'normal':
+	default:
+		speed = 0.75;
+		break;
+	}
+	
+	/* produce the effect, ending with dest overlay visible
+	and source overlay transformed/opacitied out of visibility */
+console.log('src = '+this._visual_src_idx + ', dest = '+this._visual_dest_idx);
+	var src = this._layer_visual[this._visual_src_idx];
+	var dest = this._layer_visual[this._visual_dest_idx];
+	dest.style.visibility = 'visible';
+	switch (effect[0])
+	{
+	case 'dissolve':
+		console.log('dissolve');
+		//src.style.animationName = 'visual-dissolve';
+		src.style.animationDuration = speed + 's';
+		src.classList.add('VisualDissolve');
+		break;
+	}
+	//src.style.opacity = 0;
+	//this._finish_visual();
+}
+
+View.prototype._finish_visual = function()
+{
+console.log('end effect');
+	/* remove the end event listener */
+	document.removeEventListener('animationend', this._visual_finish);
+	
+	/* kill the source overlay */
+	this._overlay_kill(this._visual_src_idx);
+	
+	/* swap the source and destination overlays */
+	var tmp = this._visual_src_idx;
+	this._visual_src_idx = this._visual_dest_idx;
+	this._visual_dest_idx = tmp;
+	
+	/* begin the next effect in the queue */
+	this._begin_visual();
+}
+
+/*
+	Plays back all queued visual effects (if any).
+*/
+View.prototype._play_visual_effects = function(in_after_handler)
+{
+	/* prepare the layers */
+	this._visual_src_idx = 0;
+	this._visual_dest_idx = 1;
+	this._overlay_kill(this._visual_dest_idx);
+	this._visual_completion = in_after_handler;
+	this._visual_finish = this._finish_visual.bind(this);
+	
+	/* play each effect transition */
+	this._begin_visual();
+}
+
+
+/*
+	Ensures the card is built completely, then removes the overlay from a previous 
+	lock screen call.
+	
+	N.B. "unlock screen with visual ..." commands will simply queue a visual effect prior
+	to invoking this method.
+	
+	The screen is automatically unlocked at idle (when no scripts are executing 
+	and the environment isn't doing anything.)
+*/
+View.prototype.unlock_screen = function(in_after_handler)
+{
+	/* only unlock the screen if it's currently locked;
+	and only if the lock depth reaches zero with this unlock command */
+	if (this._screen_lock_depth == 0) return;
+console.log('unlock screen()');
+	this._screen_lock_depth--;
+	if (this._screen_lock_depth != 0) return;
+console.log('  unlocking NOW');
+
+	/* ensure the current card is completely built */
+	this.refresh();
 	this.rebuild();
 	
-	this._layer_visual.innerHTML = '';
-	this._layer_visual.appendChild( this._layer_bkgnd_art.cloneNode(true) );
-	this._layer_visual.appendChild( this._layer_card_art.cloneNode(true) );
-	this._layer_visual.appendChild( this._layer_obj_card.cloneNode(true) );
+	/* play visual effects (if any) */
+	if (this._visual_queue.length > 0)
+	{
+		this._play_visual_effects(in_after_handler);
+		return;
+	}
 	
-	this._layer_visual.style.visibility = 'visible';
-	this._layer_visual.style.left = '100px';
-	this._layer_visual.style.top = '100px';
+	/* otherwise, just hide the overlays */
+	this._overlay_kill(0);
+	this._overlay_kill(1);
+	
+	/* invoke the completion handler */
+	if (in_after_handler) in_after_handler();
+}
+
+
+/*
+	Prepare a snapshot of the current card state and overlay the current card so that
+	changes cannot be seen until the screen is 'unlocked'.
+	
+	(will also prevent changes from being drawn immediately for performance)
+*/
+View.prototype.lock_screen = function()
+{
+console.log('lock screen()');
+	/* each nested call to lock will increase the lock depth */
+	this._screen_lock_depth++;
+	if (this._screen_lock_depth == 1)
+	{
+		this._overlay_kill(0);
+		this._overlay_kill(1);
+	}
+	
+	/* snapshot the current card to overlay zero and make visible */
+	this._snapshot_to(0);
+	this._layer_visual[0].style.visibility = 'visible';
+}
+
+
+/*
+	Hides and destroys a visual overlay.
+*/
+View.prototype._overlay_kill = function(in_index)
+{
+	var layer = this._layer_visual[in_index];
+	
+	/* destroy the layer content */
+	layer.innerHTML = '';
+	
+	/* hide the layer */
+	layer.style.visibility = 'hidden';
+	
+	/* reset the layer */
+	layer.style.opacity = 1;
+	layer.style.transform = 'none';
+	layer.className = 'LayerVisual';
+	layer.style.animationDuration = 0;
+}
+
+
+/*
+	Makes an overlay for the specified layer and layer type
+*/
+View.prototype._make_overlay = function(in_index, in_what)
+{
+	var layer = this._layer_visual[in_index];
+	layer.style.visibility = 'hidden';
+	if (in_what == 'card')
+		this._snapshot_to(in_index);
+	else if (in_what == 'white' || in_what == 'gray' || in_what == 'black')
+		layer.style.backgroundColor = in_what;
+}
+
+
+/*
+	Makes a static snapshot of the current card to one of the visual layers
+	for use in a visual effect transition.
+*/
+View.prototype._snapshot_to = function(in_layer_index)
+{
+	/* ensure the card is completely rendered */
+	this.rebuild();
+	
+	/* construct the actual layer */
+	var layer = this._layer_visual[in_layer_index];
+	layer.innerHTML = '';
+	layer.style.backgroundColor = 'white';
+	layer.appendChild( this._layer_bkgnd_art.cloneNode(true) );
+	layer.appendChild( this._layer_card_art.cloneNode(true) );
+	layer.appendChild( this._layer_obj_card.cloneNode(true) );
 }
 
 
 View.do_debug = function()
 {
-	View.current.test_static_snapshot();
+	View.current.queue_visual_effect('dissolve', 'normal', 'card');
+	View.current.go_next();
+	//View.current.test_static_snapshot();
 }
 
 

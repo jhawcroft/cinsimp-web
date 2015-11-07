@@ -28,4 +28,26 @@
 	top: 0;
 	overflow: hidden;
 	background-color: white;
+	opacity: 1;
 }
+
+
+
+
+@keyframes visual-dissolve 
+{
+    0% { opacity: 1;}
+    100% { opacity: 0;}
+}
+
+
+.VisualDissolve
+{
+	animation-name: visual-dissolve;
+	animation-iteration-count: 1;
+    animation-timing-function: linear;
+}
+
+
+
+

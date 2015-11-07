@@ -37,6 +37,13 @@ Progress._auto_show_timer = null;
 Progress._can_hide_timer = null;
 Progress._can_hide = false;
 Progress._should_hide = false;
+Progress._completion_handler = null;
+
+
+Progress.set_completion_handler = function(in_handler)
+{
+	Progress._completion_handler = in_handler;
+}
 
 
 Progress.status = function(in_status)
@@ -85,6 +92,10 @@ Progress._set_can_hide = function()
 	{
 		Progress._hide();
 		document.getElementById('ProgressBarBox').classList.remove('Indeterminate');
+		
+		if (Progress._completion_handler)
+			Progress._completion_handler();
+		Progress._completion_handler = null;
 	}
 }
 
@@ -95,9 +106,21 @@ Progress._hide = function()
 	{
 		Dialog.Progress.hide();
 		document.getElementById('ProgressBarBox').classList.remove('Indeterminate');
+		
+		if (Progress._completion_handler)
+			Progress._completion_handler();
+		Progress._completion_handler = null;
 	}
 	else
+	{
 		Progress._should_hide = true;
+		if (!Dialog.Progress.getVisible())
+		{
+			if (Progress._completion_handler)
+				Progress._completion_handler();
+			Progress._completion_handler = null;
+		}
+	}
 }
 
 
