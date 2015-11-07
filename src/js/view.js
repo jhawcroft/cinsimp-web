@@ -201,12 +201,12 @@ View.prototype.do_idle = function()
 	if (!this._enable_idle) return;
 	this.rebuild();
 	this.unlock_screen();
-	this._visual_queue.length = 0;
 }
 
 
-View.prototype._set_enable_idle = function(in_enable)
+View.prototype._set_enable_idle = function(in_enable, in_force)
 {
+	//if (in_enable && this._visual_queue.length != 0 && !in_force) return;
 	this._enable_idle = in_enable;
 }
 
@@ -1170,8 +1170,8 @@ View.prototype._go_nth_card = function(in_ref, in_bkgnd)
 {
 	var view = this;
 	Progress.operation_begun('Saving the current card...');
-	this._set_enable_idle(false);
-	Progress.set_completion_handler( this._set_enable_idle.bind(this, true) );
+	//this._set_enable_idle(false);
+	//Progress.set_completion_handler( this._set_enable_idle.bind(this, true) );
 	this._save_card(function()
 	{
 		Progress.status('Loading the card...');
@@ -1444,9 +1444,12 @@ View.prototype._begin_visual = function()
 	/* check if there are any more effects */
 	if (this._visual_queue.length == 0)
 	{
+console.log('finish visual playback');
 		/* finish by ensuring all overlays are invisible and destroyed */
 		this._overlay_kill(0);
 		this._overlay_kill(1);
+		
+		this._set_enable_idle(true);
 		
 		/* invoke the completion handler (if any) */
 		if (this._visual_completion)
@@ -1468,11 +1471,17 @@ console.log('visual queue size = ' + this._visual_queue.length);
 	var speed = 0;
 	switch (effect[1])
 	{
+	case 'very-fast':
+		speed = 0.2;
+		break;
 	case 'fast':
 		speed = 0.4;
 		break;
 	case 'slow':
 		speed = 1.5;
+		break;
+	case 'very-slow':
+		speed = 2.5;
 		break;
 	case 'normal':
 	default:
@@ -1482,21 +1491,18 @@ console.log('visual queue size = ' + this._visual_queue.length);
 	
 	/* produce the effect, ending with dest overlay visible
 	and source overlay transformed/opacitied out of visibility */
-console.log('src = '+this._visual_src_idx + ', dest = '+this._visual_dest_idx);
+//console.log('src = '+this._visual_src_idx + ', dest = '+this._visual_dest_idx);
 	var src = this._layer_visual[this._visual_src_idx];
 	var dest = this._layer_visual[this._visual_dest_idx];
 	dest.style.visibility = 'visible';
 	switch (effect[0])
 	{
 	case 'dissolve':
-		console.log('dissolve');
-		//src.style.animationName = 'visual-dissolve';
+console.log('dissolve');
 		src.style.animationDuration = speed + 's';
 		src.classList.add('VisualDissolve');
 		break;
 	}
-	//src.style.opacity = 0;
-	//this._finish_visual();
 }
 
 View.prototype._finish_visual = function()
@@ -1509,9 +1515,14 @@ console.log('end effect');
 	this._overlay_kill(this._visual_src_idx);
 	
 	/* swap the source and destination overlays */
-	var tmp = this._visual_src_idx;
+	var tmp = this._layer_visual[0];
+	this._layer_visual[0] = this._layer_visual[1];
+	this._layer_visual[1] = tmp;
+	this._layer_visual[0].style.zIndex = 8;
+	this._layer_visual[1].style.zIndex = 7;
+	/*var tmp = this._visual_src_idx;
 	this._visual_src_idx = this._visual_dest_idx;
-	this._visual_dest_idx = tmp;
+	this._visual_dest_idx = tmp;*/
 	
 	/* begin the next effect in the queue */
 	this._begin_visual();
@@ -1528,6 +1539,7 @@ View.prototype._play_visual_effects = function(in_after_handler)
 	this._overlay_kill(this._visual_dest_idx);
 	this._visual_completion = in_after_handler;
 	this._visual_finish = this._finish_visual.bind(this);
+	this._set_enable_idle(false);
 	
 	/* play each effect transition */
 	this._begin_visual();
@@ -1549,10 +1561,10 @@ View.prototype.unlock_screen = function(in_after_handler)
 	/* only unlock the screen if it's currently locked;
 	and only if the lock depth reaches zero with this unlock command */
 	if (this._screen_lock_depth == 0) return;
-console.log('unlock screen()');
+//console.log('unlock screen()');
 	this._screen_lock_depth--;
 	if (this._screen_lock_depth != 0) return;
-console.log('  unlocking NOW');
+//console.log('  unlocking NOW');
 
 	/* ensure the current card is completely built */
 	this.refresh();
@@ -1582,7 +1594,7 @@ console.log('  unlocking NOW');
 */
 View.prototype.lock_screen = function()
 {
-console.log('lock screen()');
+//console.log('lock screen()');
 	/* each nested call to lock will increase the lock depth */
 	this._screen_lock_depth++;
 	if (this._screen_lock_depth == 1)
@@ -1653,7 +1665,8 @@ View.prototype._snapshot_to = function(in_layer_index)
 
 View.do_debug = function()
 {
-	View.current.queue_visual_effect('dissolve', 'normal', 'card');
+	View.current.queue_visual_effect('dissolve', 'normal', 'black');
+	View.current.queue_visual_effect('dissolve', 'very-slow', 'card');
 	View.current.go_next();
 	//View.current.test_static_snapshot();
 }
