@@ -29,6 +29,8 @@
 	overflow: hidden;
 	background-color: white;
 	opacity: 1;
+	animation-iteration-count: 1;
+    animation-timing-function: linear;
 }
 
 
@@ -40,12 +42,21 @@
     100% { opacity: 0;}
 }
 
-
 .VisualDissolve
 {
 	animation-name: visual-dissolve;
-	animation-iteration-count: 1;
-    animation-timing-function: linear;
+}
+
+
+@keyframes visual-wipe-left 
+{
+    0% { width: 100%;}
+    100% { width: 0%;}
+}
+
+.VisualWipeLeft
+{
+	animation-name: visual-wipe-left;
 }
 
 

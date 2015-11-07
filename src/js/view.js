@@ -1170,8 +1170,8 @@ View.prototype._go_nth_card = function(in_ref, in_bkgnd)
 {
 	var view = this;
 	Progress.operation_begun('Saving the current card...');
-	//this._set_enable_idle(false);
-	//Progress.set_completion_handler( this._set_enable_idle.bind(this, true) );
+	this._set_enable_idle(false); // prevents the screen from being unlocked prior to rebuild and load
+	Progress.set_completion_handler( this._set_enable_idle.bind(this, true) );
 	this._save_card(function()
 	{
 		Progress.status('Loading the card...');
@@ -1444,7 +1444,7 @@ View.prototype._begin_visual = function()
 	/* check if there are any more effects */
 	if (this._visual_queue.length == 0)
 	{
-console.log('finish visual playback');
+//console.log('finish visual playback');
 		/* finish by ensuring all overlays are invisible and destroyed */
 		this._overlay_kill(0);
 		this._overlay_kill(1);
@@ -1458,7 +1458,7 @@ console.log('finish visual playback');
 	}
 	
 	/* grab the effect details */
-console.log('visual queue size = ' + this._visual_queue.length);
+//console.log('visual queue size = ' + this._visual_queue.length);
 	var effect = this._visual_queue.splice(0, 1)[0];
 	
 	/* prepare the destination overlay */
@@ -1498,16 +1498,23 @@ console.log('visual queue size = ' + this._visual_queue.length);
 	switch (effect[0])
 	{
 	case 'dissolve':
-console.log('dissolve');
+//console.log('dissolve');
 		src.style.animationDuration = speed + 's';
 		src.classList.add('VisualDissolve');
+		break;
+	case 'wipe-left':
+		src.style.animationDuration = speed + 's';
+		src.classList.add('VisualWipeLeft');
+		break;
+	case 'cut':
+		window.setTimeout(this._finish_visual.bind(this), speed * 1000.0);
 		break;
 	}
 }
 
 View.prototype._finish_visual = function()
 {
-console.log('end effect');
+//console.log('end effect');
 	/* remove the end event listener */
 	document.removeEventListener('animationend', this._visual_finish);
 	
@@ -1564,11 +1571,13 @@ View.prototype.unlock_screen = function(in_after_handler)
 //console.log('unlock screen()');
 	this._screen_lock_depth--;
 	if (this._screen_lock_depth != 0) return;
-//console.log('  unlocking NOW');
+console.log('  unlocking NOW');
 
 	/* ensure the current card is completely built */
 	this.refresh();
 	this.rebuild();
+	
+	// should really be waiting until we're sure the card is completely built here ** TODO fix
 	
 	/* play visual effects (if any) */
 	if (this._visual_queue.length > 0)
@@ -1665,8 +1674,8 @@ View.prototype._snapshot_to = function(in_layer_index)
 
 View.do_debug = function()
 {
-	View.current.queue_visual_effect('dissolve', 'normal', 'black');
-	View.current.queue_visual_effect('dissolve', 'very-slow', 'card');
+	View.current.queue_visual_effect('wipe-left', 'normal', 'card');
+	//View.current.queue_visual_effect('wipe-left', 'normal', 'card');
 	View.current.go_next();
 	//View.current.test_static_snapshot();
 }
