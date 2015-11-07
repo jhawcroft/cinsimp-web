@@ -46,6 +46,8 @@ function Dialog(in_title, in_element, in_flags, in_cleanup)
 	this.oncleanup = in_cleanup;
 	this._close_code = null;
 	
+	this._default_enable = false;
+	
 	this._user = null;
 	
 	this._div = document.createElement('div');
@@ -140,6 +142,7 @@ Dialog.prototype._init_with_element = function(in_element)
 
 Dialog.prototype._handle_keyup = function(in_event)
 {
+	if (!this._default_enable) return;
 	if (in_event.keyCode == 13)
 	{
 		if (this.onreturn) 
@@ -353,6 +356,12 @@ Dialog.prototype.set_user = function(in_user)
 }
 
 
+Dialog.prototype._enable_default_keys = function()
+{
+	this._default_enable = true;
+}
+
+
 Dialog.prototype.show = function()
 {	
 	if (this.getVisible()) return;
@@ -378,6 +387,9 @@ Dialog.prototype.show = function()
 	Util.auto_focus(this._div);
 	
 	document.addEventListener('keydown', this.__keyup_handler);
+	
+	this._default_enable = false;
+	window.setTimeout(this._enable_default_keys.bind(this), 10);
 }
 
 

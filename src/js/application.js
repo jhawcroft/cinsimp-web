@@ -213,7 +213,7 @@ Application._init_message_box = function()
 {
 	Palette.MessageBox = new Palette(document.getElementById('PaletteMessageBox'), 0);
 	Application._msgtxt = document.getElementById('MessageBoxText');
-	Application._msgtxt.addEventListener('keydown', function(e) { if (e.keyCode == 13) Application.invoke_message(); });
+	Application._msgtxt.addEventListener('keydown', function(e) { if (e.keyCode == 13) {Application.invoke_message(); e.preventDefault(); e.stopPropagation();} });
 }
 
 
