@@ -93,10 +93,18 @@ View.prototype._init_view = function()
 	this._layer_paint.style.height = this._size[1] + 'px';
 	this._layer_paint.style.visibility = 'hidden';
 	
+	this._layer_visual = document.createElement('div');
+	this._layer_visual.className = 'LayerVisual';
+	this._layer_visual.style.zIndex = 7;
+	this._layer_visual.style.width = this._size[0] + 'px';
+	this._layer_visual.style.height = this._size[1] + 'px';
+	this._layer_visual.style.visibility = 'hidden';
+	
 	this._container.appendChild(this._layer_bkgnd_art);
 	this._container.appendChild(this._layer_card_art);
 	this._container.appendChild(this._layer_paint);
 	this._container.appendChild(this._layer_obj_card);
+	this._container.appendChild(this._layer_visual);
 	
 	this._bkgnd_indicator = document.createElement('div');
 	this._bkgnd_indicator.className = 'BkgndIndicator';
@@ -1389,7 +1397,22 @@ Lock Screen and Visual Effects
 
 View.prototype.test_static_snapshot = function()
 {
+	this.rebuild();
 	
+	this._layer_visual.innerHTML = '';
+	this._layer_visual.appendChild( this._layer_bkgnd_art.cloneNode(true) );
+	this._layer_visual.appendChild( this._layer_card_art.cloneNode(true) );
+	this._layer_visual.appendChild( this._layer_obj_card.cloneNode(true) );
+	
+	this._layer_visual.style.visibility = 'visible';
+	this._layer_visual.style.left = '100px';
+	this._layer_visual.style.top = '100px';
+}
+
+
+View.do_debug = function()
+{
+	View.current.test_static_snapshot();
 }
 
 

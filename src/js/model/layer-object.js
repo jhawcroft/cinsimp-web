@@ -200,14 +200,6 @@ LayerObject.prototype.create_dom = function(in_view)
 }
 
 
-// use domElement.cloneNode() ?
-LayerObject.prototype.get_static_copy = function()
-{
-	this.rebuild_dom();
-	return this._div.cloneNode(true);
-}
-
-
 LayerObject.prototype._dom_rebuild = function() {}
 
 
