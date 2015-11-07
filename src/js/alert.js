@@ -106,6 +106,8 @@ Alert.prototype.show = function()
 			in_alert.button3_handler();
 	};
 	Dialog.Alert.show();
+	
+	document.getElementById('AlertBtn1').focus();
 }
 
 
