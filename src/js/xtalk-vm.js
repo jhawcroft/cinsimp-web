@@ -322,8 +322,7 @@ Message Hierarchy
  		
  		/* if a handler was found, create a sub-context and configure execution */
  		me = this;
- 		this._context_stack.push( this._new_context(handler.block, handler.owner, handler, 
- 			me._exit_subroutine()) );
+ 		this._context_stack.push( this._new_context(handler.plan, handler.owner, handler, null) );
  	},
  	
  
@@ -354,7 +353,7 @@ Message Hierarchy
  		execution */
  		me = this;
  		this._context_stack[this._context_stack.length - 1] = 
- 			this._new_context(handler.block, handler.owner, handler, me._exit_subroutine());
+ 			this._new_context(handler.plan, handler.owner, handler, null);
  	},
 
 
