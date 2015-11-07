@@ -35,25 +35,95 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
+
+/*****************************************************************************************
+Construction and Initialisation 
+*/
+
 function View(in_stack, in_bkgnd, in_card) 
 {
-	View.current = this;
-	
-	this._current_object = null;
-	
 	this._stack = in_stack;
 	this._bkgnd = in_bkgnd;
-	//in_bkgnd.set_view(this);
 	this._card = in_card;
 
-	
-	this._paint = null;
-	
 	this._init_view();
 }
 
+
+View.prototype._init_view = function()
+{
+	/* configure the view */
+	this._current_object = null;
+	this._paint = null;
+	this._edit_bkgnd = false;
+	this._mode = View.MODE_BROWSE;
+	this._tool = View.TOOL_BROWSE;
+	this._container = Application._stack_window;
+	this._size = [this._container.clientWidth, this._container.clientHeight];
+	this._rebuild_list = [];
+	this._selected_objects = [];
+	
+	/* add event handlers */
+	this._container.addEventListener('mousedown', this._handle_mouse_down.bind(this));
+	
+	/* create the various layers of art, objects and painting environment */
+	this._layer_bkgnd_art = document.createElement('div');
+	this._layer_bkgnd_art.className = 'LayerArt';
+	this._layer_bkgnd_art.style.zIndex = 3;
+	this._layer_bkgnd_art.style.width = this._size[0] + 'px';
+	this._layer_bkgnd_art.style.height = this._size[1] + 'px';
+	
+	this._layer_card_art = document.createElement('div');
+	this._layer_card_art.className = 'LayerArt';
+	this._layer_card_art.style.zIndex = 4;
+	this._layer_card_art.style.width = this._size[0] + 'px';
+	this._layer_card_art.style.height = this._size[1] + 'px';
+	
+	this._layer_obj_card = document.createElement('div');
+	this._layer_obj_card.id = 'LayerObjCard';
+	this._layer_obj_card.style.zIndex = 5;
+	this._layer_obj_card.className = 'Layer';
+	this._layer_obj_card.style.width = this._size[0] + 'px';
+	this._layer_obj_card.style.height = this._size[1] + 'px';
+	
+	this._layer_paint = document.createElement('div');
+	this._layer_paint.className = 'PaintCanvas';
+	this._layer_paint.style.zIndex = 6;
+	this._layer_paint.style.width = this._size[0] + 'px';
+	this._layer_paint.style.height = this._size[1] + 'px';
+	this._layer_paint.style.visibility = 'hidden';
+	
+	this._container.appendChild(this._layer_bkgnd_art);
+	this._container.appendChild(this._layer_card_art);
+	this._container.appendChild(this._layer_paint);
+	this._container.appendChild(this._layer_obj_card);
+	
+	this._bkgnd_indicator = document.createElement('div');
+	this._bkgnd_indicator.className = 'BkgndIndicator';
+	this._bkgnd_indicator.style.left = this._container.offsetLeft - 4 + 'px';
+	this._bkgnd_indicator.style.top = this._container.offsetTop - 4 + 'px';
+	this._bkgnd_indicator.style.width = this._container.clientWidth + 8 + 'px';
+	this._bkgnd_indicator.style.height = this._container.clientHeight + 8 + 'px';
+	document.body.appendChild(this._bkgnd_indicator);
+	
+	/* construct the initial card */
+	this._rebuild_layers();
+	this._rebuild_art();
+	this._activated();
+}
+
+
+
+/*****************************************************************************************
+Static Properties
+*/
+
 View.current = null;
 
+
+/*****************************************************************************************
+Constants
+*/
 
 View.MODE_BROWSE = 0;
 View.MODE_AUTHORING = 1;
@@ -80,40 +150,18 @@ View.TOOL_FREE_POLY = 18;
 View.TOOL_EYEDROPPER = 19;
 
 
-View.CURRENT_STACK = 0;
-View.CURRENT_BKGND = 1;
-View.CURRENT_CARD = 2;
-View.CURRENT_OBJECT = 3;
-View.CURRENT_BUTTON = 4;
-View.CURRENT_FIELD = 5;
 
-/*
-
-Experimental technology - not stable - also doesn't work this easily since the event object must be cloned.
-Going to have to use a simpler approach and just not have graphical masking of objects,
-or else, find the target ourselves?
-
-View.prototype._redirect_event = function(in_event)
+View.prototype._handle_mouse_down = function(in_event)
 {
-	if (this._edit_bkgnd) return false;
-	
-	this._layer_obj_card.style.visibility = 'hidden';
-	var blocked_target = document.elementFromPoint(in_event.pageX, in_event.pageY); // not supported on Android and subject to change? ***
-	this._layer_obj_card.style.visibility = 'visible';
-	
-	if (blocked_target && blocked_target.className != 'Layer')
-	{
-		blocked_target.dispatchEvent(in_event);
-		return true;
-	}
-	
-	return false;
+	this._author_point_start(null, [in_event.pageX, in_event.pageY]);
 }
-*/
+
 
 
 View.prototype._activated = function()
 {
+	View.current = this;
+	
 	var flags = 0;
 	flags |= (this._stack.is_readonly() ? Application.FILE_STATUS_READONLY : 0);
 	flags |= (this._card.is_dirty() || this._bkgnd.is_dirty() ? Application.FILE_STATUS_DIRTY : 0);
@@ -126,81 +174,12 @@ View.prototype._notify_dirty_changed = function()
 	this._activated();
 }
 
+//var me = this;
+	//this._container.addEventListener('mousedown', 
+	//	function (in_event) { me._author_point_start(null, [in_event.pageX, in_event.pageY]); });
+	
 
-View.prototype._init_view = function()
-{
-	this._edit_bkgnd = false;
-	this._mode = View.MODE_BROWSE;
-	this._tool = View.TOOL_BROWSE;
-	this._container = Application._stack_window;
-	
-	this._rebuild_list = [];  /* can be processed at idle, if anything in it *** TODO potentially */
-	//this._next_id = 1;
-	
-	var me = this;
-	this._container.addEventListener('mousedown', 
-		function (in_event) { me._author_point_start(null, [in_event.pageX, in_event.pageY]); });
-	
-	this._size = [this._container.clientWidth, this._container.clientHeight];
-	
-	this._objects_card = [];
-	this._objects_bkgnd = [];
-	
-	this._selected_objects = [];
-	
-	/*this._layer_obj_bkgnd = document.createElement('div');
-	this._layer_obj_bkgnd.id = 'LayerObjBkgnd';
-	this._layer_obj_bkgnd.style.zIndex = 3;
-	this._layer_obj_bkgnd.className = 'Layer';
-	this._layer_obj_bkgnd.style.width = this._size[0] + 'px';
-	this._layer_obj_bkgnd.style.height = this._size[1] + 'px';*/
-	
-	this._layer_bkgnd_art = document.createElement('div');
-	this._layer_bkgnd_art.className = 'LayerArt';
-	this._layer_bkgnd_art.style.zIndex = 3;
-	this._layer_bkgnd_art.style.width = this._size[0] + 'px';
-	this._layer_bkgnd_art.style.height = this._size[1] + 'px';
-	
-	this._layer_card_art = document.createElement('div');
-	this._layer_card_art.className = 'LayerArt';
-	this._layer_card_art.style.zIndex = 4;
-	this._layer_card_art.style.width = this._size[0] + 'px';
-	this._layer_card_art.style.height = this._size[1] + 'px';
-	
-	this._layer_paint = document.createElement('div');
-	this._layer_paint.className = 'PaintCanvas';
-	this._layer_paint.style.zIndex = 6;
-	this._layer_paint.style.width = this._size[0] + 'px';
-	this._layer_paint.style.height = this._size[1] + 'px';
-	this._layer_paint.style.visibility = 'hidden';
-	
-	this._layer_obj_card = document.createElement('div');
-	this._layer_obj_card.id = 'LayerObjCard';
-	this._layer_obj_card.style.zIndex = 5;
-	this._layer_obj_card.className = 'Layer';
-	this._layer_obj_card.style.width = this._size[0] + 'px';
-	this._layer_obj_card.style.height = this._size[1] + 'px';
-	
-	//this._layer_obj_card = document.createElement('div');
-	//this._layer_obj_card = document.createElement('div');
-	//this._container.appendChild(this._layer_obj_bkgnd);
-	this._container.appendChild(this._layer_bkgnd_art);
-	this._container.appendChild(this._layer_card_art);
-	this._container.appendChild(this._layer_paint);
-	this._container.appendChild(this._layer_obj_card);
-	
-	this._bkgnd_indicator = document.createElement('div');
-	this._bkgnd_indicator.className = 'BkgndIndicator';
-	this._bkgnd_indicator.style.left = this._container.offsetLeft - 4 + 'px';
-	this._bkgnd_indicator.style.top = this._container.offsetTop - 4 + 'px';
-	this._bkgnd_indicator.style.width = this._container.clientWidth + 8 + 'px';
-	this._bkgnd_indicator.style.height = this._container.clientHeight + 8 + 'px';
-	document.body.appendChild(this._bkgnd_indicator);
-	
-	this._rebuild_layers();
-	this._rebuild_art();
-	this._activated();
-}
+
 
 
 View.prototype._indicate_tool = function(in_tool)
@@ -1419,8 +1398,45 @@ View.prototype.get_next_responder = function(in_current_responder)
 }
 
 
+View.prototype.test_static_snapshot = function()
+{
+	
+}
 
 
+/*
+
+Experimental technology - not stable - also doesn't work this easily since the event object must be cloned.
+Going to have to use a simpler approach and just not have graphical masking of objects,
+or else, find the target ourselves?
+
+View.prototype._redirect_event = function(in_event)
+{
+	if (this._edit_bkgnd) return false;
+	
+	this._layer_obj_card.style.visibility = 'hidden';
+	var blocked_target = document.elementFromPoint(in_event.pageX, in_event.pageY); // not supported on Android and subject to change? ***
+	this._layer_obj_card.style.visibility = 'visible';
+	
+	if (blocked_target && blocked_target.className != 'Layer')
+	{
+		blocked_target.dispatchEvent(in_event);
+		return true;
+	}
+	
+	return false;
+}
+*/
+
+/*
+View.CURRENT_STACK = 0;
+View.CURRENT_BKGND = 1;
+View.CURRENT_CARD = 2;
+View.CURRENT_OBJECT = 3;
+View.CURRENT_BUTTON = 4;
+View.CURRENT_FIELD = 5;
+
+*/
 
 CinsImp._script_loaded('view');
 
