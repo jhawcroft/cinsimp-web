@@ -233,11 +233,6 @@ Language Built-in Initalization
 			function(n) { alert('BEEP! ' + JSON.stringify(n)); }
 		);
 		
-		this.register_command_syntax(
-			'speak <text> [with {`mode``male`male|`female`female|`robot`robotic|`robot`robot} voice]', 
-			'text,mode', 
-			Xtalk.Builtins.command_speak_mode
-		);
 		
 		
 		this.register_command_syntax(
