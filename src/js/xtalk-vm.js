@@ -1041,6 +1041,25 @@ Control
 			this.onError(this._last_error);
 	},
 	
+	
+/*****************************************************************************************
+State Inspection
+*/
+
+	get_target: function()
+	{
+		var context = this._context();
+		return context.target;
+	},
+	
+	
+	get_me: function()
+	{
+		var context = this._context();
+		return context.me;
+	},
+
+	
 
 /*****************************************************************************************
 Language Entry
@@ -1079,6 +1098,7 @@ Language Entry
 Environment Entry
 */
 
+
 /*
 	The user may type into the message box in the environment and have the code typed
 	executed within the context of the current card.
@@ -1116,12 +1136,19 @@ Environment Entry
 			
 			/* setup a fresh context for the input to be executed */
 			this._context_stack = [ this._new_context(plan, this._current_card, null) ];
-				
+			
 			this._completion_handler = function() 
 			{ 
 				var result = Xtalk.VM._result;
 				if (!result) result = new Xtalk.VM.TString('');
-				Xtalk.VM._put(result); 
+				try { result = result.resolve().toText(); }
+				catch (err)
+				{
+					if (Xtalk.VM.onError) 
+						Xtalk.VM.onError(new Xtalk.Error('syntax', null, 1, 'Can\'t understand this.'));
+					return;
+				}
+				if (Xtalk.VM.onMessageWrite) Xtalk.VM.onMessageWrite(result);
 			};
 			
 			this._run();
@@ -1148,8 +1175,7 @@ Environment Entry
 		/* handle error */
 		catch (err)
 		{
-			if (this.onError)
-				this.onError(err);
+			if (this.onError) this.onError(err);
 		}
 	},
 

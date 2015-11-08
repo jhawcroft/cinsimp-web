@@ -138,6 +138,12 @@ Scriptable.prototype.invalidate_executables = function()
 }
 
 
+Scriptable.prototype.resolve = function()
+{
+	return this;
+}
+
+
 
 
 CinsImp._script_loaded('Model.Scriptable');
