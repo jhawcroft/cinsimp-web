@@ -333,12 +333,17 @@ Language Built-in Initalization
 /*
 	Chunk expressions
  */
-		this.register_reference('char', 'char', 'STR ', Xtalk.Builtins.new_chunk);
-		this.register_reference('character', 'char', 'STR ', Xtalk.Builtins.new_chunk);
-		this.register_reference('word', 'word', 'STR ', Xtalk.Builtins.new_chunk);
-		this.register_reference('item', 'item', 'STR ', Xtalk.Builtins.new_chunk);
-		this.register_reference('line', 'line', 'STR ', Xtalk.Builtins.new_chunk);
-		// will need simple lookup in VM to check if a container type and match in step()
+		this.register_reference('char', 'char', 'String', Xtalk.Builtins.new_chunk);
+		this.register_reference('character', 'char', 'String', Xtalk.Builtins.new_chunk);
+		this.register_reference('word', 'word', 'String', Xtalk.Builtins.new_chunk);
+		this.register_reference('item', 'item', 'String', Xtalk.Builtins.new_chunk);
+		this.register_reference('line', 'line', 'String', Xtalk.Builtins.new_chunk);
+		
+		this.register_count('chars', 'chrC', 'String', Xtalk.Builtins.count_chunks); // **TODO VM will need to auto-coerce types and try a few
+		this.register_count('characters', 'chrC', 'String', Xtalk.Builtins.count_chunks);
+		this.register_count('words', 'wrdC', 'String', Xtalk.Builtins.count_chunks);
+		this.register_count('items', 'itmC', 'String', Xtalk.Builtins.count_chunks);
+		this.register_count('lines', 'linC', 'String', Xtalk.Builtins.count_chunks);
 		
 	
 /*
@@ -357,6 +362,8 @@ Language Built-in Initalization
 		this.register_count('cards', 'cdct', '----', Xtalk.Builtins.count_cards);
 		this.register_count('cards', 'cdct', Stack.TYPE, Xtalk.Builtins.count_cards);
 		this.register_count('cards', 'cdct', Bkgnd.TYPE, Xtalk.Builtins.count_cards);
+		
+		
    
 		
 		/*

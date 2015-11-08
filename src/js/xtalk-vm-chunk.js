@@ -116,6 +116,15 @@ TChunk._word_offset = function(in_text, in_word, in_right)
 }
 
 
+
+TChunk.count = function(in_type, in_subject)
+{
+	alert('count the '+in_type+' in '+in_subject);
+	return 42; // **TODO
+}
+
+
+
 TChunk._calculate_char_range = function(in_chunk, in_subject)
 {
 	var range = { from: 0, to: 0, length: 0 };

@@ -92,7 +92,7 @@ Generic to CinsTalk Implementation
 	},
 	
 	
-	count_cards: function(in_context, in_id, in_variant)
+	count_cards: function(in_context, in_id)
 	{
 		if (in_context === null) in_context = View.current.get_stack();
 		switch (in_context.get_type())
@@ -139,6 +139,12 @@ Generic to CinsTalk Implementation
 	{
 		if (in_mode != Xtalk.REF_RANGE) Xtalk.VM._error("Can't understand arguments to \"^0\".", in_param); // need better way to handle such errors **TODO
 		return new Xtalk.VM.TChunk(in_param, in_ident1, in_ident2, in_context);
+	},
+	
+	
+	count_chunks: function(in_context, in_id)
+	{
+		return Xtalk.VM.TChunk.count(in_id, in_context.resolve().toString().toValue());
 	},
 	
 	
