@@ -285,11 +285,22 @@ View.prototype.is_edit_bkgnd = function()
 }
 
 
-View.prototype.card = function()
+View.prototype.card = function() // ** DEPRECIATED, use get_card()
 {
 	return View.current._card;
 }
 
+
+View.prototype.get_card = function()
+{
+	return View.current._card;
+}
+
+
+View.prototype.get_bkgnd = function()
+{
+	return View.current._bkgnd;
+}
 
 
 View.prototype.get_stack = function()

@@ -72,8 +72,8 @@ Model.Stack = function(in_url_or_def, in_ready_handler)
 		this._ready_handler(this, this._ready);
 };
 var Stack = Model.Stack;
-
 Stack.TYPE = 'stack';
+Util.classInheritsFrom(Stack, Model.Scriptable);
 
 
 Stack.prototype.get_type = function()

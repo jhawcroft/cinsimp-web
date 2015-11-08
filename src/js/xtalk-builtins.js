@@ -98,6 +98,20 @@ Generic to CinsTalk Implementation
 	},
 
 
+	term_this: function(in_id)
+	{
+		switch (in_id)
+		{
+		case 'card':
+			return View.current.get_card();
+		case 'bkgd':
+			return View.current.get_bkgnd();
+		case 'stak':
+			return View.current.get_stack();
+		}
+	},
+	
+	
 
 /*****************************************************************************************
 Specific to CinsImp Environment

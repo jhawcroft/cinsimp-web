@@ -215,13 +215,17 @@ Registration
 			this._commands['|'+first_word] = [];
 		this._commands['|'+first_word].push( def );
 	},
-	
 
-/*
-	Initalizes the dictionary with all language built-ins.
- */
+
+/*****************************************************************************************
+Language Built-in Initalization
+*/
+
 	init_builtins: function()
 	{
+/*
+	Command syntax
+ */
 		this.register_command_syntax(
 			'beep <number> [time | times]', 
 			'number', 
@@ -271,10 +275,20 @@ Registration
         	Xtalk.Builtins.command_go_where
         );
 	
-	
+
+/*
+	Constants and terms
+ */
     	this.register_term('me', 'me  ', Xtalk.Builtins.term_me);
     	this.register_term('target', 'tgtC', Xtalk.Builtins.term_target_container);
     	this.register_property('target', 'tgtN', 'norm', '----', Xtalk.Builtins.term_target_name);
+    	
+    	this.register_term('this cd', 'card', Xtalk.Builtins.term_this);
+    	this.register_term('this card', 'card', Xtalk.Builtins.term_this);
+    	this.register_term('this bg', 'bkgd', Xtalk.Builtins.term_this);
+    	this.register_term('this bkgnd', 'bkgd', Xtalk.Builtins.term_this);
+    	this.register_term('this background', 'bkgd', Xtalk.Builtins.term_this);
+    	this.register_term('this stack', 'stak', Xtalk.Builtins.term_this);
     	
     	this.register_constant('pi', Math.PI);
     	this.register_constant('zero', 0);
@@ -322,7 +336,7 @@ Registration
 		
 		*/
 		
-		this.register_term('this card', 'card', function() { alert('Get this card!'); return 9; });
+		
 		
 		this.register_property('date', 'date', 'shrt', '----', Xtalk.Builtins.the_date);
 		this.register_property('short date', 'date', 'shrt', '----', Xtalk.Builtins.the_date);
