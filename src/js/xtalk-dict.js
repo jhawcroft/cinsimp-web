@@ -339,11 +339,11 @@ Language Built-in Initalization
 		this.register_reference('item', 'item', 'String', Xtalk.Builtins.new_chunk);
 		this.register_reference('line', 'line', 'String', Xtalk.Builtins.new_chunk);
 		
-		this.register_count('chars', 'chrC', 'String', Xtalk.Builtins.count_chunks); // **TODO VM will need to auto-coerce types and try a few
-		this.register_count('characters', 'chrC', 'String', Xtalk.Builtins.count_chunks);
-		this.register_count('words', 'wrdC', 'String', Xtalk.Builtins.count_chunks);
-		this.register_count('items', 'itmC', 'String', Xtalk.Builtins.count_chunks);
-		this.register_count('lines', 'linC', 'String', Xtalk.Builtins.count_chunks);
+		this.register_count('chars', 'chars', 'String', Xtalk.Builtins.count_chunks); // **TODO VM will need to auto-coerce types and try a few
+		this.register_count('characters', 'chars', 'String', Xtalk.Builtins.count_chunks);
+		this.register_count('words', 'words', 'String', Xtalk.Builtins.count_chunks);
+		this.register_count('items', 'items', 'String', Xtalk.Builtins.count_chunks);
+		this.register_count('lines', 'lines', 'String', Xtalk.Builtins.count_chunks);
 		
 	
 /*

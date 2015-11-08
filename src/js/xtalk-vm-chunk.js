@@ -102,9 +102,9 @@ TChunk._word_offset = function(in_text, in_word, in_right)
 	if (in_word == 1) return 0;
 	var offset = 0;
 	var last_match_len = 0;
+	var word_boundary = /[\s]+/;
 	for (var c = 1; c < in_word; c++)
 	{
-		var word_boundary = /[\s]+/;
 		var off = Util.regex_index_of(in_text, word_boundary, offset);
 		if (off < 0) return -1;
 		var match = word_boundary.exec(in_text.substr(off))[0];
@@ -116,11 +116,55 @@ TChunk._word_offset = function(in_text, in_word, in_right)
 }
 
 
+TChunk._word_count = function(in_subject)
+{
+	var count = 1;
+	var offset = 0;
+	var word_boundary = /[\s]+/;
+	while (offset >= 0)
+	{
+		var off = Util.regex_index_of(in_subject, word_boundary, offset);
+		if (off < 0) return count;
+		var match = word_boundary.exec(in_subject.substr(off))[0];
+		offset = off + match.length;
+		count++;
+	}
+	return count;
+}
+
+
+TChunk._line_count = function(in_subject)
+{
+	var count = 1;
+	var offset = 0;
+	var word_boundary = /[\n\r]/;
+	while (offset >= 0)
+	{
+		var off = Util.regex_index_of(in_subject, word_boundary, offset);
+		if (off < 0) return count;
+		var match = word_boundary.exec(in_subject.substr(off))[0];
+		offset = off + match.length;
+		count++;
+	}
+	return count;
+}
+
 
 TChunk.count = function(in_type, in_subject)
 {
-	alert('count the '+in_type+' in '+in_subject);
-	return 42; // **TODO
+	switch (in_type)
+	{
+	case 'chars':
+		return in_subject.length;
+	case 'words':
+		return TChunk._word_count(in_subject);
+	case 'lines':
+		return TChunk._line_count(in_subject);
+	case 'items':
+		break;
+	}
+	//alert('count the '+in_type+' in '+in_subject);
+	//return 42; // **TODO
 }
 
 

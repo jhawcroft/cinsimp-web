@@ -424,7 +424,8 @@ Names
 			if (node.id == Xtalk.ID_EXPRESSION &&
 				n > 0 && 
 				in_list.children[n-1].flags & Xtalk.FLAG_IDENTIFIER &&
-				in_list.children[n-1].id != Xtalk.ID_OF)
+				in_list.children[n-1].id != Xtalk.ID_OF &&
+				in_list.children[n-1].id != Xtalk.ID_IN) // ! KEYWORD ?
 			{
 				this._parse_function_call(in_list, n-1);
 			}
