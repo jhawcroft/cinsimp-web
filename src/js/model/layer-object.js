@@ -608,6 +608,11 @@ LayerObject.prototype.get_attr = function(in_attr, in_fmt)
 		value = Util.string(this._layer.get_name() + ' ' + this.get_type() + ' number: ' + value);
 	else if (in_attr == 'id' && in_fmt == 'ui')
 		value = Util.string(this._layer.get_name() + ' ' + this.get_type() + ' ID: ' + value);
+		
+	// **TODO various forms of name:
+	// shrt - just the text name, or if empty, the abbreviated form with an ID
+	// abbr - <type> <ident>, where <ident> is either a quoted name, or the phrase ID <int>
+	// long - as abbr, but followed by " of " <owner stack>
 	
 	return value;
 }
