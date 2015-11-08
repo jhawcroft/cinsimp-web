@@ -11,19 +11,23 @@ TODO: CinsImp -> Toward 1.0
 	have a limit of stacks, layers, objects to cache,
 	and a method that is invoked at completion of the current
 	system event to purge any cached objects (save and unload).
+	
+	- more importantly now, creating references at runtime
+	(as VM instruction chains - such that they can be inserted into a plan for
+	resolution, or an alternative mechanism for this issue - Link To)
 
 * general cleanup
 
-* visual effect transition engine using CSS
+* visual effect transition engine using CSS [DONE]
 
 * xTalk:
-  * script indexes using the appropriate module
-  * handler compilation
-  * handler execution and message passing hierarchy
-  * "answer" command
-  * chunk expressions
-  * variables
-  * remaining built-ins hook up and implementations
+  * script indexes using the appropriate module [DONE]
+  * handler compilation [DONE]
+  * handler execution and message passing hierarchy [DONE]
+  * "answer" command [DONE]
+  * chunk expressions [Significant Progress]
+  * variables [DONE]
+  * remaining built-ins hook up and implementations [Progressing]
   * proper code auto-formatter (migrate the 2013 prototype)
   * completing button tasks
   
@@ -50,7 +54,7 @@ TODO: CinsImp -> Toward 1.0
   * report template design
   * report printing
 
-* server-side VM and script execution
+* server-side VM and script execution??
 
 * web 'one-click' access:
   * export of handlers/functions for SOAP/RPC
@@ -76,5 +80,5 @@ TODO: CinsImp -> Toward 1.0
 * xTalk debugger
 
 * optimisations
-  * button/field load often causes rebuild of DOM object multiple times as configuration occurs
+  * button/field load often causes rebuild of DOM object multiple times as configuration occurs [DONE]
 
