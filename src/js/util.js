@@ -310,6 +310,13 @@ Util.assoc_array_length = function(in_array)
 
 
 
+Util.regex_index_of = function(in_subject, in_regex, in_start)
+{
+	if (in_start === undefined) in_start = 0;
+	var idx = in_subject.substring(in_start).search(in_regex);
+	if (idx < 0) return idx;
+	return idx + in_start;
+}
 
 
 /*

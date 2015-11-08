@@ -97,9 +97,22 @@ TChunk._line_offset = function(in_text, in_line)
 }
 
 
-TChunk._word_offset = function(in_text, in_word)
+TChunk._word_offset = function(in_text, in_word, in_right)
 {
-
+	if (in_word == 1) return 0;
+	var offset = 0;
+	var last_match_len = 0;
+	for (var c = 1; c < in_word; c++)
+	{
+		var word_boundary = /[\s]+/;
+		var off = Util.regex_index_of(in_text, word_boundary, offset);
+		if (off < 0) return -1;
+		var match = word_boundary.exec(in_text.substr(off))[0];
+		last_match_len = match.length;
+		offset = off + last_match_len;
+	}
+	if (!in_right) offset = offset - last_match_len + 1;
+	return offset;
 }
 
 
@@ -138,7 +151,16 @@ TChunk._calculate_char_range = function(in_chunk, in_subject)
 		
 	case 'word':
 	{
-		
+		//example: answer word 1 of ("apples  " & newline & "oranges\t peaches")
+		range.from = TChunk._word_offset(in_subject, in_chunk.range_from, true);
+		if (range.from < 0) range.from = in_subject.length;
+		if (in_chunk.range_to !== null)
+			range.to = TChunk._word_offset(in_subject, in_chunk.range_to + 1, false);
+		else
+			range.to = TChunk._word_offset(in_subject, in_chunk.range_from + 1, false);
+		if (range.to >= 0) range.to -= 2;
+		else range.to = in_subject.length - 1;
+		range.length = range.to - range.from + 1;
 		break;
 	}
 		
