@@ -411,10 +411,21 @@ Access/Mutation
 		}
 		
 		/* perform the slow way */
+		in_content = in_content.toString().toValue();
+		var subject = table[in_name];
+		if (subject === undefined) subject = '';
+		else subject = subject.toString().toValue();
+		
+		/* check for empty range */
+		if (!in_range) in_range = {from: 0, to: subject.length-1, length: subject.length};
+		
+		// **TODO consider factoring the PUT command to deal with the mode explicitly, by first obtaining a range
+		// from the destination (with write prepare - ie. the subject may be modified in that stage to ensure the
+		// chunk (if any) actually exists => then no mode is needed on objects, PUT can do it itself by altering range.
 		switch (in_mode)
 		{
 		case 'into':
-		
+			subject = subject.substr(0, in_range.from) + in_content + subject.substr(in_range.to + 1);
 			break;
 			
 		case 'after':
@@ -422,8 +433,10 @@ Access/Mutation
 			break;
 			
 		case 'before':
+			
 			break;
 		}
+		table[in_name] = new Xtalk.VM.TString(subject);
 	},
 	
 	
@@ -769,7 +782,7 @@ Execution
 			{
 				ref = step.map[context.get_type()];
 				if (!ref && context.is_readable && context.is_readable())
-					ref = step.map['STR '];
+					ref = step.map['String'];
 			}
 				
 			var mode = step.ref;

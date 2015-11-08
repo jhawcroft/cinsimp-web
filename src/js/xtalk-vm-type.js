@@ -79,6 +79,11 @@ var TVariableRef = Xtalk.VM.TVariableRef;
 TVariableRef.prototype.get_type = function() { return this.type; }
 
 
+
+// **TODO want to replace this & toText() with a more appropriate, read_content().
+Xtalk.VM.TVariableRef.prototype.is_readable = function() { return true; }
+
+
 TVariableRef.prototype.resolve = function()
 {
 	return Xtalk.VM._variable_read(this.name);

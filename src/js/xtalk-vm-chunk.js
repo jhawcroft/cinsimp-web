@@ -289,5 +289,79 @@ Xtalk.VM.TChunk.prototype.toString = function()
 }
 
 
+// non-recursive call - as this is already recursive.  
+// just ensure that on our level, we change the content to make sure the chunk exists prior to write
+// use this.subject.write_content() if necessary to modify the content prior to the actual write
+Xtalk.VM.TChunk.prototype.ensure_chunk_exists = function()
+{
+	
+}
+
+
+Xtalk.VM.TChunk.range_of_range = function(in_range1, in_range2)
+{
+	var range = 
+	{
+		from: in_range2.from + in_range1.from,
+		to: in_range2.from + in_range1.to,
+		length: 0
+	};
+	
+	if (range.from > range2.to)
+		range = 
+		{
+			from: in_range2.to,
+			to: in_range2.to,
+			length: 0
+		};
+	
+	range.length = range.to - range.from;
+	
+	return range;
+}
+
+
+Xtalk.VM.TChunk.prototype.write_content = function(in_content, in_mode, in_range)
+{
+	/* check the subject is actually writable */
+	if (this.subject === null || !this.subject.write_content)
+		Xtalk.VM._error("Expected container here.");
+		
+	/* convert the content to a string */
+	in_content = in_content.resolve().toString();
+	
+	/* ensure the specific chunk is available to write; create it if not */
+	this.ensure_chunk_exists();
+	
+	/* resolve the subject to a string */
+	var subject = this.subject.resolve().toString().toValue();
+	
+	/* now access the specific chunk */
+	var range = TChunk._calculate_char_range(this, subject);
+	
+	/* merge the ranges */
+	if (in_range)
+		range = Xtalk.VM.TChunk.range_of_range(in_range, range);
+	
+	/* adjust the range based on the mode */
+	switch (in_mode)
+	{
+	case 'after':
+		range.from = range.to;
+		range.to--;
+		range.length = 0;
+		break;
+	case 'before':
+		range.to = range.from - 1;
+		range.length = 0;
+		break;
+	}
+	
+	/* perform the actual write */
+	this.subject.write_content(in_content, 'into', range);
+}
+
+
+
 
 CinsImp._script_loaded('xtalk-vm-chunk');
