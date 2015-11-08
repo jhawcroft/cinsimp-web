@@ -346,10 +346,13 @@ Core
 				(in_subtree.id == Xtalk.ID_ORDINAL) ||
 				(in_subtree.id == Xtalk.ID_LITERAL_REAL) ||
 				(in_subtree.id == Xtalk.ID_LITERAL_BOOLEAN))
+		{
+			// should convert to actual integers here where possible **TODO
 			this._result.push({
 				id: in_subtree.id,
 				value: in_subtree.value
 			});
+		}
 		else if (in_subtree.id == Xtalk.ID_CONSTANT)
 		{
 			if (in_subtree.context)
