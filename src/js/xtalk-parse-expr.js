@@ -105,7 +105,14 @@ Names
 		for (var w = in_index; (w < in_list.children.length) && (w-in_index < SANE_MAXIMUM); w++)
 		{
 			var node = in_list.children[w];
-			if (node && (node.id == Xtalk.ID_WORD) && (!(node.flags & Xtalk.FLAG_KEYWORD)))
+			/*
+			8/Nov/2015 - was previously:
+				if (node && (node.id == Xtalk.ID_WORD) && (!(node.flags & Xtalk.FLAG_KEYWORD)))
+			Not sure if the modification is correct either, time will tell.  As long as the
+			expression parser is assumed to be greedy and given only the full content of a
+			valid expression, and nothing more, it should be fine.  **TODO Josh to check
+			*/
+			if (node && (node.id == Xtalk.ID_WORD || node.flags & Xtalk.FLAG_KEYWORD))
 				words.push(node.text);
 			else break;
 		}
