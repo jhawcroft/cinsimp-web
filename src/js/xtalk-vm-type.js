@@ -66,6 +66,12 @@ Xtalk.VM.Message = function(in_name, in_is_function, in_params, in_builtin)
 
 
 
+Xtalk.VM.Value = function()
+{
+}
+
+
+
 
 Xtalk.VM.TNothing = function()
 {

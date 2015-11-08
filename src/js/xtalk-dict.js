@@ -314,6 +314,10 @@ Language Built-in Initalization
 		this.register_constant('quote', '"');
 		this.register_constant('newline', '\n');
 		this.register_constant('return', '\r');
+		
+		this.register_count('cards', 'cdct', '----', Xtalk.Builtins.count_cards);
+		this.register_count('cards', 'cdct', Stack.TYPE, Xtalk.Builtins.count_cards);
+		this.register_count('cards', 'cdct', Bkgnd.TYPE, Xtalk.Builtins.count_cards);
    
 		
 		/*
@@ -345,7 +349,7 @@ Language Built-in Initalization
 		this.register_property('abbreviated date', 'date', 'abbr', '----', Xtalk.Builtins.the_date);
 		this.register_property('long date', 'date', 'long', '----', Xtalk.Builtins.the_date);
 		
-		this.register_count('cards', 'cdct', 'BKGD', null);
+		
 		
 		this.register_reference('card button', 'cdbn', '----', 
 		function(in_context, in_param, in_mode, in_ident1, in_ident2) { 

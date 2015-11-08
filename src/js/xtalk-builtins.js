@@ -81,6 +81,18 @@ Generic to CinsTalk Implementation
 	},
 	
 	
+	count_cards: function(in_context, in_id, in_variant)
+	{
+		if (in_context === null) in_context = View.current.get_stack();
+		switch (in_context.get_type())
+		{
+		case Stack.TYPE:
+		case Bkgnd.TYPE:
+			return in_context.get_attr('count_cards');
+		}
+	},
+	
+	
 	term_me: function(in_id)
 	{
 		return Xtalk.VM.get_me();
