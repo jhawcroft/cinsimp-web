@@ -258,6 +258,18 @@ Registration
 			'effect,speed,dest',
 			Xtalk.Builtins.command_visual
 		);
+		
+		
+		this.register_command_syntax(
+			'go [to] {`which``#next`next|`#prev`prev|`#prev`previous|`#1`first|`#2`second|`#3`third|`#4`fourth|`#5`fifth|`#6`sixth|`#7`seventh|`#8`eighth|`#9`ninth|`#10`tenth|`#middle`middle|`#last`last} [[`marked``true`marked] card]',
+        	'which,marked',
+        	Xtalk.Builtins.command_go_which
+        );
+        this.register_command_syntax(
+			'go [to] <where>',
+        	'where',
+        	Xtalk.Builtins.command_go_where
+        );
 	
 	
 		this.register_constant('one', 1);

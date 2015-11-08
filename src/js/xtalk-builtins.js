@@ -129,6 +129,21 @@ Specific to CinsImp Environment
 		var dest = in_message.params[2].toValue();
 		if (dest === null) dest = 'card';
 		View.current.queue_visual_effect(effect, speed, dest);
+	},
+	
+	
+	command_go_which: function(in_message)
+	{
+		var which = in_message.params[0].toValue();
+		var marked = (in_message.params[1].toValue() === 'true');
+		View.current.go_nth_card(which, null, marked);  // **TODO ensure we have a syntax that supports bkgnd specification
+	},
+	
+	
+	command_go_where: function(in_message)
+	{
+		var where = in_message.params[0].resolve();
+		alert('GO WHERE - to be implemented once object references working - obtain a card ID');
 	}
 
 };

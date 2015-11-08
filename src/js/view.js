@@ -1171,7 +1171,7 @@ View.prototype.do_delete_card = function()
 Navigation
 */
 
-View.prototype._go_nth_card = function(in_ref, in_bkgnd)
+View.prototype.go_nth_card = function(in_ref, in_bkgnd, in_marked)
 {
 	var view = this;
 	Progress.operation_begun('Saving the current card...');
@@ -1198,22 +1198,22 @@ View.prototype._go_nth_card = function(in_ref, in_bkgnd)
 
 View.prototype.go_first = function()
 {
-	this._go_nth_card('#1');
+	this.go_nth_card('#1');
 }
 
 View.prototype.go_prev = function()
 {
-	this._go_nth_card('#previous');
+	this.go_nth_card('#previous');
 }
 
 View.prototype.go_next = function()
 {
-	this._go_nth_card('#next');
+	this.go_nth_card('#next');
 }
 
 View.prototype.go_last = function()
 {
-	this._go_nth_card('#last');
+	this.go_nth_card('#last');
 }
 
 
