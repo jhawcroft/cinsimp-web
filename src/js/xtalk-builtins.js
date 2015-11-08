@@ -79,6 +79,23 @@ Generic to CinsTalk Implementation
 		}
 		}
 	},
+	
+	
+	term_me: function(in_id)
+	{
+		return Xtalk.VM.get_me();
+	},
+	
+	term_target_container: function(in_id)
+	{
+		return Xtalk.VM.get_target();
+	},
+	
+	term_target_name: function(in_context, in_id, in_variant)
+	{
+		var obj = Xtalk.VM.get_target();
+		return obj.get_attr('name', in_variant);
+	},
 
 
 
@@ -145,6 +162,10 @@ Specific to CinsImp Environment
 		var where = in_message.params[0].resolve();
 		alert('GO WHERE - to be implemented once object references working - obtain a card ID');
 	}
+	
+	
+	
+	
 
 };
 

@@ -272,6 +272,12 @@ Registration
         );
 	
 	
+    	this.register_term('me', 'me  ', Xtalk.Builtins.term_me);
+    	this.register_term('target', 'tgtC', Xtalk.Builtins.term_target_container);
+    	this.register_property('target', 'tgtN', 'norm', '----', Xtalk.Builtins.term_target_name);
+    	
+    	this.register_constant('pi', Math.PI);
+    	this.register_constant('zero', 0);
 		this.register_constant('one', 1);
 		this.register_constant('two', 2);
 		this.register_constant('three', 3);
@@ -282,6 +288,19 @@ Registration
 		this.register_constant('eight', 8);
 		this.register_constant('nine', 9);
 		this.register_constant('ten', 10);
+		
+		this.register_constant('true', true);
+		this.register_constant('false', false);
+		
+		this.register_constant('empty', '');
+		this.register_constant('space', ' ');
+		this.register_constant('colon', ':');
+		this.register_constant('comma', ',');
+		this.register_constant('tab', '\t');
+		this.register_constant('quote', '"');
+		this.register_constant('newline', '\n');
+		this.register_constant('return', '\r');
+   
 		
 		/*
 		register_term(<words>, <param>, <handler>)
@@ -438,33 +457,7 @@ struct XTEPropertyDef _xte_builtin_date_properties[] = {
     {"dateitems", 0, "string", 0, &_xte_prp_dateitems, NULL},
     
     
-     {"me", _bi_me},
-    {"target", _bi_target},
-    
-    {"pi", &_bi_pi},
-    {"zero", &_bi_zero},
-    {"one", &_bi_one},
-    {"two", &_bi_two},
-    {"three", &_bi_three},
-    {"four", &_bi_four},
-    {"five", &_bi_five},
-    {"six", &_bi_six},
-    {"seven", &_bi_seven},
-    {"eight", &_bi_eight},
-    {"nine", &_bi_nine},
-    {"ten", &_bi_ten},
-    
-    {"true", &_bi_true},
-    {"false", &_bi_false},
-    
-    {"empty", &_bi_empty},
-    {"space", &_bi_space},
-    {"colon", &_bi_colon},
-    {"comma", &_bi_comma},
-    {"tab", &_bi_tab},
-    {"quote", &_bi_quote},
-    {"newline", &_bi_newline},
-    {"return", &_bi_newline},
+   
 
 
 static struct XTEPropertyDef _xte_builtin_int_properties[] = {
