@@ -234,10 +234,11 @@ Language Built-in Initalization
 		);
 		
 		this.register_command_syntax(
-			'ask [`password``1`password] <prompt> [with <response>]', 
-			'password,prompt,response', 
-			function(n) { alert('ASK PASSWORD! ' + JSON.stringify(n)); }
+			'speak <text> [with {`mode``male`male|`female`female|`robot`robotic|`robot`robot} voice]', 
+			'text,mode', 
+			Xtalk.Builtins.command_speak_mode
 		);
+		
 		
 		this.register_command_syntax(
 			'sort [[the] cards] [`dir``asc`ascending|`des`descending] by <sortKey>', 
@@ -251,10 +252,17 @@ Language Built-in Initalization
 			function(n) { alert('FIND! ' + JSON.stringify(n)); }
 		);
 		
+		
 		this.register_command_syntax(
 			'answer <prompt> [with <button1> [or <button2> [or <button3>]]]',
 			'prompt,button1,button2,button3',
 			Xtalk.Builtins.command_answer
+		);
+		
+		this.register_command_syntax(
+			'ask [`password``1`password] <prompt> [with <response>]', 
+			'password,prompt,response', 
+			function(n) { alert('ASK PASSWORD! ' + JSON.stringify(n)); }
 		);
 		
 		
@@ -283,13 +291,11 @@ Language Built-in Initalization
         	Xtalk.Builtins.command_set
         );
         
-        
         this.register_command_syntax(
 			'get <value>',
         	'value',
         	Xtalk.Builtins.command_get
         );
-        
         
         this.register_command_syntax(
 			'put <value> [{`mode``into`into|`after`after|`before`before} <dest>]',

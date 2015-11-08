@@ -210,6 +210,15 @@ Generic to CinsTalk Implementation
 		}
 	},
 	
+	
+	command_speak_mode: function(in_message)
+	{
+		var phrase = in_message.params[0].resolve().toString().toValue();
+		var mode = in_message.params[1].toValue() || 'robot';
+		
+		alert('speak "'+phrase+'" with '+mode+' voice.');
+	},
+	
 
 /*****************************************************************************************
 Specific to CinsImp Environment
