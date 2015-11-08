@@ -85,6 +85,13 @@ TVariableRef.prototype.resolve = function()
 }
 
 
+TVariableRef.prototype.write_content = function(in_content, in_mode, in_range)
+{
+	Xtalk.VM._variable_write(this.name, in_content, in_mode, in_range);
+	//alert('write variable! mode='+in_mode);
+}
+
+
 
 /*
 Xtalk.VM.TVariableRef.prototype.toText = function()

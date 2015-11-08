@@ -195,16 +195,18 @@ Generic to CinsTalk Implementation
 	command_put: function(in_message)
 	{
 		var value = in_message.params[0].resolve();
-		var mode = in_message.params[1];
+		var mode = in_message.params[1].toValue();
 		var dest = in_message.params[2];
 		
-		if (mode === null || mode.get_type() == 'Nothing')
+		if (mode === null)
 		{
 			Xtalk.VM.onMessageWrite( value.toString().toValue() );
 		}
 		else
 		{
-			
+			if (dest === null || !dest.write_content)
+				Xtalk.VM._error("Expected a container here.");
+			dest.write_content( value, mode, null ); // value, mode, range
 		}
 	},
 	

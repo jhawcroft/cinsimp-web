@@ -390,6 +390,43 @@ Access/Mutation
 	},
 	
 	
+	_variable_write: function(in_name, in_content, in_mode, in_range)
+	{
+		/* ensure the content is a primitive */
+		in_content = in_content.resolve();
+	
+		/* pick the appropriate destination variable table */
+		var context = this._context();
+		var table = null;
+		if (in_name == 'it' || context.type == Xtalk.VM._CONTEXT_ANONYMOUS || context.imported_globals[in_name])
+			table = this._globals;
+		else
+			table = context.locals;
+		
+		/* try to optimise the write and the variable storage */
+		if (in_range === null && in_mode == 'into')
+		{
+			table[in_name] = in_content; // no type conversion necessary
+			return;
+		}
+		
+		/* perform the slow way */
+		switch (in_mode)
+		{
+		case 'into':
+		
+			break;
+			
+		case 'after':
+		
+			break;
+			
+		case 'before':
+			break;
+		}
+	},
+	
+	
 	global_set: function(in_name, in_value)
 	{
 		this._globals[in_name] = this.new_value(in_value);
