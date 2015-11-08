@@ -108,6 +108,9 @@ Module Globals
 	
 	_completion_handler: null,	/* the routine to invoke when the current execution ends */
 	
+	_item_delimiter: ',', 		/* the delimiter used with "item" chunk expressions;
+								   reset at idle */
+	
 	
 /*****************************************************************************************
 Utilities
@@ -982,6 +985,18 @@ Control
 			window.clearInterval(this._quick_interval);
 			this._quick_interval = null;
 		}
+	},
+	
+	
+/*
+	Resets certain properties, such as the itemDelimiter to defaults.
+	Generally called at application idle.
+	Only works when the VM isn't currently occupied executing a script/block/expression.
+*/
+	reset_globals: function()
+	{
+		if (this._state != this._STATE_READY && this._state != this._STATE_ABORTED) return;
+		this._item_delimiter = ',';
 	},
 
 

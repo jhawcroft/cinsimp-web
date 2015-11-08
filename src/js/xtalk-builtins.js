@@ -81,6 +81,12 @@ Generic to CinsTalk Implementation
 	},
 	
 	
+	the_item_delimiter_read: function(in_context, in_id, in_variant)
+	{
+		return Xtalk.VM._item_delimiter;
+	},
+	
+	
 	count_cards: function(in_context, in_id, in_variant)
 	{
 		if (in_context === null) in_context = View.current.get_stack();

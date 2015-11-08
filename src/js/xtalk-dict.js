@@ -319,6 +319,8 @@ Language Built-in Initalization
 		this.register_property('abbreviated date', 'date', 'abbr', '----', Xtalk.Builtins.the_date);
 		this.register_property('long date', 'date', 'long', '----', Xtalk.Builtins.the_date);
 		
+		this.register_property('itemDelimiter', 'idel', null, '----', Xtalk.Builtins.the_item_delimiter_read);
+		
 /*
 	Chunk expressions
  */

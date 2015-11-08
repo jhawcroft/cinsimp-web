@@ -524,6 +524,7 @@ Application._init_xtalk = function()
 Application._idle = function()
 {
 	if (View.current) View.current.do_idle();
+	Xtalk.VM.reset_globals();
 }
 
 
