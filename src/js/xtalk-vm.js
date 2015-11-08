@@ -220,13 +220,19 @@ Utilities
 /*
 	Pops the specified number of operands off the current local context's operand stack
 	and accumulates within an array, in the order in which they were originally pushed.
+	
+	N.B.  Cannot always do any kind of processing/resolving here as this is used by a wide
+	variety of instructions.
 */
-	_operands: function(in_count)
+	_operands: function(in_count, in_resolve)
 	{
 		var operands = [];
 		operands.length = in_count;
 		for (var i = in_count-1; i >= 0; i--)
+		{
 			operands[i] = this._pop();
+			if (in_resolve) operands[i] = operands[i].resolve();
+		}
 		return operands;
 	},
 
@@ -377,7 +383,7 @@ Access/Mutation
 	_variable_read: function(in_name)
 	{
 		var context = this._context();
-		if (context.type == Xtalk.VM._CONTEXT_ANONYMOUS || context.imported_globals[in_name])
+		if (in_name == 'it' || context.type == Xtalk.VM._CONTEXT_ANONYMOUS || context.imported_globals[in_name])
 			return this._globals[in_name];
 		else
 			return context.locals[in_name];
@@ -797,55 +803,55 @@ Execution
 		/* handle arithmetic operations */
 		case Xtalk.ID_ADD:
 		{
-			var operands = this._operands(2);
+			var operands = this._operands(2, true);
 			this._make_operands_compatible(operands);
 			this._push( this._new_number(operands[0]._value + operands[1]._value, operands[0].type) );
 			break;
 		}
 		case Xtalk.ID_SUBTRACT:
 		{
-			var operands = this._operands(2);
+			var operands = this._operands(2, true);
 			this._make_operands_compatible(operands);
 			this._push( this._new_number(operands[0]._value - operands[1]._value, operands[0].type) );
 			break;
 		}
 		case Xtalk.ID_NEGATE:
 		{
-			var operands = this._operands(1);
+			var operands = this._operands(1, true);
 			this._push( this._new_number(-operands[0]._value, operands[0].type) );
 			break;
 		}
 		case Xtalk.ID_IDIV:
 		{
-			var operands = this._operands(2);
+			var operands = this._operands(2, true);
 			this._make_operands_compatible(operands);
 			this._push( new Xtalk.VM.TInteger(operands[0]._value / operands[1]._value) );
 			break;
 		}
 		case Xtalk.ID_RDIV:
 		{
-			var operands = this._operands(2);
+			var operands = this._operands(2, true);
 			this._make_operands_compatible(operands);
 			this._push( this._new_number(operands[0]._value / operands[1]._value, operands[0].type) );
 			break;
 		}
 		case Xtalk.ID_MOD:
 		{
-			var operands = this._operands(2);
+			var operands = this._operands(2, true);
 			this._make_operands_compatible(operands);
 			this._push( new Xtalk.VM.TInteger(operands[0]._value % operands[1]._value) );
 			break;
 		}
 		case Xtalk.ID_MULTIPLY:
 		{
-			var operands = this._operands(2);
+			var operands = this._operands(2, true);
 			this._make_operands_compatible(operands);
 			this._push( this._new_number(operands[0]._value * operands[1]._value, operands[0].type) );
 			break;
 		}
 		case Xtalk.ID_EXPONENT:
 		{
-			var operands = this._operands(2);
+			var operands = this._operands(2, true);
 			this._make_operands_compatible(operands);
 			this._push( this._new_number(Math.pow(operands[0]._value, operands[1]._value), operands[0].type) );
 			break;
@@ -854,35 +860,35 @@ Execution
 		/* handle string operations */
 		case Xtalk.ID_CONCAT:
 		{
-			var operands = this._operands(2);
+			var operands = this._operands(2, true);
 			this._make_operands_strings(operands);
 			this._push( new Xtalk.VM.TString(operands[0]._value + operands[1]._value) );
 			break;
 		}
 		case Xtalk.ID_CONCAT_SPACE:
 		{
-			var operands = this._operands(2);
+			var operands = this._operands(2, true);
 			this._make_operands_strings(operands);
 			this._push( new Xtalk.VM.TString(operands[0]._value + ' ' + operands[1]._value) );
 			break;
 		}
 		case Xtalk.ID_IS_NOT_IN:
 		{
-			var operands = this._operands(2);
+			var operands = this._operands(2, true);
 			this._make_operands_strings(operands);
 			this._push(new Xtalk.VM.TBoolean( ! operands[1].contains(operands[0]) ));
 			break;
 		}
 		case Xtalk.ID_IS_IN:
 		{
-			var operands = this._operands(2);
+			var operands = this._operands(2, true);
 			this._make_operands_strings(operands);
 			this._push(new Xtalk.VM.TBoolean( operands[1].contains(operands[0]) ));
 			break;
 		}
 		case Xtalk.ID_CONTAINS:
 		{
-			var operands = this._operands(2);
+			var operands = this._operands(2, true);
 			this._make_operands_strings(operands);
 			this._push(new Xtalk.VM.TBoolean( operands[0].contains(operands[1]) ));
 			break;
@@ -891,42 +897,42 @@ Execution
 		/* handle comparison operations */
 		case Xtalk.ID_EQUAL:
 		{
-			var operands = this._operands(2);
+			var operands = this._operands(2, true);
 			this._make_operands_compatible(operands);
 			this._push(new Xtalk.VM.TBoolean( this._compare(operands[0], operands[1]) == 0 ));
 			break;
 		}
 		case Xtalk.ID_NOT_EQUAL:
 		{
-			var operands = this._operands(2);
+			var operands = this._operands(2, true);
 			this._make_operands_compatible(operands);
 			this._push(new Xtalk.VM.TBoolean( this._compare(operands[0], operands[1]) != 0 ));
 			break;
 		}
 		case Xtalk.ID_LESS_EQUAL:
 		{
-			var operands = this._operands(2);
+			var operands = this._operands(2, true);
 			this._make_operands_compatible(operands);
 			this._push(new Xtalk.VM.TBoolean( this._compare(operands[0], operands[1]) <= 0 ));
 			break;
 		}
 		case Xtalk.ID_LESS:
 		{
-			var operands = this._operands(2);
+			var operands = this._operands(2, true);
 			this._make_operands_compatible(operands);
 			this._push(new Xtalk.VM.TBoolean( this._compare(operands[0], operands[1]) < 0 ));
 			break;
 		}
 		case Xtalk.ID_MORE_EQUAL:
 		{
-			var operands = this._operands(2);
+			var operands = this._operands(2, true);
 			this._make_operands_compatible(operands);
 			this._push(new Xtalk.VM.TBoolean( this._compare(operands[0], operands[1]) >= 0 ));
 			break;
 		}
 		case Xtalk.ID_MORE:
 		{
-			var operands = this._operands(2);
+			var operands = this._operands(2, true);
 			this._make_operands_compatible(operands);
 			this._push(new Xtalk.VM.TBoolean( this._compare(operands[0], operands[1]) > 0 ));
 			break;
@@ -935,21 +941,21 @@ Execution
 		/* handle logical operations */
 		case Xtalk.ID_LAND:
 		{
-			var operands = this._operands(2);
+			var operands = this._operands(2, true);
 			this._make_operands_booleans(operands);
 			this._push(new Xtalk.VM.TBoolean( operands[0]._value && operands[1]._value ));
 			break;
 		}
 		case Xtalk.ID_LOR:
 		{
-			var operands = this._operands(2);
+			var operands = this._operands(2, true);
 			this._make_operands_booleans(operands);
 			this._push(new Xtalk.VM.TBoolean( operands[0]._value || operands[1]._value ));
 			break;
 		}
 		case Xtalk.ID_LNOT:
 		{
-			var operand = this._pop().toBoolean();
+			var operand = this._pop().resolve().toBoolean();
 			this._push(new Xtalk.VM.TBoolean( !(operand._value) ));
 			break;
 		}
