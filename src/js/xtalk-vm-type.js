@@ -53,9 +53,6 @@ Dependencies
 xtalk.js
 
 
-Possibly resolve() is no longer necessary in this design? **TODO consider
-
-
 */
 
 Xtalk.VM.Message = function(in_name, in_is_function, in_params, in_builtin)

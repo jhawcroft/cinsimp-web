@@ -194,7 +194,18 @@ Generic to CinsTalk Implementation
 	
 	command_put: function(in_message)
 	{
-		alert('put');
+		var value = in_message.params[0].resolve();
+		var mode = in_message.params[1];
+		var dest = in_message.params[2];
+		
+		if (mode === null || mode.get_type() == 'Nothing')
+		{
+			Xtalk.VM.onMessageWrite( value.toString().toValue() );
+		}
+		else
+		{
+			
+		}
 	},
 	
 
