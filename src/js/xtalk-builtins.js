@@ -81,9 +81,14 @@ Generic to CinsTalk Implementation
 	},
 	
 	
-	the_item_delimiter_read: function(in_context, in_id, in_variant)
+	the_item_delimiter_get: function(in_context, in_id, in_variant)
 	{
 		return Xtalk.VM._item_delimiter;
+	},
+	
+	the_item_delimiter_set: function(in_context, in_id, in_new_value)
+	{
+		Xtalk.VM._item_delimiter = in_new_value;
 	},
 	
 	
@@ -136,6 +141,43 @@ Generic to CinsTalk Implementation
 		return new Xtalk.VM.TChunk(in_param, in_ident1, in_ident2, in_context);
 	},
 	
+	
+	command_set: function(in_message)
+	{
+		/* decode and check parameters */
+		var property_name = in_message.params[0];
+		if (property_name === null || property_name.get_type() != 'VariableRef')
+			Xtalk.VM._error("Can't understand arguments to \"^0\".", "set"); // need better way to handle such errors **TODO
+		property_name = property_name.name;
+		
+		var object = in_message.params[1];
+		object = (object.get_type() == 'Nothing') ? null : object; // need to ensure it's an object here
+		
+		var new_value = in_message.params[2].resolve().toValue();
+		
+		/* check if the object has such a property */
+		var prop = null;
+		try
+		{
+			var table = Xtalk.Dict._properties[1][property_name];
+			if (!object)
+				prop = table['----'];
+			else
+			{
+				prop = table[object.get_type()];
+			}
+		}
+		catch (err) {}
+		if (prop == null)
+			Xtalk.VM._error("No such property."); // need better way to handle such errors **TODO
+		
+		/* check if the property is writable */
+		if (!prop.setter)
+			Xtalk.VM._error("Can't set that property.");
+		
+		/* finally, set the property! */
+		prop.setter(object, prop.param, new_value);
+	},
 	
 
 /*****************************************************************************************

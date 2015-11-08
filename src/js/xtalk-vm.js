@@ -667,8 +667,8 @@ Execution
 		{
 			// need to wrap up like with the refs below, rather than read directly
 			// ie. new TVariable   ****** todo *******
-			
-			this._push( this._variable_read(step.name) );
+			this._push( new Xtalk.VM.TVariableRef(step.name) );
+			//this._push( this._variable_read(step.name) );
 			break;
 		}
 			

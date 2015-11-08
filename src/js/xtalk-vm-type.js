@@ -71,6 +71,56 @@ Xtalk.VM.Message = function(in_name, in_is_function, in_params, in_builtin)
 
 
 
+Xtalk.VM.TVariableRef = function(in_name)
+{
+	this.type = 'VariableRef';
+	this.name = in_name;
+};
+var TVariableRef = Xtalk.VM.TVariableRef;
+
+
+TVariableRef.prototype.get_type = function() { return this.type; }
+
+
+TVariableRef.prototype.resolve = function()
+{
+	return Xtalk.VM._variable_read(this.name);
+}
+
+/*
+Xtalk.VM.TVariableRef.prototype.toText = function()
+{
+	throw new Error(""); // ** TO FIX for type mismatch error
+}
+
+
+Xtalk.VM.TVariableRef.prototype.toInteger = function()
+{
+	throw new Error(""); // ** TO FIX for type mismatch error
+}
+
+
+Xtalk.VM.TVariableRef.prototype.toString = function()
+{
+	throw new Error(""); // ** TO FIX for type mismatch error
+}
+
+
+Xtalk.VM.TVariableRef.prototype.toBoolean = function()
+{
+	return this.toValue()
+}*/
+
+/*
+Xtalk.VM.TVariableRef.prototype.toValue = function()
+{
+	return null;  /// DO THE ACTUAL VARIABLE READ HERE
+}
+*/
+
+
+
+
 
 Xtalk.VM.TNothing = function()
 {

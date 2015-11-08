@@ -113,7 +113,7 @@ Registration
 /*
 	Registers property handlers for a specific parent object context.
  */
-	register_property: function(in_name, in_id, in_variant, in_context_type, in_handler)
+	register_property: function(in_name, in_id, in_variant, in_context_type, in_getter, in_setter)
 	{
 		var in_name = in_name.toLowerCase();
 		var word_count = Xtalk._word_count(in_name);
@@ -129,7 +129,8 @@ Registration
 		context_type_map[in_context_type] = {
 			param:		in_id,
 			variant:	in_variant,
-			handler:	in_handler
+			handler:	in_getter,
+			setter:		(in_setter ? in_setter : null)
 		};
 	},
 
@@ -275,6 +276,12 @@ Language Built-in Initalization
         	Xtalk.Builtins.command_go_where
         );
 	
+	
+		this.register_command_syntax(
+			'set [the] <prop> [of <object>] to <value>',
+        	'prop,object,value',
+        	Xtalk.Builtins.command_set
+        );
 
 /*
 	Generic constants and terms
@@ -319,7 +326,9 @@ Language Built-in Initalization
 		this.register_property('abbreviated date', 'date', 'abbr', '----', Xtalk.Builtins.the_date);
 		this.register_property('long date', 'date', 'long', '----', Xtalk.Builtins.the_date);
 		
-		this.register_property('itemDelimiter', 'idel', null, '----', Xtalk.Builtins.the_item_delimiter_read);
+		this.register_property('itemDelimiter', 'idel', null, '----', 
+			Xtalk.Builtins.the_item_delimiter_get, Xtalk.Builtins.the_item_delimiter_set
+		);
 		
 /*
 	Chunk expressions
