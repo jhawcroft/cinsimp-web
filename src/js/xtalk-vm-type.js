@@ -66,17 +66,15 @@ Xtalk.VM.Message = function(in_name, in_is_function, in_params, in_builtin)
 
 
 
-Xtalk.VM.Value = function()
-{
-}
-
-
 
 
 Xtalk.VM.TNothing = function()
 {
-	this.type = 'Nothing';
+	this.type = 'Nothing'
 };
+
+
+Xtalk.VM.TNothing.prototype.get_type = function() { return this.type; }
 
 
 Xtalk.VM.TNothing.prototype.resolve = function()
@@ -121,6 +119,11 @@ Xtalk.VM.TString = function(in_string)
 	this._value = in_string + '';
 	this.type = 'String';
 };
+
+
+Xtalk.VM.TString.prototype.get_type = function() { return this.type; }
+
+Xtalk.VM.TString.prototype.is_readable = function() { return true; }
 
 
 Xtalk.VM.TString.prototype.contains = function(in_string)
@@ -183,6 +186,11 @@ Xtalk.VM.TInteger = function(in_integer)
 }
 
 
+Xtalk.VM.TInteger.prototype.get_type = function() { return this.type; }
+
+Xtalk.VM.TInteger.prototype.is_readable = function() { return true; }
+
+
 Xtalk.VM.TInteger.prototype.resolve = function()
 {
 	return this;
@@ -225,6 +233,11 @@ Xtalk.VM.TReal = function(in_real)
 	this._value = in_real;
 	this.type = 'Real';
 }
+
+
+Xtalk.VM.TReal.prototype.get_type = function() { return this.type; }
+
+Xtalk.VM.TReal.prototype.is_readable = function() { return true; }
 
 
 Xtalk.VM.TReal.prototype.resolve = function()
@@ -272,6 +285,11 @@ Xtalk.VM.TBoolean = function(in_bool)
 }
 
 
+Xtalk.VM.TBoolean.prototype.get_type = function() { return this.type; }
+
+Xtalk.VM.TBoolean.prototype.is_readable = function() { return true; }
+
+
 Xtalk.VM.TBoolean.prototype.resolve = function()
 {
 	return this;
@@ -300,6 +318,9 @@ Xtalk.VM.TBoolean.prototype.toValue = function()
 {
 	return this._value;
 }
+
+
+
 
 
 CinsImp._script_loaded('xtalk-vm-type');

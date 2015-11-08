@@ -154,6 +154,7 @@ var CinsImp = {
 	{
 		this.load_script('xtalk-dict.js');
 		this.load_script('xtalk-vm-type.js');
+		this.load_script('xtalk-vm-chunk.js');
 		
 		this._when_loaded(function() {
 			Application.init();

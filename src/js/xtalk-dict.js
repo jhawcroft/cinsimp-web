@@ -277,18 +277,11 @@ Language Built-in Initalization
 	
 
 /*
-	Constants and terms
+	Generic constants and terms
  */
     	this.register_term('me', 'me  ', Xtalk.Builtins.term_me);
     	this.register_term('target', 'tgtC', Xtalk.Builtins.term_target_container);
     	this.register_property('target', 'tgtN', 'norm', '----', Xtalk.Builtins.term_target_name);
-    	
-    	this.register_term('this cd', 'card', Xtalk.Builtins.term_this);
-    	this.register_term('this card', 'card', Xtalk.Builtins.term_this);
-    	this.register_term('this bg', 'bkgd', Xtalk.Builtins.term_this);
-    	this.register_term('this bkgnd', 'bkgd', Xtalk.Builtins.term_this);
-    	this.register_term('this background', 'bkgd', Xtalk.Builtins.term_this);
-    	this.register_term('this stack', 'stak', Xtalk.Builtins.term_this);
     	
     	this.register_constant('pi', Math.PI);
     	this.register_constant('zero', 0);
@@ -314,7 +307,42 @@ Language Built-in Initalization
 		this.register_constant('quote', '"');
 		this.register_constant('newline', '\n');
 		this.register_constant('return', '\r');
+
+/*
+	Generic properties
+ */
+ 
+		this.register_property('date', 'date', 'shrt', '----', Xtalk.Builtins.the_date);
+		this.register_property('short date', 'date', 'shrt', '----', Xtalk.Builtins.the_date);
+		this.register_property('abbr date', 'date', 'abbr', '----', Xtalk.Builtins.the_date);
+		this.register_property('abbrev date', 'date', 'abbr', '----', Xtalk.Builtins.the_date);
+		this.register_property('abbreviated date', 'date', 'abbr', '----', Xtalk.Builtins.the_date);
+		this.register_property('long date', 'date', 'long', '----', Xtalk.Builtins.the_date);
 		
+/*
+	Chunk expressions
+ */
+		this.register_reference('char', 'char', 'STR ', Xtalk.Builtins.new_chunk);
+		this.register_reference('character', 'char', 'STR ', Xtalk.Builtins.new_chunk);
+		this.register_reference('word', 'word', 'STR ', Xtalk.Builtins.new_chunk);
+		this.register_reference('item', 'item', 'STR ', Xtalk.Builtins.new_chunk);
+		this.register_reference('line', 'line', 'STR ', Xtalk.Builtins.new_chunk);
+		// will need simple lookup in VM to check if a container type and match in step()
+		
+	
+/*
+	Environment constants and terms
+ */
+		this.register_term('this cd', 'card', Xtalk.Builtins.term_this);
+    	this.register_term('this card', 'card', Xtalk.Builtins.term_this);
+    	this.register_term('this bg', 'bkgd', Xtalk.Builtins.term_this);
+    	this.register_term('this bkgnd', 'bkgd', Xtalk.Builtins.term_this);
+    	this.register_term('this background', 'bkgd', Xtalk.Builtins.term_this);
+    	this.register_term('this stack', 'stak', Xtalk.Builtins.term_this);
+    	
+/*
+	Environment counts
+ */
 		this.register_count('cards', 'cdct', '----', Xtalk.Builtins.count_cards);
 		this.register_count('cards', 'cdct', Stack.TYPE, Xtalk.Builtins.count_cards);
 		this.register_count('cards', 'cdct', Bkgnd.TYPE, Xtalk.Builtins.count_cards);
@@ -340,16 +368,7 @@ Language Built-in Initalization
 		
 		*/
 		
-		
-		
-		this.register_property('date', 'date', 'shrt', '----', Xtalk.Builtins.the_date);
-		this.register_property('short date', 'date', 'shrt', '----', Xtalk.Builtins.the_date);
-		this.register_property('abbr date', 'date', 'abbr', '----', Xtalk.Builtins.the_date);
-		this.register_property('abbrev date', 'date', 'abbr', '----', Xtalk.Builtins.the_date);
-		this.register_property('abbreviated date', 'date', 'abbr', '----', Xtalk.Builtins.the_date);
-		this.register_property('long date', 'date', 'long', '----', Xtalk.Builtins.the_date);
-		
-		
+	/// testing
 		
 		this.register_reference('card button', 'cdbn', '----', 
 		function(in_context, in_param, in_mode, in_ident1, in_ident2) { 

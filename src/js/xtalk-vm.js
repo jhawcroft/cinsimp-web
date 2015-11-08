@@ -649,6 +649,15 @@ Execution
 				this._push( this.new_value(step.value) );
 			break;
 		}
+		
+		case Xtalk.ID_ORDINAL:
+		{
+			// ** TODO
+			// as with variable, need an object to represent this,
+			// which will thus be usable as a parameter
+			// but also, should resolve those with a known value to a literal integer? // or in flatten
+			break;
+		}
 			
 		/* push a variable reference */
 		case Xtalk.ID_VARIABLE:
@@ -697,7 +706,7 @@ Execution
 			
 			var operands = this._operands(step.operands);
 			
-			var context = (step.has_context ? operands.splice(0, 1) : null);
+			var context = (step.has_context ? operands.splice(0, 1)[0] : null);
 			var ident1 = operands[0].resolve();
 			var ident2 = (operands.length > 1 ? operands[1].resolve().toValue() : null);
 			
@@ -705,7 +714,11 @@ Execution
 			if (!context)
 				ref = step.map['----'];
 			else
+			{
 				ref = step.map[context.get_type()];
+				if (!ref && context.is_readable && context.is_readable())
+					ref = step.map['STR '];
+			}
 				
 			var mode = step.ref;
 			if (mode == Xtalk.REF_UNKNOWN)
@@ -715,7 +728,7 @@ Execution
 			}
 			
 			if (ref) this._push( this.new_value(ref.handler(context, ref.param, mode, ident1.toValue(), ident2)) );
-			else throw 'Problems'; // ** TODO as above - can't get that thing/can't understand
+			else Xtalk.VM._error("Can't understand arguments to \"^0\".", step.name); 
 			
 			// can't actually execute the handler, although we can create an object of TReference
 			// with all the details ready-to-go,

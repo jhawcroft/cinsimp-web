@@ -124,6 +124,13 @@ Generic to CinsTalk Implementation
 	},
 	
 	
+	new_chunk: function(in_context, in_param, in_mode, in_ident1, in_ident2)
+	{
+		if (in_mode != Xtalk.REF_RANGE) Xtalk.VM._error("Can't understand arguments to \"^0\".", in_param); // need better way to handle such errors **TODO
+		return new Xtalk.VM.Chunk(in_param, in_ident1, in_ident2, in_context);
+	},
+	
+	
 
 /*****************************************************************************************
 Specific to CinsImp Environment
