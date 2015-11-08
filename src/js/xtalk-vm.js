@@ -678,7 +678,7 @@ Execution
 			if (!context)
 				prop = step.map['----'];
 			else
-				prop = step.map[context.type];
+				prop = step.map[context.get_type()];
 				
 			if (prop) this._push(  this.new_value(prop.handler(context, prop.param, prop.variant)) );
 			else this._error("Can't understand arguments of \"^0\".", step.name);
@@ -705,7 +705,7 @@ Execution
 			if (!context)
 				ref = step.map['----'];
 			else
-				ref = step.map[context.type];
+				ref = step.map[context.get_type()];
 				
 			var mode = step.ref;
 			if (mode == Xtalk.REF_UNKNOWN)
