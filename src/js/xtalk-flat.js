@@ -354,7 +354,7 @@ Core
 		{
 			if (in_subtree.context)
 				this._generate_expr(in_subtree.context);
-			if (in_subtree.value)
+			if (in_subtree.value !== undefined && in_subtree.value !== null)
 				this._result.push({
 					id: in_subtree.id,
 					name: in_subtree.name,
