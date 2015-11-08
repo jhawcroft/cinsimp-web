@@ -395,8 +395,11 @@ Names
 			{
 				var word_count = [ 0 ];
 				var constant = this._lookup_words(Xtalk.Dict._constants, words, word_count);
-				if (constant)
+				var prev_is_the = (n > 0 && in_list.children[n-1].id == Xtalk.ID_THE);	
+				if (constant && !prev_is_the)
 				{
+					// if the constant is prefixed by 'the', it's not a constant,
+					// but a property with the same name as one, don't handle here
 					this._parse_constant(in_list, n, word_count[0], constant, words);
 					continue;
 				}
