@@ -87,6 +87,8 @@ TVariableRef.prototype.resolve = function()
 	return Xtalk.VM._variable_read(this.name);
 }
 
+
+
 /*
 Xtalk.VM.TVariableRef.prototype.toText = function()
 {

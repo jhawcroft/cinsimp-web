@@ -91,10 +91,11 @@ Entry
 				Xtalk.Lexer._is_space(line.substr(3, 1)) &&
 				handler && (!handler.error) )
 			{
-				if (line.substr(3).trim().toLowerCase() != handler.name.toLowerCase())
-					handler.error = "Expected \"end "+handler.name+"\".";
-				else
+				if (line.substr(3).trim().toLowerCase() == handler.name.toLowerCase())
 					handler.length = offset - handler.offset;
+					//handler.error = "Expected \"end "+handler.name+"\".";
+				//else
+					
 				continue;
 			}
 			else continue;

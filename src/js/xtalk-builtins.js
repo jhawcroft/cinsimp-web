@@ -185,17 +185,34 @@ Generic to CinsTalk Implementation
 		prop.setter(object, prop.param, new_value);
 	},
 	
+	
+	command_get: function(in_message)
+	{
+		Xtalk.VM.global_set('it', in_message.params[0].resolve());
+	},
+	
+	
+	command_put: function(in_message)
+	{
+		alert('put');
+	},
+	
 
 /*****************************************************************************************
 Specific to CinsImp Environment
 */
+
+
+// **TODO - normally, params should be automatically resolved by resolve()
+// but it would be good to have a newer mechanism to specify the level & type of resolution performed
+// within the command syntax registration itself
 
 	command_answer: function(in_message)
 	{
 		Xtalk.VM.wait();
 		
 		var alert = new Alert();
-		alert.prompt = in_message.params[0].toString()._value;
+		alert.prompt = in_message.params[0].resolve().toString().toValue();
 		if (in_message.params[1].type == 'Nothing')
 		{
 			alert.button1_label = 'OK';
@@ -221,6 +238,7 @@ Specific to CinsImp Environment
 	
 	_command_answer_end: function(in_response)
 	{
+		Xtalk.VM.global_set('it', in_response);
 		Xtalk.VM.unwait( in_response );
 	},
 	

@@ -377,10 +377,16 @@ Access/Mutation
 	_variable_read: function(in_name)
 	{
 		var context = this._context();
-		if (context.imported_globals[in_name])
+		if (context.type == Xtalk.VM._CONTEXT_ANONYMOUS || context.imported_globals[in_name])
 			return this._globals[in_name];
 		else
 			return context.locals[in_name];
+	},
+	
+	
+	global_set: function(in_name, in_value)
+	{
+		this._globals[in_name] = this.new_value(in_value);
 	},
 	
 	
@@ -1038,7 +1044,7 @@ Control
 		if (this._state != this._STATE_WAITING) return;
 		
 		if (!in_result) in_result = new Xtalk.VM.TString('');
-		this._push(in_result);
+		//this._push(in_result);
 		this._result = in_result;
 		
 		this._state = this._STATE_RUNNING;
@@ -1225,6 +1231,12 @@ Environment Entry
 		
 		this._context_stack = [ this._new_context(handler_plan.plan, this._current_card, handler_plan) ];
 		this._run();
+	},
+	
+	
+	init: function()
+	{
+		this.global_set('it', '');
 	},
 
 };

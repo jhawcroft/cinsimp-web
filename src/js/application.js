@@ -549,6 +549,7 @@ Application.init = function()
 	
 	Progress.operation_finished();
 	
+	Xtalk.VM.init();
 	
 	Application._idle_timer = window.setInterval(Application._idle, 50);
 }

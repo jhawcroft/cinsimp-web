@@ -282,6 +282,22 @@ Language Built-in Initalization
         	'prop,object,value',
         	Xtalk.Builtins.command_set
         );
+        
+        
+        this.register_command_syntax(
+			'get <value>',
+        	'value',
+        	Xtalk.Builtins.command_get
+        );
+        
+        
+        this.register_command_syntax(
+			'put <value> [{`mode``into`into|`after`after|`before`before} <dest>]',
+        	'value,mode,dest',
+        	Xtalk.Builtins.command_put
+        );
+        
+
 
 /*
 	Generic constants and terms
