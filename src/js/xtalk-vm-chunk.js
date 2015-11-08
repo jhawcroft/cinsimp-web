@@ -53,6 +53,10 @@ xtalk.js ?
 
 */
 
+
+// this is a disgusting implementation and could use much cleaning and optimisation!  - Josh
+
+
 Xtalk.VM.TChunk = function(in_type, in_from, in_to, in_subject)
 {
 	this.type = 'Chunk';
@@ -133,6 +137,38 @@ TChunk._word_count = function(in_subject)
 }
 
 
+TChunk._item_offset = function(in_text, in_word, in_right)
+{
+	if (in_word == 1) return 0;
+	var offset = 0;
+	var item_delim = Xtalk.VM._item_delimiter;
+	for (var c = 1; c < in_word; c++)
+	{
+		var off = in_text.indexOf(item_delim, offset);
+		if (off < 0) return -1;
+		offset = off + item_delim.length;
+	}
+	if (!in_right) offset = offset - item_delim.length + 1;
+	return offset;
+}
+
+
+TChunk._item_count = function(in_subject)
+{
+	var count = 1;
+	var offset = 0;
+	var item_delim = Xtalk.VM._item_delimiter;
+	while (offset >= 0)
+	{
+		var off = in_subject.indexOf(item_delim, offset);
+		if (off < 0) return count;
+		offset = off + item_delim.length;
+		count++;
+	}
+	return count;
+}
+
+
 TChunk._line_count = function(in_subject)
 {
 	var count = 1;
@@ -161,10 +197,8 @@ TChunk.count = function(in_type, in_subject)
 	case 'lines':
 		return TChunk._line_count(in_subject);
 	case 'items':
-		break;
+		return TChunk._item_count(in_subject);
 	}
-	//alert('count the '+in_type+' in '+in_subject);
-	//return 42; // **TODO
 }
 
 
@@ -219,6 +253,15 @@ TChunk._calculate_char_range = function(in_chunk, in_subject)
 		
 	case 'item':
 	{
+		range.from = TChunk._item_offset(in_subject, in_chunk.range_from, true);
+		if (range.from < 0) range.from = in_subject.length;
+		if (in_chunk.range_to !== null)
+			range.to = TChunk._item_offset(in_subject, in_chunk.range_to + 1, false);
+		else
+			range.to = TChunk._item_offset(in_subject, in_chunk.range_from + 1, false);
+		if (range.to >= 0) range.to -= 2;
+		else range.to = in_subject.length - 1;
+		range.length = range.to - range.from + 1;
 		break;
 	}
 	}
