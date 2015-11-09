@@ -491,6 +491,16 @@ call stack and debug buttons ? -->
 </div>
 
 
+<div id="DialogAsk" class="DialogTemplate Inner" style="width: 575px; height: 175px;">
+	<div class="Label Expands" id="AskPrompt">Prompt</div>
+	<div class="Label"><input type="text" id="AskText" style="width: 544px;"></div>
+	<div class="Bottom Right" style="">
+		<input id="AskBtn1" type="button" value="Cancel" style="float: right; margin-left: 20px;  border:2px solid black;" onclick="Dialog.dismiss(false);">
+		<input id="AskBtn2" type="button" value="OK" onclick="Dialog.dismiss(true);" style="float: right;">
+	</div>
+</div>
+
+
 
 
 <div id="DialogPrintField" class="DialogTemplate Inner" style="width: 480px; height: 430px;">

@@ -293,7 +293,7 @@ Language Built-in Initalization
 		this.register_command_syntax(
 			'ask [`password``1`password] <prompt> [with <response>]', 
 			'password,prompt,response', 
-			function(n) { alert('ASK PASSWORD! ' + JSON.stringify(n)); }
+			Xtalk.Builtins.command_ask
 		);
 		
 		

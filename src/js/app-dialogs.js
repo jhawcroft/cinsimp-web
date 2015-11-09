@@ -90,6 +90,10 @@ AppDialogs.init = function()
 
 	Dialog.ScriptEditor = new Dialog('Script Editor', document.getElementById('DialogScriptEditor'));
 	Dialog.ScriptEditor._codeeditor = new JCodeEdit(document.getElementById('ScriptEditorContainer'));
+	
+	
+	Dialog.Ask = new Dialog('', document.getElementById('DialogAsk'));
+	
 }
 
 

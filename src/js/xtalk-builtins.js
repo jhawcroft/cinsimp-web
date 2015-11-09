@@ -602,6 +602,32 @@ Specific to CinsImp Environment
 // but it would be good to have a newer mechanism to specify the level & type of resolution performed
 // within the command syntax registration itself
 
+
+	command_ask: function(in_message)
+	{
+		Xtalk.VM.wait();
+		
+		var is_password = (in_message.params[0].get_type() != 'Nothing');
+		var prompt = in_message.params[1].resolve().toString().toValue();
+		var text = (in_message.params[2].get_type() != 'Nothing') ? 
+			in_message.params[2].resolve().toString().toValue() : '';
+		
+		document.getElementById('AskPrompt').textContent = prompt;
+		document.getElementById('AskText').value = text;
+		
+		Dialog.Ask.set_onclose(function(in_dlog, in_code)
+		{
+			if (in_code) var text = document.getElementById('AskText').value;
+			else var text = '';
+			text = new Xtalk.VM.TString(text);
+			Xtalk.VM.global_set('it', text);
+			Xtalk.VM.unwait( text );
+		});
+		Dialog.Ask.show();
+	},
+	
+	
+
 	command_answer: function(in_message)
 	{
 		Xtalk.VM.wait();
