@@ -496,7 +496,8 @@ Core
 						name:		in_stmt.children[0].text,
 						parameters:	[],
 						handler:	cmd.handler,
-						syntax:		in_stmt.children[0].text + ':' + syntax
+						syntax:		in_stmt.children[0].text + ':' + syntax,
+						is_plugin: 	cmd.is_plugin
 					};
 				
 					/* move the parameter nodes from the input statement tree

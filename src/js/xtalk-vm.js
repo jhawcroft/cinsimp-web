@@ -327,9 +327,13 @@ Message Hierarchy
  		/* if no handler is found, look for builtin */
  		if ((!handler) && in_message.builtin)
  		{
- 
- 			in_message.builtin(in_message); // ** could set this up as a sub-context as below so that long commands can reply in time?
- 			// possibly provide method to setup subcontext for this purpose exposed to the actual implementation
+ 			if (in_message.is_plugin)
+ 			{
+ 				try { in_message.builtin(in_message); }
+ 				catch (err) { this._error("Plugin "+in_message.name+" has malfunctioned.\n" + err.message); }
+ 			}
+ 			else
+ 				in_message.builtin(in_message);
  			return;
  		}
  		
@@ -681,7 +685,7 @@ Execution
 		case Xtalk.ID_FUNCTION_CALL:
 		{
 			var params = this._operands(step.arg_count);
-			var message = new Xtalk.VM.Message(step.name, (step.id == Xtalk.ID_FUNCTION_CALL), params, step.handler);
+			var message = new Xtalk.VM.Message(step.name, (step.id == Xtalk.ID_FUNCTION_CALL), params, step.handler, step.is_plugin);
 			this._send_message(context.me, message);
 			break;
 		}

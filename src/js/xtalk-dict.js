@@ -72,6 +72,9 @@ Module Globals
 	   		arguments will be provided)
 	*/
 	_commands: [], 
+	_generics: {}, /* generic commands with no specific syntax */
+	
+	_functions: {},
 	
 	_loading_plugins: false,
 
@@ -214,13 +217,26 @@ Registration
 			parameters: args,
 			delayed: delayed,
 			handler: in_handler,
-			is_plugin: this._loading_plugins
+			is_plugin: me._loading_plugins
 		};
 		
 		if (me._commands['|'+first_word] === undefined)
 			me._commands['|'+first_word] = [];
 		me._commands['|'+first_word].push( def );
 	},
+	
+	
+	register_command: function(in_command, in_handler)
+	{
+		
+	},
+	
+	
+	register_function: function(in_function, in_handler)
+	{
+	
+	},
+	
 
 
 /*****************************************************************************************
