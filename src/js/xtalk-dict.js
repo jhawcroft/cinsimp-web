@@ -341,29 +341,28 @@ Language Built-in Initalization
 // annuity ?
 // compound ?
 
-		this.register_function('value', Xtalk.Builtins.function_value);// evaluate expression, like msgbox
-		
+		this.register_function('value', Xtalk.Builtins.function_value);
 		
 		this.register_function('abs', Xtalk.Builtins.function_abs, true);
-
+		this.register_function('round', Xtalk.Builtins.function_round, true);
+		this.register_function('trunc', Xtalk.Builtins.function_trunc, true);
+		this.register_function('sqrt', Xtalk.Builtins.function_sqrt, true);
+		this.register_function('exp', Xtalk.Builtins.function_exp, true);
+		this.register_function('exp1', Xtalk.Builtins.function_exp1, true);
+		this.register_function('exp2', Xtalk.Builtins.function_exp2, true);
 		
+		this.register_function('atan', Xtalk.Builtins.function_atan, true);
+		this.register_function('tan', Xtalk.Builtins.function_tan, true);
+		this.register_function('cos', Xtalk.Builtins.function_cos, true);
+		this.register_function('sin', Xtalk.Builtins.function_sin, true);
 		
-		this.register_function('atan', Xtalk.Builtins.function_abs);
-		this.register_function('average', Xtalk.Builtins.function_abs);
-		this.register_function('cos', Xtalk.Builtins.function_abs);
+		this.register_function('average', Xtalk.Builtins.function_avg);
+		this.register_function('max', Xtalk.Builtins.function_max);
+		this.register_function('min', Xtalk.Builtins.function_min);
+		this.register_function('sum', Xtalk.Builtins.function_sum);
 		
-		this.register_function('exp', Xtalk.Builtins.function_abs);
-		this.register_function('exp1', Xtalk.Builtins.function_abs);
-		this.register_function('exp2', Xtalk.Builtins.function_abs);
-		this.register_function('max', Xtalk.Builtins.function_abs);
-		this.register_function('min', Xtalk.Builtins.function_abs);
-		this.register_function('offset', Xtalk.Builtins.function_abs);
-		this.register_function('round', Xtalk.Builtins.function_abs);
-		this.register_function('sin', Xtalk.Builtins.function_abs);
-		this.register_function('sqrt', Xtalk.Builtins.function_abs);
-		this.register_function('sum', Xtalk.Builtins.function_abs);
-		this.register_function('tan', Xtalk.Builtins.function_abs);
-		this.register_function('trunc', Xtalk.Builtins.function_abs);
+		this.register_function('offset', Xtalk.Builtins.function_offset);
+		
 
 /// **** can be 'anything' for property evaluation and might be a handy default,
 // allowing the code itself to check allowable types for complicated registrations  **TODO

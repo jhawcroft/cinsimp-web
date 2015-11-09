@@ -391,8 +391,84 @@ Generic to CinsTalk Implementation
 	
 	function_abs: function(in_message)
 	{
-		return Math.abs(in_message.params[0].resolve().toInteger().toValue());
+		return Math.abs(in_message.params[0].resolve().toNumber().toValue());
 	},
+	
+	
+	function_round: function(in_message)
+	{
+		return Math.round(in_message.params[0].resolve().toNumber().toValue());
+	},
+	
+	
+	function_trunc: function(in_message)
+	{
+		return Math.trunc(in_message.params[0].resolve().toNumber().toValue());
+	},
+	
+	
+	function_sqrt: function(in_message)
+	{
+		return Math.sqrt(in_message.params[0].resolve().toNumber().toValue());
+	},
+	
+	
+	function_exp: function(in_message)
+	{
+		var x = in_message.params[0].resolve().toNumber().toValue();
+		return Math.exp(x);
+	},
+	
+	
+	function_exp1: function(in_message)
+	{
+		var x = in_message.params[0].resolve().toNumber().toValue();
+		return Math.exp(x) - 1;
+	},
+	
+	
+	function_exp2: function(in_message)
+	{
+		var x = in_message.params[0].resolve().toNumber().toValue();
+		return Math.pow(2, x);
+	},
+	
+	
+	function_atan: function(in_message)
+	{
+		return Math.atan(in_message.params[0].resolve().toNumber().toValue());
+	},
+	
+	
+	function_tan: function(in_message)
+	{
+		return Math.tan(in_message.params[0].resolve().toNumber().toValue());
+	},
+	
+	
+	function_cos: function(in_message)
+	{
+		return Math.cos(in_message.params[0].resolve().toNumber().toValue());
+	},
+	
+	
+	function_sin: function(in_message)
+	{
+		return Math.sin(in_message.params[0].resolve().toNumber().toValue());
+	},
+	
+	
+	
+	/*
+	
+		
+		this.register_function('average', Xtalk.Builtins.function_avg);
+		this.register_function('max', Xtalk.Builtins.function_max);
+		this.register_function('min', Xtalk.Builtins.function_min);
+		this.register_function('sum', Xtalk.Builtins.function_sum);
+		
+		this.register_function('offset', Xtalk.Builtins.function_offset);
+	*/
 	
 	
 	// basically, take a single param

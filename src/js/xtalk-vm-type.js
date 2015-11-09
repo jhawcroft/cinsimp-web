@@ -161,6 +161,12 @@ Xtalk.VM.TNothing.prototype.toInteger = function()
 }
 
 
+Xtalk.VM.TNothing.prototype.toNumber = function()
+{
+	throw new Error(""); // ** TO FIX for type mismatch error
+}
+
+
 Xtalk.VM.TNothing.prototype.toString = function()
 {
 	throw new Error(""); // ** TO FIX for type mismatch error
@@ -229,6 +235,13 @@ Xtalk.VM.TString.prototype.toReal = function()
 }
 
 
+Xtalk.VM.TString.prototype.toNumber = function()
+{
+	if (this._value.indexOf('.') < 0) return this.toInteger();
+	else return this.toReal();
+}
+
+
 Xtalk.VM.TString.prototype.toString = function()
 {
 	return this;
@@ -275,6 +288,12 @@ Xtalk.VM.TInteger.prototype.toReal = function()
 }
 
 
+Xtalk.VM.TInteger.prototype.toNumber = function()
+{
+	return this;
+}
+
+
 Xtalk.VM.TInteger.prototype.toString = function()
 {
 	return new Xtalk.VM.TString(this._value);  // todo *** number format observance
@@ -318,9 +337,15 @@ Xtalk.VM.TReal.prototype.toText = function()
 }
 
 
-Xtalk.VM.TInteger.prototype.toInteger = function()
+Xtalk.VM.TReal.prototype.toInteger = function()
 {
 	return new Xtalk.VM.TInteger(Math.floor(this._value));
+}
+
+
+Xtalk.VM.TReal.prototype.toNumber = function()
+{
+	return this;
 }
 
 
