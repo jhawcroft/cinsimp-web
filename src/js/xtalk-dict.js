@@ -328,12 +328,35 @@ Language Built-in Initalization
 /*
 	Generic functions
 */
-		this.register_function(
-			'abs', 
-			function(in_message) { return Math.abs(in_message.params[0].resolve().toInteger().toValue()); }
-		);
+// annuity ?
+// compound ?
 
+		this.register_function('abs', Xtalk.Builtins.function_abs);
+		
+		this.register_function('date', Xtalk.Builtins.function_abs);//short
+		this.register_function('time', Xtalk.Builtins.function_abs);//short
+		
+		this.register_function('value', Xtalk.Builtins.function_abs);// evaluate expression, like msgbox
+		
+		this.register_function('atan', Xtalk.Builtins.function_abs);
+		this.register_function('average', Xtalk.Builtins.function_abs);
+		this.register_function('cos', Xtalk.Builtins.function_abs);
+		
+		this.register_function('exp', Xtalk.Builtins.function_abs);
+		this.register_function('exp1', Xtalk.Builtins.function_abs);
+		this.register_function('exp2', Xtalk.Builtins.function_abs);
+		this.register_function('max', Xtalk.Builtins.function_abs);
+		this.register_function('min', Xtalk.Builtins.function_abs);
+		this.register_function('offset', Xtalk.Builtins.function_abs);
+		this.register_function('round', Xtalk.Builtins.function_abs);
+		this.register_function('sin', Xtalk.Builtins.function_abs);
+		this.register_function('sqrt', Xtalk.Builtins.function_abs);
+		this.register_function('sum', Xtalk.Builtins.function_abs);
+		this.register_function('tan', Xtalk.Builtins.function_abs);
+		this.register_function('trunc', Xtalk.Builtins.function_abs);
 
+/// **** can be 'anything' for property evaluation and might be a handy default,
+// allowing the code itself to check allowable types for complicated registrations  **TODO
 
 /*
 	Generic constants and terms
@@ -364,8 +387,12 @@ Language Built-in Initalization
 		this.register_constant('comma', ',');
 		this.register_constant('tab', '\t');
 		this.register_constant('quote', '"');
-		this.register_constant('newline', '\n');
-		this.register_constant('return', '\r');
+		this.register_constant('newline', '\n');//10
+		this.register_constant('lineFeed', '\n');//10
+		this.register_constant('return', '\r');//13
+		this.register_constant('formFeed', String.fromCharCode(12));//12
+		
+		
 
 /*
 	Generic properties
@@ -441,6 +468,78 @@ Language Built-in Initalization
 		
 		// version [of CinsImp] / stack
 		
+		
+		// the sound // currently playing sound (if any)
+		/*
+		this.register_property('length', 'leng', null, 'String', Xtalk.Builtins.the_length);
+		
+		this.register_property('abs', 'leng', null, 'String', Xtalk.Builtins.the_length);
+		this.register_property('atan', 'leng', null, 'String', Xtalk.Builtins.the_length);
+		this.register_property('round', 'leng', null, '----', Xtalk.Builtins.the_length);
+		this.register_property('sin', 'leng', null, '----', Xtalk.Builtins.the_length);
+		this.register_property('sqrt', 'leng', null, '----', Xtalk.Builtins.the_length);
+		this.register_property('cos', 'leng', null, '----', Xtalk.Builtins.the_length);
+		this.register_property('tan', 'leng', null, '----', Xtalk.Builtins.the_length);
+		this.register_property('trunc', 'leng', null, '----', Xtalk.Builtins.the_length);
+		
+		this.register_property('value', 'leng', null, '----', Xtalk.Builtins.the_length);
+		
+		
+		this.register_property('clickChunk', 'leng', null, '----', Xtalk.Builtins.the_length); // char chunk expr
+		this.register_property('clickH', 'leng', null, '----', Xtalk.Builtins.the_length);
+		this.register_property('clickV', 'leng', null, '----', Xtalk.Builtins.the_length);
+		this.register_property('clickLine', 'leng', null, '----', Xtalk.Builtins.the_length); // line chunk expr
+		this.register_property('clickLoc', 'leng', null, '----', Xtalk.Builtins.the_length);
+		this.register_property('clickText', 'leng', null, '----', Xtalk.Builtins.the_length); // word or group text
+		
+		
+		this.register_property('shiftKey', 'leng', null, '----', Xtalk.Builtins.the_length);
+		this.register_property('altKey', 'leng', null, '----', Xtalk.Builtins.the_length);
+		this.register_property('optionKey', 'leng', null, '----', Xtalk.Builtins.the_length);
+		this.register_property('optKey', 'leng', null, '----', Xtalk.Builtins.the_length);
+		this.register_property('metaKey', 'leng', null, '----', Xtalk.Builtins.the_length);
+		this.register_property('cmdKey', 'leng', null, '----', Xtalk.Builtins.the_length);
+		this.register_property('commandKey', 'leng', null, '----', Xtalk.Builtins.the_length);
+		this.register_property('ctrlKey', 'leng', null, '----', Xtalk.Builtins.the_length);
+		this.register_property('controlKey', 'leng', null, '----', Xtalk.Builtins.the_length);
+		
+		
+		this.register_property('foundChunk', 'leng', null, '----', Xtalk.Builtins.the_length); // as above
+		this.register_property('foundField', 'leng', null, '----', Xtalk.Builtins.the_length);
+		this.register_property('foundLine', 'leng', null, '----', Xtalk.Builtins.the_length); // as above
+		this.register_property('foundText', 'leng', null, '----', Xtalk.Builtins.the_length);
+		this.register_property('clickH', 'leng', null, '----', Xtalk.Builtins.the_length);
+		
+		this.register_property('mouse', 'leng', null, '----', Xtalk.Builtins.the_length);// up / down
+		this.register_property('mouseClick', 'leng', null, '----', Xtalk.Builtins.the_length); // clicked during exec
+		this.register_property('mouseH', 'leng', null, '----', Xtalk.Builtins.the_length);
+		this.register_property('mouseV', 'leng', null, '----', Xtalk.Builtins.the_length);
+		this.register_property('mouseLoc', 'leng', null, '----', Xtalk.Builtins.the_length);
+		
+		this.register_property('param', 'leng', null, 'Integer', Xtalk.Builtins.the_length);
+		this.register_property('paramCount', 'leng', null, '----', Xtalk.Builtins.the_length);
+		this.register_property('params', 'leng', null, '----', Xtalk.Builtins.the_length);
+		
+		this.register_property('random', 'leng', null, 'Integer', Xtalk.Builtins.the_length); // 1 - N
+		
+		this.register_property('result', 'leng', null, '----', Xtalk.Builtins.the_length);
+		*/
+		//this.register_property('selectedButton', 'leng', null, 'Family', Xtalk.Builtins.the_length);
+		// eg. the selected button of [bkgnd | card] family <int>
+		// (radio buttons/ toggle buttons)
+		/*
+		this.register_property('selectedChunk', 'leng', null, '----', Xtalk.Builtins.the_length);
+		this.register_property('selectedField', 'leng', null, '----', Xtalk.Builtins.the_length);
+		this.register_property('selectedLine', 'leng', null, '----', Xtalk.Builtins.the_length);
+		this.register_property('selectedLoc', 'leng', null, '----', Xtalk.Builtins.the_length);
+		this.register_property('selectedText', 'leng', null, '----', Xtalk.Builtins.the_length);
+		
+		this.register_property('systemVersion', 'leng', null, '----', Xtalk.Builtins.the_length);
+		
+		this.register_property('tool', 'leng', null, '----', Xtalk.Builtins.the_length);
+		*/
+		
+		//this.register_property('destination', 'leng', null, '----', Xtalk.Builtins.the_length);
 		
 		// eventually to add:
 		// brush - a number/name indicating the type of paint brush selected

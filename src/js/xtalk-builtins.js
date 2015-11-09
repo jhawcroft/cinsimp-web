@@ -375,6 +375,13 @@ Generic to CinsTalk Implementation
 	},
 	
 	
+	
+	
+	function_abs: function(in_message)
+	{
+		return Math.abs(in_message.params[0].resolve().toInteger().toValue());
+	},
+	
 
 /*****************************************************************************************
 Specific to CinsImp Environment
