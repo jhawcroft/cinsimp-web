@@ -286,6 +286,17 @@ Generic to CinsTalk Implementation
 		}
 	},
 	
+	count_bkgnds: function(in_context, in_id)
+	{
+		if (in_context === null) in_context = View.current.get_stack();
+		switch (in_context.get_type())
+		{
+		case Stack.TYPE:
+			return in_context.get_attr('count_bkgnds');
+		}
+	},
+	
+	
 	
 	term_me: function(in_id)
 	{

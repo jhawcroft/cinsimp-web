@@ -546,7 +546,7 @@ Language Built-in Initalization
 		this.register_property('selectedLoc', 'leng', null, '----', Xtalk.Builtins.the_length);
 		this.register_property('selectedText', 'leng', null, '----', Xtalk.Builtins.the_length);
 		
-		this.register_property('systemVersion', 'leng', null, '----', Xtalk.Builtins.the_length);
+		
 		
 		this.register_property('tool', 'leng', null, '----', Xtalk.Builtins.the_length);
 		*/
@@ -628,11 +628,16 @@ Language Built-in Initalization
 /*
 	Environment counts
  */
+ 		this.register_count('cds', 'cdct', '----', Xtalk.Builtins.count_cards);
 		this.register_count('cards', 'cdct', '----', Xtalk.Builtins.count_cards);
+		this.register_count('cds', 'cdct', Stack.TYPE, Xtalk.Builtins.count_cards);
 		this.register_count('cards', 'cdct', Stack.TYPE, Xtalk.Builtins.count_cards);
+		this.register_count('cds', 'cdct', Bkgnd.TYPE, Xtalk.Builtins.count_cards);
 		this.register_count('cards', 'cdct', Bkgnd.TYPE, Xtalk.Builtins.count_cards);
 		
-		
+		this.register_count('bgs', 'bgct', '----', Xtalk.Builtins.count_bkgnds);
+		this.register_count('bkgnds', 'bgct', '----', Xtalk.Builtins.count_bkgnds);
+		this.register_count('backgrounds', 'bgct', '----', Xtalk.Builtins.count_bkgnds);
    
 		
 		/*
