@@ -150,6 +150,17 @@ var CinsImp = {
 	
 */
 
+
+	_init7: function()
+	{
+		this.load_script('plugins.js');
+		
+		this._when_loaded(function() {
+			Application.init();
+		});
+	},
+
+
 	_init6: function()
 	{
 		this.load_script('xtalk-dict.js');
@@ -157,7 +168,7 @@ var CinsImp = {
 		this.load_script('xtalk-vm-chunk.js');
 		
 		this._when_loaded(function() {
-			Application.init();
+			CinsImp._init7();
 		});
 	},
 	

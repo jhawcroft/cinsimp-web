@@ -146,7 +146,7 @@ class Util
 	public static function respond_with_http_error($code, $description, $extra = '')
 	{
 		global $config;
-		Util::response_is_html();
+		header('Content-Type: text/html');
 		$status = intval($code).' '.$description;
 		header('HTTP/1.0 ' . $status);
 		$page = file_get_contents($config->base.'html/error.html');

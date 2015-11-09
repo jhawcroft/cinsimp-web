@@ -35,6 +35,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+
 /* configure the application */
 require(dirname(__FILE__).'/config.php');
 
@@ -44,88 +45,113 @@ require($config->base.'php/error.php');
 require($config->base.'php/util.php');
 
 
-/*
-	Returns the base URL of the CinsImp installation;
-	used to enable finding the CinsImp installation for remote copies of CinsImp
-	to get read/write access to this server via the Gateway.
-*/
-if (isset($_REQUEST['cinsimp-gateway']))
+try
 {
-	Util::response_is_ajax_only();
-	$gateway_url = $config->url;
-	print json_encode($gateway_url);
-	exit;
-}
+
+	/*
+		Returns the content of the specified plug-in.
+	*/
+	if (isset($_REQUEST['plugin']))
+	{
+		require($config->base.'php/plugin.php');
+		Plugin::load($_REQUEST['plugin']);
+		exit;
+	}
 
 
-/*
-	Returns the browser warning page which will be displayed along-side the stack
-	content if the browser has insufficient capabilities to run the application.
-*/
-if (isset($_REQUEST['browser-warning']))
-{
-	Util::response_is_html();
-	$page = '';
-	$page .= file_get_contents($config->base.'html/browser.html');
-	print $page;
-	exit;
-}
+
+	/*
+		Returns the base URL of the CinsImp installation;
+		used to enable finding the CinsImp installation for remote copies of CinsImp
+		to get read/write access to this server via the Gateway.
+	*/
+	if (isset($_REQUEST['cinsimp-gateway']))
+	{
+		Util::response_is_ajax_only();
+		$gateway_url = $config->url;
+		print json_encode($gateway_url);
+		exit;
+	}
 
 
-/*
-	Returns the user interface templates (dialogs and palettes) which the client-side
-	code will use to construct these resources.
-*/
-if (isset($_REQUEST['ui']))
-{
-	global $config;
-	Util::response_is_ajax_only();
-	$page = '';
-	$page .= file_get_contents($config->base.'html/ui.html');
-	$page = str_replace('gfx/', $config->url . 'gfx/', $page);
-	print $page;
-	exit;
-}
+	/*
+		Returns the browser warning page which will be displayed along-side the stack
+		content if the browser has insufficient capabilities to run the application.
+	*/
+	if (isset($_REQUEST['browser-warning']))
+	{
+		Util::response_is_html();
+		$page = '';
+		$page .= file_get_contents($config->base.'html/browser.html');
+		print $page;
+		exit;
+	}
 
 
-/* include stack database API */
-require($config->base.'php/stack.php');
+	/*
+		Returns the user interface templates (dialogs and palettes) which the client-side
+		code will use to construct these resources.
+	*/
+	if (isset($_REQUEST['ui']))
+	{
+		global $config;
+		Util::response_is_ajax_only();
+		$page = '';
+		$page .= file_get_contents($config->base.'html/ui.html');
+		$page = str_replace('gfx/', $config->url . 'gfx/', $page);
+		print $page;
+		exit;
+	}
 
 
-/*
-	Returns the results of handling the supplied AJAX request.
-*/
-if (isset($_REQUEST['io']))
-{
-	require($config->base.'php/gateway.php');
-	Gateway::handle_request();
-	exit;
-}
+	/* include stack database API */
+	require($config->base.'php/stack.php');
 
 
-/*
-	Handles the upload of a HyperCard stack and initial preparation for the import
-	of it's content, structure and art in co-operation with the client.
-*/
-if (isset($_REQUEST['hcimport']))
-{
-	Util::response_is_ajax_only();
-	require($config->base.'php/hcimport.php');
-	HCImport::handle_upload();
-	exit;
-}
+	/*
+		Returns the results of handling the supplied AJAX request.
+	*/
+	if (isset($_REQUEST['io']))
+	{
+		require($config->base.'php/gateway.php');
+		Gateway::handle_request();
+		exit;
+	}
 
 
-/*
-	Returns a static page for the specified stack, along with appropriate data and
-	instructions to invoke the client-side application if the environment is sufficient.
+	/*
+		Handles the upload of a HyperCard stack and initial preparation for the import
+		of it's content, structure and art in co-operation with the client.
+	*/
+	if (isset($_REQUEST['hcimport']))
+	{
+		Util::response_is_ajax_only();
+		require($config->base.'php/hcimport.php');
+		HCImport::handle_upload();
+		exit;
+	}
+
+
+	/*
+		Returns a static page for the specified stack, along with appropriate data and
+		instructions to invoke the client-side application if the environment is sufficient.
 	
-	The static page is search-engine-friendly.
-*/
-if (isset($_REQUEST['stack']))
+		The static page is search-engine-friendly.
+	*/
+	if (isset($_REQUEST['stack']))
+	{
+		require($config->base.'php/application.php');
+		Application::open_stack();
+		exit;
+	}
+
+
+}
+catch (Exception $err)
 {
-	require($config->base.'php/application.php');
-	Application::open_stack();
+	if (!is_a($err, 'CinsImpError'))
+		$err = new CinsImpError($err);
+	Util::respond_with_http_error($err->getID(), $err->getMessage(), $err->getDetail());
 	exit;
 }
 

@@ -186,6 +186,8 @@ Registration
  */
 	register_command_syntax: function(in_syntax, in_arguments, in_handler)
 	{
+		var me = Xtalk.Dict; /* because this function may be invoked from a plugin */
+		
 		in_syntax = in_syntax.toLowerCase();
 		var first_word = in_syntax.split(' ', 1)[0].trim().toLowerCase();
 		
@@ -212,9 +214,9 @@ Registration
 			handler: in_handler
 		};
 		
-		if (this._commands['|'+first_word] === undefined)
-			this._commands['|'+first_word] = [];
-		this._commands['|'+first_word].push( def );
+		if (me._commands['|'+first_word] === undefined)
+			me._commands['|'+first_word] = [];
+		me._commands['|'+first_word].push( def );
 	},
 
 

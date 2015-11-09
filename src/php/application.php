@@ -35,6 +35,10 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+
+require($config->base.'php/plugin.php');
+
+
 class Application
 {
 
@@ -165,6 +169,7 @@ class Application
 		$client_param_block = array(
 			'base'=>$config->url,
 			'icon_collections'=>Application::list_icon_collections(),
+			'plugin_commands'=>Plugin::get_commands_list(),
 			'stack'=>$stack,
 			'card'=>$card,
 			'bkgnd'=>$bkgnd

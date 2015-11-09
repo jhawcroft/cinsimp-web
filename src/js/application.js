@@ -547,11 +547,13 @@ Application.init = function()
 	Progress.status('Configuring environment...');
 	Application._show_default_palettes();
 	
-	Progress.operation_finished();
-	
 	Xtalk.VM.init();
 	
 	Application._idle_timer = window.setInterval(Application._idle, 50);
+	
+	Plugins.init();
+	
+	Progress.operation_finished();
 }
 
 

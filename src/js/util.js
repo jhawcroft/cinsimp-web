@@ -319,6 +319,39 @@ Util.regex_index_of = function(in_subject, in_regex, in_start)
 }
 
 
+Util.get_url = function(in_url, in_handler)
+{
+	var xhr = new XMLHttpRequest();
+	xhr.open('GET', CinsImp._base + in_url, true);
+	xhr.onreadystatechange = function() 
+	{
+		if ((xhr.readyState == 4) && (xhr.status == 200))
+		{
+			in_handler(xhr.responseText);
+		}
+		else if (xhr.readyState == 4)
+		{
+			in_handler(null);
+		}
+	};
+	xhr.send();
+}
+
+
+Util.load_source = function(in_source, in_name)
+{
+	var file_type = in_name.split('.').pop();
+	if (file_type == 'js')
+	{
+		var script = document.createElement('script');
+		script.type = 'text/javascript';
+		script.appendChild(document.createTextNode(in_source));
+		document.head.appendChild(script);
+	}
+}
+
+
+
 /*
 from: http://stackoverflow.com/questions/273789/is-there-a-version-of-javascripts-string-indexof-that-allows-for-regular-expr
  by :Jason Bunting 
