@@ -362,6 +362,7 @@ Language Built-in Initalization
 		this.register_function('sum', Xtalk.Builtins.function_sum);
 		
 		this.register_function('offset', Xtalk.Builtins.function_offset);
+		this.register_function('length', Xtalk.Builtins.function_length, true);
 		
 
 /// **** can be 'anything' for property evaluation and might be a handy default,
@@ -489,18 +490,7 @@ Language Built-in Initalization
 		
 		// the sound // currently playing sound (if any)
 		/*
-		this.register_property('length', 'leng', null, 'String', Xtalk.Builtins.the_length);
 		
-		this.register_property('abs', 'leng', null, 'String', Xtalk.Builtins.the_length);
-		this.register_property('atan', 'leng', null, 'String', Xtalk.Builtins.the_length);
-		this.register_property('round', 'leng', null, '----', Xtalk.Builtins.the_length);
-		this.register_property('sin', 'leng', null, '----', Xtalk.Builtins.the_length);
-		this.register_property('sqrt', 'leng', null, '----', Xtalk.Builtins.the_length);
-		this.register_property('cos', 'leng', null, '----', Xtalk.Builtins.the_length);
-		this.register_property('tan', 'leng', null, '----', Xtalk.Builtins.the_length);
-		this.register_property('trunc', 'leng', null, '----', Xtalk.Builtins.the_length);
-		
-		this.register_property('value', 'leng', null, '----', Xtalk.Builtins.the_length);
 		
 		
 		this.register_property('clickChunk', 'leng', null, '----', Xtalk.Builtins.the_length); // char chunk expr

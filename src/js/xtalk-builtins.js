@@ -458,17 +458,108 @@ Generic to CinsTalk Implementation
 	},
 	
 	
+	function_avg: function(in_message)
+	{
+		if (in_message.params.length == 0)
+			Xtalk.VM._error("Can't understand arguments of average."); // **TODO better way of this
+		var a = in_message.params[0].resolve();
+		if (a.get_type() == 'String')
+			var params = a.toValue().split(',');
+		else
+			var params = in_message.params;
+		var result = 0.0;
+		for (var p = 0; p < params.length; p++)
+		{
+			var param = params[p];
+			if (typeof param == 'string') result += (param * 1.0);
+			else result += param.resolve().toNumber().toValue();
+		}
+		return result / params.length;
+	},
 	
-	/*
 	
+	function_sum: function(in_message)
+	{
+		if (in_message.params.length == 0)
+			Xtalk.VM._error("Can't understand arguments of sum."); // **TODO better way of this
+		var a = in_message.params[0].resolve();
+		if (a.get_type() == 'String')
+			var params = a.toValue().split(',');
+		else
+			var params = in_message.params;
+		var result = 0.0;
+		for (var p = 0; p < params.length; p++)
+		{
+			var param = params[p];
+			if (typeof param == 'string') result += (param * 1.0);
+			else result += param.resolve().toNumber().toValue();
+		}
+		return result;
+	},
+	
+	
+	function_max: function(in_message)
+	{
+		if (in_message.params.length == 0)
+			Xtalk.VM._error("Can't understand arguments of max."); // **TODO better way of this
+		var a = in_message.params[0].resolve();
+		if (a.get_type() == 'String')
+			var params = a.toValue().split(',');
+		else
+			var params = in_message.params;
+		var result = 0.0;
+		for (var p = 0; p < params.length; p++)
+		{
+			var param = params[p];
+			if (typeof param == 'string') result = Math.max( result, param );
+			else result = Math.max( result, param.resolve().toNumber().toValue() );
+		}
+		return result;
+	},
+	
+	
+	function_min: function(in_message)
+	{
+		if (in_message.params.length == 0)
+			Xtalk.VM._error("Can't understand arguments of min."); // **TODO better way of this
+		var a = in_message.params[0].resolve();
+		if (a.get_type() == 'String')
+			var params = a.toValue().split(',');
+		else
+			var params = in_message.params;
+		var result = 0.0;
+		for (var p = 0; p < params.length; p++)
+		{
+			var param = params[p];
+			if (typeof param == 'string') result = Math.min( result, param );
+			else result = Math.min( result, param.resolve().toNumber().toValue() );
+		}
+		return result;
+	},
+	
+	
+	function_offset: function(in_message)
+	{
+		if (in_message.params.length != 2)
+			Xtalk.VM._error("Can't understand arguments of offset."); // **TODO better way of this
 		
-		this.register_function('average', Xtalk.Builtins.function_avg);
-		this.register_function('max', Xtalk.Builtins.function_max);
-		this.register_function('min', Xtalk.Builtins.function_min);
-		this.register_function('sum', Xtalk.Builtins.function_sum);
+		var needle = in_message.params[0].resolve().toString().toValue();
+		var haystack = in_message.params[1].resolve().toString().toValue();
 		
-		this.register_function('offset', Xtalk.Builtins.function_offset);
-	*/
+		return haystack.toLocaleLowerCase().indexOf( needle.toLocaleLowerCase() ) + 1;
+	},
+	
+	
+	function_length: function(in_message)
+	{
+		if (in_message.params.length != 1)
+			Xtalk.VM._error("Can't understand arguments of length."); // **TODO better way of this
+		
+		var string = in_message.params[0].resolve().toString().toValue();
+		return string.length;
+	},
+	
+	
 	
 	
 	// basically, take a single param
