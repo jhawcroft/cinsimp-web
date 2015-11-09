@@ -335,7 +335,10 @@ Core
 	_generate_expr(in_subtree)
 	{
 		if (in_subtree.id == Xtalk.ID_EXPRESSION)
-			this._generate_expr(in_subtree.children[0]);
+		{
+			if (in_subtree.children.length > 0)
+				this._generate_expr(in_subtree.children[0]);
+		}
 		else if (in_subtree.flags & Xtalk.FLAG_IDENTIFIER)
 			this._result.push({
 				id: Xtalk.ID_VARIABLE,

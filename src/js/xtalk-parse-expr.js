@@ -352,6 +352,9 @@ Names
 		}
 		while (in_func.parameters.children.length > 0)
 			current_arg.children.push( in_func.parameters.children.splice(0, 1) );
+			
+		if (list.length == 1 && list[0].id == Xtalk.ID_EXPRESSION && list[0].children.length == 0)
+			list.pop();
 	
 		in_func.parameters = list;
 	},
