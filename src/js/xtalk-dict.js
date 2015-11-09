@@ -364,6 +364,99 @@ Language Built-in Initalization
 		this.register_property('itemDelimiter', 'idel', null, '----', 
 			Xtalk.Builtins.the_item_delimiter_get, Xtalk.Builtins.the_item_delimiter_set
 		);
+		this.register_property('numberFormat', 'nfmt', null, '----', 
+			Xtalk.Builtins.the_number_format_get, Xtalk.Builtins.the_number_format_set
+		);
+		
+		this.register_property('address', 'addr', 'norm', '----', Xtalk.Builtins.the_address);
+		
+		this.register_property('editBkgnd', 'edbg', null, '----', 
+			Xtalk.Builtins.the_edit_bkgnd_get, Xtalk.Builtins.the_edit_bkgnd_set
+		);
+		this.register_property('editBackground', 'edbg', null, '----', 
+			Xtalk.Builtins.the_edit_bkgnd_get, Xtalk.Builtins.the_edit_bkgnd_set
+		);
+		this.register_property('editBg', 'edbg', null, '----', 
+			Xtalk.Builtins.the_edit_bkgnd_get, Xtalk.Builtins.the_edit_bkgnd_set
+		);
+		
+		
+		this.register_property('environment', 'envn', null, '----', Xtalk.Builtins.the_environment);
+		
+		
+		// all reset at idle:
+		
+		this.register_property('lockErrorDialogs', 'lerr', null, '----', 
+			Xtalk.Builtins.the_lock_errors_get, Xtalk.Builtins.the_lock_errors_set
+			// VM
+			// send errorDialog <msg> to card instead?
+		);
+		this.register_property('lockMessages', 'lmsg', null, '----', 
+			Xtalk.Builtins.the_lock_messages_get, Xtalk.Builtins.the_lock_messages_set
+			// HIDDEN SESSION / VM filter?
+			// disable specific messages: closeCard, closeBackground, closeStack, 
+			// openCard, openBackground, openStack, resumeStack, suspendStack
+		);
+		this.register_property('lockScreen', 'lscn', null, '----', 
+			Xtalk.Builtins.the_lock_screen_get, Xtalk.Builtins.the_lock_screen_set
+			// VIEW
+			// card view shows updates?
+		);
+		this.register_property('lockRecent', 'lrec', null, '----', 
+			Xtalk.Builtins.the_lock_recent_get, Xtalk.Builtins.the_lock_recent_set
+			// VIEW / HIDDEN SESSION
+			// eg. whether we create browser history for visited cards/stacks
+		);
+		
+		
+		// version [of CinsImp] / stack
+		
+		
+		// eventually to add:
+		// brush - a number/name indicating the type of paint brush selected
+		// dragSpeed
+		// filled /drawFilled
+		// grid
+		// lineSize
+		// snapGuides ?
+		// pattern?
+		// texture?
+		// polySides?
+		// powerKeys?
+		
+		// language? eg. English  - localisation
+		
+		// (not reporting):
+		// printMargins
+		// printTextAlign
+		// printTextFont
+		// printTextHeight
+		// printTextSize
+		// printTextStyle
+		
+		// reportTemplates
+		
+		// scriptTextFont?
+		// scriptTextSize?
+		
+		// stacksInUse
+		// suspended
+		
+		// (either specific object, or general, eg. selection?)
+		// textAlign
+		// textFont
+		// textHeight
+		// textSize
+		// textStyle
+		
+		// userModify - allow card to be modified even though stack is read-only
+		// (changes will be discarded silently)
+		
+		
+		
+		
+		// cursor - * automatic?
+		// 
 		
 /*
 	Chunk expressions

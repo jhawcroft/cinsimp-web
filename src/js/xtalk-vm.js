@@ -110,6 +110,8 @@ Module Globals
 	
 	_item_delimiter: ',', 		/* the delimiter used with "item" chunk expressions;
 								   reset at idle */
+								   
+	_number_format: '0.######', /* the format string for numbers conversion to strings */
 	
 	
 /*****************************************************************************************
@@ -1059,7 +1061,9 @@ Control
 	reset_globals: function()
 	{
 		if (this._state != this._STATE_READY && this._state != this._STATE_ABORTED) return;
+		
 		this._item_delimiter = ',';
+		this._number_format = '0.######';
 	},
 
 

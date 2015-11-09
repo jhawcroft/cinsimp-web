@@ -1643,6 +1643,12 @@ View.prototype.lock_screen = function()
 }
 
 
+View.prototype.is_screen_locked = function()
+{
+	return (this._screen_lock_depth > 0);
+}
+
+
 /*
 	Hides and destroys a visual overlay.
 */

@@ -178,6 +178,84 @@ Generic to CinsTalk Implementation
 	},
 	
 	
+	the_number_format_get: function(in_context, in_id, in_variant)
+	{
+		return Xtalk.VM._number_format;
+	},
+	
+	the_number_format_set: function(in_context, in_id, in_new_value)
+	{
+		Xtalk.VM._number_format = in_new_value;
+	},
+	
+	
+	the_address: function(in_context, in_id, in_variant)
+	{
+		return window.location.href;
+	},
+	
+	
+	the_edit_bkgnd_get: function(in_context, in_id, in_variant)
+	{
+		return View.current.is_edit_bkgnd();
+	},
+	
+	the_edit_bkgnd_set: function(in_context, in_id, in_new_value)
+	{
+		View.current.edit_bkgnd( in_new_value );
+	},
+	
+	
+	the_environment: function(in_context, in_id, in_variant)
+	{
+		return 'development';// or 'player' if the runtime environment doesn't provide authoring
+	},
+	
+	
+	
+	the_lock_errors_get: function(in_context, in_id, in_variant)
+	{
+		//return View.current.is_edit_bkgnd();
+	},
+	
+	the_lock_errors_set: function(in_context, in_id, in_new_value)
+	{
+		//View.current.edit_bkgnd( in_new_value );
+	},
+	
+	the_lock_screen_get: function(in_context, in_id, in_variant)
+	{
+		return View.current.is_screen_locked();
+	},
+	
+	the_lock_screen_set: function(in_context, in_id, in_new_value)
+	{
+		if (in_new_value) View.current.lock_screen();
+		else View.current.unlock_screen(); // **TODO this needs to put the VM into wait mode until unlock callback..
+	},
+	
+	the_lock_recent_get: function(in_context, in_id, in_variant)
+	{
+		//return View.current.is_edit_bkgnd();
+	},
+	
+	the_lock_recent_set: function(in_context, in_id, in_new_value)
+	{
+		//View.current.edit_bkgnd( in_new_value );
+	},
+	
+	the_lock_messages_get: function(in_context, in_id, in_variant)
+	{
+		//return View.current.is_edit_bkgnd();
+	},
+	
+	the_lock_messages_set: function(in_context, in_id, in_new_value)
+	{
+		//View.current.edit_bkgnd( in_new_value );
+	},
+	
+	
+	
 	count_cards: function(in_context, in_id)
 	{
 		if (in_context === null) in_context = View.current.get_stack();
