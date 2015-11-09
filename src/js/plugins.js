@@ -121,6 +121,7 @@ var Plugins = {
 	init: function()
 	{
 		Progress.status('Loading plug-ins...');
+		Xtalk.Dict._loading_plugins = true;
 		this._base = CinsImp._base + 'plugins/';
 		this._base_cmds = this._base + 'commands/';
 		this.load_commands();

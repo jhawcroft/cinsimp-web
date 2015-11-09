@@ -325,6 +325,7 @@ Message Hierarchy
  		/* if no handler is found, look for builtin */
  		if ((!handler) && in_message.builtin)
  		{
+ 
  			in_message.builtin(in_message); // ** could set this up as a sub-context as below so that long commands can reply in time?
  			// possibly provide method to setup subcontext for this purpose exposed to the actual implementation
  			return;

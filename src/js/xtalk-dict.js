@@ -72,6 +72,8 @@ Module Globals
 	   		arguments will be provided)
 	*/
 	_commands: [], 
+	
+	_loading_plugins: false,
 
 
 /*****************************************************************************************
@@ -211,7 +213,8 @@ Registration
 			pattern: Xtalk.Parser.BNF.parse(in_syntax),
 			parameters: args,
 			delayed: delayed,
-			handler: in_handler
+			handler: in_handler,
+			is_plugin: this._loading_plugins
 		};
 		
 		if (me._commands['|'+first_word] === undefined)
