@@ -150,6 +150,12 @@ Generic to CinsTalk Implementation
 	},
 	
 	
+	function_time: function(in_message)
+	{
+		return Xtalk.Builtins.the_time(null, null, 'shrt');
+	},
+	
+	
 	the_dateitems: function(in_context, in_id, in_variant)
 	{
 		var now = new Date();
@@ -387,6 +393,19 @@ Generic to CinsTalk Implementation
 	{
 		return Math.abs(in_message.params[0].resolve().toInteger().toValue());
 	},
+	
+	
+	// basically, take a single param
+	// if it's not a string, just return it
+	// if it is a string, try evaluating it as a CinsTalk expression
+	// if that fails, just return the string itself
+	function_value: function(in_message)
+	{
+		var param = in_message.params[0].resolve();
+		if (param.get_type() != 'String') return param;
+		Xtalk.VM.handle_value(param); // VM knows to return this for this special function
+	},
+	
 	
 
 /*****************************************************************************************

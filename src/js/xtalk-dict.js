@@ -341,12 +341,12 @@ Language Built-in Initalization
 // annuity ?
 // compound ?
 
+		this.register_function('value', Xtalk.Builtins.function_value);// evaluate expression, like msgbox
+		
+		
 		this.register_function('abs', Xtalk.Builtins.function_abs, true);
+
 		
-		this.register_function('date', Xtalk.Builtins.function_date);//short
-		this.register_function('time', Xtalk.Builtins.function_abs);//short
-		
-		this.register_function('value', Xtalk.Builtins.function_abs);// evaluate expression, like msgbox
 		
 		this.register_function('atan', Xtalk.Builtins.function_abs);
 		this.register_function('average', Xtalk.Builtins.function_abs);
@@ -405,7 +405,7 @@ Language Built-in Initalization
 		
 
 /*
-	Generic properties
+	Calendar
  */
  
 		this.register_property('date', 'date', 'shrt', '----', Xtalk.Builtins.the_date);
@@ -424,9 +424,18 @@ Language Built-in Initalization
 		this.register_property('long time', 'time', 'long', '----', Xtalk.Builtins.the_time);
 		this.register_property('English time', 'time', 'en  ', '----', Xtalk.Builtins.the_time);
 		
+		this.register_function('date', Xtalk.Builtins.function_date);
+		this.register_function('time', Xtalk.Builtins.function_time);
+		
 		this.register_property('dateitems', 'ditm', 'locl', '----', Xtalk.Builtins.the_dateitems);
 		
 		this.register_property('timestamp', 'tmsp', 'locl', '----', Xtalk.Builtins.the_timestamp);
+		
+		
+		
+/*
+	Generic properties
+*/
 		
 		this.register_property('itemDelimiter', 'idel', null, '----', 
 			Xtalk.Builtins.the_item_delimiter_get, Xtalk.Builtins.the_item_delimiter_set

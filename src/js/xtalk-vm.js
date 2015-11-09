@@ -1208,6 +1208,21 @@ Language Entry
 	{
 	
 	},
+	
+	// attempts to evaluate the expression
+	// without sending messages
+	// will need to create a new context
+	// context return, when there is more than 1 will
+	// need to send the value back as normal to the next higher...
+	
+	// also - overwrite any currently executing function result ***
+	
+	// if this fails, return the original string expression
+	handle_value: function(in_string_expr)
+	{
+		
+	},
+	
 
 /*****************************************************************************************
 Environment Entry
