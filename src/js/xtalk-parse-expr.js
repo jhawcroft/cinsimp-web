@@ -414,6 +414,7 @@ Names
 				}
 				if (n > 0 && in_list.children[n-1].id == Xtalk.ID_THE)
 				{
+					words[0] = '|'+words[0]; // javascript fix
 					var property_map = this._lookup_words(Xtalk.Dict._properties, words, word_count);
 					if (property_map)
 					{

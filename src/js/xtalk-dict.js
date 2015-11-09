@@ -121,6 +121,7 @@ Registration
 	register_property: function(in_name, in_id, in_variant, in_context_type, in_getter, in_setter)
 	{
 		var in_name = in_name.toLowerCase();
+		in_name = '|'+in_name; // javascript fix
 		var word_count = Xtalk._word_count(in_name);
 		
 		if (!this._properties[word_count])
