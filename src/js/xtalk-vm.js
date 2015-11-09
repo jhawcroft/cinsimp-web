@@ -767,7 +767,13 @@ Execution
 			if (!context)
 				prop = step.map['----'];
 			else
+			{
 				prop = step.map[context.get_type()];
+				if (!prop && context.is_readable && context.is_readable())
+					prop = step.map['String'];
+				if (!prop)
+					prop = step.map['****'];
+			}
 				
 			if (prop) this._push(  this.new_value(prop.handler(context, prop.param, prop.variant)) );
 			else this._error("Can't understand arguments of \"^0\".", step.name);
@@ -798,6 +804,8 @@ Execution
 				ref = step.map[context.get_type()];
 				if (!ref && context.is_readable && context.is_readable())
 					ref = step.map['String'];
+				if (!ref)
+					ref = step.map['****'];
 			}
 				
 			var mode = step.ref;
