@@ -393,10 +393,15 @@ Access/Mutation
 	_variable_read: function(in_name)
 	{
 		var context = this._context();
+		var table = null;
 		if (in_name == 'it' || context.type == Xtalk.VM._CONTEXT_ANONYMOUS || context.imported_globals[in_name])
-			return this._globals[in_name];
+			table = this._globals;
 		else
-			return context.locals[in_name];
+			table = context.locals;
+			
+		var value = table[in_name];
+		if (value === undefined) return new Xtalk.VM.TString(in_name);
+		else return value;
 	},
 	
 	
