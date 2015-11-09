@@ -357,6 +357,10 @@ Language Built-in Initalization
 		this.register_property('long time', 'time', 'long', '----', Xtalk.Builtins.the_time);
 		this.register_property('English time', 'time', 'en  ', '----', Xtalk.Builtins.the_time);
 		
+		this.register_property('dateitems', 'ditm', 'locl', '----', Xtalk.Builtins.the_dateitems);
+		
+		this.register_property('timestamp', 'tmsp', 'locl', '----', Xtalk.Builtins.the_timestamp);
+		
 		this.register_property('itemDelimiter', 'idel', null, '----', 
 			Xtalk.Builtins.the_item_delimiter_get, Xtalk.Builtins.the_item_delimiter_set
 		);

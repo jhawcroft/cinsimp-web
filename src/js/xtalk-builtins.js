@@ -58,12 +58,11 @@ Generic to CinsTalk Implementation
 	the_date: function(in_context, in_id, in_variant)
 	{
 		var now = new Date();
-		var locale = (Application.locale ? Application.locale : []);
 		switch (in_variant)
 		{
 		case 'shrt':
 		{
-			return now.toLocaleDateString(locale, {
+			return now.toLocaleDateString(Application.get_dt_locale_id(), {
 				day: 'numeric',
 				month: 'numeric',
 				year: 'numeric'
@@ -73,7 +72,7 @@ Generic to CinsTalk Implementation
 		}
 		case 'abbr':
 		{
-			return now.toLocaleDateString(locale, {
+			return now.toLocaleDateString(Application.get_dt_locale_id(), {
 				weekday: 'short',
 				day: 'numeric',
 				month: 'short',
@@ -85,7 +84,7 @@ Generic to CinsTalk Implementation
 		}
 		case 'long':
 		{
-			return now.toLocaleDateString(locale, {
+			return now.toLocaleDateString(Application.get_dt_locale_id(), {
 				weekday: 'long',
 				day: 'numeric',
 				month: 'long',
@@ -111,13 +110,12 @@ Generic to CinsTalk Implementation
 	the_time: function(in_context, in_id, in_variant)
 	{
 		var now = new Date();
-		var locale = (Application.locale ? Application.locale : []);
 		switch (in_variant)
 		{
 		case 'shrt':
 		case 'abbr':
 		{
-			return now.toLocaleTimeString(locale, {
+			return now.toLocaleTimeString(Application.get_dt_locale_id(), {
 				hour: 'numeric', 
 				minute: 'numeric'
 			});
@@ -125,7 +123,7 @@ Generic to CinsTalk Implementation
 		}
 		case 'long':
 		{
-			return now.toLocaleTimeString(locale, {
+			return now.toLocaleTimeString(Application.get_dt_locale_id(), {
 				hour: 'numeric', 
 				minute: 'numeric',
 				second: 'numeric'
@@ -143,6 +141,29 @@ Generic to CinsTalk Implementation
 			break;
 		}
 		}
+	},
+	
+	
+	the_dateitems: function(in_context, in_id, in_variant)
+	{
+		var now = new Date();
+		var items = [
+			now.getFullYear(),
+			now.getMonth(),
+			now.getDate(),
+			now.getHours(),
+			now.getMinutes(),
+			now.getSeconds(),
+			now.getDay() + 1
+		];
+		return items.join(',');
+	},
+	
+	
+	the_timestamp: function(in_context, in_id, in_variant)
+	{
+		var now = new Date();
+		return now.getTime();
 	},
 	
 	

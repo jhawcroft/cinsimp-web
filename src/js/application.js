@@ -528,9 +528,15 @@ Application._idle = function()
 }
 
 
+Application.get_dt_locale_id = function()
+{
+	return (this.locale ? this.locale : []);
+}
+
+
 Application.init = function()
 {
-	this.locale = null;
+	this._locale = null;
 
 	Progress.status('Initalizing CinsImp application...');
 	Application._create_stack_window();
