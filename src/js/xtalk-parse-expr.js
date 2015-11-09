@@ -794,6 +794,7 @@ Subexpressions
 				return true;
 		
 			case Xtalk.ID_WORD:
+			case Xtalk.ID_DOWN:
 			case Xtalk.ID_LITERAL_BOOLEAN:
 			case Xtalk.ID_LITERAL_INTEGER:
 			case Xtalk.ID_LITERAL_REAL:
