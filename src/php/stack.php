@@ -962,12 +962,16 @@ Accessors and Mutators
 	
 		/* try to import with supplied ID */
 		$this->file_db->beginTransaction();
-		$stmt = $this->file_db->prepare('INSERT INTO icon (id,name,png_data) VALUES (?,?,?)');
-		if ($stmt->execute(array(intval($in_preferred_id), $in_name, $in_data)) === false)
+		try 
+		{
+			$stmt = $this->file_db->prepare('INSERT INTO icon (id,name,png_data) VALUES (?,?,?)');
+			$stmt->execute(array( intval($in_preferred_id), $in_name, $in_data ));
+		}
+		catch (Exception $err)
 		{
 			/* resort to an automatically allocated ID */
 			$stmt = $this->file_db->prepare('INSERT INTO icon (id,name,png_data) VALUES (NULL,?,?)');
-			Stack::sl_ok($stmt->execute(array($in_name, $in_data)), $this->file_db, 'Importing Icon (2)');
+			$stmt->execute(array( $in_name, $in_data ));
 			$in_preferred_id = $this->file_db->lastInsertId();
 		}
 		if (!$this->file_db->commit())
