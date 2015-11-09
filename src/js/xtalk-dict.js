@@ -437,6 +437,9 @@ Language Built-in Initalization
 /*
 	Generic properties
 */
+
+		this.register_property('result', 'rslt', null, '----', Xtalk.Builtins.the_result);
+
 		
 		this.register_property('itemDelimiter', 'idel', null, '----', 
 			Xtalk.Builtins.the_item_delimiter_get, Xtalk.Builtins.the_item_delimiter_set
@@ -531,7 +534,7 @@ Language Built-in Initalization
 		
 		this.register_property('random', 'leng', null, 'Integer', Xtalk.Builtins.the_length); // 1 - N
 		
-		this.register_property('result', 'leng', null, '----', Xtalk.Builtins.the_length);
+		
 		*/
 		//this.register_property('selectedButton', 'leng', null, 'Family', Xtalk.Builtins.the_length);
 		// eg. the selected button of [bkgnd | card] family <int>

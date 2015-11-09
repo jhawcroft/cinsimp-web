@@ -267,6 +267,13 @@ Generic to CinsTalk Implementation
 	},
 	
 	
+	the_result: function(in_context, in_id, in_variant)
+	{
+		if (Xtalk.VM._result === null) return new Xtalk.VM.TString('');
+		else return Xtalk.VM._result;
+	},
+	
+	
 	
 	count_cards: function(in_context, in_id)
 	{
