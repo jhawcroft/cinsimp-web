@@ -347,6 +347,15 @@ Language Built-in Initalization
 		this.register_property('abbrev date', 'date', 'abbr', '----', Xtalk.Builtins.the_date);
 		this.register_property('abbreviated date', 'date', 'abbr', '----', Xtalk.Builtins.the_date);
 		this.register_property('long date', 'date', 'long', '----', Xtalk.Builtins.the_date);
+		this.register_property('English date', 'date', 'en  ', '----', Xtalk.Builtins.the_date);
+		
+		this.register_property('time', 'time', 'shrt', '----', Xtalk.Builtins.the_time);
+		this.register_property('short time', 'time', 'shrt', '----', Xtalk.Builtins.the_time);
+		this.register_property('abbr time', 'time', 'abbr', '----', Xtalk.Builtins.the_time);
+		this.register_property('abbrev time', 'time', 'abbr', '----', Xtalk.Builtins.the_time);
+		this.register_property('abbreviated time', 'time', 'abbr', '----', Xtalk.Builtins.the_time);
+		this.register_property('long time', 'time', 'long', '----', Xtalk.Builtins.the_time);
+		this.register_property('English time', 'time', 'en  ', '----', Xtalk.Builtins.the_time);
 		
 		this.register_property('itemDelimiter', 'idel', null, '----', 
 			Xtalk.Builtins.the_item_delimiter_get, Xtalk.Builtins.the_item_delimiter_set

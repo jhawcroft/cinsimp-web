@@ -57,25 +57,90 @@ Generic to CinsTalk Implementation
 
 	the_date: function(in_context, in_id, in_variant)
 	{
-		var now = new Date(); 
+		var now = new Date();
+		var locale = (Application.locale ? Application.locale : []);
 		switch (in_variant)
 		{
 		case 'shrt':
 		{
-			var yr = now.getFullYear() + '';
-			return now.getDate() + '/' + (now.getMonth()+1) + '/' + yr.substr(yr.length - 2, 2);
+			return now.toLocaleDateString(locale, {
+				day: 'numeric',
+				month: 'numeric',
+				year: 'numeric'
+			});
+			//var yr = now.getFullYear() + '';
+			//return now.getDate() + '/' + (now.getMonth()+1) + '/' + yr.substr(yr.length - 2, 2);
 		}
 		case 'abbr':
 		{
-			var abbr_days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-			var abbr_months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-			return abbr_days[now.getDay()] + ', ' + abbr_months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear();
+			return now.toLocaleDateString(locale, {
+				weekday: 'short',
+				day: 'numeric',
+				month: 'short',
+				year: 'numeric'
+			});
+			//var abbr_days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+			//var abbr_months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+			//return abbr_days[now.getDay()] + ', ' + abbr_months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear();
 		}
 		case 'long':
 		{
-			var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-			var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-			return days[now.getDay()] + ', ' + months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear();
+			return now.toLocaleDateString(locale, {
+				weekday: 'long',
+				day: 'numeric',
+				month: 'long',
+				year: 'numeric'
+			});
+			//var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+			//var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+			//return days[now.getDay()] + ', ' + months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear();
+		}
+		case 'en  ':
+		{
+			return now.toLocaleDateString('en-us', {
+				weekday: 'long',
+				day: 'numeric',
+				month: 'long',
+				year: 'numeric'
+			});
+		}
+		}
+	},
+	
+	
+	the_time: function(in_context, in_id, in_variant)
+	{
+		var now = new Date();
+		var locale = (Application.locale ? Application.locale : []);
+		switch (in_variant)
+		{
+		case 'shrt':
+		case 'abbr':
+		{
+			return now.toLocaleTimeString(locale, {
+				hour: 'numeric', 
+				minute: 'numeric'
+			});
+			break;
+		}
+		case 'long':
+		{
+			return now.toLocaleTimeString(locale, {
+				hour: 'numeric', 
+				minute: 'numeric',
+				second: 'numeric'
+			});
+			break;
+		}
+		case 'en  ':
+		{
+			return now.toLocaleTimeString('en-us', {
+				hour12: true,
+				hour: 'numeric', 
+				minute: 'numeric',
+				second: 'numeric'
+			});
+			break;
 		}
 		}
 	},

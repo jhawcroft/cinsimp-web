@@ -530,7 +530,9 @@ Application._idle = function()
 
 Application.init = function()
 {
-	//Progress.status('Initalizing CinsImp application...');
+	this.locale = null;
+
+	Progress.status('Initalizing CinsImp application...');
 	Application._create_stack_window();
 	
 	Application._init_palettes();
@@ -541,7 +543,7 @@ Application.init = function()
 	
 	Application._init_xtalk();
 	
-	Progress.operation_begun('Loading stack...', true);
+	Progress.operation_begun('Loading stack...');
 	Application._load_initial_stack();
 	
 	Progress.status('Configuring environment...');
