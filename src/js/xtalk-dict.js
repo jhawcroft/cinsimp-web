@@ -232,7 +232,7 @@ Registration
 	},
 	
 	
-	register_function: function(in_function, in_handler)
+	register_function: function(in_function, in_handler, in_has_prop_variant)
 	{
 		me = Xtalk.Dict;
 		me._functions[in_function.toLowerCase()] = 
@@ -240,9 +240,18 @@ Registration
 			handler: in_handler,
 			is_plugin: me._loading_plugins
 		};
+		
+		if (in_has_prop_variant)
+			me.register_property(in_function, null, null, '****', 
+			function(in_context, in_id, in_variant)
+			{
+				var params = (in_context && in_context.get_type() != 'Nothing' ?
+							  [in_context] : []);
+				var message = new Xtalk.VM.Message(in_function, true, params, true, me._loading_plugins);
+				return in_handler(message);
+			});
 	},
 	
-
 
 /*****************************************************************************************
 Language Built-in Initalization
@@ -324,6 +333,7 @@ Language Built-in Initalization
         	Xtalk.Builtins.command_put
         );
         
+        
 
 /*
 	Generic functions
@@ -331,9 +341,9 @@ Language Built-in Initalization
 // annuity ?
 // compound ?
 
-		this.register_function('abs', Xtalk.Builtins.function_abs);
+		this.register_function('abs', Xtalk.Builtins.function_abs, true);
 		
-		this.register_function('date', Xtalk.Builtins.function_abs);//short
+		this.register_function('date', Xtalk.Builtins.function_date);//short
 		this.register_function('time', Xtalk.Builtins.function_abs);//short
 		
 		this.register_function('value', Xtalk.Builtins.function_abs);// evaluate expression, like msgbox

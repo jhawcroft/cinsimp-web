@@ -107,6 +107,12 @@ Generic to CinsTalk Implementation
 	},
 	
 	
+	function_date: function(in_message)
+	{
+		return Xtalk.Builtins.the_date(null, null, 'shrt');
+	},
+	
+	
 	the_time: function(in_context, in_id, in_variant)
 	{
 		var now = new Date();
