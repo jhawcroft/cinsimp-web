@@ -331,10 +331,10 @@ Names
 		};
 		list.push(current_arg);
 	
-		var count = in_func.args.children.length;
+		var count = in_func.parameters.children.length;
 		for (var i = 0; i < count; i++)
 		{
-			var node = in_func.args.children[0];
+			var node = in_func.parameters.children[0];
 			if (node.id == Xtalk.ID_COMMA)
 			{
 				current_arg = {
@@ -342,18 +342,18 @@ Names
 					children: []
 				};
 				list.push(current_arg);
-				in_func.args.children.splice(0, 1);
+				in_func.parameters.children.splice(0, 1);
 			}
 			else
 			{
 				current_arg.children.push( node );
-				in_func.args.children.splice(0, 1);
+				in_func.parameters.children.splice(0, 1);
 			}
 		}
-		while (in_func.args.children.length > 0)
-			current_arg.children.push( in_func.args.children.splice(0, 1) );
+		while (in_func.parameters.children.length > 0)
+			current_arg.children.push( in_func.parameters.children.splice(0, 1) );
 	
-		in_func.args = list;
+		in_func.parameters = list;
 	},
 
 
@@ -362,11 +362,17 @@ Names
 */
 	_parse_function_call: function(in_list, in_index)
 	{
+		var func_name = in_list.children[in_index].text;
+		var func_ref = Xtalk.Dict._functions[func_name.toLowerCase()];
+		
 		var func_call = {
-			id:		Xtalk.ID_FUNCTION_CALL,
-			name:		in_list.children[in_index].text,
-			args:		in_list.children[in_index + 1]
+			id:			Xtalk.ID_FUNCTION_CALL,
+			name:		func_name,
+			parameters:	in_list.children[in_index + 1],
+			handler:	(func_ref ? func_ref.handler : null),
+			is_plugin:	(func_ref ? func_ref.is_plugin : false)
 		};
+		
 		in_list.children.splice(in_index, 2, func_call);
 		this._delineate_args( func_call );
 	},

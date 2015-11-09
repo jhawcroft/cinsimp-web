@@ -234,7 +234,12 @@ Registration
 	
 	register_function: function(in_function, in_handler)
 	{
-	
+		me = Xtalk.Dict;
+		me._functions[in_function.toLowerCase()] = 
+		{
+			handler: in_handler,
+			is_plugin: me._loading_plugins
+		};
 	},
 	
 
@@ -319,6 +324,15 @@ Language Built-in Initalization
         	Xtalk.Builtins.command_put
         );
         
+
+/*
+	Generic functions
+*/
+		this.register_function(
+			'abs', 
+			function(in_message) { return Math.abs(in_message.params[0].resolve().toInteger().toValue()); }
+		);
+
 
 
 /*

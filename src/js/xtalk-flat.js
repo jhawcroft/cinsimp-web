@@ -420,7 +420,8 @@ Core
 				id: Xtalk.ID_FUNCTION_CALL,
 				name: in_subtree.name,
 				handler: (in_subtree.handler || null),
-				arg_count: in_subtree.parameters.length
+				arg_count: in_subtree.parameters.length,
+				is_plugin: (in_subtree.is_plugin || false)
 			});
 		}
 		else if (in_subtree.operand1)

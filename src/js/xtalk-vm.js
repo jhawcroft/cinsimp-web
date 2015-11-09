@@ -325,15 +325,18 @@ Message Hierarchy
  			this._error("Can't understand \"^0\".", in_message.name);
  			
  		/* if no handler is found, look for builtin */
+ 		var result = null;
  		if ((!handler) && in_message.builtin)
  		{
  			if (in_message.is_plugin)
  			{
- 				try { in_message.builtin(in_message); }
- 				catch (err) { this._error("Plugin "+in_message.name+" has malfunctioned.\n" + err.message); }
+ 				try { result = in_message.builtin(in_message); }
+ 				catch (err) { this._error("Plugin \""+in_message.name+"\" has malfunctioned.\n" + err.message); }
  			}
  			else
- 				in_message.builtin(in_message);
+ 				result = in_message.builtin(in_message);
+ 			if (in_message.type == Xtalk.Script.HANDLER_FUNCTION)
+ 				this._push(this.new_value(result));
  			return;
  		}
  		
