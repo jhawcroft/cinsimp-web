@@ -3,18 +3,7 @@ TODO: CinsImp -> Toward 1.0
 
 * fixing checkboxes and auto-hilite after above refactoring [DONE]
 
-* object reference internals for xTalk, Link To
-  and inter-stack resolution
-  (delayed reference evaluation, application mechanism to 
-  resolve reference path/chain to actual model object)
-	Probably cache references within the evaluation module,
-	have a limit of stacks, layers, objects to cache,
-	and a method that is invoked at completion of the current
-	system event to purge any cached objects (save and unload).
-	
-	- more importantly now, creating references at runtime
-	(as VM instruction chains - such that they can be inserted into a plan for
-	resolution, or an alternative mechanism for this issue - Link To)
+* object reference internals for xTalk, Link To -> actually just need the stack's URL and card ID number
 
 * general cleanup
 
