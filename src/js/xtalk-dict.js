@@ -681,15 +681,47 @@ Language Built-in Initalization
 	Environment objects
  */
  
- 		this.register_reference('stack', 'stak', '----', Xtalk.Builtins.ref_stack);
+ 		this.register_reference('stack', 'stack', '----', Xtalk.Builtins.ref_stack);
  		
- 		//this.register_reference('stack', 'stak', '----', Xtalk.Builtins.ref_stack);
+ 		this.register_reference('bg', 'bkgnd', '****', Xtalk.Builtins.ref_layer); // [of stack]
+ 		this.register_reference('bkgnd', 'bkgnd', '****', Xtalk.Builtins.ref_layer);
+ 		this.register_reference('background', 'bkgnd', '****', Xtalk.Builtins.ref_layer);
+ 		
+ 		this.register_reference('cd', 'card', '****', Xtalk.Builtins.ref_layer); // [of bkgnd/stack]
+ 		this.register_reference('card', 'card', '****', Xtalk.Builtins.ref_layer); // [of bkgnd/stack]
+ 		
+ 		// 1. all layerobject references shall return an adapter, which includes the object, and it's layer (default current card)
+ 		// 2. might be useful to have an automatic permutations thing in registration, eg. list of synonyms accepted also **TODO
+ 		//   ^^ use a wrapper, so that the functionality is still easy to understand in registration
+ 		
+ 		this.register_reference('button', 'cbtn', '****', Xtalk.Builtins.ref_layer_object); // [of card]
+ 		this.register_reference('card button', 'cbtn', '****', Xtalk.Builtins.ref_layer_object); // [of card]
+ 		this.register_reference('card btn', 'cbtn', '****', Xtalk.Builtins.ref_layer_object); // [of card]
+ 		this.register_reference('cd button', 'cbtn', '****', Xtalk.Builtins.ref_layer_object); // [of card]
+ 		this.register_reference('cd btn', 'cbtn', '****', Xtalk.Builtins.ref_layer_object); // [of card]
+ 		
+ 		this.register_reference('background button', 'bbtn', '****', Xtalk.Builtins.ref_layer_object); // [of card/bkgnd]
+ 		this.register_reference('bg button', 'bbtn', '****', Xtalk.Builtins.ref_layer_object); // [of card/bkgnd]
+ 		this.register_reference('bkgnd button', 'bbtn', '****', Xtalk.Builtins.ref_layer_object); // [of card/bkgnd]
+ 		this.register_reference('background btn', 'bbtn', '****', Xtalk.Builtins.ref_layer_object); // [of card/bkgnd]
+ 		this.register_reference('bg btn', 'bbtn', '****', Xtalk.Builtins.ref_layer_object); // [of card/bkgnd]
+ 		this.register_reference('bkgnd btn', 'bbtn', '****', Xtalk.Builtins.ref_layer_object); // [of card/bkgnd]
+ 		
+ 		this.register_reference('card field', 'cfld', '****', Xtalk.Builtins.ref_layer_object); // [of card]
+ 		this.register_reference('card fld', 'cfld', '****', Xtalk.Builtins.ref_layer_object); // [of card]
+ 		this.register_reference('cd field', 'cfld', '****', Xtalk.Builtins.ref_layer_object); // [of card]
+ 		this.register_reference('cd fld', 'cfld', '****', Xtalk.Builtins.ref_layer_object); // [of card]
+ 		
+ 		this.register_reference('field', 'bfld', '****', Xtalk.Builtins.ref_layer_object); // [of card/bkgnd]
+ 		this.register_reference('background field', 'bfld', '****', Xtalk.Builtins.ref_layer_object); // [of card/bkgnd]
+ 		this.register_reference('bg field', 'bfld', '****', Xtalk.Builtins.ref_layer_object); // [of card/bkgnd]
+ 		this.register_reference('bkgnd field', 'bfld', '****', Xtalk.Builtins.ref_layer_object); // [of card/bkgnd]
+ 		this.register_reference('background fld', 'bfld', '****', Xtalk.Builtins.ref_layer_object); // [of card/bkgnd]
+ 		this.register_reference('bg fld', 'bfld', '****', Xtalk.Builtins.ref_layer_object); // [of card/bkgnd]
+ 		this.register_reference('bkgnd fld', 'bfld', '****', Xtalk.Builtins.ref_layer_object); // [of card/bkgnd]
  		
 		
-		this.register_reference('card button', 'cdbn', '----', 
-		function(in_context, in_param, in_mode, in_ident1, in_ident2) { 
-			alert('Card Button '+in_mode +'|'+in_ident1+'|'+in_ident2);
-		});
+		//alert('got here');
 		
 		
 	}

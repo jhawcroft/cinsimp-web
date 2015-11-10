@@ -702,8 +702,39 @@ Specific to CinsImp Environment
 		// otherwise, it's a full URL to another stack
 		
 		alert('Stack ' + in_ident1);  // **TODO
-	}
+	},
 	
+	
+	ref_layer: function(in_context, in_param, in_mode, in_ident1, in_ident2) 
+	{
+		if (in_mode == Xtalk.REF_RANGE && in_ident2 !== null)
+			Xtalk.VM._error("Can't understand arguments of ^0.", in_param); // **
+		var context_type = (in_context ? in_context.get_type() : 'Nothing');
+		if (in_param == 'card') // [of bkgnd/stack]
+		{
+			if (context_type == 'Nothing') ;
+			else if (context_type == 'bkgnd') ;
+			else if (context_type == 'stack') ;
+			else
+				Xtalk.VM._error("Can't understand arguments of ^0.", in_param);
+		}
+		else // [of stack]
+		{
+			if (context_type == 'Nothing') ;
+			else if (context_type == 'stack') ;
+			else
+				Xtalk.VM._error("Can't understand arguments of ^0.", in_param);
+		}
+	},
+	
+	
+	ref_layer_object: function(in_context, in_param, in_mode, in_ident1, in_ident2) 
+	{
+		if (in_mode == Xtalk.REF_RANGE && in_ident2 !== null)
+			Xtalk.VM._error("Can't understand arguments....", in_param);//**
+		
+		
+	}
 
 };
 
