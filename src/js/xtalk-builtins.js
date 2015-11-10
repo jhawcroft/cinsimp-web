@@ -687,10 +687,22 @@ Specific to CinsImp Environment
 	{
 		var where = in_message.params[0].resolve();
 		alert('GO WHERE - to be implemented once object references working - obtain a card ID');
+	},
+	
+	
+	
+	
+	ref_stack: function(in_context, in_param, in_mode, in_ident1, in_ident2) 
+	{
+		if (in_mode != Xtalk.REF_NAME)
+			Xtalk.VM._error("Can't understand arguments of stack.");
+		
+		// if in_ident doesn't contain any /'s,
+		// it's a stack name relative to the current card's stack
+		// otherwise, it's a full URL to another stack
+		
+		alert('Stack ' + in_ident1);  // **TODO
 	}
-	
-	
-	
 	
 
 };
