@@ -645,10 +645,10 @@ Language Built-in Initalization
  */
  		this.register_count('cds', 'cdct', '----', Xtalk.Builtins.count_cards);
 		this.register_count('cards', 'cdct', '----', Xtalk.Builtins.count_cards);
-		this.register_count('cds', 'cdct', Stack.TYPE, Xtalk.Builtins.count_cards);
-		this.register_count('cards', 'cdct', Stack.TYPE, Xtalk.Builtins.count_cards);
-		this.register_count('cds', 'cdct', Bkgnd.TYPE, Xtalk.Builtins.count_cards);
-		this.register_count('cards', 'cdct', Bkgnd.TYPE, Xtalk.Builtins.count_cards);
+		this.register_count('cds', 'cdct', 'stack', Xtalk.Builtins.count_cards);
+		this.register_count('cards', 'cdct', 'stack', Xtalk.Builtins.count_cards);
+		this.register_count('cds', 'cdct', 'bkgnd', Xtalk.Builtins.count_cards);
+		this.register_count('cards', 'cdct', 'bkgnd', Xtalk.Builtins.count_cards);
 		
 		this.register_count('bgs', 'bgct', '----', Xtalk.Builtins.count_bkgnds);
 		this.register_count('bkgnds', 'bgct', '----', Xtalk.Builtins.count_bkgnds);
@@ -676,6 +676,15 @@ Language Built-in Initalization
 		*/
 		
 	/// testing
+		
+/*
+	Environment objects
+ */
+ 
+ 		this.register_reference('stack', 'stak', '----', Xtalk.Builtins.ref_stack);
+ 		
+ 		//this.register_reference('stack', 'stak', '----', Xtalk.Builtins.ref_stack);
+ 		
 		
 		this.register_reference('card button', 'cdbn', '----', 
 		function(in_context, in_param, in_mode, in_ident1, in_ident2) { 
