@@ -112,7 +112,7 @@ Names
 			expression parser is assumed to be greedy and given only the full content of a
 			valid expression, and nothing more, it should be fine.  **TODO Josh to check
 			*/
-			if (node && (node.id == Xtalk.ID_WORD || node.flags & Xtalk.FLAG_KEYWORD))
+			if (node && (node.id == Xtalk.ID_WORD || node.flags & Xtalk.FLAG_KEYWORD || node.id == Xtalk.ID_ID))
 				words.push(node.text);
 			else break;
 		}

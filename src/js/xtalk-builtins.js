@@ -734,7 +734,20 @@ Specific to CinsImp Environment
 			Xtalk.VM._error("Can't understand arguments....", in_param);//**
 		
 		
+	},
+	
+	
+	obj_attr_get: function(in_context, in_id, in_variant)
+	{
+		return in_context.get_attr(in_id);
+	},
+	
+	obj_attr_set: function(in_context, in_id, in_new_value)
+	{
+		alert('set ' + in_id + ' of an object');
 	}
+	
+	
 
 };
 

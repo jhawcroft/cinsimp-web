@@ -727,8 +727,87 @@ Language Built-in Initalization
  		this.register_reference('bg fld', 'bfld', '****', Xtalk.Builtins.ref_layer_object); // [of card/bkgnd]
  		this.register_reference('bkgnd fld', 'bfld', '****', Xtalk.Builtins.ref_layer_object); // [of card/bkgnd]
  		
+ 		
+/*
+	Environment object properties
+ */
+	//stack	
+		this.register_property('script', 'script', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('name', 'name', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('id', 'id', null, '****', Xtalk.Builtins.obj_attr_get);
 		
-		//alert('got here');
+		this.register_property('cardSize', 'card_size', null, 'stack', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('cantModify', 'cant_modify', null, 'stack', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('cantAbort', 'cant_abort', null, 'stack', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('cantPeek', 'cant_peek', null, 'stack', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('privateAccess', 'private_access', null, 'stack', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		
+		this.register_property('cantDelete', 'cant_delete', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+	
+	// bkgnd
+		this.register_property('dontSearch', 'dont_search', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+	
+	// card
+		this.register_property('marked', 'marked', null, 'card', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+	
+	// layer object
+		this.register_property('number', 'klas_num', null, '****', Xtalk.Builtins.obj_attr_get);
+		this.register_property('part number', 'part_num', null, '****', Xtalk.Builtins.obj_attr_get);
+		
+		this.register_property('rect', 'rect', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('rectangle', 'rect', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('loc', 'loc', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('location', 'loc', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('size', 'size', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('width', 'width', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('height', 'height', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('top', 'top', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('bottom', 'bottom', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('left', 'left', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('right', 'right', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		
+		this.register_property('shared', 'shared', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('sharedText', 'shared', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('sharedHilite', 'shared', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		
+		this.register_property('visible', 'visible', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('disabled', 'disabled', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		
+		this.register_property('multipleLines', 'multiple_lines', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('columnar', 'columnar', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('hasHeader', 'has_header', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		
+		this.register_property('textAlign', 'txt_align', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('textFont', 'txt_font', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('textSize', 'txt_size', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('textStyle', 'txt_style', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		
+		this.register_property('color', 'color', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('colour', 'color', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		
+		this.register_property('shadow', 'shadow', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		
+	// button
+		this.register_property('style', 'style', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('family', 'family', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('icon', 'icon', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('showName', 'show_name', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('autoHilite', 'auto_hilite', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('hilite', 'hilite', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('highlight', 'hilite', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('menu', 'menu', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		
+	// field
+		this.register_property('scroll', 'scroll', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('lockText', 'locked', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('dontWrap', 'dont_wrap', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('autoTab', 'auto_tab', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('wideMargins', 'wide_margins', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('autoSelect', 'auto_select', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('picklist', 'picklist', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		this.register_property('content', 'content', null, '****', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
+		
+		//this.register_property('selection', 'style', null, 'field', Xtalk.Builtins.obj_attr_get, Xtalk.Builtins.obj_attr_set);
 		
 		
 	}
