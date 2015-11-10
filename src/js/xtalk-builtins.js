@@ -359,7 +359,7 @@ Generic to CinsTalk Implementation
 		var prop = null;
 		try
 		{
-			var table = Xtalk.Dict._properties[1][property_name];
+			var table = Xtalk.Dict._properties[1]['|'+property_name];
 			if (!object)
 				prop = table['----'];
 			else
