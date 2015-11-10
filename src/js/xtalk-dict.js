@@ -413,6 +413,13 @@ Language Built-in Initalization
 		this.register_constant('formFeed', String.fromCharCode(12));//12
 		
 		
+		
+		//this.register_reference('msg', 'mgbx', '----', Xtalk.Builtins.ref_message_box);
+		//this.register_reference('msg box', 'mgbx', '----', Xtalk.Builtins.ref_message_box);
+		//this.register_reference('message box', 'mgbx', '----', Xtalk.Builtins.ref_message_box);
+		
+		//this.register_reference('msg', 'mgbx', '----', Xtalk.Builtins.ref_palette);
+		
 
 /*
 	Calendar
