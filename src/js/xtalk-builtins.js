@@ -366,6 +366,8 @@ Generic to CinsTalk Implementation
 			{
 				prop = table[object.get_type()];
 			}
+			if (!prop)
+				prop = table['****'];
 		}
 		catch (err) {}
 		if (prop == null)
@@ -725,6 +727,10 @@ Specific to CinsImp Environment
 			else
 				Xtalk.VM._error("Can't understand arguments of ^0.", in_param);
 		}
+		
+		// accessing a layer will not necessarily be syncronous
+		// so we'll have to call wait,
+		// and have the callback call unwait
 	},
 	
 	
@@ -732,8 +738,17 @@ Specific to CinsImp Environment
 	{
 		if (in_mode == Xtalk.REF_RANGE && in_ident2 !== null)
 			Xtalk.VM._error("Can't understand arguments....", in_param);//**
+			
+		if (in_mode == Xtalk.REF_ID)
+			var ref = in_ident1 * 1;
+		else if (in_mode == Xtalk.REF_RANGE)
+			var ref = '#'+in_ident1;
+		else if (in_mode == Xtalk.REF_NAME)
+			var ref = in_ident1;
+			
+		var lt = in_param.split(',');
 		
-		
+		return new Xtalk.VM.LayerObjectRef(lt[0], lt[1], ref, in_context);
 	},
 	
 	

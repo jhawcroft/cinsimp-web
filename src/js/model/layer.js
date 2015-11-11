@@ -397,6 +397,38 @@ Layer.prototype.send_to_back = function()
 }
 
 
+Layer.prototype.get_child_by_id = function(in_id)
+{
+	for (var o = 0; o < this._objects.length; o++)
+	{
+		var object = this._objects[o];
+		if (object.get_attr('id') == in_id) return object;
+	}
+	return null;
+}
+
+
+Layer.prototype.get_child_by_name = function(in_name)
+{
+	for (var o = 0; o < this._objects.length; o++)
+	{
+		var object = this._objects[o];
+		if (object.get_attr('name').localeCompare(in_name) == 0) return object;
+	}
+	return null;
+}
+
+
+Layer.prototype.get_child_by_number = function(in_number)
+{
+	for (var o = 0; o < this._objects.length; o++)
+	{
+		var object = this._objects[o];
+		if (object.get_attr('klas_num') == in_number) return object;
+	}
+	return null;
+}
+
 
 
 CinsImp._script_loaded('Model.Layer');

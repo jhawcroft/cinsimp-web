@@ -543,7 +543,7 @@ LayerObject.prototype.make_dirty = function()
 
 
 
-LayerObject.prototype.set_attr = function(in_attr, in_value)
+LayerObject.prototype.set_attr = function(in_attr, in_value, in_card)
 {
 	if (in_attr == 'script') this.invalidate_executables();
 
@@ -561,6 +561,7 @@ LayerObject.prototype.set_attr = function(in_attr, in_value)
 	if (this.is_bkgnd() && in_attr == this._card_content_key && (!this._def['shared']))
 	{
 		if (this._view) this._view.card().set_card_content(this.get_attr('id'), in_value);
+		else if (in_card) value = in_card.set_card_content(this.get_attr('id'), in_value);
 		else throw new Error('Cannot mutate content of non-shared background object not attached to view');
 	}
 	else
@@ -579,7 +580,7 @@ LayerObject.prototype.set_attr = function(in_attr, in_value)
 LayerObject.prototype._attribute_reading = function() {}
 
 
-LayerObject.prototype.get_attr = function(in_attr, in_fmt)
+LayerObject.prototype.get_attr = function(in_attr, in_fmt, in_card)
 {
 	if (in_attr == 'type') return this.get_type();
 	else if (in_attr == 'loc') return this.get_loc().join(',');
@@ -595,6 +596,7 @@ LayerObject.prototype.get_attr = function(in_attr, in_fmt)
 	if (this.is_bkgnd() && in_attr === this._card_content_key && (!this._def['shared']))
 	{	
 		if (this._view) value = this._view.card().get_card_content(this.get_attr('id'));
+		else if (in_card) value = in_card.get_card_content(this.get_attr('id'));
 		else throw new Error('Cannot access content of non-shared background object not attached to view');
 	}
 	else

@@ -413,5 +413,93 @@ Xtalk.VM.TBoolean.prototype.toValue = function()
 
 
 
+Xtalk.VM.LayerObjectRef = function(in_owner_type, in_obj_type, in_ref, in_context)
+{
+	this.owner_type = in_owner_type;
+	this.obj_type = in_obj_type;
+	this.ref = in_ref;
+	this.card = null;
+	this.bkgnd = null;
+	this.obj = null;
+	this.obj_id = 0;
+	
+	if (in_context === null || in_context.get_type() == 'Nothing')
+	{
+		// no context => provide current card and current bkgnd if the object is a bkgnd object
+		this.card = View.current.get_card();
+		this.bkgnd = View.current.get_bkgnd();
+	}
+	else if (in_context.get_type() == 'card')
+	{
+		// context is card => provide card and bkgnd if the object is a bkgnd object 
+		// (will require second stage due to asyncronous load)
+		this.card = context;
+		
+		// probably return the thing incomplete, but with a process underway to complete it
+		// and telling VM to wait until unwait() called by that process
+		// process could be wrapped by the adapter itself, ie. adapter.load_bkgnd() could encapsulate all calls
+		if (in_owner_type == 'bg') this._load_bkgnd();		
+	}
+	else
+	{
+		// context is bkgnd => provide only bkgnd
+		this.bkgnd = context;
+	}
+}
+
+
+Xtalk.VM.LayerObjectRef.prototype._load_bkgnd = function()
+{
+	// must asyncrononously load bkgnd for card
+	// call vm.wait() at beginning
+	// have completion call vm.unwait() once loaded
+}
+
+
+Xtalk.VM.LayerObjectRef.prototype.resolve_object = function()
+{
+	// can't fully resolve, that must be done based on the type of property being accessed...
+	// at least figure out the ID if we don't have one
+	if (this.obj) return;
+	if (typeof this.ref != 'number')
+	{
+		if (this.ref.substr(0, 1) == '#')
+			this.obj = ( this.owner_type == 'card' ? 
+				this.card.get_child_by_number(this.ref.substr(1)) : 
+				this.bkgnd.get_child_by_number(this.ref.substr(1)) );
+		else
+			this.obj = ( this.owner_type == 'card' ? 
+				this.card.get_child_by_name(this.ref) : 
+				this.bkgnd.get_child_by_name(this.ref) );
+	}
+	else
+		this.obj = ( this.owner_type == 'card' ? 
+			this.card.get_child_by_id(this.ref) : 
+			this.bkgnd.get_child_by_id(this.ref) );
+	this.obj_id = this.obj.get_attr('id');
+}
+
+
+Xtalk.VM.LayerObjectRef.prototype.get_attr = function(in_attr, in_fmt)
+{
+	this.resolve_object();
+	return this.obj.get_attr(in_attr, in_fmt, this.card);
+}
+
+
+Xtalk.VM.LayerObjectRef.prototype.set_attr = function(in_attr, in_new_value)
+{
+	this.resolve_object();
+	return this.obj.set_attr(in_attr, in_new_value, this.card);
+}
+
+
+Xtalk.VM.LayerObjectRef.prototype.get_type = function()
+{
+	return 'LayerObjectRef';
+}
+
+
+
 
 CinsImp._script_loaded('xtalk-vm-type');
