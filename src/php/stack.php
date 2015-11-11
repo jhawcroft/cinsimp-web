@@ -1371,8 +1371,17 @@ Eventually methods for icon deletion/rename:
 		else
 		{
 			/* name */
-			$name = substr($in_ref, 0, 255);
-			CinsImpError::unimplemented('named card access');
+			$sql = 'SELECT id FROM card WHERE name=?';
+			if ($in_bkgnd_id !== null) $sql .= ' AND bkgnd_id='.intval($in_bkgnd_id);
+			if ($in_mark_state !== null) $sql .= ' AND marked='.($in_mark_state ? 1 : 0);
+			$sql .= ' COLLATE NOCASE';
+			$stmt = $this->file_db->prepare($sql);
+			$stmt->execute(array( $in_ref ));
+			$row = $stmt->fetch(PDO::FETCH_NUM);
+			if ($row === false)
+				CinsImpError::missing('Card');
+			$id = intval($row[0]);
+			return $id;
 		}
 	}
 	
@@ -1456,6 +1465,12 @@ Eventually methods for icon deletion/rename:
 			'art'=>Stack::_evl($row[8]),
 			'art_hidden'=>Stack::decode_bool($row[9])
 		);
+		
+		/* make sure the card we've found actually complies with the filter requirements (if any) */
+		if ($in_mark_state !== null && $card['marked'] != $in_mark_state)
+			CinsImpError::missing('Card');
+		if ($bkgnd_id !== null && $card['bkgnd_id'] != $bkgnd_id)
+			CinsImpError::missing('Card');
 		
 		$content = array();
 		$stmt = $this->file_db->prepare(
