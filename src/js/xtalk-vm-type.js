@@ -503,7 +503,7 @@ Xtalk.VM.LayerObjectRef.prototype.get_type = function()
 Xtalk.VM.LayerObjectRef.prototype.resolve = function()
 {
 	this.resolve_object();
-	return this;
+	return this.toText();
 }
 
 
@@ -511,6 +511,7 @@ Xtalk.VM.LayerObjectRef.prototype.is_readable = function() { return true; }
 
 Xtalk.VM.LayerObjectRef.prototype.toText = function()
 {
+	this.resolve_object();
 	return new Xtalk.VM.TString( this.obj.get_attr('content', 'xt', this.card) );
 }
 
