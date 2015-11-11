@@ -272,11 +272,51 @@ Language Built-in Initalization
 /*
 	Command syntax
  */
-		this.register_command_syntax(
+ 
+ 
+/*
+	Sound
+*/
+ 		this.register_command_syntax(
 			'beep <number> [time | times]', 
 			'number', 
 			function(n) { alert('BEEP! ' + JSON.stringify(n)); }
 		);
+		
+
+/*
+	Find, Sort, Mark - data query operations
+*/	
+		//all of these need to take unresolved field/layer references
+		// ought to look at a more advanced coercion & validation than was previously provided for such things
+		
+		this.register_command_syntax(
+			'find [`mode``b`normal|`c`chars|`c`characters|`w`word|`w`words|`s`string|`p`whole] <text> [in <field>] [of {`mark``false`unmarked|`true`marked} cards]', 
+			'mode,text,field,mark', 
+			Xtalk.Builtins.command_find
+		);
+		
+		this.register_command_syntax(
+			'sort [[the] [`mark``true`marked|`false`unmarked] cards [{in|of} <bkgnd>]] [`dir``asc`ascending|`des`descending] by <key>', 
+			'mark,bkgnd,dir,key', 
+			Xtalk.Builtins.command_sort
+		);
+		this.register_command_syntax(
+			'sort <bkgnd> [`dir``asc`ascending|`des`descending] by <key>', 
+			'mark,bkgnd,dir,key', 
+			Xtalk.Builtins.command_sort
+		);
+		
+		this.register_command_syntax(
+			'mark [`mark``any`all|`false`unmarked] [cards] [{in|of} <bkgnd>] [by finding [<find-mode>] <text> [in <field>]]', 
+			'mark,bkgnd,find-mode,text,field', 
+			Xtalk.Builtins.command_mark
+		);
+		this.register_command_syntax(
+			'unmark [`mark``any`all|`true`marked] [cards] [{in|of} <bkgnd>] [by finding [<find-mode>] <text> [in <field>]]', 
+			'mark,bkgnd,find-mode,text,field', 
+			Xtalk.Builtins.command_mark
+		);// check the message name
 		
 		
 	/*
@@ -286,7 +326,7 @@ Language Built-in Initalization
 	find [`mode``b`normal|`c`chars|`c`characters|`w`word|`w`words|`s`string|`p`whole] <text> [in <field>] [of {unmarked|marked} cards]
 	(^ server-side assist; avoids massive download)
 	
-	sort [[the] [marked] cards] of <bkgnd> [`dir``asc`ascending|`des`descending] by <sortKey>
+	sort [[the] {`mark``true`marked|`false`unmarked} cards] of <bkgnd> [`dir``asc`ascending|`des`descending] by <sortKey>
 	sort [[the] [marked] cards] [`dir``asc`ascending|`des`descending] by <sortKey>
 	sort <bkgnd> [`dir``asc`ascending|`des`descending] by <sortKey>
 	(if sortkey is a simple field - (^ server-side assist; avoids massive download))
@@ -295,10 +335,10 @@ Language Built-in Initalization
 	Biggest issue is ensuring the VMs produce exactly the same results, and of course, connecting references
 	to the appropriate data.
 	
-	mark all [cards]
+	
 	mark <card>
-	mark [unmarked] cards [of <bkgnd>] by finding [<find-mode>] <text> [in <field>]
-	unmark [marked] cards  (as above)
+	mark [`mark``any`all|`false`unmarked] [cards] [{in|of} <bkgnd>] [by finding [<find-mode>] <text> [in <field>]]
+	unmark [all|marked] [cards]  (as above)
 	unmark all
 	unmark <card>
 	(^ server-side assist; avoids massive download)
@@ -314,7 +354,7 @@ Language Built-in Initalization
 	*/
 		
 		
-		
+		/*
 		this.register_command_syntax(
 			'sort [[the] cards] [`dir``asc`ascending|`des`descending] by <sortKey>', 
 			'dir,sortKey', 
@@ -326,7 +366,11 @@ Language Built-in Initalization
 			'mode,text,field', 
 			function(n) { alert('FIND! ' + JSON.stringify(n)); }
 		);
+		*/
 		
+/*
+	User interaction
+ */
 		
 		this.register_command_syntax(
 			'answer <prompt> [with <button1> [or <button2> [or <button3>]]]',
@@ -341,6 +385,10 @@ Language Built-in Initalization
 		);
 		
 		
+/*
+	Display
+ */
+ 
 		this.register_command_syntax(
 			'visual [effect] {`effect``cut`cut|`dissolve`dissolve|`wipe-left`wipe left|`wipe-right`wipe right|`slide-left`slide left|`slide-right`slide right} [`speed``very-slow`very slowly|`very-slow`very slow|`slow`slowly|`slow`slow|`normal`normal|`very-fast`very fast|`fast`fast] [to {`dest``card`card|`black`black|`white`white|`gray`gray|`gray`grey}]',
 			'effect,speed,dest',
@@ -348,6 +396,9 @@ Language Built-in Initalization
 		);
 		
 		
+/*
+	Navigation
+ */
 		this.register_command_syntax(
 			'go [to] [the] {`which``#next`next|`#prev`prev|`#prev`previous|`#1`first|`#2`second|`#3`third|`#4`fourth|`#5`fifth|`#6`sixth|`#7`seventh|`#8`eighth|`#9`ninth|`#10`tenth|`#middle`middle|`#last`last|`#any`any} [[`marked``true`marked] card]',
         	'which,marked',
@@ -359,13 +410,16 @@ Language Built-in Initalization
         	Xtalk.Builtins.command_go_where
         );
 	
-	
+
+/*
+	Data access/mutation
+ */
 		this.register_command_syntax(
 			'set [the] <prop> [of <object>] to <value>',
         	'prop,object,value',
         	Xtalk.Builtins.command_set
         );
-        
+
         this.register_command_syntax(
 			'get <value>',
         	'value',

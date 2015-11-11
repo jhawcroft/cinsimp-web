@@ -761,6 +761,24 @@ Specific to CinsImp Environment
 	{
 		in_context.set_attr(in_id, in_new_value);
 		//alert('set ' + in_id + ' of an object');
+	},
+	
+	
+	
+	
+	command_find: function(in_message)
+	{
+		console.log(JSON.stringify(in_message, null, 2));
+	},
+	
+	command_sort: function(in_message)
+	{
+		console.log(JSON.stringify(in_message, null, 2));
+	},
+	
+	command_mark: function(in_message)
+	{
+		console.log(JSON.stringify(in_message, null, 2));
 	}
 	
 	
