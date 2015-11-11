@@ -351,6 +351,20 @@ Util.load_source = function(in_source, in_name)
 }
 
 
+Util.html_to_text = function(in_content)
+{
+	var result = in_content;
+	
+	result = result.replace('<br>', '\n');
+	result = result.replace('</p>', '\n\n');
+	
+	var regex = /(<([^>]+)>)/ig;
+	result = result.replace(regex, '');
+	
+	return result;
+}
+
+
 
 /*
 from: http://stackoverflow.com/questions/273789/is-there-a-version-of-javascripts-string-indexof-that-allows-for-regular-expr

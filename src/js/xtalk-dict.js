@@ -702,6 +702,7 @@ Language Built-in Initalization
  		//   ^^ use a wrapper, so that the functionality is still easy to understand in registration
  		
  		this.register_reference('button', 'card,button', '****', Xtalk.Builtins.ref_layer_object); // [of card]
+ 		this.register_reference('btn', 'card,button', '****', Xtalk.Builtins.ref_layer_object); // [of card]
  		this.register_reference('card button', 'card,button', '****', Xtalk.Builtins.ref_layer_object); // [of card]
  		this.register_reference('card btn', 'card,button', '****', Xtalk.Builtins.ref_layer_object); // [of card]
  		this.register_reference('cd button', 'card,button', '****', Xtalk.Builtins.ref_layer_object); // [of card]
@@ -720,6 +721,7 @@ Language Built-in Initalization
  		this.register_reference('cd fld', 'card,field', '****', Xtalk.Builtins.ref_layer_object); // [of card]
  		
  		this.register_reference('field', 'bkgnd,field', '****', Xtalk.Builtins.ref_layer_object); // [of card/bkgnd]
+ 		this.register_reference('fld', 'bkgnd,field', '****', Xtalk.Builtins.ref_layer_object); // [of card/bkgnd]
  		this.register_reference('background field', 'bkgnd,field', '****', Xtalk.Builtins.ref_layer_object); // [of card/bkgnd]
  		this.register_reference('bg field', 'bkgnd,field', '****', Xtalk.Builtins.ref_layer_object); // [of card/bkgnd]
  		this.register_reference('bkgnd field', 'bkgnd,field', '****', Xtalk.Builtins.ref_layer_object); // [of card/bkgnd]

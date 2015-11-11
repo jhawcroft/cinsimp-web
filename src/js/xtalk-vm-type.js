@@ -465,17 +465,17 @@ Xtalk.VM.LayerObjectRef.prototype.resolve_object = function()
 	{
 		if (this.ref.substr(0, 1) == '#')
 			this.obj = ( this.owner_type == 'card' ? 
-				this.card.get_child_by_number(this.ref.substr(1)) : 
-				this.bkgnd.get_child_by_number(this.ref.substr(1)) );
+				this.card.get_child_by_number(this.ref.substr(1), this.obj_type) : 
+				this.bkgnd.get_child_by_number(this.ref.substr(1), this.obj_type) );
 		else
 			this.obj = ( this.owner_type == 'card' ? 
-				this.card.get_child_by_name(this.ref) : 
-				this.bkgnd.get_child_by_name(this.ref) );
+				this.card.get_child_by_name(this.ref, this.obj_type) : 
+				this.bkgnd.get_child_by_name(this.ref, this.obj_type) );
 	}
 	else
 		this.obj = ( this.owner_type == 'card' ? 
-			this.card.get_child_by_id(this.ref) : 
-			this.bkgnd.get_child_by_id(this.ref) );
+			this.card.get_child_by_id(this.ref, this.obj_type) : 
+			this.bkgnd.get_child_by_id(this.ref, this.obj_type) );
 	this.obj_id = this.obj.get_attr('id');
 }
 
@@ -497,6 +497,35 @@ Xtalk.VM.LayerObjectRef.prototype.set_attr = function(in_attr, in_new_value)
 Xtalk.VM.LayerObjectRef.prototype.get_type = function()
 {
 	return 'LayerObjectRef';
+}
+
+
+Xtalk.VM.LayerObjectRef.prototype.resolve = function()
+{
+	this.resolve_object();
+	return this;
+}
+
+
+Xtalk.VM.LayerObjectRef.prototype.is_readable = function() { return true; }
+
+Xtalk.VM.LayerObjectRef.prototype.toText = function()
+{
+	return new Xtalk.VM.TString( this.obj.get_attr('content', 'xt', this.card) );
+}
+
+
+Xtalk.VM.LayerObjectRef.prototype.toString = function()
+{
+	return this.toText();
+}
+
+
+Xtalk.VM.LayerObjectRef.prototype.write_content = function(in_content, in_mode, in_range)
+{
+	this.resolve_object();
+	this.obj.set_attr('content', in_content.resolve().toString().toValue(), this.card); 
+	// **TODO, will need a more capable method (range, etc.)
 }
 
 

@@ -397,34 +397,37 @@ Layer.prototype.send_to_back = function()
 }
 
 
-Layer.prototype.get_child_by_id = function(in_id)
+Layer.prototype.get_child_by_id = function(in_id, in_klas)
 {
 	for (var o = 0; o < this._objects.length; o++)
 	{
 		var object = this._objects[o];
-		if (object.get_attr('id') == in_id) return object;
+		if (object.get_attr('id') == in_id && 
+			object.get_type() == in_klas) return object;
 	}
 	return null;
 }
 
 
-Layer.prototype.get_child_by_name = function(in_name)
+Layer.prototype.get_child_by_name = function(in_name, in_klas)
 {
 	for (var o = 0; o < this._objects.length; o++)
 	{
 		var object = this._objects[o];
-		if (object.get_attr('name').localeCompare(in_name) == 0) return object;
+		if (object.get_attr('name').localeCompare(in_name) == 0 && 
+			object.get_type() == in_klas) return object;
 	}
 	return null;
 }
 
 
-Layer.prototype.get_child_by_number = function(in_number)
+Layer.prototype.get_child_by_number = function(in_number, in_klas)
 {
 	for (var o = 0; o < this._objects.length; o++)
 	{
 		var object = this._objects[o];
-		if (object.get_attr('klas_num') == in_number) return object;
+		if (object.get_attr('klas_num') == in_number && 
+			object.get_type() == in_klas) return object;
 	}
 	return null;
 }
