@@ -279,6 +279,27 @@ Language Built-in Initalization
 		);
 		
 		
+	/*
+	
+	find [`mode``b`normal|`c`chars|`c`characters|`w`word|`w`words|`s`string|`p`whole] <text> [in <field>] [of {unmarked|marked} cards]
+	
+	sort [[the] [marked] cards] of <bkgnd> [`dir``asc`ascending|`des`descending] by <sortKey>
+	sort [[the] [marked] cards] [`dir``asc`ascending|`des`descending] by <sortKey>
+	sort <bkgnd> [`dir``asc`ascending|`des`descending] by <sortKey>
+	
+	mark all [cards]
+	mark <card>
+	mark cards where <expr>
+	mark cards by finding [<find-mode>] <text> [in <field>]
+	unmark cards  (as above)
+	unmark all
+	unmark <card>
+	unmark cards where <expr>
+	
+	
+	*/
+		
+		
 		
 		this.register_command_syntax(
 			'sort [[the] cards] [`dir``asc`ascending|`des`descending] by <sortKey>', 
@@ -657,6 +678,11 @@ Language Built-in Initalization
 		this.register_count('cds', 'cdct', 'bkgnd', Xtalk.Builtins.count_cards);
 		this.register_count('cards', 'cdct', 'bkgnd', Xtalk.Builtins.count_cards);
 		
+		this.register_count('marked cds', 'cdct,marked', '****', Xtalk.Builtins.count_cards);
+		this.register_count('marked cards', 'cdct,marked', '****', Xtalk.Builtins.count_cards);
+		this.register_count('unmarked cds', 'cdct,unmarked', '****', Xtalk.Builtins.count_cards);
+		this.register_count('unmarked cards', 'cdct,unmarked', '****', Xtalk.Builtins.count_cards);
+		
 		this.register_count('bgs', 'bgct', '----', Xtalk.Builtins.count_bkgnds);
 		this.register_count('bkgnds', 'bgct', '----', Xtalk.Builtins.count_bkgnds);
 		this.register_count('backgrounds', 'bgct', '----', Xtalk.Builtins.count_bkgnds);
@@ -696,6 +722,11 @@ Language Built-in Initalization
  		
  		this.register_reference('cd', 'card', '****', Xtalk.Builtins.ref_layer); // [of bkgnd/stack]
  		this.register_reference('card', 'card', '****', Xtalk.Builtins.ref_layer); // [of bkgnd/stack]
+ 		
+ 		this.register_reference('marked cd', 'card,marked', '****', Xtalk.Builtins.ref_layer);
+ 		this.register_reference('marked card', 'card,marked', '****', Xtalk.Builtins.ref_layer);
+ 		this.register_reference('unmarked cd', 'card,unmarked', '****', Xtalk.Builtins.ref_layer);
+ 		this.register_reference('unmarked card', 'card,unmarked', '****', Xtalk.Builtins.ref_layer);
  		
  		// 1. all layerobject references shall return an adapter, which includes the object, and it's layer (default current card)
  		// 2. might be useful to have an automatic permutations thing in registration, eg. list of synonyms accepted also **TODO

@@ -198,7 +198,7 @@ Names
 			
 		var in_index = in_index - this._strip_the(in_list, in_index - 1);
 		
-		in_list.children.splice(in_index, 3, {
+		in_list.children.splice(in_index, 2 + word_count[0], {
 			id:			Xtalk.ID_NUMBER_OF,
 			map:		counter,
 			name:		words.slice(0, word_count[0]).join(' ')
