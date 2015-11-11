@@ -282,20 +282,32 @@ Language Built-in Initalization
 	/*
 	
 	find [`mode``b`normal|`c`chars|`c`characters|`w`word|`w`words|`s`string|`p`whole] <text> [in <field>] [of {unmarked|marked} cards]
+	(^ server-side assist; avoids massive download)
 	
 	sort [[the] [marked] cards] of <bkgnd> [`dir``asc`ascending|`des`descending] by <sortKey>
 	sort [[the] [marked] cards] [`dir``asc`ascending|`des`descending] by <sortKey>
 	sort <bkgnd> [`dir``asc`ascending|`des`descending] by <sortKey>
+	(if sortkey is a simple field - (^ server-side assist; avoids massive download))
+	
+	Could we possibly send an expression, involving no function calls to the server for sort processing?
+	Biggest issue is ensuring the VMs produce exactly the same results, and of course, connecting references
+	to the appropriate data.
 	
 	mark all [cards]
 	mark <card>
-	mark cards where <expr>
 	mark cards by finding [<find-mode>] <text> [in <field>]
 	unmark cards  (as above)
 	unmark all
 	unmark <card>
-	unmark cards where <expr>
+	(^ server-side assist; avoids massive download)
 	
+	unmark cards where <expr>
+	mark cards where <expr>
+	
+	(As above, would be good if we could send the expression (with no function calls) to the server)
+	
+	** Eventually we'll want a server-side VM anyway.
+	==> that'll be much easier to do reliably once the VM design and stack interface/API is settled and cleaned, and simplified.
 	
 	*/
 		

@@ -1260,6 +1260,8 @@ Eventually methods for icon deletion/rename:
 	
 	private function cards_bkgnd($in_card_id)
 	{
+		$this->_check_access();
+		
 		$stmt = $this->file_db->prepare('SELECT bkgnd_id FROM card WHERE id=?');
 		$stmt->execute(array( $in_card_id ));
 		$row = $stmt->fetch(PDO::FETCH_NUM);
@@ -1273,6 +1275,8 @@ Eventually methods for icon deletion/rename:
 */
 	public function stack_load_bkgnd($bkgnd_id, $in_current_card_id = null)
 	{
+		$this->_check_access();
+		
 		if ($in_current_card_id !== null && $this->cards_bkgnd($in_current_card_id) == $bkgnd_id)
 			return null;
 	
@@ -1391,6 +1395,8 @@ Eventually methods for icon deletion/rename:
 */
 	public function stack_load_bkgnds($in_cards)
 	{
+		$this->_check_access();
+		
 		$bkgnd_ids = array();
 		foreach ($in_cards as $card)
 			$bkgnd_ids[$card['bkgnd_id']] = true;
@@ -1413,6 +1419,11 @@ Eventually methods for icon deletion/rename:
 */
 	public function stack_load_cards($in_mark_state = null, $in_bkgnd_id = null)
 	{
+		$this->_check_access();
+	// probably ought to provide also a list of bkgnd IDs here
+	// and need both cards and bkgnds() to be paged, such that a maximum of 500KB or 1MB is likely to be returned to the client
+	// in one go
+	
 		/* list card IDs in sequence */
 		$sql = 'SELECT id FROM card';
 		$conds = array();
@@ -1442,6 +1453,7 @@ Eventually methods for icon deletion/rename:
 */
 	public function stack_load_card($card_id, $in_mark_state = null, $bkgnd_id = null, $in_current = null)
 	{
+		$this->_check_access();
 		$this->file_db->beginTransaction(); /* used to ensure consistent reads */
 	
 		$card_id = $this->_card_ref_to_id($card_id, $in_mark_state, $bkgnd_id, $in_current);
