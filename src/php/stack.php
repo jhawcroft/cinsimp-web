@@ -1015,12 +1015,18 @@ Eventually methods for icon deletion/rename:
 /*
 	Returns the number of cards in either the stack, or the specified background.
 */
-	public function stack_get_count_cards($in_bkgnd_id = null)
+	public function stack_get_count_cards($in_bkgnd_id = null, $in_mark_state = null)
 	{
 		if ($in_bkgnd_id === null)
+		{
 			$sql = 'SELECT COUNT(*) FROM card';
+			if ($in_mark_state !== null) $sql .= ' WHERE marked='.($in_mark_state ? 1 : 0);
+		}
 		else
+		{
 			$sql = 'SELECT COUNT(card.id) FROM card JOIN bkgnd ON card.bkgnd_id=bkgnd.id WHERE bkgnd.id=?';
+			if ($in_mark_state !== null) $sql .= ' marked='.($in_mark_state ? 1 : 0);
+		}
 		$stmt = $this->file_db->prepare($sql);
 		if ($in_bkgnd_id === null) $stmt->execute();
 		else $stmt->execute(array( intval($in_bkgnd_id) ));
@@ -1045,17 +1051,18 @@ Eventually methods for icon deletion/rename:
 	Looks up the card sequence for the card that is either immediately following or prior
 	to the supplied sequence within the specified background. 
 */
-	public function stack_get_bkgnd_rel_seq($bkgnd_id, $card_seq, $direction)
+	public function stack_get_bkgnd_rel_seq($bkgnd_id, $card_seq, $direction, $in_mark_state)
 	{
 		if ($direction > 0)
 			$sql = 'SELECT MIN(seq) FROM card WHERE seq > ?';
 		else
 			$sql = 'SELECT MAX(seq) FROM card WHERE seq < ?';
-		if ($bkgnd_id !== null) $sql .= ' AND bkgnd_id = ?';
+			
+		if ($bkgnd_id !== null) $sql .= ' AND bkgnd_id='.intval($bkgnd_id);
+		if ($in_mark_state !== null) $sql .= ' AND marked='.($in_mark_state ? 1 : 0);
+		
 		$stmt = $this->file_db->prepare($sql);
 		$params = array( intval($card_seq) );
-		if ($bkgnd_id !== null) $params[] = intval($bkgnd_id);
-		
 		$stmt->execute($params);
 		$row = $stmt->fetch(PDO::FETCH_NUM);
 		if ($row === false) return null;
@@ -1067,13 +1074,13 @@ Eventually methods for icon deletion/rename:
 	Looks up the card ID for the card that is either immediately following or prior to the
 	supplied sequence within the specified background.
 */
-	public function stack_get_bkgnd_rel_card_id($bkgnd_id, $card_seq, $direction)
+	public function stack_get_bkgnd_rel_card_id($bkgnd_id, $card_seq, $direction, $in_mark_state)
 	{
-		$rel_seq = $this->stack_get_bkgnd_rel_seq($bkgnd_id, $card_seq, $direction);
+		$rel_seq = $this->stack_get_bkgnd_rel_seq($bkgnd_id, $card_seq, $direction, $in_mark_state);
 		if ($rel_seq === null || $rel_seq == 0)
 		{
-			if ($direction > 0) return $this->stack_get_nth_card_id(1, $bkgnd_id);
-			else return $this->stack_get_nth_card_id($this->stack_get_count_cards($bkgnd_id), $bkgnd_id);
+			if ($direction > 0) return $this->stack_get_nth_card_id(1, $bkgnd_id, $in_mark_state);
+			else return $this->stack_get_nth_card_id($this->stack_get_count_cards($bkgnd_id, $in_mark_state), $bkgnd_id, $in_mark_state);
 		}
 	
 		$sql = 'SELECT id FROM card WHERE seq=?';
@@ -1107,17 +1114,25 @@ Eventually methods for icon deletion/rename:
 	Looks up the card ID for the Nth card within either the stack or the 
 	supplied background.
 */
-	public function stack_get_nth_card_id($number, $in_bkgnd = null)
+	public function stack_get_nth_card_id($number, $in_bkgnd = null, $in_mark_state = null)
 	{
-		if ($in_bkgnd === null)
+		if ($in_bkgnd === null && $in_mark_state === null)
+		{
 			$sql = 'SELECT id FROM card WHERE seq=?';
-		else
-			$sql = 'SELECT id FROM card WHERE bkgnd_id=? ORDER BY seq LIMIT ?,1';
-		$stmt = $this->file_db->prepare($sql);
-		if ($in_bkgnd === null)
+			$stmt = $this->file_db->prepare($sql);
 			$stmt->execute(array( intval($number) ));
+		}
 		else
-			$stmt->execute(array( intval($in_bkgnd), (intval($number) - 1) ));
+		{
+			$sql = 'SELECT id FROM card WHERE ';
+			$conds = array();
+			if ($in_bkgnd !== null) $conds[] = 'bkgnd_id='.intval($in_bkgnd);
+			if ($in_mark_state !== null) $conds[] = 'marked='.($in_mark_state ? 1 : 0);
+			$sql .= implode(' AND ', $conds);
+			$sql .=' ORDER BY seq LIMIT ?,1';
+			$stmt = $this->file_db->prepare($sql);
+			$stmt->execute(array( intval($number) - 1 ));
+		}
 		$row = $stmt->fetch(PDO::FETCH_NUM);
 		if ($row === false) return 0;
 		return $row[0];
@@ -1305,7 +1320,7 @@ Eventually methods for icon deletion/rename:
 	-	a name, relative to the stack or supplied background ID
 		Any non-numeric string
 */
-	private function _card_ref_to_id($in_ref, $in_bkgnd_id = null, $in_current_id = null)
+	private function _card_ref_to_id($in_ref, $in_mark_state = null, $in_bkgnd_id = null, $in_current_id = null)
 	{
 		if ($in_ref === null || strlen($in_ref) > 256)
 			CinsImpError::malformed('Invalid card reference');
@@ -1328,29 +1343,29 @@ Eventually methods for icon deletion/rename:
 			case 'next':
 				if ($in_current_id === null)
 					CinsImpError::malformed('Invalid relative card access; missing current');
-				return $this->stack_get_bkgnd_rel_card_id($in_bkgnd_id, $this->_seq_for_card($in_current_id), 1);
+				return $this->stack_get_bkgnd_rel_card_id($in_bkgnd_id, $this->_seq_for_card($in_current_id), 1, $in_mark_state);
 			case 'prev':
 			case 'previous':
 				if ($in_current_id === null)
 					CinsImpError::malformed('Invalid relative card access; missing current');
-				return $this->stack_get_bkgnd_rel_card_id($in_bkgnd_id, $this->_seq_for_card($in_current_id), -1);
+				return $this->stack_get_bkgnd_rel_card_id($in_bkgnd_id, $this->_seq_for_card($in_current_id), -1, $in_mark_state);
 			case 'last':
-				$number = $this->stack_get_count_cards($in_bkgnd_id);
-				return $this->stack_get_nth_card_id($number, $in_bkgnd_id);
+				$number = $this->stack_get_count_cards($in_bkgnd_id, $in_mark_state);
+				return $this->stack_get_nth_card_id($number, $in_bkgnd_id, $in_mark_state);
 			case 'middle':
-				$number = $this->stack_get_count_cards($in_bkgnd_id);
+				$number = $this->stack_get_count_cards($in_bkgnd_id, $in_mark_state);
 				if ($number <= 2) $number = 1;
 				else if ($number > 2) $number = intval(round($number/2));
-				return $this->stack_get_nth_card_id($number, $in_bkgnd_id);
+				return $this->stack_get_nth_card_id($number, $in_bkgnd_id, $in_mark_state);
 			case 'any':
-				$count = $this->stack_get_count_cards($in_bkgnd_id);
+				$count = $this->stack_get_count_cards($in_bkgnd_id, $in_mark_state);
 				$number = mt_rand(1, $count);
-				return $this->stack_get_nth_card_id($number, $in_bkgnd_id);
+				return $this->stack_get_nth_card_id($number, $in_bkgnd_id, $in_mark_state);
 			case 'first':
-				return $this->stack_get_nth_card_id(1, $in_bkgnd_id);
+				return $this->stack_get_nth_card_id(1, $in_bkgnd_id, $in_mark_state);
 			default:
 				$number = intval($in_ref);
-				return $this->stack_get_nth_card_id($number, $in_bkgnd_id);
+				return $this->stack_get_nth_card_id($number, $in_bkgnd_id, $in_mark_state);
 			}
 		}
 		else
@@ -1365,17 +1380,11 @@ Eventually methods for icon deletion/rename:
 /*
 	Retrieves the card data for the supplied card ID.
 */
-	public function stack_load_card($card_id, $bkgnd_id = null, $in_current = null)
+	public function stack_load_card($card_id, $in_mark_state = null, $bkgnd_id = null, $in_current = null)
 	{
 		$this->file_db->beginTransaction(); /* used to ensure consistent reads */
 	
-		$card_id = $this->_card_ref_to_id($card_id, $bkgnd_id, $in_current);
-		
-		// **TODO eventually we can optimise to not send the same background
-		// as that on which the current card sits
-		
-		// **TODO eventually modify so it can retrieve a card via any means
-		// within and relative to a specific background
+		$card_id = $this->_card_ref_to_id($card_id, $in_mark_state, $bkgnd_id, $in_current);
 		
 		$stmt = $this->file_db->prepare(
 'SELECT id,bkgnd_id,seq,name,cant_delete,dont_search,marked,script,art,art_hidden FROM card WHERE id=?'

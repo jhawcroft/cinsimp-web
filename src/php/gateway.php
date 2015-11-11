@@ -144,6 +144,7 @@ h1
 				$inbound = json_decode($inbound, true);
 			else
 				$inbound = json_decode(@file_get_contents('php://input'), true);
+			if ($inbound === null) CinsImpError::malformed('JSON input malformed');
 			$outbound['cmd'] = $inbound['cmd'];
 			
 			try {
@@ -277,6 +278,7 @@ Regular Command Handlers
 		$stack = new Stack(Util::safe_stack_id($inbound['id']), Util::optional($inbound, 'auth_hash'));
 		$outbound['card'] = $stack->stack_load_card(
 			$inbound['ref'], 
+			Util::optional($inbound, 'mark_state'), 
 			Util::optional($inbound, 'bkgnd_id'), 
 			Util::optional($inbound, 'curr_card_id')
 		);
@@ -287,6 +289,27 @@ Regular Command Handlers
 		if ($bkgnd !== null) $outbound['bkgnd'] = $bkgnd;
 		return $outbound;
 	}
+	
+	
+/*
+	cmd: load_cards
+	Returns a batch of cards in bulk (as required for client-side marking, sorting and searching).
+	Card detail is returned without art (as this is not required for searching).
+	Cards may be server-side filtered by marked and/or background.
+	The bulk listing will also include all the relevant backgrounds (once).
+*/
+	public static function load_cards($inbound, $outbound)
+	{
+		Util::keys_required($inbound, array('id'));
+		$stack = new Stack(Util::safe_stack_id($inbound['id']), Util::optional($inbound, 'auth_hash'));
+		$outbound['cards'] = $stack->stack_load_cards(
+			Util::optional($inbound, 'mark_state'),
+			Util::optional($inbound, 'bkgnd_id')
+		);
+		$outbound['bkgnd'] = $stack->stack_load_bkgnds($outbound['cards']);
+		return $outbound;
+	}
+
 	
 
 /*
