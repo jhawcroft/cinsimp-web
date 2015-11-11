@@ -112,7 +112,7 @@ Names
 			expression parser is assumed to be greedy and given only the full content of a
 			valid expression, and nothing more, it should be fine.  **TODO Josh to check
 			*/
-			if (node && (node.id == Xtalk.ID_WORD || node.flags & Xtalk.FLAG_KEYWORD || node.id == Xtalk.ID_ID))
+			if (node && (node.id == Xtalk.ID_WORD || node.flags & Xtalk.FLAG_KEYWORD || node.flags & Xtalk.FLAG_IDENTIFIER))
 				words.push(node.text);
 			else break;
 		}
@@ -187,18 +187,18 @@ Names
 */
 	_parse_number_of: function(in_list, in_index)
 	{	
-		var in_index = in_index - this._strip_the(in_list, in_index - 1);
-		
-		var words = this._words_at(in_list, in_index + 1);
-		if (words.length == 0)
-			Xtalk._error_syntax("Expected object.");
+		var words = this._words_at(in_list, in_index + 2);
+		if (words.length == 0) return -1;
+			//Xtalk._error_syntax("Expected object.");
 		
 		var word_count = [ 0 ];
 		var counter = this._lookup_words(Xtalk.Dict._counts, words, word_count);
-		if (!counter)
-			Xtalk._error_syntax("Can't get number of that.");
+		if (!counter) return -1;
+			//Xtalk._error_syntax("Can't get number of that.");
+			
+		var in_index = in_index - this._strip_the(in_list, in_index - 1);
 		
-		in_list.children.splice(in_index, 2, {
+		in_list.children.splice(in_index, 3, {
 			id:			Xtalk.ID_NUMBER_OF,
 			map:		counter,
 			name:		words.slice(0, word_count[0]).join(' ')
@@ -393,10 +393,17 @@ Names
 		for (var n = 0; n < in_list.children.length; n++)
 		{
 			var node = in_list.children[n];
-			if (node.id == Xtalk.ID_NUMBER_OF)
+			
+			if (node.id == Xtalk.ID_NUMBER && n+1 < in_list.children.length && 
+				in_list.children[n+1].id == Xtalk.ID_OF)
+			//if (node.id == Xtalk.ID_NUMBER_OF)
 			{
-				n = this._parse_number_of(in_list, n);
-				continue;
+				var result = this._parse_number_of(in_list, n);
+				if (result >= 0) 
+				{
+					n = result;
+					continue;
+				}
 			}
 		
 			var words = this._words_at(in_list, n);

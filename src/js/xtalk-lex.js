@@ -338,7 +338,7 @@ Analysis
 				else if (this._match(',')) return this._matched(Xtalk.ID_COMMA, Xtalk.FLAG_SPECIAL);
 		
 				/* long operators: */
-				else if (this._match('number of')) return this._matched(Xtalk.ID_NUMBER_OF, Xtalk.FLAG_OPERATOR);
+				//else if (this._match('number of')) return this._matched(Xtalk.ID_NUMBER_OF, Xtalk.FLAG_OPERATOR);
 				else if (this._match('is not within')) return this._matched(Xtalk.ID_IS_NOT_WITHIN, Xtalk.FLAG_OPERATOR);
 				else if (this._match('is not in')) return this._matched(Xtalk.ID_IS_NOT_IN, Xtalk.FLAG_OPERATOR);
 				else if (this._match('is not')) return this._matched(Xtalk.ID_NOT_EQUAL, Xtalk.FLAG_OPERATOR);
@@ -383,6 +383,7 @@ Analysis
 					Xtalk.FLAG_ORDINAL|Xtalk.FLAG_IDENTIFIER, 10);
 				
 				/* assorted syntax fragments: */
+				else if (this._match('number')) return this._matched(Xtalk.ID_NUMBER, Xtalk.FLAG_IDENTIFIER);
 				else if (this._match('the')) return this._matched(Xtalk.ID_THE, Xtalk.FLAG_IDENTIFIER);
 				else if (this._match('in')) return this._matched(Xtalk.ID_IN, Xtalk.FLAG_IDENTIFIER);
 				else if (this._match('of')) return this._matched(Xtalk.ID_OF, Xtalk.FLAG_IDENTIFIER);
