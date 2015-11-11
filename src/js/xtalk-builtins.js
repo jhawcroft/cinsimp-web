@@ -744,7 +744,8 @@ Specific to CinsImp Environment
 	
 	obj_attr_set: function(in_context, in_id, in_new_value)
 	{
-		alert('set ' + in_id + ' of an object');
+		in_context.set_attr(in_id, in_new_value);
+		//alert('set ' + in_id + ' of an object');
 	}
 	
 	
