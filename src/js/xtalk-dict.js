@@ -281,6 +281,8 @@ Language Built-in Initalization
 		
 	/*
 	
+	Initially, implement only the client-side & server-assisted versions of these commands.
+	
 	find [`mode``b`normal|`c`chars|`c`characters|`w`word|`w`words|`s`string|`p`whole] <text> [in <field>] [of {unmarked|marked} cards]
 	(^ server-side assist; avoids massive download)
 	
@@ -295,8 +297,8 @@ Language Built-in Initalization
 	
 	mark all [cards]
 	mark <card>
-	mark cards by finding [<find-mode>] <text> [in <field>]
-	unmark cards  (as above)
+	mark [unmarked] cards [of <bkgnd>] by finding [<find-mode>] <text> [in <field>]
+	unmark [marked] cards  (as above)
 	unmark all
 	unmark <card>
 	(^ server-side assist; avoids massive download)
