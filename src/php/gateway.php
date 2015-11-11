@@ -306,7 +306,7 @@ Regular Command Handlers
 			Util::optional($inbound, 'mark_state'),
 			Util::optional($inbound, 'bkgnd_id')
 		);
-		$outbound['bkgnd'] = $stack->stack_load_bkgnds($outbound['cards']);
+		$outbound['bkgnds'] = $stack->stack_load_bkgnds($outbound['cards']);
 		return $outbound;
 	}
 

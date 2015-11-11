@@ -1378,6 +1378,57 @@ Eventually methods for icon deletion/rename:
 	
 	
 /*
+	Retrieves a bunch of backgrounds, without the artwork, for the purposes of find/mark/sort.
+*/
+	public function stack_load_bkgnds($in_cards)
+	{
+		$bkgnd_ids = array();
+		foreach ($in_cards as $card)
+			$bkgnd_ids[$card['bkgnd_id']] = true;
+		
+		$table = array();
+		foreach ($bkgnd_ids as $bkgnd_id => $true)
+		{
+			$bkgnd = $this->stack_load_bkgnd($bkgnd_id);
+			unset($bkgnd['art']);
+			$table[] = $bkgnd;
+		}
+		
+		return $table;
+	}
+
+
+	
+/*
+	Retrieves a bunch of cards, without the artwork, for the purposes of find/mark/sort.
+*/
+	public function stack_load_cards($in_mark_state = null, $in_bkgnd_id = null)
+	{
+		/* list card IDs in sequence */
+		$sql = 'SELECT id FROM card';
+		$conds = array();
+		if ($in_mark_state !== null) $conds[] = 'marked = '.($in_mark_state ? 1 : 0);
+		if ($in_bkgnd_id !== null) $conds[] = 'bkgnd_id = '.intval($in_bkgnd_id);
+		$conds = implode(' AND ', $conds);
+		if ($conds != '') $sql .= ' WHERE '.$conds;
+		$sql .= ' ORDER BY seq';
+		
+		/* build output table */
+		$output = array();
+		$stmt = $this->file_db->prepare($sql);
+		$stmt->execute();
+		while ($row = $stmt->fetch(PDO::FETCH_NUM))
+		{
+			$card = $this->stack_load_card($row[0]);
+			unset($card['art']);
+			$output[] = $card;
+		}
+		
+		return $output;
+	}
+	
+	
+/*
 	Retrieves the card data for the supplied card ID.
 */
 	public function stack_load_card($card_id, $in_mark_state = null, $bkgnd_id = null, $in_current = null)
