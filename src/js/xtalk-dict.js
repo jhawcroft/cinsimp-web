@@ -308,13 +308,13 @@ Language Built-in Initalization
 		);
 		
 		this.register_command_syntax(
-			'mark [`mark``any`all|`false`unmarked] [cards] [{in|of} <bkgnd>] [by finding [<find-mode>] <text> [in <field>]]', 
-			'mark,bkgnd,find-mode,text,field', 
+			'mark [`mark``all`all|`false`unmarked] [cards] [{in|of} <bkgnd>] [by finding [`mode``b`normal|`c`chars|`c`characters|`w`word|`w`words|`s`string|`p`whole] <text> [in <field>]]', 
+			'mark,bkgnd,mode,text,field', 
 			Xtalk.Builtins.command_mark
 		);
 		this.register_command_syntax(
-			'unmark [`mark``any`all|`true`marked] [cards] [{in|of} <bkgnd>] [by finding [<find-mode>] <text> [in <field>]]', 
-			'mark,bkgnd,find-mode,text,field', 
+			'unmark [`mark``all`all|`true`marked] [cards] [{in|of} <bkgnd>] [by finding [`mode``b`normal|`c`chars|`c`characters|`w`word|`w`words|`s`string|`p`whole] <text> [in <field>]]', 
+			'mark,bkgnd,mode,text,field', 
 			Xtalk.Builtins.command_mark
 		);// check the message name
 		
