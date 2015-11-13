@@ -65,6 +65,16 @@ Xtalk.VM.Message = function(in_name, in_is_function, in_params, in_builtin, is_p
 	this.builtin = in_builtin;
 	this.is_plugin = is_plugin;
 };
+var Message = Xtalk.VM.Message;
+
+
+Message.prototype.decode_params = function(in_param_map)
+{
+	
+}
+
+
+
 
 
 

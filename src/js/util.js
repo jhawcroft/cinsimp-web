@@ -365,6 +365,11 @@ Util.html_to_text = function(in_content)
 }
 
 
+Util.regex_escape = function(in_string) 
+{
+    return in_string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+};
+
 
 /*
 from: http://stackoverflow.com/questions/273789/is-there-a-version-of-javascripts-string-indexof-that-allows-for-regular-expr

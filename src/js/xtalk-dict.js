@@ -287,6 +287,12 @@ Language Built-in Initalization
 /*
 	Find, Sort, Mark - data query operations
 */	
+
+// probably store a plain text version of field contents
+// for faster sorting and searching, separately to the rich content?
+
+// find mechanism needs to work independently of the UI
+
 		//all of these need to take unresolved field/layer references
 		// ought to look at a more advanced coercion & validation than was previously provided for such things
 		

@@ -145,6 +145,12 @@ Field.prototype._make_consistent = function()
 }
 
 
+Field.prototype.get_searchable_text = function()
+{
+	if (!this.get_attr('searchable')) return null;
+	return Util.html_to_text(this.get_attr('content'));
+}
+
 
 
 

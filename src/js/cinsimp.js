@@ -185,6 +185,7 @@ var CinsImp = {
 		this.load_script('xtalk-parse-msgs.js');
 		this.load_script('xtalk-flat.js');
 		this.load_script('xtalk-vm.js');
+		this.load_script('data-queries.js');
 		
 		this._when_loaded(function() {
 			CinsImp._init6();

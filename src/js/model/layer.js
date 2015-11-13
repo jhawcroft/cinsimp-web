@@ -433,6 +433,22 @@ Layer.prototype.get_child_by_number = function(in_number, in_klas)
 }
 
 
+Layer.prototype.get_searchable_fields = function(out_list)
+{
+	var list = (out_list ? out_list : []);
+	
+	for (var o = 0; o < this._object.length; o++)
+	{
+		var object = this._objects[o];
+		if (object.get_searchable_text && object.get_attr('searchable'))
+			list.push(object);
+	}
+	
+	return list;
+}
+
+
+
 
 CinsImp._script_loaded('Model.Layer');
 

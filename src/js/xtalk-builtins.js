@@ -765,20 +765,30 @@ Specific to CinsImp Environment
 	
 	
 	
+/*
+	Find, sort and mark
+*/
+
+	
+	// in future, could significantly improve the decode of parameters,
+	// and automate it a lot more **TODO
 	
 	command_find: function(in_message)
 	{
-		console.log(JSON.stringify(in_message, null, 2));
+		//mode,text,field,mark
+		//console.log(JSON.stringify(in_message, null, 2));
 	},
 	
 	command_sort: function(in_message)
 	{
-		console.log(JSON.stringify(in_message, null, 2));
+		//mark,bkgnd,dir,key
+		//console.log(JSON.stringify(in_message, null, 2));
 	},
 	
 	command_mark: function(in_message)
 	{
-		console.log(JSON.stringify(in_message, null, 2));
+		//mark,bkgnd,mode,text,field
+		//console.log(JSON.stringify(in_message, null, 2));
 	}
 	
 	
