@@ -731,12 +731,12 @@ DataQueries._find_char_phrase = function()
 	while (DataQueries._field_index < DataQueries._fields.length)
 	{
 		/* continue search of field in which a match was previously found */
-		search_regex.lastIndex = DataQueries._field_offset;
+		search_regex.lastIndex = DataQueries._field_char_index;
 		var match = search_regex.exec( DataQueries._field_content );
 		if (match)
 		{
 			matched = true;
-			DataQueries._field_offset = search_regex.lastIndex;
+			DataQueries._field_char_index = search_regex.lastIndex;
 			DataQueries._save_match(match.index, DataQueries._find_search.length);
 		}
 		if (matched) break;
