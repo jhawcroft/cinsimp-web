@@ -1048,6 +1048,7 @@ View.prototype._rebuild_layers = function()
 	/* notify xTalk VM of current card */
 	Xtalk.VM._current_card = this._card;  // will need to find appropriate places to generate actual card change events **TODO
 	// also probably need the current bkgnd to be specified separately
+	DataQueries.reset_search();
 }
 
 

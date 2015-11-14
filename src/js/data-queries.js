@@ -274,7 +274,7 @@ return;
 		return;
 	}
 
-	DataQueries._find_state = DataQueries._reset_search;
+	DataQueries._find_state = DataQueries.reset_search;
 }
 
 
@@ -349,10 +349,10 @@ DataQueries._set_initial_state = function()
 
 
 /*
-	Initialises the internal state variables for a new search,
+	Initialises the internal state variables for a new search of the current card,
 	(but does not delete the last search in case it is to be repeated).
 */
-DataQueries._reset_search = function()
+DataQueries.reset_search = function()
 {
 	/* reset field list, position, offset and content */
 	DataQueries._fields = DataQueries._get_searchable_fields();
@@ -372,14 +372,8 @@ DataQueries._reset_search = function()
 	if (DataQueries._fields.length == 0) return;
 	
 	/* grab the content of the first searchable field */
-	DataQueries._field_content = DataQueries._fields[0].get_searchable_text();
-	
-	/* pre-process the field content to facilitate searching;
-	pre-processing is appropriate to the search mode */
-	if (DataQueries._find_mode != DataQueries.FIND_MODE_CHAR_PHRASE)
-	{
-		DataQueries._field_terms = DataQueries.SearchTerm.text_to_terms( DataQueries._field_content );
-	}
+	DataQueries._field_index = -1;
+	DataQueries._prepare_next_field();
 };
 
 
@@ -538,11 +532,12 @@ DataQueries._prepare_next_field = function()
 		DataQueries._field_char_index = 0;
 		if (DataQueries._find_terms)
 		{
-			DataQueries._field_terms = DataQueries._termize(DataQueries._field_content);
+			DataQueries._field_terms = DataQueries.SearchTerm.text_to_terms( DataQueries._field_content );
 			DataQueries._field_term_index = 0;
 		}
 	}
 }
+
 
 
 /*
@@ -815,7 +810,7 @@ DataQueries.find = function(in_mode, in_text, in_mark_state, in_field, in_bkgnd)
 		DataQueries._stop_card_id = View.current.get_card().get_attr('id');
 		DataQueries._find_terms = DataQueries.SearchTerm.text_to_terms(in_text);
 		
-		DataQueries._reset_search();
+		DataQueries.reset_search();
 	}
 	
 	/* initialise this invocation */

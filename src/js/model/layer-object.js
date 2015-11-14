@@ -624,6 +624,7 @@ LayerObject.prototype.get_attr = function(in_attr, in_fmt, in_card)
 		
 	if (in_attr == this._card_content_key && in_fmt == 'xt' && typeof value == 'string')
 		value = Util.html_to_text(value);
+	if (in_attr == this._card_content_key && value === null) value = '';
 		
 	// **TODO various forms of name:
 	// shrt - just the text name, or if empty, the abbreviated form with an ID
