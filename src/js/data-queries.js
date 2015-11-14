@@ -41,11 +41,11 @@ function DataQueries() {}
 Constants
 */
 
-DataQueries.FIND_MODE_WHOLE_WORDS = 'w';
-DataQueries.FIND_MODE_WORDS_BEGINNING = 'b';
-DataQueries.FIND_MODE_WORDS_CONTAINING = 'c';
-DataQueries.FIND_MODE_WORD_PHRASE = 's';
-DataQueries.FIND_MODE_CHAR_PHRASE = 'p';
+DataQueries.FIND_MODE_WHOLE_WORDS = 'w';		// word / words
+DataQueries.FIND_MODE_WORDS_BEGINNING = 'b';	// [normal]
+DataQueries.FIND_MODE_WORDS_CONTAINING = 'c';	// chars / characters
+DataQueries.FIND_MODE_WORD_PHRASE = 's';		// string
+DataQueries.FIND_MODE_CHAR_PHRASE = 'p';		// whole
 
 
 
@@ -166,7 +166,7 @@ SearchTerm.text_to_terms = function(in_text)
 */
 SearchTerm.prototype.get_begin = function()
 {
-	return this._o;
+	return this._o + this._l;
 }
 
 
@@ -358,7 +358,7 @@ DataQueries._reset_search = function()
 DataQueries._match_leading = function(in_search_leading, in_content, in_begin_at)
 {
 	var matched = 0;
-	for (var s = in_search_leading.length - 1, c = in_begin_at; 
+	for (var s = in_search_leading.length - 1, c = in_begin_at - 1; 
 			s >= 0 && c >= 0; 
 			s--, c--)
 	{
@@ -367,6 +367,7 @@ DataQueries._match_leading = function(in_search_leading, in_content, in_begin_at
 		if (search_char == content_char) matched++;
 		else break;
 	}
+	if (in_search_leading.length > matched) return false;
 	return matched;
 };
 
@@ -383,6 +384,7 @@ DataQueries._match_trailing = function(in_search_trailing, in_content, in_begin_
 		if (search_char == content_char) matched++;
 		else break;
 	}
+	if (in_search_trailing.length > matched) return false;
 	return matched;
 };
 
@@ -402,16 +404,18 @@ DataQueries._match_term_begins = function(in_search_term, in_content_term)
 		in_content_term.get_word().substr(0, search_term_length) ) != 0) return null;
 	
 	/* found matching words, try and match leading and trailing punctuation */
-	var match_end = in_content_term.get_leading_length() + search_term_length;
+	var leading = DataQueries._match_leading(in_search_term.get_leading(), 
+										     in_content_term.get_content(),
+									         in_content_term.get_leading_length());
+	if (leading === false) return null;
+	var trailing = DataQueries._match_trailing(in_search_term.get_trailing(), 
+								               in_content_term.get_content(), 
+								               search_term_length + in_content_term.get_leading_length());
+	if (trailing === false) return null;
+	
 	return ({
-		begin: in_content_term.get_begin() + 
-				DataQueries._match_leading(in_search_term.get_leading(), 
-										   in_content_term.get_content(),
-									       in_content_term.get_leading_length()),
-		end:   in_content_term.get_begin() + match_end +
-			DataQueries._match_trailing(in_search_term.get_trailing(), 
-								        in_content_term.get_content(), 
-								        match_end)
+		begin: in_content_term.get_begin() - leading,
+		end:   in_content_term.get_begin() + search_term_length + trailing
 	});
 };
 
@@ -448,9 +452,9 @@ DataQueries._match_term_whole = function(in_search_term, in_content_term)
 	if (Util.strings_compare(in_search_term.get_word(), in_content_term.get_word() ) != 0) return null;
 	
 	/* found matching words, try and match leading and trailing punctuation */
-	var match_end = in_content_term.get_leading_length() + in_search_term.get_word().length;
+	var match_end = in_search_term.get_word().length;
 	return ({
-		begin: 	in_content_term.get_begin() + 
+		begin: 	in_content_term.get_begin() - 
 			DataQueries._match_leading(in_search_term.get_leading(), in_content_term.get_content(),
 									   in_content_term.get_leading_length()),
 		end:	in_content_term.get_begin() + match_end +
