@@ -280,7 +280,8 @@ Regular Command Handlers
 			$inbound['ref'], 
 			Util::optional($inbound, 'mark_state'), 
 			Util::optional($inbound, 'bkgnd_id'), 
-			Util::optional($inbound, 'curr_card_id')
+			Util::optional($inbound, 'curr_card_id'),
+			Util::optional($inbound, 'searchable')
 		);
 		$bkgnd = $stack->stack_load_bkgnd(
 			$outbound['card']['bkgnd_id'],

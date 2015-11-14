@@ -1313,6 +1313,22 @@ Eventually methods for icon deletion/rename:
 		return intval($row[0]);
 	}
 
+
+/*
+	Returns true if the specified card should not be searched;
+	If the dont_search property of the card or it's parent background is true,
+	the card is not searchable.
+*/
+	private function _card_is_not_searchable($in_card_id)
+	{
+		$stmt = $this->file_db->prepare(
+'SELECT card.dont_search, bkgnd.dont_search FROM card JOIN bkgnd ON card.bkgnd_id=bkgnd.id WHERE card.id=?'
+		);
+		$stmt->execute(array( $in_card_id ));
+		$row = $stmt->fetch(PDO::FETCH_NUM);
+		if ($row[0] == 1 || $row[1] == 1) return true;
+		return false;
+	}
 	
 	
 /*
@@ -1324,7 +1340,7 @@ Eventually methods for icon deletion/rename:
 	-	a name, relative to the stack or supplied background ID
 		Any non-numeric string
 */
-	private function _card_ref_to_id($in_ref, $in_mark_state = null, $in_bkgnd_id = null, $in_current_id = null)
+	private function _card_ref_to_id($in_ref, $in_mark_state = null, $in_bkgnd_id = null, $in_current_id = null, $in_searchable = null)
 	{
 		if ($in_ref === null || strlen($in_ref) > 256)
 			CinsImpError::malformed('Invalid card reference');
@@ -1347,7 +1363,14 @@ Eventually methods for icon deletion/rename:
 			case 'next':
 				if ($in_current_id === null)
 					CinsImpError::malformed('Invalid relative card access; missing current');
-				return $this->stack_get_bkgnd_rel_card_id($in_bkgnd_id, $this->_seq_for_card($in_current_id), 1, $in_mark_state);
+				$id = $this->stack_get_bkgnd_rel_card_id($in_bkgnd_id, $this->_seq_for_card($in_current_id), 1, $in_mark_state);
+				if ($in_searchable === null || $in_searchable === false) return $id;
+				while ($this->_card_is_not_searchable($id))
+				{
+					$id = $this->stack_get_bkgnd_rel_card_id($in_bkgnd_id, $this->_seq_for_card($id), 1, $in_mark_state);
+					if ($id == $in_current_id) return $id;
+				}
+				return $id;
 			case 'prev':
 			case 'previous':
 				if ($in_current_id === null)
@@ -1451,12 +1474,12 @@ Eventually methods for icon deletion/rename:
 /*
 	Retrieves the card data for the supplied card ID.
 */
-	public function stack_load_card($card_id, $in_mark_state = null, $bkgnd_id = null, $in_current = null)
+	public function stack_load_card($card_id, $in_mark_state = null, $bkgnd_id = null, $in_current = null, $in_searchable = null)
 	{
 		$this->_check_access();
 		$this->file_db->beginTransaction(); /* used to ensure consistent reads */
 	
-		$card_id = $this->_card_ref_to_id($card_id, $in_mark_state, $bkgnd_id, $in_current);
+		$card_id = $this->_card_ref_to_id($card_id, $in_mark_state, $bkgnd_id, $in_current, $in_searchable);
 		
 		$stmt = $this->file_db->prepare(
 'SELECT id,bkgnd_id,seq,name,cant_delete,dont_search,marked,script,art,art_hidden FROM card WHERE id=?'
