@@ -1183,7 +1183,7 @@ View.prototype.do_delete_card = function()
 Navigation
 */
 
-View.prototype.go_nth_card = function(in_ref, in_bkgnd, in_marked)
+View.prototype.go_nth_card = function(in_ref, in_bkgnd, in_marked, in_searchable, in_handler)
 {
 	var view = this;
 	Progress.operation_begun('Saving the current card...');
@@ -1193,7 +1193,7 @@ View.prototype.go_nth_card = function(in_ref, in_bkgnd, in_marked)
 	{
 		Progress.status('Loading the card...');
 		if (view._visual_queue.length > 0) view.lock_screen();
-		view._card.load_nth(in_ref, in_bkgnd, function(in_new_card, in_new_bkgnd)
+		view._card.load_nth(in_ref, in_bkgnd, in_searchable, function(in_new_card, in_new_bkgnd)
 		{
 			if (in_new_card)
 			{
@@ -1203,6 +1203,7 @@ View.prototype.go_nth_card = function(in_ref, in_bkgnd, in_marked)
 				view._rebuild_art();
 			}
 			Progress.operation_finished();
+			if (in_handler) in_handler();
 		});
 	});
 }

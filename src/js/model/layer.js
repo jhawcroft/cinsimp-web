@@ -433,13 +433,14 @@ Layer.prototype.get_child_by_number = function(in_number, in_klas)
 }
 
 
-Layer.prototype.get_searchable_fields = function(out_list)
+Layer.prototype.get_searchable_fields = function(out_list, in_only_field_id)
 {
 	var list = (out_list ? out_list : []);
 	
 	for (var o = 0; o < this._objects.length; o++)
 	{
 		var object = this._objects[o];
+		if (in_only_field_id && object.get_attr('id') != in_only_field_id) continue;
 		if (object.get_searchable_text && object.get_attr('searchable') && !object.get_attr('shared'))
 			list.push(object);
 	}

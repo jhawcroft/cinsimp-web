@@ -56,8 +56,8 @@ Internal Find State
 DataQueries._find_mode = '';
 DataQueries._find_search = '';
 DataQueries._find_mark_state = null;
-DataQueries._find_bkgnd_id = 0;
-DataQueries._find_field_id = 0;
+DataQueries._find_bkgnd_id = null;
+DataQueries._find_field_id = null;
 DataQueries._find_terms = null;
 DataQueries._stop_card_id = 0;
 
@@ -249,32 +249,30 @@ The core of the client-side implementation of the "find" command.
 */
 DataQueries._get_next_card = function()
 {
-// TEMPORARILY FOR DEBUGGING LOCAL CARD FIND FUNCTIONALITY - DISABLE FURTHER CARD SEARCHES:
-alert('Going next card, ie. stopping search');
-DataQueries._find_state = DataQueries._find_finished;
-return;
-
 	/* check if we're currently on the stop card,
 	ie. the first card on which we started this search */
-	if (View.current.get_card().get_attr('id') == DataQueries._stop_card_id)
+	/*if (View.current.get_card().get_attr('id') == DataQueries._stop_card_id)
 	{
 		DataQueries._find_state = DataQueries._find_finished;
 		return;
-	}
+	}*/
 	
 	/* request next searchable card */
-	// must be requested from server, via current card's stack
-	
-	
-	/* check for end of search */
-	if (View.current.get_card().get_attr('id') == DataQueries._stop_card_id)
+	DataQueries._find_state = null;
+	View.current.go_nth_card('#next', DataQueries._find_bkgnd_id, DataQueries._find_mark_state, true, function()
 	{
-		DataQueries._matches_this_invocation = 0;
-		DataQueries._find_state = DataQueries._find_finished;
-		return;
-	}
+		/* check for end of search */
+		if (View.current.get_card().get_attr('id') == DataQueries._stop_card_id)
+		{
+			DataQueries._matches_this_invocation = 0;
+			DataQueries._find_state = DataQueries._find_finished;
+			window.setTimeout(DataQueries._find_step, 0);
+			return;
+		}
 
-	DataQueries._find_state = DataQueries.reset_search;
+		DataQueries._set_initial_state();
+		window.setTimeout(DataQueries._find_step, 0);
+	});
 }
 
 
@@ -311,8 +309,13 @@ DataQueries._find_finished = function()
 DataQueries._get_searchable_fields = function()
 {
 	var searchable = [];
-	View.current.get_card().get_searchable_fields(searchable);
-	View.current.get_bkgnd().get_searchable_fields(searchable);
+	if (!View.current.get_card().get_attr('dont_search') &&
+		!View.current.get_bkgnd().get_attr('dont_search'))
+	{
+		if (DataQueries._find_field_id === null)
+			View.current.get_card().get_searchable_fields(searchable);
+		View.current.get_bkgnd().get_searchable_fields(searchable, DataQueries._find_field_id);
+	}
 	return searchable;
 }
 
@@ -369,7 +372,11 @@ DataQueries.reset_search = function()
 	DataQueries.clear_match();
 	
 	/* check if there are actually any searchable fields on the current card */
-	if (DataQueries._fields.length == 0) return;
+	if (DataQueries._fields.length == 0) 
+	{
+		//DataQueries._find_state = DataQueries._get_next_card;
+		return;
+	}
 	
 	/* grab the content of the first searchable field */
 	DataQueries._field_index = -1;
@@ -775,7 +782,8 @@ DataQueries._find_step = function()
 	if (!DataQueries._find_state) return;
 	DataQueries._find_state();
 	
-	window.setTimeout(DataQueries._find_step, 0);
+	if (DataQueries._find_state)
+		window.setTimeout(DataQueries._find_step, 0);
 }
 
 
@@ -790,9 +798,9 @@ DataQueries.find = function(in_mode, in_text, in_mark_state, in_field, in_bkgnd)
 	// bring it back prior to initiating card search locally again
 	
 	/* decode a couple of input parameters */
-	var field_id = (in_field ? in_field.get_attr('id') : 0);
-	var bkgnd_id = (in_bkgnd ? in_bkgnd.get_attr('id') : 0);
-	if (field_id && !bkgnd_id) bkgnd_id = in_field.get_attr('bkgnd_id');
+	var field_id = (in_field ? in_field.get_attr('id') : null);
+	var bkgnd_id = (in_bkgnd ? in_bkgnd.get_attr('id') : null);
+	if (field_id !== null && bkgnd_id === null) bkgnd_id = in_field.get_attr('bkgnd_id');
 	
 	/* is this invocation of "find" different to the last? */
 	if (in_mode !== DataQueries._find_mode ||
