@@ -1,24 +1,14 @@
 TODO: CinsImp -> Toward 1.0
 ===========================
 
-* fixing checkboxes and auto-hilite after above refactoring [DONE]
-
 * object reference internals for xTalk, Link To -> actually just need the stack's URL and card ID number
-
-* general cleanup
-
-* visual effect transition engine using CSS [DONE]
+* completing button tasks
 
 * xTalk:
-  * script indexes using the appropriate module [DONE]
-  * handler compilation [DONE]
-  * handler execution and message passing hierarchy [DONE]
-  * "answer" command [DONE]
-  * chunk expressions [Significant Progress]
-  * variables [DONE]
-  * remaining built-ins hook up and implementations [Progressing]
+  * complete chunk expression support
+  * remaining built-ins hook up and implementations [95%]
   * proper code auto-formatter (migrate the 2013 prototype)
-  * completing button tasks
+  * massive scripting cleanup + complete error handling
 
 * consider switching Content Editable for styled Text-area as there are numerous complications
 	with handling a content editable div in this kind of environment, including:
@@ -29,9 +19,12 @@ TODO: CinsImp -> Toward 1.0
 * button and field menus/picklists
 * multi-column fields
 
+* massive general cleanup
+
+* about box expansion to include more room for other credits
+  * add font licenses to credits
+
 * security:
-  * server-side password restrictions, set & clear [DONE]
-  * server-side private access and denial of search engine access to raw content [DONE]
   * user-levels
   * authenticate feature; temporarily authenticate for duration of session
     to get user-level 5 equivalent access to an otherwise protected stack
@@ -48,13 +41,13 @@ TODO: CinsImp -> Toward 1.0
   * print stack
   * report template design
   * report printing
+  
+* static pages for Google searchability/indexing
 
-* server-side VM and script execution??
+* server-side VM and script execution 
+	- some kind of expression evaluation will be needed for sort, even if simplified/restricted
 
-* web 'one-click' access:
-  * export of handlers/functions for SOAP/RPC
-  * export of reports
-  * export of card(s) as HTML 5 forms
+* server-side find implementation for faster find & more capable mark/unmark
 
 * paint:
   * lasso tool
@@ -62,18 +55,17 @@ TODO: CinsImp -> Toward 1.0
   * effects via options menu
   * copy/cut
   
+======= END version 1.0 =======
+
+* web 'one-click' access:
+  * export of handlers/functions for SOAP/RPC
+  * export of reports
+  * export of card(s) as HTML 5 forms
+
 * type manager
   * use bundled fonts within stacks
 
-* static pages for Google searchability/indexing
-
 * HyperCard import completion
-
-* about box expansion to include more room for other credits
-  * add font licenses to credits
   
 * xTalk debugger
-
-* optimisations
-  * button/field load often causes rebuild of DOM object multiple times as configuration occurs [DONE]
 
