@@ -672,24 +672,23 @@ DataQueries._find_term_phrase = function()
 		for (var term_index = DataQueries._field_term_index;
 			term_index < DataQueries._field_terms.length;
 			term_index++)
-		{
-			var field_term = DataQueries._field_terms[term_index];
-			
+		{	
 			/* attempt to match search terms with consecutive content terms at this location */
 			var matching_words = 0, match_offset = 0, match_length = 0;
 			for (var find_term_index = 0;
 				find_term_index < DataQueries._find_terms.length &&
 				term_index + find_term_index < DataQueries._field_terms.length;
-				find_term_index)
+				find_term_index++)
 			{
 				var find_term = DataQueries._find_terms[find_term_index];
+				var field_term = DataQueries._field_terms[term_index + find_term_index];
 
 				match = DataQueries._match_term_whole(find_term, field_term);
 				if (!match) break;
 				
 				if (find_term_index == 0) match_offset = match.begin;
 				if (find_term_index == DataQueries._find_terms.length - 1)
-					match_length = match.length;//match.end - match_offset;
+					match_length = match.begin + match.length - match_offset;
 				
 				matching_words++;
 			}
