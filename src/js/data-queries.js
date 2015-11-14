@@ -161,12 +161,22 @@ SearchTerm.text_to_terms = function(in_text)
 
 
 /*
+	Returns the offset to the search term's alpha-numeric component, relative to the 
+	beginning of the original text content.
+*/
+SearchTerm.prototype.get_begin_word = function()
+{
+	return this._o + this._l;
+}
+
+
+/*
 	Returns the offset to the search term relative to the beginning of the original
 	text content.
 */
-SearchTerm.prototype.get_begin = function()
+SearchTerm.prototype.get_begin_content = function()
 {
-	return this._o + this._l;
+	return this._o;
 }
 
 
@@ -204,6 +214,12 @@ SearchTerm.prototype.get_leading = function()
 SearchTerm.prototype.get_content = function()
 {
 	return this._c;
+}
+
+
+SearchTerm.prototype.get_length = function()
+{
+	return this._c.length;
 }
 
 
@@ -414,8 +430,9 @@ DataQueries._match_term_begins = function(in_search_term, in_content_term)
 	if (trailing === false) return null;
 	
 	return ({
-		begin: in_content_term.get_begin() - leading,
-		end:   in_content_term.get_begin() + search_term_length + trailing
+		begin: in_content_term.get_begin_word() - leading,
+		length: leading + search_term_length + trailing
+		//end:   in_content_term.get_begin() + search_term_length + trailing
 	});
 };
 
@@ -427,18 +444,33 @@ DataQueries._match_term_begins = function(in_search_term, in_content_term)
 DataQueries._match_term_contains = function(in_search_term, in_content_term)
 {
 	/* compare the search term and content term's words */
+	var search_term_length = in_search_term.get_word().length;
 	var search_regex = new RegExp( Util.regex_escape(in_search_term.get_word()), 'gi' );
 	var match = search_regex.exec( in_content_term.get_content() );
 	if (match === null) return null;
 	
 	/* found matching word, try and match leading and trailing punctuation */
-	var match_end = match.index + match[0].length;
+	var leading = DataQueries._match_leading(in_search_term.get_leading(), 
+										     in_content_term.get_content(),
+									         match.index);
+	if (leading === false) return null;
+	var trailing = DataQueries._match_trailing(in_search_term.get_trailing(), 
+								               in_content_term.get_content(), 
+								               match.index + match[0].length);
+	if (trailing === false) return null;
+	
+	return ({
+		begin: in_content_term.get_begin_content() + match.index - leading,
+		length: leading + search_term_length + trailing
+		//length: leading + search_term_length + trailing
+	});
+	/*var match_end = match.index + match[0].length;
 	return ({
 		begin: 	in_content_term.get_begin() + 
 			DataQueries._match_leading(in_search_term.get_leading(), in_content_term.get_content(), match.index),
 		end:	in_content_term.get_begin() + match_end +
 			DataQueries._match_trailing(in_search_term.get_trailing(), in_content_term.get_content(), match_end)
-	});
+	});*/
 };
 
 
@@ -452,14 +484,29 @@ DataQueries._match_term_whole = function(in_search_term, in_content_term)
 	if (Util.strings_compare(in_search_term.get_word(), in_content_term.get_word() ) != 0) return null;
 	
 	/* found matching words, try and match leading and trailing punctuation */
-	var match_end = in_search_term.get_word().length;
+	var search_term_length = in_search_term.get_word().length;
+	var leading = DataQueries._match_leading(in_search_term.get_leading(), 
+										     in_content_term.get_content(),
+									         in_content_term.get_leading_length());
+	if (leading === false) return null;
+	var trailing = DataQueries._match_trailing(in_search_term.get_trailing(), 
+								               in_content_term.get_content(), 
+								               search_term_length + in_content_term.get_leading_length());
+	if (trailing === false) return null;
+	
 	return ({
-		begin: 	in_content_term.get_begin() - 
-			DataQueries._match_leading(in_search_term.get_leading(), in_content_term.get_content(),
-									   in_content_term.get_leading_length()),
-		end:	in_content_term.get_begin() + match_end +
-			DataQueries._match_trailing(in_search_term.get_trailing(), in_content_term.get_content(), match_end)
+		begin: in_content_term.get_begin_word() - leading,
+		length: leading + search_term_length + trailing
+		//length: leading + search_term_length + trailing
 	});
+	//var match_end = in_search_term.get_word().length;
+	//return ({
+	//	begin: 	in_content_term.get_begin() - 
+	//		DataQueries._match_leading(in_search_term.get_leading(), in_content_term.get_content(),
+//									   in_content_term.get_leading_length()),
+		/*end:	in_content_term.get_begin() + match_end +
+			DataQueries._match_trailing(in_search_term.get_trailing(), in_content_term.get_content(), match_end)*/
+	//});
 };
 
 
@@ -531,7 +578,7 @@ DataQueries._find_first_term = function()
 				matched = true;
 				DataQueries._field_term_index = term_index + 1;
 				
-				DataQueries._save_match(match.begin, match.end - match.begin);	
+				DataQueries._save_match(match.begin, match.length);	
 				break;
 			}
 		}
@@ -642,7 +689,7 @@ DataQueries._find_term_phrase = function()
 				
 				if (find_term_index == 0) match_offset = match.begin;
 				if (find_term_index == DataQueries._find_terms.length - 1)
-					match_length = match.end - match_offset;
+					match_length = match.length;//match.end - match_offset;
 				
 				matching_words++;
 			}
