@@ -371,6 +371,18 @@ Util.regex_escape = function(in_string)
 };
 
 
+
+Util.strings_compare = function(in_string1, in_string2)
+{
+	in_string1 = in_string1.toUpperCase();
+	in_string2 = in_string2.toUpperCase();
+	if (in_string1 == in_string2) return 0;
+	if (in_string1 < in_string2) return -1;
+	return 1;
+}
+
+
+
 /*
 from: http://stackoverflow.com/questions/273789/is-there-a-version-of-javascripts-string-indexof-that-allows-for-regular-expr
  by :Jason Bunting 

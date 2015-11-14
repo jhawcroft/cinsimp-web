@@ -497,6 +497,13 @@ Xtalk.VM.LayerObjectRef.prototype.get_attr = function(in_attr, in_fmt)
 }
 
 
+Xtalk.VM.LayerObjectRef.prototype.toValue = function()
+{
+	this.resolve_object();
+	return this.obj;
+}
+
+
 Xtalk.VM.LayerObjectRef.prototype.set_attr = function(in_attr, in_new_value)
 {
 	this.resolve_object();

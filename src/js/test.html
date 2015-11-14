@@ -4,12 +4,18 @@
 <title>JavaScript Tests</title>
 
 <script language="javascript" type="text/javascript" src="util.js"></script>
+<script language="javascript" type="text/javascript" src="data-queries.js"></script>
 
 </head>
 <body>
 <script>
 
-alert( Util.regex_escape('[Bob-the-builder!]') );
+//alert( Util.regex_escape('[Bob-the-builder!]') );
+
+var output = SearchTerm.text_to_terms(' here is some  "$text", with multiple words about \n'+
+	'something or nothing in particular.  quite exciting isn\'t it!');
+console.log(JSON.stringify(output, null, 2));
+
 
 </script>
 </body>

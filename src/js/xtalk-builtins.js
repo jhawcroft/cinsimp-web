@@ -777,6 +777,15 @@ Specific to CinsImp Environment
 	{
 		//mode,text,field,mark
 		//console.log(JSON.stringify(in_message, null, 2));
+		
+		var mode = in_message.params[0].toValue();
+		var text = in_message.params[1].resolve().toString().toValue();
+		var field = in_message.params[2].toValue();
+		var mark_state = in_message.params[3].toValue();
+		
+		if (!mode) mode = DataQueries.FIND_MODE_WORDS_BEGINNING;
+		
+		DataQueries.find(mode, text, mark_state, field, null);
 	},
 	
 	command_sort: function(in_message)

@@ -323,6 +323,15 @@ LayerObject.prototype.get_card_content = function()
 }
 */
 
+
+LayerObject.prototype.get_bkgnd_id = function()
+{
+	if (this._layer && this._layer.get_type() == 'bkgnd')
+		return this._layer.get_attr('id');
+	return 0;
+}
+
+
 LayerObject.prototype._resized = function()
 {
 	this._def['rect'] = this.get_rect().join(',');
@@ -582,6 +591,8 @@ LayerObject.prototype._attribute_reading = function() {}
 
 LayerObject.prototype.get_attr = function(in_attr, in_fmt, in_card)
 {
+	if (in_attr == 'bkgnd_id') return this.get_bkgnd_id();
+
 	if (in_attr == 'type') return this.get_type();
 	else if (in_attr == 'loc') return this.get_loc().join(',');
 	else if (in_attr == 'size') return this.get_size().join(',');

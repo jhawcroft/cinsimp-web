@@ -437,10 +437,10 @@ Layer.prototype.get_searchable_fields = function(out_list)
 {
 	var list = (out_list ? out_list : []);
 	
-	for (var o = 0; o < this._object.length; o++)
+	for (var o = 0; o < this._objects.length; o++)
 	{
 		var object = this._objects[o];
-		if (object.get_searchable_text && object.get_attr('searchable'))
+		if (object.get_searchable_text && object.get_attr('searchable') && !object.get_attr('shared'))
 			list.push(object);
 	}
 	
