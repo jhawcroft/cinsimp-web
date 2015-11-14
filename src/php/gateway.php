@@ -292,6 +292,36 @@ Regular Command Handlers
 	}
 	
 	
+	public static function sort($inbound, $outbound)
+	{
+		Util::keys_required($inbound, array('id','expression'));
+		$stack = new Stack(Util::safe_stack_id($inbound['id']), Util::optional($inbound, 'auth_hash'));
+		$stack->stack_sort(
+			Util::optional($inbound, 'mark_state'), 
+			Util::optional($inbound, 'bkgnd_id'), 
+			Util::optional($inbound, 'direction'),
+			$inbound['expression']
+		);
+		return $outbound;
+	}
+	
+	public static function mark($inbound, $outbound)
+	{
+		Util::keys_required($inbound, array('id','new_state'));
+		$stack = new Stack(Util::safe_stack_id($inbound['id']), Util::optional($inbound, 'auth_hash'));
+		$stack->stack_mark(
+			Util::optional($inbound, 'new_state'), 
+			Util::optional($inbound, 'mark_state'), 
+			Util::optional($inbound, 'bkgnd_id'), 
+			Util::optional($inbound, 'expression'),
+			Util::optional($inbound, 'mode'),
+			Util::optional($inbound, 'text'),
+			Util::optional($inbound, 'field_id')
+		);
+		return $outbound;
+	}
+	
+	
 /*
 	cmd: load_cards
 	Returns a batch of cards in bulk (as required for client-side marking, sorting and searching).
@@ -299,7 +329,7 @@ Regular Command Handlers
 	Cards may be server-side filtered by marked and/or background.
 	The bulk listing will also include all the relevant backgrounds (once).
 */
-	public static function load_cards($inbound, $outbound)
+/*	public static function load_cards($inbound, $outbound)
 	{
 		Util::keys_required($inbound, array('id'));
 		$stack = new Stack(Util::safe_stack_id($inbound['id']), Util::optional($inbound, 'auth_hash'));
@@ -310,7 +340,7 @@ Regular Command Handlers
 		$outbound['bkgnds'] = $stack->stack_load_bkgnds($outbound['cards']);
 		return $outbound;
 	}
-
+*/
 	
 
 /*

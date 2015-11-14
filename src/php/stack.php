@@ -1744,6 +1744,26 @@ Eventually methods for icon deletion/rename:
 
 
 /*****************************************************************************************
+Data Query Operations; Find, Mark, Sort
+*/
+
+	public function stack_sort($in_mark_state, $in_bkgnd_id, $in_direction, $in_key_expr)
+	{
+		$this->_check_mutability();
+		
+	}
+	
+	
+	public function stack_mark($in_new_state, $in_mark_state, $in_bkgnd_id, $in_expr, 
+		$in_find_mode, $in_find_text, $in_find_field_id)
+	{
+		$this->_check_mutability();
+		
+	}
+
+
+
+/*****************************************************************************************
 HyperCard Import Support (Revise Later)
 */
 
