@@ -615,7 +615,8 @@ DataQueries._find_other_terms = function()
 			field_index++)
 		{
 			var field_terms = DataQueries._fields[field_index].get_searchable_text();
-			var field_terms = DataQueries._termize(field_terms); // optimisation !; content could be processed once and cached ??
+			field_terms = DataQueries.SearchTerm.text_to_terms(field_terms);
+			//var field_terms = DataQueries._termize(field_terms); // optimisation !; content could be processed once and cached ??
 			
 			/* find term anywhere in field */
 			var match = null;
@@ -623,16 +624,17 @@ DataQueries._find_other_terms = function()
 				field_term_index < field_terms.length;
 				field_term_index++)
 			{
+				var term = field_terms[field_term_index];
 				switch (DataQueries._find_mode)
 				{
 				case DataQueries.FIND_MODE_WORDS_BEGINNING:
-					match = DataQueries._match_term_begins(DataQueries._find_terms[0], term);
+					match = DataQueries._match_term_begins(find_term, term);
 					break;
 				case DataQueries.FIND_MODE_WORDS_CONTAINING:
-					match = DataQueries._match_term_contains(DataQueries._find_terms[0], term);
+					match = DataQueries._match_term_contains(find_term, term);
 					break;
 				case DataQueries.FIND_MODE_WHOLE_WORDS:
-					match = DataQueries._match_term_whole(DataQueries._find_terms[0], term);
+					match = DataQueries._match_term_whole(find_term, term);
 					break;
 				}
 				if (match)
