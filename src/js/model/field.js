@@ -152,6 +152,18 @@ Field.prototype.get_searchable_text = function()
 }
 
 
+Field.prototype.focus = function()
+{
+	this._inner.focus();
+}
+
+
+Field.prototype.set_selection = function(in_start, in_length)
+{
+	Util.div_set_character_selection(this._inner, in_start, in_length);
+}
+
+
 
 
 /*****************************************************************************************

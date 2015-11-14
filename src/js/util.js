@@ -382,6 +382,39 @@ Util.strings_compare = function(in_string1, in_string2)
 }
 
 
+/*
+Adapted from MaxArt's answer on StackOverflow:
+http://stackoverflow.com/questions/16095155/javascript-contenteditable-set-cursor-caret-to-index
+*/
+Util.div_set_character_selection = function(in_element, in_start, in_length) 
+{
+	var in_end = in_start + in_length;
+	
+    var rng = document.createRange(),
+        sel = getSelection(),
+        n, o = 0,
+        tw = document.createTreeWalker(in_element, NodeFilter.SHOW_TEXT, null, null);
+        
+    while (n = tw.nextNode()) 
+    {
+        o += n.nodeValue.length;
+        if (o > in_start) 
+        {
+            rng.setStart(n, n.nodeValue.length + in_start - o);
+            in_start = Infinity;
+        }
+        if (o >= in_end) 
+        {
+            rng.setEnd(n, n.nodeValue.length + in_end - o);
+            break;
+        }
+    }
+    
+    sel.removeAllRanges();
+    sel.addRange(rng);
+};
+
+
 
 /*
 from: http://stackoverflow.com/questions/273789/is-there-a-version-of-javascripts-string-indexof-that-allows-for-regular-expr

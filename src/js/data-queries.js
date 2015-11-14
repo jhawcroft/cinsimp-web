@@ -283,8 +283,22 @@ return;
 DataQueries._find_finished = function()
 {
 // ??
-alert('finished find: ' + DataQueries._found_text + ', ' + DataQueries._found_offset + ', ' + DataQueries._found_length);
+//alert('finished find: ' + DataQueries._found_text + ', ' + DataQueries._found_offset + ', ' + DataQueries._found_length);
 	DataQueries._find_state = null;
+	
+	if (DataQueries._found_field)
+	{
+		//DataQueries._found_field.focus();
+		DataQueries._found_field.set_selection(DataQueries._found_offset, DataQueries._found_length);
+	}
+	else
+	{
+		var alert = new Alert();
+		alert.title = "Find";
+		alert.prompt = Util.string("Can't find \"^0\".", DataQueries._find_search);
+		alert.button1_label = 'OK';
+		alert.show();
+	}
 }
 
 
