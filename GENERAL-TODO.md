@@ -19,7 +19,13 @@ TODO: CinsImp -> Toward 1.0
   * remaining built-ins hook up and implementations [Progressing]
   * proper code auto-formatter (migrate the 2013 prototype)
   * completing button tasks
-  
+
+* consider switching Content Editable for styled Text-area as there are numerous complications
+	with handling a content editable div in this kind of environment, including:
+	-	getting a searchable/indexable version
+	- 	handling pastes safely
+	-	providing a palette/UI mechanisms to apply different styles  
+
 * button and field menus/picklists
 * multi-column fields
 
