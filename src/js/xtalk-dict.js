@@ -316,13 +316,24 @@ Language Built-in Initalization
 		this.register_command_syntax(
 			'mark [`mark``all`all|`false`unmarked] [cards] [{in|of} <bkgnd>] [by finding [`mode``b`normal|`c`chars|`c`characters|`w`word|`w`words|`s`string|`p`whole] <text> [in <field>]]', 
 			'mark,bkgnd,mode,text,field', 
-			Xtalk.Builtins.command_mark
+			Xtalk.Builtins.command_mark_find
 		);
 		this.register_command_syntax(
 			'unmark [`mark``all`all|`true`marked] [cards] [{in|of} <bkgnd>] [by finding [`mode``b`normal|`c`chars|`c`characters|`w`word|`w`words|`s`string|`p`whole] <text> [in <field>]]', 
 			'mark,bkgnd,mode,text,field', 
-			Xtalk.Builtins.command_mark
+			Xtalk.Builtins.command_mark_find
 		);// check the message name
+		
+		this.register_command_syntax(
+			'mark cards where <expr>', 
+			'expr', 
+			Xtalk.Builtins.command_mark_expr
+		);
+		this.register_command_syntax(
+			'unmark cards where <expr>', 
+			'expr', 
+			Xtalk.Builtins.command_mark_expr
+		);
 		
 		
 	/*

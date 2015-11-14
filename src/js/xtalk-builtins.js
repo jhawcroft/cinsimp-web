@@ -783,8 +783,6 @@ Specific to CinsImp Environment
 		var field = in_message.params[2].toValue();
 		var mark_state = in_message.params[3].toValue();
 		
-		if (!mode) mode = DataQueries.FIND_MODE_WORDS_BEGINNING;
-		
 		DataQueries.find(mode, text, mark_state, field, null);
 	},
 	
@@ -792,12 +790,38 @@ Specific to CinsImp Environment
 	{
 		//mark,bkgnd,dir,key
 		//console.log(JSON.stringify(in_message, null, 2));
+		
+		var mark_state = in_message.params[0].toValue();
+		var bkgnd = in_message.params[1].toValue();
+		var dir = in_message.params[2].toValue();
+		var key = in_message.params[3];
+		
+		DataQueries.sort(mark_state, bkgnd, dir, key);
 	},
 	
-	command_mark: function(in_message)
+	command_mark_find: function(in_message)
 	{
 		//mark,bkgnd,mode,text,field
 		//console.log(JSON.stringify(in_message, null, 2));
+		
+		var mark_state = in_message.params[0].toValue();
+		var bkgnd = in_message.params[1].toValue();
+		var mode = in_message.params[2].toValue();
+		var text = (in_message.params[3].get_type() != 'Nothing' ? 
+			in_message.params[3].resolve().toString().toValue() : null);
+		var field = in_message.params[4].toValue();
+		
+		DataQueries.mark_by_find(in_message.name == 'mark', mode, text, mark_state, field, bkgnd);
+	},
+	
+	command_mark_expr: function(in_message)
+	{
+		//expr
+		//console.log(JSON.stringify(in_message, null, 2));
+		
+		var key = in_message.params[0];
+		
+		DataQueries.mark_by_expr(in_message.name == 'mark', null, null, key);
 	}
 	
 	

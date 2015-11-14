@@ -331,6 +331,54 @@ Stack.prototype.is_readonly = function()
 }
 
 
+Stack.prototype.sort = function(in_mark_state, in_bkgnd, in_direction, in_expr, in_handler)
+{
+	this.gateway(
+	{
+		cmd: 'sort',
+		mark_state: in_mark_state,
+		bkgnd_id: (in_bkgnd ? in_bkgnd.get_attr('id') : null),
+		direction: in_direction,
+		expression: in_expr
+	},
+	in_handler);
+}
+
+
+Stack.prototype.mark_by_expr = function(in_set, in_mark_state, in_bkgnd, in_expr, in_handler)
+{
+	this.gateway(
+	{
+		cmd: 'mark',
+		new_state: in_set,
+		mark_state: in_mark_state,
+		bkgnd_id: (in_bkgnd ? in_bkgnd.get_attr('id') : null),
+		expression: in_expr
+	},
+	in_handler);
+}
+
+
+Stack.prototype.mark_by_finding = function(in_set, in_mark_state, in_bkgnd, in_mode, in_text, in_field, in_handler)
+{
+	if (in_field) in_bkgnd = in_field.get_layer();
+	var msg = {
+		cmd: 'mark',
+		new_state: in_set,
+		mark_state: in_mark_state,
+		bkgnd_id: (in_bkgnd ? in_bkgnd.get_attr('id') : null)
+	};
+	if (in_text !== null)
+	{
+		msg.mode = in_mode;
+		msg.text = in_text;
+		msg.field_id = (in_field ? in_field.get_attr('id') : null);
+	}
+	this.gateway(msg, in_handler);
+}
+
+
+
 CinsImp._script_loaded('Model.Stack');
 
 

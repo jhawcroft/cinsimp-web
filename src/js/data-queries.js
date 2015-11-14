@@ -793,11 +793,8 @@ DataQueries._find_step = function()
 */
 DataQueries.find = function(in_mode, in_text, in_mark_state, in_field, in_bkgnd)
 {
-	// process on current card first
-	// then send to server to get next card, and,
-	// bring it back prior to initiating card search locally again
-	
 	/* decode a couple of input parameters */
+	if (!in_mode) in_mode = DataQueries.FIND_MODE_WORDS_BEGINNING;
 	var field_id = (in_field ? in_field.get_attr('id') : null);
 	var bkgnd_id = (in_bkgnd ? in_bkgnd.get_attr('id') : null);
 	if (field_id !== null && bkgnd_id === null) bkgnd_id = in_field.get_attr('bkgnd_id');
@@ -830,30 +827,24 @@ DataQueries.find = function(in_mode, in_text, in_mark_state, in_field, in_bkgnd)
 }
 
 
-DataQueries.mark_by_find = function(in_mode, in_text, in_mark_state, in_field, in_bkgnd)
+DataQueries.mark_by_find = function(in_set, in_mode, in_text, in_mark_state, in_field, in_bkgnd)
 {
-	// send to the server
-	
-	
+	Progress.operation_begun('Marking cards...');
+	View.current.get_stack().mark_by_finding(in_set, in_mark_state, in_bkgnd, in_mode, in_text, in_field, Progress.operation_finished);
 }
 
 
-DataQueries.mark_by_expr = function(in_mark_state, in_bkgnd, in_mark_expr)
+DataQueries.mark_by_expr = function(in_set, in_mark_state, in_bkgnd, in_mark_expr)
 {
-	// send to server 
-	// (eventually will support mark_expr
-	// on the server but not initially)
-	
-	
+	Progress.operation_begun('Marking cards...');
+	View.current.get_stack().mark_by_expr(in_set, in_mark_state, in_bkgnd, in_mark_expr, Progress.operation_finished);
 }
 
 
 DataQueries.sort = function(in_mark_state, in_bkgnd, in_direction, in_key_expr)
 {
-	// send to the server
-	// (eventually will simply send the expression
-	// initially will only support sending a single field as the key expression)
-	
+	Progress.operation_begun('Sorting cards...');
+	View.current.get_stack().sort(in_mark_state, in_bkgnd, in_direction, in_key_expr, Progress.operation_finished);
 }
 
 
